@@ -488,7 +488,31 @@
   color: var(--forge-on-surface);
 }
 
-.forge-btn-row {
+.forge-btn--destructive:hover:not(:disabled) {
+  background: rgba(247, 84, 64, 0.1);
+}
+
+.forge-btn--link:hover:not(:disabled) {
+  filter: brightness(0.92);
+}
+
+.forge-btn--sm {
+  letter-spacing: 0.01em;
+}
+
+a.forge-btn {
+  color: inherit;
+}
+
+.forge-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.forge-btn-row,
+.forge-btn-group {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
