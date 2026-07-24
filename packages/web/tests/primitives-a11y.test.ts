@@ -56,11 +56,10 @@ describe("accessible primitives", () => {
 
   it("renders ForgeButtonGroup as a labelled group", () => {
     const html = renderToStaticMarkup(
-      createElement(
-        ForgeButtonGroup,
-        { "aria-label": "Alarm actions" },
-        createElement(PrimaryButton, null, "Acknowledge"),
-      ),
+      createElement(ForgeButtonGroup, {
+        "aria-label": "Alarm actions",
+        children: createElement(PrimaryButton, null, "Acknowledge"),
+      }),
     );
     assert.match(html, /role="group"/);
     assert.match(html, /aria-label="Alarm actions"/);
