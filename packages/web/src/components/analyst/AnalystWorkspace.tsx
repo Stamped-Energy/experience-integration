@@ -15,12 +15,12 @@ import {
   type ProposedAction,
 } from "@/lib/analyst-context";
 import {
-  GhostButton,
+  ForgeButton,
+  ForgeButtonGroup,
   Panel,
-  PrimaryButton,
-  SecondaryButton,
   StatusChip,
 } from "@/components/ui/primitives";
+import { Sparkles } from "@/components/ui/icons";
 
 function seedMessages(inv: DemoInvestigation): AnalystMessage[] {
   return inv.seedMessages.map((m, i) => ({
@@ -145,32 +145,14 @@ export function AnalystWorkspace() {
               Investigate alarms, prescriptions, and demand with removable context. Actions to L5
               always require confirm.
             </p>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 12,
-                marginTop: 20,
-              }}
-            >
-              {QUICK.map((q) => (
-                <button
-                  key={q.id}
-                  type="button"
-                  onClick={() => send(q.prompt)}
-                  style={{
-                    textAlign: "left",
-                    padding: 16,
-                    borderRadius: 12,
-                    border: "1px solid var(--forge-outline-variant)",
-                    background: "var(--forge-surface-container-low)",
-                    fontWeight: 700,
-                    fontSize: 14,
-                  }}
-                >
-                  {q.label}
-                </button>
-              ))}
+            <div style={{ marginTop: 20 }}>
+              <ForgeButtonGroup aria-label="Quick prompts" toolbar>
+                {QUICK.map((q) => (
+                  <ForgeButton key={q.id} variant="ghost" onClick={() => send(q.prompt)}>
+                    {q.label}
+                  </ForgeButton>
+                ))}
+              </ForgeButtonGroup>
             </div>
           </div>
         ) : null}
@@ -224,7 +206,9 @@ export function AnalystWorkspace() {
             }}
           />
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
-            <PrimaryButton onClick={() => send()}>Send</PrimaryButton>
+            <ForgeButton variant="primary" icon={<Sparkles size={16} />} onClick={() => send()}>
+              Send
+            </ForgeButton>
           </div>
         </div>
         <p style={{ margin: 0, fontSize: 11, color: "var(--forge-on-surface-variant)" }}>
@@ -297,14 +281,20 @@ export function AnalystWorkspace() {
               <p style={{ margin: "6px 0 0", fontSize: 13 }}>{proposal.summary}</p>
               {!confirming ? (
                 <div style={{ marginTop: 10 }}>
-                  <SecondaryButton onClick={() => setConfirming(true)}>
+                  <ForgeButton variant="secondary" onClick={() => setConfirming(true)}>
                     Preview {proposal.label}
-                  </SecondaryButton>
+                  </ForgeButton>
                 </div>
               ) : (
-                <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <PrimaryButton onClick={confirmHandoff}>Confirm send to L5</PrimaryButton>
-                  <GhostButton onClick={() => setConfirming(false)}>Cancel</GhostButton>
+                <div style={{ marginTop: 10 }}>
+                  <ForgeButtonGroup aria-label="Confirm L5 handoff">
+                    <ForgeButton variant="primary" onClick={confirmHandoff}>
+                      Confirm send to L5
+                    </ForgeButton>
+                    <ForgeButton variant="ghost" onClick={() => setConfirming(false)}>
+                      Cancel
+                    </ForgeButton>
+                  </ForgeButtonGroup>
                 </div>
               )}
             </div>

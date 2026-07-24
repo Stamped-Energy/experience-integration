@@ -6,6 +6,8 @@ import {
   STATUS_LABELS,
   TOUCH_MIN_PX,
   DataTable,
+  ForgeButton,
+  ForgeButtonGroup,
   GhostButton,
   PrimaryButton,
   SecondaryButton,
@@ -33,10 +35,35 @@ describe("accessible primitives", () => {
     for (const Comp of [PrimaryButton, SecondaryButton, GhostButton]) {
       const html = renderToStaticMarkup(createElement(Comp, null, "Go"));
       assert.match(html, /min-height:\s*48px/);
-      assert.match(html, /font-size:\s*16px/);
-      assert.match(html, /font-weight:\s*600/);
+      assert.match(html, /font-size:\s*15px/);
+      assert.match(html, /font-weight:\s*700/);
       assert.match(html, /forge-btn/);
     }
+  });
+
+  it("renders ForgeButton link variant as an anchor with href", () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        ForgeButton,
+        { variant: "ghost", href: "/evidence?rxId=rx_9001" },
+        "Show proof",
+      ),
+    );
+    assert.match(html, /href="\/evidence\?rxId=rx_9001"/);
+    assert.match(html, /Show proof/);
+    assert.match(html, /forge-btn--ghost/);
+  });
+
+  it("renders ForgeButtonGroup as a labelled group", () => {
+    const html = renderToStaticMarkup(
+      createElement(ForgeButtonGroup, {
+        "aria-label": "Alarm actions",
+        children: createElement(PrimaryButton, null, "Acknowledge"),
+      }),
+    );
+    assert.match(html, /role="group"/);
+    assert.match(html, /aria-label="Alarm actions"/);
+    assert.match(html, /forge-btn-group/);
   });
 
   it("wires TextField label, describedby, and alert on error", () => {

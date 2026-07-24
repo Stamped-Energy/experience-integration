@@ -1,8 +1,12 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { CSSProperties } from "react";
 import { AppShell } from "@/components/shell/AppShell";
-import { PageHead, Panel, PrimaryButton, StatusChip } from "@/components/ui/primitives";
+import {
+  ForgeButton,
+  ForgeButtonGroup,
+  PageHead,
+  Panel,
+  StatusChip,
+} from "@/components/ui/primitives";
 import {
   DEMO_PLANT,
   DEMO_SHELL_ROLE,
@@ -14,16 +18,6 @@ import {
 import { resolveEvidenceIdForAlarm } from "@/fixtures/evidence-samples";
 import { actionsForState } from "@/lib/alarms";
 import { formatIndianNum } from "@/lib/format";
-
-const linkBtn: CSSProperties = {
-  minHeight: 48,
-  display: "inline-flex",
-  alignItems: "center",
-  padding: "0 18px",
-  borderRadius: "var(--forge-radius-md)",
-  border: "1px solid var(--forge-outline-variant)",
-  fontWeight: 700,
-};
 
 export default async function AlarmDetailPage({
   params,
@@ -53,9 +47,9 @@ export default async function AlarmDetailPage({
         eyebrow="EMS detail"
         title={alarm.assetLabel}
         actions={
-          <Link href="/alarms" style={{ fontWeight: 600 }}>
+          <ForgeButton variant="link" href="/alarms">
             Back to console
-          </Link>
+          </ForgeButton>
         }
       />
       <Panel>
@@ -72,7 +66,9 @@ export default async function AlarmDetailPage({
             {alarm.severity}
           </StatusChip>
           <StatusChip tone="neutral">{alarm.state}</StatusChip>
-          {alarm.findingId ? <StatusChip tone="info">{alarm.findingId}</StatusChip> : null}
+          {alarm.findingId ? (
+            <StatusChip tone="info">Finding · {alarm.findingId}</StatusChip>
+          ) : null}
         </div>
         <p style={{ margin: "16px 0 0", fontSize: 16 }}>{alarm.summary}</p>
         <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
@@ -88,21 +84,25 @@ export default async function AlarmDetailPage({
             {asset.pf != null ? ` · PF ${formatIndianNum(asset.pf, 2)}` : ""}
           </p>
         ) : null}
-        <div style={{ display: "flex", gap: 8, marginTop: 20, flexWrap: "wrap" }}>
-          {actions.includes("ack") ? <PrimaryButton>Ack</PrimaryButton> : null}
-          {evidenceId ? (
-            <Link href={`/evidence/${evidenceId}`} style={linkBtn}>
-              Open evidence
-            </Link>
-          ) : null}
-          {alarm.relatedPrescriptionId ? (
-            <Link
-              href={`/prescriptions/${alarm.relatedPrescriptionId}`}
-              style={linkBtn}
-            >
-              Open prescription
-            </Link>
-          ) : null}
+        <div style={{ marginTop: 20 }}>
+          <ForgeButtonGroup aria-label="Alarm detail actions">
+            {actions.includes("ack") ? (
+              <ForgeButton variant="primary">Acknowledge</ForgeButton>
+            ) : null}
+            {evidenceId ? (
+              <ForgeButton variant="ghost" href={`/evidence/${evidenceId}`}>
+                Open evidence
+              </ForgeButton>
+            ) : null}
+            {alarm.relatedPrescriptionId ? (
+              <ForgeButton
+                variant="ghost"
+                href={`/prescriptions/${alarm.relatedPrescriptionId}`}
+              >
+                Open prescription
+              </ForgeButton>
+            ) : null}
+          </ForgeButtonGroup>
         </div>
       </Panel>
     </AppShell>
