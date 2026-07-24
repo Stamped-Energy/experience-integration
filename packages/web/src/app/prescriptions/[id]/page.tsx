@@ -109,7 +109,7 @@ export default async function PrescriptionDetailPage({
           {evidenceId ? (
             <div style={{ marginTop: 16 }}>
               <ForgeButton variant="secondary" href={`/evidence?rxId=${rx.id}`}>
-                Show proof
+                Evidence
               </ForgeButton>
             </div>
           ) : null}
@@ -118,12 +118,35 @@ export default async function PrescriptionDetailPage({
         <Panel>
           <p className="forge-eyebrow">Recommended actions</p>
           <ol style={{ margin: "8px 0 0", paddingLeft: 20, fontSize: 14, lineHeight: 1.6 }}>
-            <li>Confirm finding against live load for the named assets.</li>
-            <li>Assign an owner from the Assignments matrix (WhatsApp notify on assign).</li>
-            <li>Mark done when ops confirm; claim status stays separate from bill verification.</li>
+            {(rx.actions && rx.actions.length > 0
+              ? rx.actions
+              : [
+                  "Confirm finding against live load for the named assets.",
+                  "Assign an owner from the Assignments matrix (WhatsApp notify on assign).",
+                  "Mark done when ops confirm; claim status stays separate from bill verification.",
+                ]
+            ).map((step) => (
+              <li key={step}>{step}</li>
+            ))}
           </ol>
+          {rx.risks && rx.risks.length > 0 ? (
+            <>
+              <p className="forge-eyebrow" style={{ marginTop: 16 }}>
+                Risks & mitigations
+              </p>
+              <ul style={{ margin: "8px 0 0", paddingLeft: 20, fontSize: 14, lineHeight: 1.6 }}>
+                {rx.risks.map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
+            </>
+          ) : null}
           <p style={{ margin: "12px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-            Owner {rx.ownerRole.replaceAll("_", " ")} · Due {rx.dueAt}
+            Owner {rx.ownerRole.replaceAll("_", " ")}
+            {rx.billLine ? ` · ${rx.billLine}` : ""}
+            {rx.effort ? ` · ${rx.effort}` : ""}
+            {" · Due "}
+            {rx.dueLabel ?? rx.dueAt}
           </p>
           {rx.opportunityCost ? (
             <p style={{ margin: "12px 0 0", fontSize: 13, color: "var(--forge-warning)" }}>
@@ -133,6 +156,11 @@ export default async function PrescriptionDetailPage({
           ) : null}
           <div style={{ marginTop: 20 }}>
             <ForgeButtonGroup>
+              {rx.relatedAlarmId ? (
+                <ForgeButton variant="ghost" href={`/alarms/${rx.relatedAlarmId}`}>
+                  Alarm
+                </ForgeButton>
+              ) : null}
               <ForgeButton variant="ghost" href="/settings/assignments">
                 Assignments matrix
               </ForgeButton>

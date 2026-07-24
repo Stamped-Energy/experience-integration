@@ -58,11 +58,14 @@ export type EvidenceSample = {
   baselineId?: string;
   assetLabel: string;
   assetId: string;
+  /** Issue statement shown as the card heading on the Evidence index. */
+  issueTitle: string;
 };
 
 export const evidenceSamplesFixture: EvidenceSample[] = [
   {
     id: "evd_4401",
+    issueTitle: "Kiln 1 and Mill 2 co-start pushed MD into TOD peak",
     plantId: "plant_rvpnl_demo",
     assetId: "kiln_1",
     assetLabel: "Kiln 1",
@@ -111,6 +114,7 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
   },
   {
     id: "evd_4410",
+    issueTitle: "Main incomer rolling MD at 6.4% headroom to CMD",
     plantId: "plant_rvpnl_demo",
     assetId: "incomer",
     assetLabel: "Main incomer",
@@ -153,6 +157,7 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
   },
   {
     id: "evd_4411",
+    issueTitle: "Raw Mill 2 idle draw above night baseline",
     plantId: "plant_rvpnl_demo",
     assetId: "mill_2",
     assetLabel: "Raw Mill 2",
@@ -192,6 +197,7 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
   },
   {
     id: "evd_4402",
+    issueTitle: "Cement Mill 1 PF drifting toward penalty slab",
     plantId: "plant_rvpnl_demo",
     assetId: "cm_1",
     assetLabel: "Cement Mill 1",

@@ -19,9 +19,18 @@ const queueSrc = readFileSync(
 );
 
 describe("prescription triage", () => {
-  it("offers Show proof deep-link from expand via rxId query", () => {
-    assert.match(queueSrc, /Show proof/);
+  it("offers Evidence deep-link from expand via rxId query", () => {
+    assert.match(queueSrc, />\s*Evidence\s*</);
     assert.match(queueSrc, /\/evidence\?rxId=\$\{rx\.id\}/);
+  });
+
+  it("ships detailed dummy prescriptions with action + why fields", () => {
+    const rich = prescriptionsFixture.find((r) => r.id === "rx_9001");
+    assert.ok(rich?.actions && rich.actions.length >= 2);
+    assert.ok(rich?.category);
+    assert.ok(rich?.billLine);
+    assert.match(rich!.title, /Stagger/i);
+    assert.ok(prescriptionsFixture.some((r) => r.id === "rx_9011"));
   });
 
   it("orders by impact×confidence then due date", () => {

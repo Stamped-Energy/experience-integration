@@ -31,6 +31,12 @@ const laneLabel: Record<PrescriptionLane, string> = {
   closed: "Closed",
 };
 
+const priorityTone = {
+  high: "critical",
+  med: "warning",
+  low: "info",
+} as const;
+
 function areaForRx(rx: Prescription): { area?: string; assetId?: string } {
   const hit = assetsFixture.find(
     (a) =>
@@ -42,6 +48,19 @@ function areaForRx(rx: Prescription): { area?: string; assetId?: string } {
 
 function laneCount(rows: Prescription[], lane: PrescriptionLane): number {
   return filterLane(rows, lane).length;
+}
+
+function ownerLabel(role: string): string {
+  return role.replaceAll("_", " ");
+}
+
+function MetaRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="forge-ops-kv">
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
+  );
 }
 
 export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
@@ -140,6 +159,10 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
               prescriptions: prescriptionsFixture,
             });
             const pack = buildEvidencePack(scope, { baselineAvailable: true });
+            const priority = rx.priority ?? "med";
+            const evidenceHref = resolveEvidenceIdForRx(rx.id)
+              ? `/evidence?rxId=${rx.id}`
+              : null;
 
             return (
               <li key={rx.id} data-rx-id={rx.id}>
@@ -150,54 +173,103 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                   onClick={() => setExpanded(isOpen ? null : rx.id)}
                 >
                   <div style={{ display: "flex", gap: 10, flex: 1, minWidth: 0 }}>
-                    <span style={{ marginTop: 2, color: "var(--forge-on-surface-variant)" }}>
+                    <span style={{ marginTop: 4, color: "var(--forge-on-surface-variant)" }}>
                       {isOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
                     </span>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                        <StatusChip tone={rx.confidence >= 0.8 ? "good" : "warning"} compact>
-                          {Math.round(rx.confidence * 100)}%
-                        </StatusChip>
-                        {rx.verificationStatus ? (
-                          <StatusChip tone={badge.tone} compact>
-                            {badge.label}
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 8,
+                          flexWrap: "wrap",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                          <StatusChip tone="neutral" compact>
+                            Rx · {rx.category ?? "Prescription"}
                           </StatusChip>
-                        ) : null}
+                          <StatusChip tone={priorityTone[priority]} compact>
+                            {priority === "med" ? "Med" : priority[0]!.toUpperCase() + priority.slice(1)}
+                          </StatusChip>
+                          {rx.verificationStatus ? (
+                            <StatusChip tone={badge.tone} compact>
+                              {badge.label}
+                            </StatusChip>
+                          ) : null}
+                        </div>
+                        <p className="forge-ops-row__value" style={{ margin: 0 }}>
+                          {formatInr(rx.impactInrPerMonth)}
+                          <span
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 600,
+                              color: "var(--forge-on-surface-variant)",
+                            }}
+                          >
+                            /mo
+                          </span>
+                        </p>
                       </div>
-                      <p className="forge-ops-row__title" style={{ marginTop: 6 }}>
+                      <p className="forge-ops-row__title" style={{ marginTop: 8, fontSize: 16 }}>
                         {rx.title}
                       </p>
-                      <p className="forge-ops-row__meta">
-                        {ctx.area ?? "Plant"} · Due {rx.dueAt.slice(0, 10)}
+                      <p className="forge-ops-row__meta" style={{ marginTop: 6, fontSize: 13 }}>
+                        {rx.why}
                       </p>
+                      {!isOpen ? (
+                        <p className="forge-ops-row__meta" style={{ marginTop: 6 }}>
+                          {rx.effort ?? ctx.area ?? "Plant"}
+                          {rx.dueLabel ? ` · ${rx.dueLabel}` : ` · Due ${rx.dueAt.slice(0, 10)}`}
+                        </p>
+                      ) : null}
                     </div>
                   </div>
-                  <p className="forge-ops-row__value">
-                    {formatInr(rx.impactInrPerMonth)}
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        color: "var(--forge-on-surface-variant)",
-                      }}
-                    >
-                      /mo
-                    </span>
-                  </p>
                 </button>
 
                 {isOpen ? (
-                  <div className="forge-ops-expand">
-                    <div>
-                      <p className="forge-eyebrow" style={{ marginTop: 12 }}>
-                        Why this recommendation
-                      </p>
-                      <p style={{ margin: "6px 0 0", fontSize: 14, lineHeight: 1.5 }}>{rx.why}</p>
-                      <p className="forge-ops-row__meta" style={{ marginTop: 8 }}>
-                        Signal {pack.lineage.ruleId ?? "—"} ·{" "}
-                        {pack.lineage.sources.slice(0, 2).join(", ")}
-                      </p>
-                    </div>
+                  <div className="forge-ops-expand forge-ops-expand--detail">
+                    <dl className="forge-ops-kv-list">
+                      <MetaRow label="Why" value={rx.why} />
+                      {rx.billLine ? <MetaRow label="Bill line" value={rx.billLine} /> : null}
+                      <MetaRow
+                        label="Owner"
+                        value={`${ownerLabel(rx.ownerRole)}${ctx.area ? ` · ${ctx.area}` : ""}`}
+                      />
+                      <MetaRow label="Impact" value={`${formatInr(rx.impactInrPerMonth)} / month`} />
+                      {rx.effort ? <MetaRow label="Effort" value={rx.effort} /> : null}
+                      <MetaRow
+                        label="Rule"
+                        value={`${rx.ruleId ?? pack.lineage.ruleId ?? "—"} · ${Math.round(rx.confidence * 100)}%`}
+                      />
+                      <MetaRow
+                        label="Due"
+                        value={rx.dueLabel ?? rx.dueAt.slice(0, 10)}
+                      />
+                    </dl>
+
+                    {rx.actions && rx.actions.length > 0 ? (
+                      <div>
+                        <p className="forge-eyebrow">Recommended action</p>
+                        <ol className="forge-ops-steps">
+                          {rx.actions.map((step) => (
+                            <li key={step}>{step}</li>
+                          ))}
+                        </ol>
+                      </div>
+                    ) : null}
+
+                    {rx.risks && rx.risks.length > 0 ? (
+                      <div>
+                        <p className="forge-eyebrow">Risks & mitigations</p>
+                        <ul className="forge-ops-steps forge-ops-steps--bullets">
+                          {rx.risks.map((line) => (
+                            <li key={line}>{line}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
 
                     {rx.opportunityCost ? (
                       <p style={{ margin: 0, fontSize: 12, color: "var(--forge-warning)" }}>
@@ -205,6 +277,26 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                         {rx.opportunityCost.delayDays} days. Modeled — not bill-verified.
                       </p>
                     ) : null}
+
+                    <ForgeButtonGroup aria-label="Prescription links" toolbar>
+                      {rx.relatedAlarmId ? (
+                        <ForgeButton variant="ghost" href={`/alarms/${rx.relatedAlarmId}`}>
+                          Alarm
+                        </ForgeButton>
+                      ) : null}
+                      {evidenceHref ? (
+                        <ForgeButton
+                          variant="secondary"
+                          icon={<FileText size={16} />}
+                          href={evidenceHref}
+                        >
+                          Evidence
+                        </ForgeButton>
+                      ) : null}
+                      <ForgeButton variant="ghost" href={`/prescriptions/${rx.id}`}>
+                        Full case
+                      </ForgeButton>
+                    </ForgeButtonGroup>
 
                     {(lane === "needs_review" || lane === "active") && (
                       <ForgeButtonGroup aria-label="Prescription actions" toolbar>
@@ -232,18 +324,6 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                           onClick={() => run(rx.id, "reject")}
                         >
                           Reject…
-                        </ForgeButton>
-                        {resolveEvidenceIdForRx(rx.id) ? (
-                          <ForgeButton
-                            variant="secondary"
-                            icon={<FileText size={16} />}
-                            href={`/evidence?rxId=${rx.id}`}
-                          >
-                            Show proof
-                          </ForgeButton>
-                        ) : null}
-                        <ForgeButton variant="ghost" href={`/prescriptions/${rx.id}`}>
-                          Full case
                         </ForgeButton>
                       </ForgeButtonGroup>
                     )}

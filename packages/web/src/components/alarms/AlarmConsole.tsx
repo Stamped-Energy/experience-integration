@@ -242,7 +242,7 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
                   icon={<ClipboardList size={16} />}
                   href={`/prescriptions/${current.relatedPrescriptionId}`}
                 >
-                  Open prescription
+                  Prescription
                 </ForgeButton>
               ) : null}
               {(() => {
@@ -254,7 +254,7 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
                     icon={<FileText size={16} />}
                     href={`/evidence/${evidenceId}`}
                   >
-                    Open evidence
+                    Evidence
                   </ForgeButton>
                 );
               })()}

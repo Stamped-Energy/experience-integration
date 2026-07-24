@@ -79,7 +79,10 @@ Mobile
 `/settings/integrations`.
 
 Operations nav: **Alarms**, **Prescriptions**, **Evidence** (proof packs opened
-from parents or the Evidence index under Operations).
+from parents or the Evidence index under Operations). Entity CTAs use short nouns
+(**Evidence**, **Prescription**, **Alarm**) — never “Open …”. Prescription cards
+lead with action + why; expand for bill line, owner, effort, rule, steps, risks.
+Evidence index headings state the **issue**; each card links Alarm / Prescription.
 
 Alarms and Prescriptions cannot be removed from primary navigation for
 operational roles. Alarm expand uses a **Signal snapshot** teaser; the Evidence

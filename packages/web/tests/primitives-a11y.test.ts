@@ -46,11 +46,11 @@ describe("accessible primitives", () => {
       createElement(
         ForgeButton,
         { variant: "ghost", href: "/evidence?rxId=rx_9001" },
-        "Show proof",
+        "Evidence",
       ),
     );
     assert.match(html, /href="\/evidence\?rxId=rx_9001"/);
-    assert.match(html, /Show proof/);
+    assert.match(html, /Evidence/);
     assert.match(html, /forge-btn--ghost/);
   });
 

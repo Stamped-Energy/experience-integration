@@ -144,6 +144,19 @@
   box-shadow: var(--forge-shadow-sm, 0 2px 8px rgba(5, 31, 19, 0.06));
 }
 
+.evidence-index-card__issue {
+  margin: 12px 0 0;
+  font-family: var(--forge-font-display);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--forge-on-surface);
+}
+
+.evidence-index-card__actions {
+  margin-top: 14px;
+}
+
 .evidence-index-card__preview {
   margin-top: 14px;
   min-height: 120px;
