@@ -44,6 +44,9 @@ describe("role-aware navigation", () => {
     assert.equal(primary.some((i) => i.key === "evidence"), false);
     assert.ok(primary.some((i) => i.key === "today" && i.label === "Overview"));
     assert.ok(primary.some((i) => i.key === "energy" && i.label === "Energy Analytics"));
+    assert.ok(
+      primary.some((i) => i.key === "prescriptions" && i.label === "Prescriptions"),
+    );
   });
 
   it("exposes Assignments to admin under reveal (Tools / Settings dock)", () => {
