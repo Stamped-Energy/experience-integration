@@ -70,7 +70,7 @@ export default async function PrescriptionDetailPage({
       criticalAlarmCount={demoCriticalAlarmCount()}
     >
       <PageHead
-        eyebrow="AI Prescription"
+        eyebrow="Prescription"
         title={rx.title}
         actions={
           <Link href="/prescriptions" style={{ fontWeight: 600 }}>

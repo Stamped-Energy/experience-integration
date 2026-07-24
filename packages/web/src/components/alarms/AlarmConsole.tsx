@@ -186,7 +186,7 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
             </div>
 
             <div>
-              <p className="forge-eyebrow">Evidence snapshot</p>
+              <p className="forge-eyebrow">Signal snapshot</p>
               <DataTable
                 caption="Alarm evidence"
                 columns={[
