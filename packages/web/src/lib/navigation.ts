@@ -33,7 +33,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     key: "prescriptions",
     href: "/prescriptions",
-    label: "AI Prescriptions",
+    label: "Prescriptions",
     permission: "route:prescriptions",
     tier: "primary",
   },

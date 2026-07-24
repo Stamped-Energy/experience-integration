@@ -1,20 +1,19 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { Prescription, PrescriptionLane } from "@/lib/types";
 import { claimBadgeLabel, formatInr } from "@/lib/format";
 import { assetsFixture, alarmsFixture, prescriptionsFixture, DEMO_PLANT } from "@/fixtures/demo";
 import { buildEvidencePack, resolveEvidenceScope } from "@/lib/evidence";
+import { resolveEvidenceIdForRx } from "@/fixtures/evidence-samples";
 import type { NotifyPerson } from "@/fixtures/assignments";
 import { AssignAssigneeSheet } from "@/components/assignments/AssignAssigneeSheet";
 import { ChevronDown, ChevronRight } from "@/components/ui/icons";
 import {
   DataTable,
-  GhostButton,
+  ForgeButton,
+  ForgeButtonGroup,
   Panel,
-  PrimaryButton,
-  SecondaryButton,
   StatusChip,
   ToastRegion,
 } from "@/components/ui/primitives";
@@ -129,24 +128,13 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
             prescriptions: prescriptionsFixture,
           });
           const pack = buildEvidencePack(scope, { baselineAvailable: true });
+          // ponytail: teaser only — confidence/INR already on card chips
           const evidenceRows = [
             {
-              id: "why",
-              unit: "Finding",
-              value: rx.why,
-              comment: pack.lineage.ruleId,
-            },
-            {
-              id: "conf",
-              unit: "Confidence",
-              value: `${Math.round(rx.confidence * 100)}%`,
+              id: "signal",
+              unit: "Signal",
+              value: pack.lineage.ruleId ?? "Rule",
               comment: pack.lineage.sources.slice(0, 2).join(", "),
-            },
-            {
-              id: "impact",
-              unit: "Impact",
-              value: `${formatInr(rx.impactInrPerMonth)}/mo`,
-              comment: claimBadgeLabel(rx.verificationStatus ?? "modeled").label,
             },
           ];
 
@@ -221,12 +209,12 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                 >
                   <div>
                     <p className="forge-eyebrow" style={{ marginTop: 14 }}>
-                      Case description & data evidence
+                      Why this recommendation
                     </p>
                     <p style={{ margin: "8px 0 0", fontSize: 14, lineHeight: 1.5 }}>{rx.why}</p>
                     <div style={{ marginTop: 12 }}>
                       <DataTable
-                        caption="Prescription evidence"
+                        caption="Signal teaser"
                         columns={[
                           { key: "unit", header: "Unit" },
                           { key: "value", header: "Value" },
@@ -245,28 +233,33 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                   ) : null}
 
                   {(lane === "needs_review" || lane === "active") && (
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <ForgeButtonGroup aria-label="Prescription actions">
                       {lane === "needs_review" ? (
-                        <PrimaryButton onClick={() => setAssignFor(rx)}>Assign</PrimaryButton>
+                        <ForgeButton variant="primary" onClick={() => setAssignFor(rx)}>
+                          Assign
+                        </ForgeButton>
                       ) : null}
-                      <SecondaryButton onClick={() => run(rx.id, "done")}>Mark done</SecondaryButton>
-                      <GhostButton onClick={() => run(rx.id, "defer")}>Defer…</GhostButton>
-                      <GhostButton onClick={() => run(rx.id, "reject")}>Reject…</GhostButton>
-                      <Link
-                        href={`/prescriptions/${rx.id}`}
-                        style={{
-                          minHeight: 48,
-                          display: "inline-flex",
-                          alignItems: "center",
-                          padding: "0 14px",
-                          border: "1px solid var(--forge-outline-variant)",
-                          borderRadius: "var(--forge-radius-md)",
-                          fontWeight: 700,
-                        }}
+                      <ForgeButton variant="secondary" onClick={() => run(rx.id, "done")}>
+                        Mark done
+                      </ForgeButton>
+                      <ForgeButton variant="ghost" onClick={() => run(rx.id, "defer")}>
+                        Defer…
+                      </ForgeButton>
+                      <ForgeButton
+                        variant="destructive"
+                        onClick={() => run(rx.id, "reject")}
                       >
+                        Reject…
+                      </ForgeButton>
+                      {resolveEvidenceIdForRx(rx.id) ? (
+                        <ForgeButton variant="ghost" href={`/evidence?rxId=${rx.id}`}>
+                          Show proof
+                        </ForgeButton>
+                      ) : null}
+                      <ForgeButton variant="ghost" href={`/prescriptions/${rx.id}`}>
                         Full case
-                      </Link>
-                    </div>
+                      </ForgeButton>
+                    </ForgeButtonGroup>
                   )}
 
                   {pendingAction?.id === rx.id ? (
@@ -287,19 +280,24 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                           fontFamily: "inherit",
                         }}
                       />
-                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                        <PrimaryButton onClick={confirmReasoned} disabled={!reason.trim()}>
+                      <ForgeButtonGroup>
+                        <ForgeButton
+                          variant="primary"
+                          onClick={confirmReasoned}
+                          disabled={!reason.trim()}
+                        >
                           Confirm {pendingAction.action}
-                        </PrimaryButton>
-                        <GhostButton
+                        </ForgeButton>
+                        <ForgeButton
+                          variant="ghost"
                           onClick={() => {
                             setPendingAction(null);
                             setReason("");
                           }}
                         >
                           Cancel
-                        </GhostButton>
-                      </div>
+                        </ForgeButton>
+                      </ForgeButtonGroup>
                     </div>
                   ) : null}
                 </div>

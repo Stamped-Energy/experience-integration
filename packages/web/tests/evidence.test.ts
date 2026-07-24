@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import {
   alarmsFixture,
@@ -94,5 +95,26 @@ describe("evidence sample routing", () => {
       resolvePrimaryEvidenceId({ alarmId: "alm_1002" }),
       "evd_4402",
     );
+  });
+
+  it("resolves the same pack from related alarmId and rxId", () => {
+    assert.equal(
+      resolvePrimaryEvidenceId({ alarmId: "alm_1001" }),
+      resolvePrimaryEvidenceId({ rxId: "rx_9001" }),
+    );
+    assert.equal(resolvePrimaryEvidenceId({ alarmId: "alm_1001" }), "evd_4401");
+  });
+
+  it("exposes Alarm Rx Finding parent chips on evidence detail", () => {
+    const sample = findEvidenceSample("evd_4401");
+    assert.ok(sample?.alarmId && sample.rxId && sample.findingId);
+    const src = readFileSync(
+      new URL("../src/components/evidence/EvidenceDetail.tsx", import.meta.url),
+      "utf8",
+    );
+    assert.match(src, /Alarm ·/);
+    assert.match(src, /Rx ·/);
+    assert.match(src, /Finding ·/);
+    assert.match(src, /data-evidence-parents/);
   });
 });

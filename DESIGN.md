@@ -76,11 +76,12 @@ Mobile
 
 ### Progressive reveal / deep-link
 
-`/evidence` (opened from Rx / alarms, not primary nav),
+`/evidence` (opened from Rx / alarms via `?rxId=` / `?alarmId=`, not primary nav),
 `/settings/integrations`.
 
-Alarms and AI Prescriptions cannot be removed from primary navigation for
-operational roles.
+Alarms and Prescriptions cannot be removed from primary navigation for
+operational roles. Evidence remains under Reports / deep-link. Alarm expand
+uses a **Signal snapshot** teaser; the Evidence route is the proof pack.
 ## Required states
 
 Every primary route implements:

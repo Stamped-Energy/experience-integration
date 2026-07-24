@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   useEffect,
   useId,
@@ -164,8 +165,182 @@ const btnBase: CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   gap: 7,
-  transition: "background 120ms ease, box-shadow 120ms ease, border-color 120ms ease, color 120ms ease",
+  transition:
+    "background 120ms ease, box-shadow 120ms ease, border-color 120ms ease, color 120ms ease",
+  textDecoration: "none",
+  boxSizing: "border-box",
 };
+
+/** shadcn-inspired variants mapped onto Forge tokens (no Tailwind). */
+export type ForgeButtonVariant =
+  | "primary"
+  | "secondary"
+  | "ghost"
+  | "destructive"
+  | "link";
+
+export type ForgeButtonSize = "default" | "sm" | "icon";
+
+function variantStyle(
+  variant: ForgeButtonVariant,
+  disabled?: boolean,
+): CSSProperties {
+  if (disabled) {
+    return {
+      background: "var(--forge-outline)",
+      color: "var(--forge-on-surface-variant)",
+      border: "1px solid var(--forge-outline)",
+      boxShadow: "none",
+      opacity: 0.7,
+      cursor: "not-allowed",
+    };
+  }
+  switch (variant) {
+    case "primary":
+      return {
+        background: "var(--forge-primary)",
+        color: "var(--forge-on-primary)",
+        border: "1px solid transparent",
+        boxShadow: "0 1px 2px rgba(25, 28, 26, 0.12)",
+        cursor: "pointer",
+      };
+    case "secondary":
+      return {
+        background: "var(--forge-surface-container-lowest)",
+        color: "var(--forge-primary)",
+        border: "1px solid var(--forge-primary)",
+        cursor: "pointer",
+      };
+    case "destructive":
+      return {
+        background: "var(--forge-surface-container-lowest)",
+        color: "var(--forge-primary)",
+        border: "1px solid var(--forge-primary)",
+        cursor: "pointer",
+      };
+    case "link":
+      return {
+        background: "transparent",
+        color: "var(--forge-primary)",
+        border: "1px solid transparent",
+        boxShadow: "none",
+        textDecoration: "underline",
+        textUnderlineOffset: 3,
+        minHeight: 40,
+        padding: "0 4px",
+        cursor: "pointer",
+      };
+    case "ghost":
+    default:
+      return {
+        background: "var(--forge-surface-container-lowest)",
+        border: "1px solid var(--forge-outline-variant)",
+        color: "var(--forge-on-surface-variant)",
+        cursor: "pointer",
+      };
+  }
+}
+
+function sizeStyle(size: ForgeButtonSize): CSSProperties {
+  if (size === "sm") {
+    return { minHeight: 40, minWidth: 40, padding: "0 12px", fontSize: 14 };
+  }
+  if (size === "icon") {
+    return { minHeight: TOUCH_MIN_PX, minWidth: TOUCH_MIN_PX, padding: 0, width: TOUCH_MIN_PX };
+  }
+  return {};
+}
+
+/**
+ * Unified Forge button — API shaped like shadcn Button (variant/size/href)
+ * but styled with Forge CSS variables. Prefer this for new ops chrome.
+ */
+export function ForgeButton({
+  children,
+  onClick,
+  type = "button",
+  disabled,
+  fullWidth,
+  variant = "primary",
+  size = "default",
+  href,
+  icon,
+  className,
+  "aria-label": ariaLabel,
+}: {
+  children?: ReactNode;
+  onClick?: () => void;
+  type?: "button" | "submit";
+  disabled?: boolean;
+  fullWidth?: boolean;
+  variant?: ForgeButtonVariant;
+  size?: ForgeButtonSize;
+  href?: string;
+  icon?: ReactNode;
+  className?: string;
+  "aria-label"?: string;
+}) {
+  const cls = [
+    "forge-btn",
+    `forge-btn--${variant}`,
+    size !== "default" ? `forge-btn--${size}` : "",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const style: CSSProperties = {
+    ...btnBase,
+    ...variantStyle(variant, disabled),
+    ...sizeStyle(size),
+    width: fullWidth ? "100%" : undefined,
+  };
+  const body = (
+    <>
+      {icon ? <span className="forge-btn__icon" data-icon="inline-start">{icon}</span> : null}
+      {children}
+    </>
+  );
+  if (href && !disabled) {
+    return (
+      <Link href={href} className={cls} style={style} aria-label={ariaLabel} onClick={onClick}>
+        {body}
+      </Link>
+    );
+  }
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={cls}
+      style={style}
+      aria-label={ariaLabel}
+    >
+      {body}
+    </button>
+  );
+}
+
+/** Action row — shadcn ButtonGroup analogue. */
+export function ForgeButtonGroup({
+  children,
+  className,
+  "aria-label": ariaLabel,
+}: {
+  children: ReactNode;
+  className?: string;
+  "aria-label"?: string;
+}) {
+  return (
+    <div
+      role="group"
+      aria-label={ariaLabel}
+      className={["forge-btn-group", "forge-btn-row", className].filter(Boolean).join(" ")}
+    >
+      {children}
+    </div>
+  );
+}
 
 export function PrimaryButton({
   children,
@@ -181,23 +356,15 @@ export function PrimaryButton({
   fullWidth?: boolean;
 }) {
   return (
-    <button
-      type={type}
+    <ForgeButton
+      variant="primary"
       onClick={onClick}
+      type={type}
       disabled={disabled}
-      className="forge-btn forge-btn--primary"
-      style={{
-        ...btnBase,
-        width: fullWidth ? "100%" : undefined,
-        background: disabled ? "var(--forge-outline)" : "var(--forge-primary)",
-        color: "var(--forge-on-primary)",
-        boxShadow: disabled ? "none" : "0 1px 2px rgba(25, 28, 26, 0.12)",
-        opacity: disabled ? 0.7 : 1,
-        cursor: disabled ? "not-allowed" : "pointer",
-      }}
+      fullWidth={fullWidth}
     >
       {children}
-    </button>
+    </ForgeButton>
   );
 }
 
@@ -213,23 +380,9 @@ export function SecondaryButton({
   disabled?: boolean;
 }) {
   return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      className="forge-btn forge-btn--secondary"
-      style={{
-        ...btnBase,
-        background: disabled
-          ? "var(--forge-outline)"
-          : "var(--forge-surface-container-lowest)",
-        color: disabled ? "var(--forge-on-surface-variant)" : "var(--forge-primary)",
-        border: `1px solid ${disabled ? "var(--forge-outline)" : "var(--forge-primary)"}`,
-        cursor: disabled ? "not-allowed" : "pointer",
-      }}
-    >
+    <ForgeButton variant="secondary" onClick={onClick} type={type} disabled={disabled}>
       {children}
-    </button>
+    </ForgeButton>
   );
 }
 
@@ -245,22 +398,9 @@ export function GhostButton({
   disabled?: boolean;
 }) {
   return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      className="forge-btn forge-btn--ghost"
-      style={{
-        ...btnBase,
-        background: "var(--forge-surface-container-lowest)",
-        border: "1px solid var(--forge-outline-variant)",
-        color: "var(--forge-on-surface-variant)",
-        cursor: disabled ? "not-allowed" : "pointer",
-        opacity: disabled ? 0.7 : 1,
-      }}
-    >
+    <ForgeButton variant="ghost" onClick={onClick} type={type} disabled={disabled}>
       {children}
-    </button>
+    </ForgeButton>
   );
 }
 
