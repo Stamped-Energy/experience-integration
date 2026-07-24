@@ -1,8 +1,13 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { CSSProperties } from "react";
 import { AppShell } from "@/components/shell/AppShell";
-import { DataTable, PageHead, Panel, StatusChip } from "@/components/ui/primitives";
+import {
+  DataTable,
+  ForgeButton,
+  ForgeButtonGroup,
+  PageHead,
+  Panel,
+  StatusChip,
+} from "@/components/ui/primitives";
 import {
   DEMO_PLANT,
   DEMO_SHELL_ROLE,
@@ -14,16 +19,6 @@ import {
 import { resolveEvidenceIdForRx } from "@/fixtures/evidence-samples";
 import { buildEvidencePack, resolveEvidenceScope } from "@/lib/evidence";
 import { claimBadgeLabel, formatInr } from "@/lib/format";
-
-const linkBtn: CSSProperties = {
-  minHeight: 48,
-  display: "inline-flex",
-  alignItems: "center",
-  padding: "0 18px",
-  borderRadius: "var(--forge-radius-md)",
-  border: "1px solid var(--forge-outline-variant)",
-  fontWeight: 700,
-};
 
 export default async function PrescriptionDetailPage({
   params,
@@ -43,18 +38,11 @@ export default async function PrescriptionDetailPage({
   const pack = buildEvidencePack(scope, { baselineAvailable: true });
   const evidenceId = resolveEvidenceIdForRx(rx.id);
   const evidenceRows = [
-    { id: "why", unit: "Finding", value: rx.why, comment: pack.lineage.ruleId },
     {
-      id: "conf",
-      unit: "Confidence",
-      value: `${Math.round(rx.confidence * 100)}%`,
+      id: "signal",
+      unit: "Signal",
+      value: pack.lineage.ruleId ?? "Rule",
       comment: pack.lineage.sources.slice(0, 2).join(", "),
-    },
-    {
-      id: "impact",
-      unit: "Potential savings",
-      value: `${formatInr(rx.impactInrPerMonth)}/mo`,
-      comment: badge.label,
     },
   ];
 
@@ -70,12 +58,12 @@ export default async function PrescriptionDetailPage({
       criticalAlarmCount={demoCriticalAlarmCount()}
     >
       <PageHead
-        eyebrow="AI Prescription"
+        eyebrow="Prescription"
         title={rx.title}
         actions={
-          <Link href="/prescriptions" style={{ fontWeight: 600 }}>
+          <ForgeButton variant="link" href="/prescriptions">
             Back to queue
-          </Link>
+          </ForgeButton>
         }
       />
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -102,12 +90,12 @@ export default async function PrescriptionDetailPage({
         </Panel>
 
         <Panel>
-          <p className="forge-eyebrow">Case description & data evidence</p>
+          <p className="forge-eyebrow">Signal teaser</p>
           <h2 className="forge-card-title" style={{ marginBottom: 12 }}>
-            Evidence
+            Proof entry
           </h2>
           <DataTable
-            caption="Prescription evidence"
+            caption="Prescription signal"
             columns={[
               { key: "unit", header: "Unit" },
               { key: "value", header: "Value" },
@@ -119,9 +107,11 @@ export default async function PrescriptionDetailPage({
             Sources: {pack.lineage.sources.join(" · ")}.
           </p>
           {evidenceId ? (
-            <Link href={`/evidence/${evidenceId}`} style={{ ...linkBtn, marginTop: 16 }}>
-              Open full evidence
-            </Link>
+            <div style={{ marginTop: 16 }}>
+              <ForgeButton variant="secondary" href={`/evidence?rxId=${rx.id}`}>
+                Show proof
+              </ForgeButton>
+            </div>
           ) : null}
         </Panel>
 
@@ -141,10 +131,12 @@ export default async function PrescriptionDetailPage({
               {rx.opportunityCost.delayDays} days) — modeled, not bill-verified.
             </p>
           ) : null}
-          <div style={{ display: "flex", gap: 8, marginTop: 20, flexWrap: "wrap" }}>
-            <Link href="/settings/assignments" style={linkBtn}>
-              Assignments matrix
-            </Link>
+          <div style={{ marginTop: 20 }}>
+            <ForgeButtonGroup>
+              <ForgeButton variant="ghost" href="/settings/assignments">
+                Assignments matrix
+              </ForgeButton>
+            </ForgeButtonGroup>
           </div>
         </Panel>
       </div>
