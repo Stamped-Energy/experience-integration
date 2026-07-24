@@ -6,6 +6,7 @@ import type { Prescription, PrescriptionLane } from "@/lib/types";
 import { claimBadgeLabel, formatInr } from "@/lib/format";
 import { assetsFixture, alarmsFixture, prescriptionsFixture, DEMO_PLANT } from "@/fixtures/demo";
 import { buildEvidencePack, resolveEvidenceScope } from "@/lib/evidence";
+import { resolveEvidenceIdForRx } from "@/fixtures/evidence-samples";
 import type { NotifyPerson } from "@/fixtures/assignments";
 import { AssignAssigneeSheet } from "@/components/assignments/AssignAssigneeSheet";
 import { ChevronDown, ChevronRight } from "@/components/ui/icons";
@@ -252,6 +253,22 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                       <SecondaryButton onClick={() => run(rx.id, "done")}>Mark done</SecondaryButton>
                       <GhostButton onClick={() => run(rx.id, "defer")}>Defer…</GhostButton>
                       <GhostButton onClick={() => run(rx.id, "reject")}>Reject…</GhostButton>
+                      {resolveEvidenceIdForRx(rx.id) ? (
+                        <Link
+                          href={`/evidence?rxId=${rx.id}`}
+                          style={{
+                            minHeight: 48,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            padding: "0 14px",
+                            border: "1px solid var(--forge-outline-variant)",
+                            borderRadius: "var(--forge-radius-md)",
+                            fontWeight: 700,
+                          }}
+                        >
+                          Show proof
+                        </Link>
+                      ) : null}
                       <Link
                         href={`/prescriptions/${rx.id}`}
                         style={{

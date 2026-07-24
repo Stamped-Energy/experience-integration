@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 import { prescriptionsFixture } from "../src/fixtures/demo.js";
 import {
@@ -9,7 +12,18 @@ import {
   sortPrescriptions,
 } from "../src/lib/prescriptions.js";
 
+const root = dirname(fileURLToPath(import.meta.url));
+const queueSrc = readFileSync(
+  join(root, "../src/components/prescriptions/PrescriptionQueue.tsx"),
+  "utf8",
+);
+
 describe("prescription triage", () => {
+  it("offers Show proof deep-link from expand via rxId query", () => {
+    assert.match(queueSrc, /Show proof/);
+    assert.match(queueSrc, /\/evidence\?rxId=\$\{rx\.id\}/);
+  });
+
   it("orders by impact×confidence then due date", () => {
     const sorted = sortPrescriptions(prescriptionsFixture);
     assert.ok(

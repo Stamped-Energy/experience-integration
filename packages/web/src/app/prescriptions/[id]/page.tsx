@@ -119,8 +119,8 @@ export default async function PrescriptionDetailPage({
             Sources: {pack.lineage.sources.join(" · ")}.
           </p>
           {evidenceId ? (
-            <Link href={`/evidence/${evidenceId}`} style={{ ...linkBtn, marginTop: 16 }}>
-              Open full evidence
+            <Link href={`/evidence?rxId=${rx.id}`} style={{ ...linkBtn, marginTop: 16 }}>
+              Show proof
             </Link>
           ) : null}
         </Panel>
