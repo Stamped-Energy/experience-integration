@@ -299,3 +299,40 @@ Ops users need a denser desktop Overview, professional nav labels, inline eviden
 ### Consequences
 
 DESIGN.md route list updated. WhatsApp send remains stub toast until P2 wiring.
+
+## DEC-013 — Alarms / Prescriptions / Evidence IA (Option B)
+
+**Status:** Accepted · **Date:** 2026-07-24
+
+### Context
+
+Platform handoff `external/handoff/l6-alarms-prescriptions-evidence-ia.md` and
+live audit of `trying.stamped.work` showed blurred roles: Rx expand had no
+proof CTA, chrome said “AI Prescriptions”, and Alarm “Evidence snapshot”
+competed with the Evidence pack route. ADR-023 lists Evidence as primary nav;
+consumer DEC-012 demoted it.
+
+### Decision
+
+- **Option B (SIMPLICITY):** Evidence stays deep-link + Reports shelf — not a
+  third ops triage queue.
+- Mental model: Alarm = attention lifecycle; Prescription = action + ?;
+  Evidence = pre-scoped proof pack attached to Alarm and/or Rx.
+- Chrome: **Prescriptions** (drop “AI”); Alarm teaser **Signal snapshot**;
+  Rx expand **Show proof** ? `/evidence?rxId=…`; Evidence detail shows parent
+  chips Alarm · Rx · Finding + back links.
+- Inline tables are teasers only; do not merge Alarm+Rx into Cases.
+- **Forge buttons:** adapt shadcn Button patterns (variant / size / href /
+  group) into Forge tokens — do **not** install Tailwind/shadcn CLI or lucide.
+
+### Alternatives
+
+- Option A — Evidence as primary nav peer (ADR-023): rejected for operators;
+  revisit if plant heads cannot find proof after sustained use.
+- Full shadcn+Tailwind install: rejected — forks Forge and risks Overview/Live
+  style bleed.
+
+### Consequences
+
+Nav and ops screens updated in `packages/web`. Overview panel title left as-is
+per scope. DEC-012 “AI Prescriptions” chrome wording superseded for ops nav.

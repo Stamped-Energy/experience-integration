@@ -38,6 +38,12 @@ Jaipur Works Auto demo is thorough across all Forge screens via
 keys, webhooks, report jobs, investigations, energy KPIs). Today tiles derive
 from the same helpers so shell banners stay consistent.
 
+## Ops IA polish (2026-07-24)
+
+Accepted **DEC-013 Option B**: Prescriptions chrome rename, Alarm Signal
+snapshot, Rx Show proof (`?rxId=`), Evidence parent chips, ForgeButton API
+adapted from shadcn patterns. Overview / Live untouched.
+
 ## Visual + IA redesign (2026-07-22)
 
 Branch `cursor/l6-full-visual-redesign`: Overview composition, icon nav +
