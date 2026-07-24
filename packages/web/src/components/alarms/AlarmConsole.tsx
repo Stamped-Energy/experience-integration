@@ -1,16 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { Alarm } from "@/lib/types";
 import { assetsFixture, alarmsFixture, prescriptionsFixture, DEMO_PLANT } from "@/fixtures/demo";
 import { resolveEvidenceIdForAlarm } from "@/fixtures/evidence-samples";
 import { buildEvidencePack, resolveEvidenceScope } from "@/lib/evidence";
 import {
-  GhostButton,
+  ForgeButton,
+  ForgeButtonGroup,
   Panel,
-  PrimaryButton,
-  SecondaryButton,
   StatusChip,
   ToastRegion,
   DataTable,
@@ -198,85 +196,51 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
               />
             </div>
 
-            <div
+            <ForgeButtonGroup
               className="alarm-actions-desktop"
-              style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
+              aria-label="Alarm actions"
             >
               {actions
                 .filter((a): a is Exclude<AlarmAction, "evidence"> => a !== "evidence")
                 .map((action) => {
                   const label = ACTION_LABEL[action];
-                  if (action === "ack") {
-                    return (
-                      <PrimaryButton key={action} onClick={() => runAction(action)}>
-                        {label}
-                      </PrimaryButton>
-                    );
-                  }
-                  if (action === "escalate") {
-                    return (
-                      <SecondaryButton key={action} onClick={() => runAction(action)}>
-                        {label}
-                      </SecondaryButton>
-                    );
-                  }
+                  const variant =
+                    action === "ack"
+                      ? "primary"
+                      : action === "escalate"
+                        ? "secondary"
+                        : "ghost";
                   return (
-                    <GhostButton key={action} onClick={() => runAction(action)}>
+                    <ForgeButton
+                      key={action}
+                      variant={variant}
+                      onClick={() => runAction(action)}
+                    >
                       {label}
-                    </GhostButton>
+                    </ForgeButton>
                   );
                 })}
               {current.relatedPrescriptionId ? (
-                <Link
+                <ForgeButton
+                  variant="ghost"
                   href={`/prescriptions/${current.relatedPrescriptionId}`}
-                  style={{
-                    minHeight: 48,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    padding: "0 18px",
-                    borderRadius: "var(--forge-radius-md)",
-                    border: "1px solid var(--forge-outline-variant)",
-                    fontWeight: 700,
-                  }}
                 >
                   Open prescription
-                </Link>
+                </ForgeButton>
               ) : null}
               {(() => {
                 const evidenceId = resolveEvidenceIdForAlarm(current.id);
                 if (!evidenceId) return null;
                 return (
-                  <Link
-                    href={`/evidence/${evidenceId}`}
-                    style={{
-                      minHeight: 48,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      padding: "0 18px",
-                      borderRadius: "var(--forge-radius-md)",
-                      border: "1px solid var(--forge-outline-variant)",
-                      fontWeight: 700,
-                    }}
-                  >
+                  <ForgeButton variant="ghost" href={`/evidence/${evidenceId}`}>
                     Open evidence
-                  </Link>
+                  </ForgeButton>
                 );
               })()}
-              <Link
-                href={`/alarms/${current.id}`}
-                style={{
-                  minHeight: 48,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  padding: "0 18px",
-                  borderRadius: "var(--forge-radius-md)",
-                  border: "1px solid var(--forge-outline-variant)",
-                  fontWeight: 700,
-                }}
-              >
+              <ForgeButton variant="ghost" href={`/alarms/${current.id}`}>
                 Full detail
-              </Link>
-            </div>
+              </ForgeButton>
+            </ForgeButtonGroup>
             <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
               Keyboard: j/k move · a acknowledge. Lifecycle truth lives in L5.
             </p>
@@ -285,15 +249,23 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
       </div>
 
       <nav aria-label="Mobile alarm actions" className="alarm-mobile-bar" data-mobile-alarm-bar>
-        {actions.includes("ack") ? (
-          <PrimaryButton onClick={() => runAction("ack")}>Acknowledge</PrimaryButton>
-        ) : null}
-        {actions.includes("unack") ? (
-          <GhostButton onClick={() => runAction("unack")}>Unacknowledge</GhostButton>
-        ) : null}
-        {actions.includes("escalate") ? (
-          <SecondaryButton onClick={() => runAction("escalate")}>Escalate</SecondaryButton>
-        ) : null}
+        <ForgeButtonGroup aria-label="Mobile alarm actions">
+          {actions.includes("ack") ? (
+            <ForgeButton variant="primary" onClick={() => runAction("ack")}>
+              Acknowledge
+            </ForgeButton>
+          ) : null}
+          {actions.includes("unack") ? (
+            <ForgeButton variant="ghost" onClick={() => runAction("unack")}>
+              Unacknowledge
+            </ForgeButton>
+          ) : null}
+          {actions.includes("escalate") ? (
+            <ForgeButton variant="secondary" onClick={() => runAction("escalate")}>
+              Escalate
+            </ForgeButton>
+          ) : null}
+        </ForgeButtonGroup>
       </nav>
 
       <ToastRegion message={toast} tone="good" />
