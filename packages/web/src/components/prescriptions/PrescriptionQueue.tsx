@@ -8,7 +8,7 @@ import { buildEvidencePack, resolveEvidenceScope } from "@/lib/evidence";
 import { resolveEvidenceIdForRx } from "@/fixtures/evidence-samples";
 import type { NotifyPerson } from "@/fixtures/assignments";
 import { AssignAssigneeSheet } from "@/components/assignments/AssignAssigneeSheet";
-import { ChevronDown, ChevronRight } from "@/components/ui/icons";
+import { ChevronDown, ChevronRight, CheckCircle, FileText, Users } from "@/components/ui/icons";
 import {
   DataTable,
   ForgeButton,
@@ -233,13 +233,21 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                   ) : null}
 
                   {(lane === "needs_review" || lane === "active") && (
-                    <ForgeButtonGroup aria-label="Prescription actions">
+                    <ForgeButtonGroup aria-label="Prescription actions" toolbar>
                       {lane === "needs_review" ? (
-                        <ForgeButton variant="primary" onClick={() => setAssignFor(rx)}>
+                        <ForgeButton
+                          variant="primary"
+                          icon={<Users size={16} />}
+                          onClick={() => setAssignFor(rx)}
+                        >
                           Assign
                         </ForgeButton>
                       ) : null}
-                      <ForgeButton variant="secondary" onClick={() => run(rx.id, "done")}>
+                      <ForgeButton
+                        variant="secondary"
+                        icon={<CheckCircle size={16} />}
+                        onClick={() => run(rx.id, "done")}
+                      >
                         Mark done
                       </ForgeButton>
                       <ForgeButton variant="ghost" onClick={() => run(rx.id, "defer")}>
@@ -252,7 +260,11 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                         Reject…
                       </ForgeButton>
                       {resolveEvidenceIdForRx(rx.id) ? (
-                        <ForgeButton variant="ghost" href={`/evidence?rxId=${rx.id}`}>
+                        <ForgeButton
+                          variant="secondary"
+                          icon={<FileText size={16} />}
+                          href={`/evidence?rxId=${rx.id}`}
+                        >
                           Show proof
                         </ForgeButton>
                       ) : null}
@@ -261,7 +273,6 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                       </ForgeButton>
                     </ForgeButtonGroup>
                   )}
-
                   {pendingAction?.id === rx.id ? (
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       <label htmlFor={`reason-${rx.id}`} style={{ fontSize: 12, fontWeight: 600 }}>

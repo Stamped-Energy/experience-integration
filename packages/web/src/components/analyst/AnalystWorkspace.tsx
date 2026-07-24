@@ -20,6 +20,7 @@ import {
   Panel,
   StatusChip,
 } from "@/components/ui/primitives";
+import { Sparkles } from "@/components/ui/icons";
 
 function seedMessages(inv: DemoInvestigation): AnalystMessage[] {
   return inv.seedMessages.map((m, i) => ({
@@ -145,7 +146,7 @@ export function AnalystWorkspace() {
               always require confirm.
             </p>
             <div style={{ marginTop: 20 }}>
-              <ForgeButtonGroup aria-label="Quick prompts">
+              <ForgeButtonGroup aria-label="Quick prompts" toolbar>
                 {QUICK.map((q) => (
                   <ForgeButton key={q.id} variant="ghost" onClick={() => send(q.prompt)}>
                     {q.label}
@@ -205,7 +206,7 @@ export function AnalystWorkspace() {
             }}
           />
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
-            <ForgeButton variant="primary" onClick={() => send()}>
+            <ForgeButton variant="primary" icon={<Sparkles size={16} />} onClick={() => send()}>
               Send
             </ForgeButton>
           </div>

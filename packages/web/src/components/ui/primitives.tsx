@@ -155,18 +155,18 @@ export function PanelHeader({
 const btnBase: CSSProperties = {
   minHeight: TOUCH_MIN_PX,
   minWidth: TOUCH_MIN_PX,
-  padding: "0 16px",
-  borderRadius: 8,
+  padding: "0 18px",
+  borderRadius: 10,
   fontFamily: "var(--forge-font-display)",
-  fontWeight: 600,
-  fontSize: 16,
-  letterSpacing: "0.01em",
+  fontWeight: 700,
+  fontSize: 15,
+  letterSpacing: "0.02em",
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: 7,
+  gap: 8,
   transition:
-    "background 120ms ease, box-shadow 120ms ease, border-color 120ms ease, color 120ms ease",
+    "background 140ms ease, box-shadow 140ms ease, border-color 140ms ease, color 140ms ease, transform 100ms ease",
   textDecoration: "none",
   boxSizing: "border-box",
 };
@@ -187,11 +187,11 @@ function variantStyle(
 ): CSSProperties {
   if (disabled) {
     return {
-      background: "var(--forge-outline)",
+      background: "var(--forge-surface-container)",
       color: "var(--forge-on-surface-variant)",
-      border: "1px solid var(--forge-outline)",
+      border: "1px solid var(--forge-outline-variant)",
       boxShadow: "none",
-      opacity: 0.7,
+      opacity: 0.55,
       cursor: "not-allowed",
     };
   }
@@ -200,22 +200,24 @@ function variantStyle(
       return {
         background: "var(--forge-primary)",
         color: "var(--forge-on-primary)",
-        border: "1px solid transparent",
-        boxShadow: "0 1px 2px rgba(25, 28, 26, 0.12)",
+        border: "1px solid color-mix(in srgb, var(--forge-primary) 80%, #000)",
+        boxShadow: "0 2px 0 color-mix(in srgb, var(--forge-primary) 55%, #000), 0 4px 12px rgba(247, 84, 64, 0.28)",
         cursor: "pointer",
       };
     case "secondary":
       return {
-        background: "var(--forge-surface-container-lowest)",
+        background: "color-mix(in srgb, var(--forge-primary) 12%, var(--forge-surface-container-lowest))",
         color: "var(--forge-primary)",
-        border: "1px solid var(--forge-primary)",
+        border: "1.5px solid var(--forge-primary)",
+        boxShadow: "0 1px 0 rgba(247, 84, 64, 0.18)",
         cursor: "pointer",
       };
     case "destructive":
       return {
-        background: "var(--forge-surface-container-lowest)",
-        color: "var(--forge-primary)",
-        border: "1px solid var(--forge-primary)",
+        background: "color-mix(in srgb, var(--forge-primary) 18%, #fff)",
+        color: "color-mix(in srgb, var(--forge-primary) 75%, #3a0a06)",
+        border: "1.5px solid var(--forge-primary)",
+        boxShadow: "none",
         cursor: "pointer",
       };
     case "link":
@@ -225,17 +227,19 @@ function variantStyle(
         border: "1px solid transparent",
         boxShadow: "none",
         textDecoration: "underline",
-        textUnderlineOffset: 3,
+        textUnderlineOffset: 4,
         minHeight: 40,
-        padding: "0 4px",
+        padding: "0 6px",
+        fontWeight: 600,
         cursor: "pointer",
       };
     case "ghost":
     default:
       return {
-        background: "var(--forge-surface-container-lowest)",
-        border: "1px solid var(--forge-outline-variant)",
-        color: "var(--forge-on-surface-variant)",
+        background: "var(--forge-surface-container-low)",
+        border: "1px solid var(--forge-outline)",
+        color: "var(--forge-on-surface)",
+        boxShadow: "0 1px 0 rgba(5, 31, 19, 0.04)",
         cursor: "pointer",
       };
   }
@@ -243,7 +247,7 @@ function variantStyle(
 
 function sizeStyle(size: ForgeButtonSize): CSSProperties {
   if (size === "sm") {
-    return { minHeight: 40, minWidth: 40, padding: "0 12px", fontSize: 14 };
+    return { minHeight: 40, minWidth: 40, padding: "0 12px", fontSize: 13, borderRadius: 8 };
   }
   if (size === "icon") {
     return { minHeight: TOUCH_MIN_PX, minWidth: TOUCH_MIN_PX, padding: 0, width: TOUCH_MIN_PX };
@@ -321,21 +325,30 @@ export function ForgeButton({
   );
 }
 
-/** Action row — shadcn ButtonGroup analogue. */
+/** Action row — shadcn ButtonGroup analogue. Use `toolbar` for a visible ops bar. */
 export function ForgeButtonGroup({
   children,
   className,
+  toolbar,
   "aria-label": ariaLabel,
 }: {
   children: ReactNode;
   className?: string;
+  toolbar?: boolean;
   "aria-label"?: string;
 }) {
   return (
     <div
       role="group"
       aria-label={ariaLabel}
-      className={["forge-btn-group", "forge-btn-row", className].filter(Boolean).join(" ")}
+      className={[
+        "forge-btn-group",
+        "forge-btn-row",
+        toolbar ? "forge-btn-group--toolbar" : "",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       {children}
     </div>

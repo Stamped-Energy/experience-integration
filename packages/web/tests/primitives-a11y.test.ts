@@ -35,8 +35,8 @@ describe("accessible primitives", () => {
     for (const Comp of [PrimaryButton, SecondaryButton, GhostButton]) {
       const html = renderToStaticMarkup(createElement(Comp, null, "Go"));
       assert.match(html, /min-height:\s*48px/);
-      assert.match(html, /font-size:\s*16px/);
-      assert.match(html, /font-weight:\s*600/);
+      assert.match(html, /font-size:\s*15px/);
+      assert.match(html, /font-weight:\s*700/);
       assert.match(html, /forge-btn/);
     }
   });

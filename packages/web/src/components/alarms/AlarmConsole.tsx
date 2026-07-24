@@ -13,6 +13,7 @@ import {
   ToastRegion,
   DataTable,
 } from "@/components/ui/primitives";
+import { AlertTriangle, CheckCircle, ClipboardList, FileText } from "@/components/ui/icons";
 import { RouteStateView } from "@/components/states/RouteStateView";
 import { resolveRouteState } from "@/lib/route-state";
 import {
@@ -199,6 +200,7 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
             <ForgeButtonGroup
               className="alarm-actions-desktop"
               aria-label="Alarm actions"
+              toolbar
             >
               {actions
                 .filter((a): a is Exclude<AlarmAction, "evidence"> => a !== "evidence")
@@ -210,10 +212,17 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
                       : action === "escalate"
                         ? "secondary"
                         : "ghost";
+                  const icon =
+                    action === "ack" ? (
+                      <CheckCircle size={16} />
+                    ) : action === "escalate" ? (
+                      <AlertTriangle size={16} />
+                    ) : undefined;
                   return (
                     <ForgeButton
                       key={action}
                       variant={variant}
+                      icon={icon}
                       onClick={() => runAction(action)}
                     >
                       {label}
@@ -223,6 +232,7 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
               {current.relatedPrescriptionId ? (
                 <ForgeButton
                   variant="ghost"
+                  icon={<ClipboardList size={16} />}
                   href={`/prescriptions/${current.relatedPrescriptionId}`}
                 >
                   Open prescription
@@ -232,7 +242,11 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
                 const evidenceId = resolveEvidenceIdForAlarm(current.id);
                 if (!evidenceId) return null;
                 return (
-                  <ForgeButton variant="ghost" href={`/evidence/${evidenceId}`}>
+                  <ForgeButton
+                    variant="secondary"
+                    icon={<FileText size={16} />}
+                    href={`/evidence/${evidenceId}`}
+                  >
                     Open evidence
                   </ForgeButton>
                 );
@@ -249,9 +263,13 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
       </div>
 
       <nav aria-label="Mobile alarm actions" className="alarm-mobile-bar" data-mobile-alarm-bar>
-        <ForgeButtonGroup aria-label="Mobile alarm actions">
+        <ForgeButtonGroup aria-label="Mobile alarm actions" toolbar>
           {actions.includes("ack") ? (
-            <ForgeButton variant="primary" onClick={() => runAction("ack")}>
+            <ForgeButton
+              variant="primary"
+              icon={<CheckCircle size={16} />}
+              onClick={() => runAction("ack")}
+            >
               Acknowledge
             </ForgeButton>
           ) : null}
@@ -261,7 +279,11 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
             </ForgeButton>
           ) : null}
           {actions.includes("escalate") ? (
-            <ForgeButton variant="secondary" onClick={() => runAction("escalate")}>
+            <ForgeButton
+              variant="secondary"
+              icon={<AlertTriangle size={16} />}
+              onClick={() => runAction("escalate")}
+            >
               Escalate
             </ForgeButton>
           ) : null}

@@ -11,6 +11,7 @@ import {
   type ProposedAction,
 } from "@/lib/analyst-context";
 import { ForgeButton, ForgeButtonGroup } from "@/components/ui/primitives";
+import { Sparkles } from "@/components/ui/icons";
 
 export function ContextualAnalyst({
   open,
@@ -277,7 +278,11 @@ export function ContextualAnalyst({
                 fontSize: 13,
               }}
             />
-            <ForgeButton variant="primary" onClick={() => send(draft)}>
+            <ForgeButton
+              variant="primary"
+              icon={<Sparkles size={16} />}
+              onClick={() => send(draft)}
+            >
               Send
             </ForgeButton>
           </div>

@@ -471,29 +471,39 @@
 }
 
 .forge-btn:hover:not(:disabled) {
-  filter: brightness(0.97);
+  filter: none;
+}
+
+.forge-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.forge-btn:focus-visible {
+  outline: 2px solid var(--forge-secondary);
+  outline-offset: 2px;
 }
 
 .forge-btn--primary:hover:not(:disabled) {
-  box-shadow: 0 2px 8px rgba(247, 84, 64, 0.28);
-  filter: brightness(1.03);
+  filter: brightness(1.05);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--forge-primary) 50%, #000), 0 8px 18px rgba(247, 84, 64, 0.35);
 }
 
 .forge-btn--secondary:hover:not(:disabled) {
-  background: rgba(247, 84, 64, 0.08);
+  background: color-mix(in srgb, var(--forge-primary) 20%, var(--forge-surface-container-lowest));
 }
 
 .forge-btn--ghost:hover:not(:disabled) {
-  border-color: var(--forge-outline);
-  color: var(--forge-on-surface);
+  border-color: var(--forge-secondary);
+  background: color-mix(in srgb, var(--forge-secondary) 6%, var(--forge-surface-container-lowest));
+  color: var(--forge-secondary);
 }
 
 .forge-btn--destructive:hover:not(:disabled) {
-  background: rgba(247, 84, 64, 0.1);
+  background: color-mix(in srgb, var(--forge-primary) 28%, #fff);
 }
 
 .forge-btn--link:hover:not(:disabled) {
-  filter: brightness(0.92);
+  filter: brightness(0.9);
 }
 
 .forge-btn--sm {
@@ -509,14 +519,24 @@ a.forge-btn {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  opacity: 0.95;
 }
 
 .forge-btn-row,
 .forge-btn-group {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
   align-items: center;
+}
+
+.forge-btn-group--toolbar {
+  gap: 10px;
+  padding: 12px;
+  margin-top: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--forge-outline-variant);
+  background: color-mix(in srgb, var(--forge-secondary) 6%, var(--forge-surface-container-lowest));
 }
 
 /* ── Icon-based indicators ── */
