@@ -51,7 +51,7 @@ export default async function EvidencePage({
       role={DEMO_SHELL_ROLE}
       connection={connectionFixture}
       screenTitle="Evidence"
-      contextSummary={[`${evidenceSamplesFixture.length} sample packs`]}
+      contextSummary={[`${evidenceSamplesFixture.length} evidence packs`]}
       criticalAlarmCount={demoCriticalAlarmCount()}
     >
       <PageHead eyebrow="Proof" title="Evidence index" />

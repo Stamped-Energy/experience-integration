@@ -2,6 +2,7 @@
 
 import { Sparkles } from "@/components/ui/icons";
 import { StampedLogo } from "@/components/shell/StampedLogo";
+import { liveConnectionLabel } from "@/lib/format";
 import type { ConnectionStatus } from "@/lib/types";
 import type { RefObject } from "react";
 
@@ -21,6 +22,7 @@ export function AppTopbar({
   askAnalystRef?: RefObject<HTMLSpanElement | null>;
 }) {
   const live = connection.sse === "live";
+  const connectionLabel = liveConnectionLabel(connection.sse);
 
   return (
     <header className="forge-shell__topbar">
@@ -48,10 +50,10 @@ export function AppTopbar({
         <span
           aria-live="polite"
           className={`forge-shell__live-pill ${live ? "forge-shell__live-pill--on" : "forge-shell__live-pill--off"}`}
-          title={live ? "SSE stream connected" : `SSE ${connection.sse}`}
+          title={live ? "Live updates connected" : `${connectionLabel} — updates paused`}
         >
           <span className={`forge-pulse-dot${live ? "" : " forge-pulse-dot--muted"}`} aria-hidden />
-          <span className="forge-shell__live-pill-text">{live ? "Live" : connection.sse}</span>
+          <span className="forge-shell__live-pill-text">{connectionLabel}</span>
         </span>
 
         <span ref={askAnalystRef} tabIndex={-1} className="forge-shell__cta-wrap">

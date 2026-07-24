@@ -125,5 +125,11 @@ export function intensitySnapshot(input: {
 }
 
 export function missingLabel(field: string): string {
-  return `${field}: not_measured_by_stamped`;
+  const labels: Record<string, string> = {
+    production_units: "Production units not available",
+    renewable_kwh: "Renewable share not available",
+    grid_kwh: "Grid consumption not available",
+    emission_factor: "Emission factor not available",
+  };
+  return labels[field] ?? `${field.replaceAll("_", " ")} not available`;
 }

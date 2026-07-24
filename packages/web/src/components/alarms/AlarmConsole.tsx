@@ -8,6 +8,7 @@ import { buildEvidencePack, resolveEvidenceScope } from "@/lib/evidence";
 import {
   ForgeButton,
   ForgeButtonGroup,
+  Panel,
   StatusChip,
   ToastRegion,
   DataTable,
@@ -22,6 +23,7 @@ import {
   sortAlarms,
   type AlarmAction,
 } from "@/lib/alarms";
+import { formatAlarmState, formatIstDateTime, formatIstTime } from "@/lib/format";
 
 const severityTone = {
   critical: "critical",
@@ -75,8 +77,8 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
       {
         id: "raised",
         metric: "Raised",
-        value: current.raisedAt.slice(11, 16),
-        note: `Finding ${current.findingId ?? "n/a"}`,
+        value: formatIstTime(current.raisedAt),
+        note: formatIstDateTime(current.raisedAt),
       },
     ];
   }, [current]);
@@ -119,7 +121,7 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
         state={{
           ...resolveRouteState({ empty: true }),
           title: "No open alarms",
-          detail: "Plant looks calm — new EMS raises will appear here.",
+          detail: "Plant looks calm — new alarms will appear here.",
         }}
       />
     );
@@ -128,87 +130,81 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
   const criticalCount = open.filter((a) => a.severity === "critical").length;
 
   return (
-    <div data-alarm-console className="forge-ops-queue">
-      <div className="forge-ops-summary">
-        <div>
-          <p className="forge-eyebrow">Open EMS queue</p>
-          <p className="forge-ops-summary__value">
-            {open.length} open
-            <span
-              style={{
-                marginLeft: 10,
-                fontSize: 14,
-                fontWeight: 600,
-                color: "var(--forge-on-surface-variant)",
-              }}
-            >
-              {criticalCount} critical
-            </span>
-          </p>
+    <div data-alarm-console className="alm-console">
+      <Panel className="alm-console__hero">
+        <div className="alm-console__hero-grid">
+          <div>
+            <p className="forge-eyebrow">Open alarms</p>
+            <p className="alm-console__summary-value">
+              {open.length} open
+            </p>
+            <p className="alm-console__summary-sub">{criticalCount} critical · j/k move · a acknowledge</p>
+          </div>
         </div>
-        <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
-          Keyboard: j/k move · a acknowledge
-        </p>
-      </div>
+      </Panel>
 
-      <div className="forge-alarm-console alarm-grid">
-        <div className="forge-alarm-list-panel">
-          <ul className="forge-ops-list" style={{ border: "none", borderRadius: 0 }} aria-label="Open alarms">
+      <div className="alm-console__grid">
+        <Panel className="alm-console__list-panel">
+          <ul className="alm-console__list" aria-label="Open alarms">
             {open.map((a, i) => (
-              <li key={a.id}>
+              <li key={a.id} className="alm-console__list-item">
                 <button
                   type="button"
-                  className="forge-ops-row"
+                  className="alm-console__list-btn"
                   onClick={() => setSelected(i)}
                   aria-current={current?.id === a.id ? "true" : undefined}
                   data-alarm-id={a.id}
                 >
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                      <p className="forge-ops-row__title">{a.assetLabel}</p>
-                      <StatusChip tone={severityTone[a.severity]} compact>
-                        {a.severity}
-                      </StatusChip>
-                    </div>
-                    <p className="forge-ops-row__meta">
-                      {a.state} · {a.summary}
-                    </p>
+                  <div className="alm-console__list-chips">
+                    <StatusChip tone={severityTone[a.severity]} compact>
+                      {a.severity}
+                    </StatusChip>
+                    <StatusChip tone="neutral" compact>
+                      {formatAlarmState(a.state)}
+                    </StatusChip>
                   </div>
+                  <p className="alm-console__list-title">{a.assetLabel}</p>
+                  <p className="alm-console__list-meta">
+                    {a.summary} · {formatIstTime(a.raisedAt)}
+                  </p>
                 </button>
               </li>
             ))}
           </ul>
-        </div>
+        </Panel>
 
         {current ? (
-          <section className="forge-alarm-detail" data-alarm-detail={current.id}>
-            <div className="forge-alarm-detail__head">
-              <div>
-                <h2 className="forge-alarm-detail__title">{current.assetLabel}</h2>
-                <p style={{ margin: "6px 0 0", fontSize: 14, lineHeight: 1.45 }}>{current.summary}</p>
-                <p className="forge-ops-row__meta">Raised {current.raisedAt}</p>
+          <section data-alarm-detail={current.id}>
+            <Panel className="alm-full-case__panel">
+              <div className="alm-full-case__chips">
+                <StatusChip tone={severityTone[current.severity]}>{current.severity}</StatusChip>
+                <StatusChip tone="neutral">{formatAlarmState(current.state)}</StatusChip>
               </div>
-              <StatusChip tone={severityTone[current.severity]}>{current.state}</StatusChip>
-            </div>
+              <h2 className="alm-full-case__prose alm-full-case__prose--lead" style={{ marginTop: 10 }}>
+                {current.assetLabel}
+              </h2>
+              <p className="alm-full-case__prose">{current.summary}</p>
+              <p className="alm-full-case__raised">Raised {formatIstDateTime(current.raisedAt)}</p>
 
-            <div>
-              <p className="forge-eyebrow">Signal snapshot</p>
-              <DataTable
-                caption="Alarm signal"
-                columns={[
-                  { key: "metric", header: "Metric" },
-                  { key: "value", header: "Value" },
-                  { key: "note", header: "Note" },
-                ]}
-                rows={evidenceRows}
-              />
-            </div>
+              <div style={{ marginTop: 16 }}>
+                <p className="alm-full-case__block-title">Signal snapshot</p>
+                <DataTable
+                  caption="Alarm signal"
+                  columns={[
+                    { key: "metric", header: "Metric" },
+                    { key: "value", header: "Value" },
+                    { key: "note", header: "Note" },
+                  ]}
+                  rows={evidenceRows}
+                />
+              </div>
 
-            <ForgeButtonGroup
-              className="alarm-actions-desktop"
-              aria-label="Alarm actions"
-              toolbar
-            >
+              <div className="alm-full-case__actions-bar">
+                <ForgeButtonGroup
+                  className="alarm-actions-desktop alm-full-case__actions-group alm-full-case__actions-group--ops"
+                  aria-label="Alarm actions"
+                  toolbar
+                >
               {actions
                 .filter((a): a is Exclude<AlarmAction, "evidence"> => a !== "evidence")
                 .map((action) => {
@@ -261,7 +257,9 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
               <ForgeButton variant="ghost" href={`/alarms/${current.id}`}>
                 Full detail
               </ForgeButton>
-            </ForgeButtonGroup>
+                </ForgeButtonGroup>
+              </div>
+            </Panel>
           </section>
         ) : null}
       </div>

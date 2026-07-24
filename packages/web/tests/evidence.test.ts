@@ -54,7 +54,7 @@ describe("evidence scope and honesty", () => {
     assert.equal(evidenceRouteState(pack).kind, "partial");
     assert.ok(pack.lineage.ruleId);
     assert.ok(pack.lineage.tariffId);
-    assert.ok(!pack.lineage.sources.includes("L2 baseline"));
+    assert.ok(!pack.lineage.sources.includes("Baseline comparison"));
   });
 
   it("includes baseline source only when available", () => {
@@ -66,7 +66,7 @@ describe("evidence scope and honesty", () => {
     const pack = buildEvidencePack(scope, { baselineAvailable: true });
     assert.deepEqual(pack.missing, []);
     assert.equal(evidenceRouteState(pack).kind, "default");
-    assert.ok(pack.lineage.sources.includes("L2 baseline"));
+    assert.ok(pack.lineage.sources.includes("Baseline comparison"));
   });
 });
 
@@ -105,7 +105,7 @@ describe("evidence sample routing", () => {
     assert.equal(resolvePrimaryEvidenceId({ alarmId: "alm_1001" }), "evd_4401");
   });
 
-  it("exposes Alarm Rx Finding parent chips on evidence detail", () => {
+  it("exposes alarm and prescription parent chips on evidence detail", () => {
     const sample = findEvidenceSample("evd_4401");
     assert.ok(sample?.alarmId && sample.rxId && sample.findingId);
     const src = readFileSync(
@@ -113,8 +113,7 @@ describe("evidence sample routing", () => {
       "utf8",
     );
     assert.match(src, /Alarm ·/);
-    assert.match(src, /Rx ·/);
-    assert.match(src, /Finding ·/);
+    assert.match(src, /Prescription/);
     assert.match(src, /data-evidence-parents/);
   });
 });

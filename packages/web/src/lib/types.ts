@@ -77,6 +77,57 @@ export interface Prescription {
   actions?: string[];
   /** Expand / detail: risk → mitigation lines. */
   risks?: string[];
+  /** Rich full-case detail — overrides builder defaults when present. */
+  caseDetail?: PrescriptionCaseDetail;
+}
+
+export interface CaseTableColumn {
+  key: string;
+  header: string;
+  align?: "left" | "right";
+}
+
+export interface CaseTableRow {
+  id: string;
+  [key: string]: string;
+}
+
+/** Comprehensive full-case payload for the prescription detail page. */
+export interface PrescriptionCaseDetail {
+  createdAt?: string;
+  /** Long-form problem narrative beyond compact `why`. */
+  description?: string;
+  savingsRange?: string;
+  eventSnapshot?: {
+    timestamp: string;
+    caption: string;
+    columns: CaseTableColumn[];
+    rows: CaseTableRow[];
+    interpretation: string;
+    sanityCheck?: string;
+  };
+  rootCause?: string[];
+  costBenefit?: {
+    wasteIdentified: string;
+    tariffScenarios?: {
+      columns: CaseTableColumn[];
+      rows: CaseTableRow[];
+    };
+    capexNote?: string;
+    sideGains?: string[];
+  };
+  risksTable?: {
+    columns: CaseTableColumn[];
+    rows: CaseTableRow[];
+  };
+  kpis?: {
+    columns: CaseTableColumn[];
+    rows: CaseTableRow[];
+  };
+  commissioning?: string[];
+  managerTakeaway?: string;
+  metadata?: Array<{ label: string; value: string }>;
+  lineage?: Array<{ label: string; value: string }>;
 }
 
 export interface TodaySignal {

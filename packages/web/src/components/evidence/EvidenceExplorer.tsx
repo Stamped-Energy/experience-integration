@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/primitives";
 import type { EvidencePack } from "@/lib/evidence";
 import { evidenceRouteState } from "@/lib/evidence";
+import { DEMO_PLANT } from "@/fixtures/demo";
+import { formatBaselineLabel } from "@/lib/format";
 
 export function EvidenceExplorer({ pack }: { pack: EvidencePack }) {
   const state = evidenceRouteState(pack);
@@ -42,20 +44,20 @@ export function EvidenceExplorer({ pack }: { pack: EvidencePack }) {
             {scope.assetLabel} · {scope.metric.replaceAll("_", " ")}
           </h2>
           <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-            Window {scope.from.slice(0, 10)} → {scope.to.slice(0, 10)} · Plant {scope.plantId}
+            Window {scope.from.slice(0, 10)} → {scope.to.slice(0, 10)} · {DEMO_PLANT.plantName}
           </p>
           <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
             {scope.alarmId ? (
               <StatusChip tone="critical">
                 <Link href={`/alarms/${scope.alarmId}`} style={{ color: "inherit" }}>
-                  Alarm {scope.alarmId}
+                  Alarm · {scope.assetLabel}
                 </Link>
               </StatusChip>
             ) : null}
             {scope.rxId ? (
               <StatusChip tone="info">
                 <Link href={`/prescriptions/${scope.rxId}`} style={{ color: "inherit" }}>
-                  Rx {scope.rxId}
+                  Prescription
                 </Link>
               </StatusChip>
             ) : null}
@@ -96,25 +98,20 @@ export function EvidenceExplorer({ pack }: { pack: EvidencePack }) {
               fontSize: 16,
             }}
           >
-            Rule · tariff · lineage
+            Detection rule & tariff
           </h3>
           <DataTable
-            caption="Evidence lineage"
+            caption="Evidence details"
             columns={[
               { key: "field", header: "Field" },
               { key: "value", header: "Value" },
             ]}
             rows={[
-              { id: "rule", field: "Rule", value: `${lineage.ruleLabel} (${lineage.ruleId})` },
+              { id: "rule", field: "Rule", value: lineage.ruleLabel },
               {
                 id: "tariff",
                 field: "Tariff",
-                value: `${lineage.tariffLabel} (${lineage.tariffId})`,
-              },
-              {
-                id: "finding",
-                field: "Finding",
-                value: lineage.findingId ?? "—",
+                value: lineage.tariffLabel,
               },
               {
                 id: "sources",
@@ -123,11 +120,11 @@ export function EvidenceExplorer({ pack }: { pack: EvidencePack }) {
               },
               {
                 id: "baseline",
-                field: "Baseline id",
+                field: "Baseline",
                 value: scope.baselineId
                   ? pack.missing.includes("baseline")
-                    ? `${scope.baselineId} (gated / missing)`
-                    : scope.baselineId
+                    ? `${formatBaselineLabel(scope.baselineId)} (unavailable)`
+                    : formatBaselineLabel(scope.baselineId)
                   : "—",
               },
             ]}

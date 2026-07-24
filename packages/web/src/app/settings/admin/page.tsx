@@ -7,6 +7,7 @@ import {
   connectionFixture,
   membersFixture,
 } from "@/fixtures/demo";
+import { formatIstDateTime } from "@/lib/format";
 export default function AdminSettingsPage() {
   return (
     <AppShell
@@ -62,7 +63,7 @@ export default function AdminSettingsPage() {
                     className="tabular"
                     style={{ fontSize: 12, color: "var(--forge-on-surface-variant)" }}
                   >
-                    {m.lastActive}
+                    {formatIstDateTime(m.lastActive)}
                   </span>
                 </div>
               </li>
@@ -93,7 +94,7 @@ export default function AdminSettingsPage() {
                     color: "var(--forge-on-surface-variant)",
                   }}
                 >
-                  {e.detail} · {e.at}
+                  {e.detail} · {formatIstDateTime(e.at)}
                 </p>
               </li>
             ))}

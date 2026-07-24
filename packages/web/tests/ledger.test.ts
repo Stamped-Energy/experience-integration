@@ -19,7 +19,7 @@ describe("claim-safe savings ledger", () => {
       billLineRefs: undefined,
     };
     assert.equal(sanitizeClaimStatus(forged), "ops_confirmed");
-    assert.match(claimDisclosure(forged), /not bill-verified/i);
+    assert.match(claimDisclosure(forged), /pending utility bill verification/i);
     assert.equal(displayClaim(forged).showBillVerified, false);
   });
 
@@ -44,6 +44,6 @@ describe("claim-safe savings ledger", () => {
   it("discloses missing emission factors explicitly", () => {
     const modeled = ledgerFixture.find((e) => e.verificationStatus === "modeled")!;
     assert.equal(emissionFactorLabel(modeled), "not_measured_by_stamped");
-    assert.match(claimDisclosure(modeled), /Modeled/i);
+    assert.match(claimDisclosure(modeled), /Estimated/i);
   });
 });

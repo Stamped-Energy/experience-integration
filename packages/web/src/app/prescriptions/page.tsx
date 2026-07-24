@@ -22,7 +22,7 @@ export default function PrescriptionsPage() {
       screenTitle="Prescription queue"
       contextSummary={[
         `${demoNeedsReviewCount()} need review · ${formatInr(demoNeedsReviewInr())}/mo`,
-        "Ops-confirmed badges",
+        "Savings status badges",
       ]}
       focusEntity={{ type: "prescription", id: prescriptionsFixture[0]!.id }}
       criticalAlarmCount={demoCriticalAlarmCount()}

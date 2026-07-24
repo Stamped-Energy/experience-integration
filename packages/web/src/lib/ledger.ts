@@ -33,18 +33,18 @@ export function isBillVerifiedVisible(entry: LedgerEntry): boolean {
 export function claimDisclosure(entry: LedgerEntry): string {
   const status = sanitizeClaimStatus(entry);
   if (status === "ops_confirmed") {
-    return "Ops-confirmed from telemetry clearance — not bill-verified.";
+    return "Confirmed from plant data — pending utility bill verification.";
   }
   if (status === "modeled") {
     return entry.modeledReason
-      ? `Modeled — ${entry.modeledReason}. Not bill-verified.`
-      : "Modeled counterfactual — not ops-confirmed and not bill-verified.";
+      ? `Estimated — ${entry.modeledReason}. Pending bill check.`
+      : "Estimated counterfactual — not yet confirmed and pending bill check.";
   }
   if (status === "disputed") {
-    return "Disputed — excluded from ops-confirmed totals until resolved.";
+    return "Disputed — excluded from confirmed totals until resolved.";
   }
   if (status === "verified") {
-    return "Bill-verified against utility line items.";
+    return "Verified against utility bill line items.";
   }
   return "Pending verification.";
 }

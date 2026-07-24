@@ -75,10 +75,13 @@
   --forge-space-md: 16px;
   --forge-space-lg: 24px;
   --forge-space-xl: 48px;
-  --forge-gutter: 24px;
-  --forge-margin-mobile: 16px;
-  --forge-margin-desktop: 40px;
-  --forge-content-max: 1440px;
+  --forge-gutter: 12px;
+  --forge-main-inset-start: 16px;
+  --forge-margin-mobile: 12px;
+  --forge-margin-desktop: 24px;
+  --forge-content-max: 100%;
+  --forge-sidebar-width: 260px;
+  --forge-sidebar-collapsed: 60px;
 
   /* Radius — dashboard craft: cards 12px, controls 8px */
   --forge-radius-sm: 0.25rem;

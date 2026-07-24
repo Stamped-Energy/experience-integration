@@ -20,15 +20,23 @@ const chartAccent = {
 export function EvidenceIndex({ samples }: { samples: readonly EvidenceSample[] }) {
   return (
     <div className="evidence-detail" data-evidence-index>
-      <p style={{ margin: 0, fontSize: 14, color: "var(--forge-on-surface-variant)", lineHeight: 1.5 }}>
-        Every action has a bill line and an owner. Proof packs are scoped from alarms and
-        prescriptions — open the issue, then jump to the linked Alarm or Prescription.
-      </p>
+      <Panel className="evd-full__index-hero">
+        <StatusChip tone="neutral">Evidence · Proof packs</StatusChip>
+        <h2 className="evd-full__issue" style={{ marginTop: 10 }}>
+          Metered proof for every action
+        </h2>
+        <p className="evd-full__index-lead">
+          Every prescription and alarm links to scoped SCADA tags, charts, and M&amp;V lineage.
+          Open a pack to see exactly what the signal looked like — and what is still pending bill
+          verification.
+        </p>
+      </Panel>
+
       <div className="evidence-index-grid">
         {samples.map((sample) => (
           <Panel key={sample.id} className="evidence-index-card">
             <div className="evidence-card__header">
-              <StatusChip tone="neutral">Evidence · Proof pack</StatusChip>
+              <StatusChip tone="neutral">Proof pack</StatusChip>
               <StatusChip tone={categoryTone[sample.categoryBadge.tone]}>
                 {sample.categoryBadge.label}
               </StatusChip>
@@ -42,13 +50,14 @@ export function EvidenceIndex({ samples }: { samples: readonly EvidenceSample[] 
               accent={chartAccent[sample.categoryBadge.tone]}
               compact
             />
+            <p className="evidence-index-card__footer">{sample.mvFooter}</p>
             <ForgeButtonGroup
               aria-label={`Links for ${sample.issueTitle}`}
               toolbar
               className="evidence-index-card__actions"
             >
               <ForgeButton variant="secondary" href={`/evidence/${sample.id}`}>
-                Evidence
+                Open pack
               </ForgeButton>
               {sample.alarmId ? (
                 <ForgeButton variant="ghost" href={`/alarms/${sample.alarmId}`}>

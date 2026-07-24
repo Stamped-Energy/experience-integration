@@ -53,7 +53,7 @@ export const OVERVIEW_KPIS = {
   savings: {
     value: 974_000,
     trendPct: 18.4,
-    note: "Ops-confirmed via M&V Protocol",
+    note: "Confirmed by operations",
   },
   energy: {
     value: 1_200_000,

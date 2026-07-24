@@ -7,6 +7,20 @@ import {
   connectionFixture,
   webhooksFixture,
 } from "@/fixtures/demo";
+
+const SCOPE_LABELS: Record<string, string> = {
+  "ledger:read": "Read savings data",
+  "events:read": "Read live events",
+  "alarms:read": "Read alarms",
+  "prescriptions:read": "Read prescriptions",
+};
+
+const WEBHOOK_STATUS_LABELS: Record<string, string> = {
+  delivered: "Delivered",
+  pending: "Pending",
+  dlq: "Failed — retry pending",
+};
+
 export default function IntegrationsSettingsPage() {
   return (
     <AppShell
@@ -15,17 +29,17 @@ export default function IntegrationsSettingsPage() {
       role={DEMO_SHELL_ROLE}
       connection={connectionFixture}
       screenTitle="Integrations"
-      contextSummary={["API keys", "Webhooks", "Entra", "Power BI"]}
+      contextSummary={["Connections & exports", DEMO_PLANT.plantName]}
       criticalAlarmCount={0}
     >
       <PageHead eyebrow="Admin" title="Integrations" />
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <Panel>
           <h2 style={{ margin: 0, fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
-            Public API keys
+            API keys
           </h2>
           <p style={{ margin: "8px 0 12px", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-            Scoped Bearer keys (<code>stk_…</code>). Secrets shown once; only hashes stored.
+            Keys for approved integrations. You will only see the full key once when it is created.
           </p>
           <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 10 }}>
             {apiKeysFixture.map((k) => (
@@ -50,12 +64,12 @@ export default function IntegrationsSettingsPage() {
                       color: "var(--forge-on-surface-variant)",
                     }}
                   >
-                    {k.prefix}… · created {k.createdAt}
+                    {k.prefix}••• · created {k.createdAt}
                   </p>
                   <p style={{ margin: "6px 0 0", fontSize: 12, display: "flex", gap: 6, flexWrap: "wrap" }}>
                     {k.scopes.map((s) => (
                       <StatusChip key={s} tone="info">
-                        {s}
+                        {SCOPE_LABELS[s] ?? s}
                       </StatusChip>
                     ))}
                   </p>
@@ -73,7 +87,7 @@ export default function IntegrationsSettingsPage() {
             Webhooks
           </h2>
           <p style={{ margin: "8px 0 12px", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-            Standard Webhooks signing, SSRF hostname checks, capped retries, DLQ redrive.
+            Secure webhook delivery with automatic retries when a destination is temporarily unavailable.
           </p>
           <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 10 }}>
             {webhooksFixture.map((w) => (
@@ -98,7 +112,7 @@ export default function IntegrationsSettingsPage() {
                           : "warning"
                     }
                   >
-                    {w.lastStatus}
+                    {WEBHOOK_STATUS_LABELS[w.lastStatus] ?? w.lastStatus}
                   </StatusChip>
                 </div>
                 <p
@@ -108,7 +122,7 @@ export default function IntegrationsSettingsPage() {
                     color: "var(--forge-on-surface-variant)",
                   }}
                 >
-                  Filters: {w.eventFilters.join(", ")} · Last delivery {w.lastDelivery}
+                  Events: savings confirmed, alarms, prescriptions · Last delivery {w.lastDelivery}
                 </p>
               </li>
             ))}
@@ -117,29 +131,28 @@ export default function IntegrationsSettingsPage() {
 
         <Panel>
           <h2 style={{ margin: 0, fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
-            Microsoft Entra
+            Microsoft sign-in
           </h2>
           <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-            Demo org: identity optional. Entra is identity only — L6 membership remains authorization
-            truth. Local auth continues to coexist.
+            Optional single sign-on with Microsoft Entra. Access and roles are managed in Stamped.
           </p>
           <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <StatusChip tone="neutral">ENTRA_ENABLED=false (demo)</StatusChip>
-            <StatusChip tone="info">Tenant: demo-not-connected</StatusChip>
+            <StatusChip tone="neutral">Not connected</StatusChip>
+            <StatusChip tone="info">Tenant pending setup</StatusChip>
           </div>
         </Panel>
 
         <Panel>
           <h2 style={{ margin: 0, fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
-            Power BI pilot
+            Power BI
           </h2>
           <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-            Bounded batch push (≤10,000 rows/request) with durable checkpoints. Ops-confirmed values
-            stay labeled — never presented as bill-verified.
+            Scheduled data sync to Power BI. Confirmed savings stay labeled as operations-confirmed until
+            matched to utility bills.
           </p>
           <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <StatusChip tone="good">Last sync: ledger Jul MTD</StatusChip>
-            <StatusChip tone="warning">Claims: ops-confirmed only</StatusChip>
+            <StatusChip tone="good">Last sync: savings ledger Jul MTD</StatusChip>
+            <StatusChip tone="warning">Claims: operations-confirmed only</StatusChip>
           </div>
         </Panel>
       </div>

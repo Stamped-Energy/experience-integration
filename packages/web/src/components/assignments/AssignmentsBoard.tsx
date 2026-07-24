@@ -4,18 +4,37 @@ import { useMemo, useState } from "react";
 import {
   alarmRouteRulesFixture,
   notifyPeopleFixture,
-  personById,
   type AlarmRouteRule,
   type NotifyPerson,
 } from "@/fixtures/assignments";
+import type { Role } from "@/lib/types";
 import { GhostButton, Panel, PrimaryButton, StatusChip, ToastRegion } from "@/components/ui/primitives";
+
+const ROLES: Role[] = [
+  "operator",
+  "supervisor",
+  "plant_head",
+  "energy_manager",
+  "sustainability",
+  "cfo",
+  "admin",
+];
 
 /** Admin screen: who owns which area/asset for alarm WhatsApp + Rx assign. */
 export function AssignmentsBoard() {
   const [rules, setRules] = useState(alarmRouteRulesFixture);
-  const [people] = useState(notifyPeopleFixture);
+  const [people, setPeople] = useState(notifyPeopleFixture);
   const [toast, setToast] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
+  const [showAddPerson, setShowAddPerson] = useState(false);
+  const [newPerson, setNewPerson] = useState({
+    name: "",
+    role: "operator" as Role,
+    phone: "",
+    areas: "",
+    skills: "",
+    whatsappEnabled: true,
+  });
 
   const areas = useMemo(
     () => [...new Set(people.flatMap((p) => p.areas))].sort(),
@@ -26,7 +45,7 @@ export function AssignmentsBoard() {
     setRules((rows) =>
       rows.map((r) => (r.id === ruleId ? { ...r, primaryPersonId: personId } : r)),
     );
-    setToast("Primary contact updated (demo — WhatsApp wiring later)");
+    setToast("Primary contact updated");
     setEditing(null);
   }
 
@@ -41,6 +60,36 @@ export function AssignmentsBoard() {
         return { ...r, backupPersonIds };
       }),
     );
+  }
+
+  function addPerson() {
+    const name = newPerson.name.trim();
+    if (!name) return;
+    const id = `usr_${Date.now()}`;
+    const phoneMasked = newPerson.phone.trim()
+      ? newPerson.phone.trim().replace(/(\d{2})\d+(\d{4})/, "+91 •••• •• $2")
+      : "+91 •••• •• ----";
+    const person: NotifyPerson = {
+      id,
+      name,
+      role: newPerson.role,
+      phoneMasked,
+      areas: newPerson.areas.split(",").map((a) => a.trim()).filter(Boolean),
+      assetIds: [],
+      skills: newPerson.skills.split(",").map((s) => s.trim()).filter(Boolean),
+      whatsappEnabled: newPerson.whatsappEnabled,
+    };
+    setPeople((prev) => [...prev, person]);
+    setNewPerson({
+      name: "",
+      role: "operator",
+      phone: "",
+      areas: "",
+      skills: "",
+      whatsappEnabled: true,
+    });
+    setShowAddPerson(false);
+    setToast(`${name} added to notify roster`);
   }
 
   return (
@@ -59,8 +108,91 @@ export function AssignmentsBoard() {
 
       <div className="forge-grid-40-60">
         <Panel>
-          <p className="forge-eyebrow">People</p>
-          <h3 className="forge-card-title">Notify roster</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+            <div>
+              <p className="forge-eyebrow">People</p>
+              <h3 className="forge-card-title">Notify roster</h3>
+            </div>
+            <GhostButton onClick={() => setShowAddPerson((v) => !v)}>
+              {showAddPerson ? "Cancel" : "+ Add person"}
+            </GhostButton>
+          </div>
+
+          {showAddPerson ? (
+            <div
+              style={{
+                marginTop: 16,
+                padding: 14,
+                borderRadius: 12,
+                border: "1px solid var(--forge-outline-variant)",
+                background: "var(--forge-surface-container-low)",
+                display: "grid",
+                gap: 10,
+              }}
+            >
+              <p className="forge-eyebrow">New team member</p>
+              <label style={{ display: "grid", gap: 4, fontSize: 13 }}>
+                Full name
+                <input
+                  value={newPerson.name}
+                  onChange={(e) => setNewPerson((p) => ({ ...p, name: e.target.value }))}
+                  placeholder="e.g. Rahul Mehta"
+                  style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid var(--forge-outline-variant)" }}
+                />
+              </label>
+              <label style={{ display: "grid", gap: 4, fontSize: 13 }}>
+                Role
+                <select
+                  value={newPerson.role}
+                  onChange={(e) => setNewPerson((p) => ({ ...p, role: e.target.value as Role }))}
+                  style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid var(--forge-outline-variant)" }}
+                >
+                  {ROLES.map((r) => (
+                    <option key={r} value={r}>{r.replaceAll("_", " ")}</option>
+                  ))}
+                </select>
+              </label>
+              <label style={{ display: "grid", gap: 4, fontSize: 13 }}>
+                Phone (for WhatsApp routing)
+                <input
+                  value={newPerson.phone}
+                  onChange={(e) => setNewPerson((p) => ({ ...p, phone: e.target.value }))}
+                  placeholder="+91 98•• ••• 123"
+                  style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid var(--forge-outline-variant)" }}
+                />
+              </label>
+              <label style={{ display: "grid", gap: 4, fontSize: 13 }}>
+                Plant areas (comma-separated)
+                <input
+                  value={newPerson.areas}
+                  onChange={(e) => setNewPerson((p) => ({ ...p, areas: e.target.value }))}
+                  placeholder="Kiln Line, Grinding Hall, Utilities"
+                  style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid var(--forge-outline-variant)" }}
+                />
+              </label>
+              <label style={{ display: "grid", gap: 4, fontSize: 13 }}>
+                Skills (comma-separated)
+                <input
+                  value={newPerson.skills}
+                  onChange={(e) => setNewPerson((p) => ({ ...p, skills: e.target.value }))}
+                  placeholder="shift lead, compressors"
+                  style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid var(--forge-outline-variant)" }}
+                />
+              </label>
+              <label style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13 }}>
+                <input
+                  type="checkbox"
+                  checked={newPerson.whatsappEnabled}
+                  onChange={(e) => setNewPerson((p) => ({ ...p, whatsappEnabled: e.target.checked }))}
+                />
+                WhatsApp notifications enabled
+              </label>
+              <PrimaryButton onClick={addPerson} disabled={!newPerson.name.trim()}>
+                Save to roster
+              </PrimaryButton>
+            </div>
+          ) : null}
+
           <ul style={{ listStyle: "none", margin: "16px 0 0", padding: 0, display: "grid", gap: 10 }}>
             {people.map((p) => (
               <PersonRow key={p.id} person={p} />
@@ -113,8 +245,13 @@ function PersonRow({ person }: { person: NotifyPerson }) {
         {person.role.replaceAll("_", " ")} · {person.phoneMasked}
       </p>
       <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
-        Areas: {person.areas.join(", ")}
+        Areas: {person.areas.join(", ") || "—"}
       </p>
+      {person.skills.length ? (
+        <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
+          Skills: {person.skills.join(", ")}
+        </p>
+      ) : null}
     </li>
   );
 }
@@ -135,8 +272,10 @@ function RouteRow({
   onPrimary: (id: string) => void;
   onToggleBackup: (id: string) => void;
 }) {
-  const primary = personById(rule.primaryPersonId);
-  const backups = rule.backupPersonIds.map(personById).filter(Boolean) as NotifyPerson[];
+  const primary = people.find((p) => p.id === rule.primaryPersonId);
+  const backups = rule.backupPersonIds
+    .map((id) => people.find((p) => p.id === id))
+    .filter(Boolean) as NotifyPerson[];
 
   return (
     <li

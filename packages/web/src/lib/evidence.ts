@@ -130,7 +130,7 @@ export function buildEvidencePack(
       tariffId: "tariff_rvpnl_ht_2026",
       tariffLabel: "Rajasthan HT industrial TOD",
       findingId: scope.alarmId ? "fnd_4401" : undefined,
-      sources: ["L5 finding", "L2 measurements", ...(baselineAvailable ? ["L2 baseline"] : [])],
+      sources: ["Detection rule", "Meter readings", ...(baselineAvailable ? ["Baseline comparison"] : [])],
     },
     anomaly: {
       from: "2026-07-21T09:30:00+05:30",

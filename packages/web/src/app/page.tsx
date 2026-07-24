@@ -36,7 +36,7 @@ export default function OverviewPage() {
       ]}
       criticalAlarmCount={critical}
     >
-      <PageHead eyebrow={`${DEMO_PLANT.orgName} · demo`} title="Overview" />
+      <PageHead eyebrow={DEMO_PLANT.plantName} title="Overview" />
       <p className="forge-page-lede">
         {DEMO_PLANT.contractDemandNote} · As of {DEMO_PLANT.demoAsOf} · {DEMO_PLANT.tariff}
       </p>

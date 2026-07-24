@@ -11,7 +11,7 @@ import type {
 /** Jaipur Works — coherent Auto demo plant for every Forge screen. */
 export const DEMO_PLANT = {
   orgId: "org_demo",
-  orgName: "Stamped Cement Demo Pvt Ltd",
+  orgName: "Jaipur Works",
   plantId: "plant_jaipur_01",
   plantName: "Jaipur Works",
   timezone: "Asia/Kolkata",
@@ -235,7 +235,7 @@ export const prescriptionsFixture: Prescription[] = [
     ],
     risks: [
       "Pressure/throughput dip on step-load → add +2 min stagger before relaxing hold.",
-      "Operator re-enables both early → log override and require supervisor PIN on demo path.",
+      "Operator re-enables both early → log override and require supervisor PIN to override.",
     ],
   },
   {
@@ -257,7 +257,7 @@ export const prescriptionsFixture: Prescription[] = [
     relatedAlarmId: "alm_1006",
     actions: [
       "Confirm no batch queued in next 60 min, then apply night setback band.",
-      "Log kWh before/after on Mill 2 feeder for M&V Option B.",
+      "Log kWh before/after on Mill 2 feeder for savings verification (Option B).",
       "Escalate if idle returns >10% above baseline within 24 h.",
     ],
     risks: [
@@ -334,7 +334,7 @@ export const prescriptionsFixture: Prescription[] = [
     actions: [
       "Walk APFC stages; confirm stage 3 contactor and capacitor bank health.",
       "If stage open, swap spare bank and re-check PF at Mill 1 feeder within 2 h.",
-      "Capture ops_confirmed only after PF holds ≥0.92 for one TOD peak.",
+      "Mark confirmed only after PF holds ≥0.92 for one TOD peak.",
     ],
     risks: [
       "Over-correction → watch for leading PF; trim one stage if PF >0.98.",
@@ -382,7 +382,7 @@ export const prescriptionsFixture: Prescription[] = [
     ruleId: "air/pack_coincidence@v1.0",
     verificationStatus: "pending",
     actions: [
-      "Keep verified stagger in schedule; sample three packing peaks for M&V.",
+      "Keep verified stagger in schedule; sample three packing peaks for verification.",
     ],
     risks: [
       "Header pressure low → allow lag unit only during verified packing surge.",
@@ -456,7 +456,7 @@ export const prescriptionsFixture: Prescription[] = [
     verificationStatus: "ops_confirmed",
     realisedInr: 17600,
     actions: [
-      "Spare bank installed; hold ops_confirmed until next bill PF line lands.",
+      "Spare bank installed; hold as operations-confirmed until PF appears on bill.",
     ],
   },
   {
@@ -703,7 +703,7 @@ export const apiKeysFixture: DemoApiKey[] = [
   },
   {
     id: "key_2",
-    name: "Partner EMS bridge",
+    name: "Partner data bridge",
     prefix: "stk_d4e5f6",
     scopes: ["alarms:read", "prescriptions:read"],
     lastUsedAt: null,
@@ -795,7 +795,7 @@ export const investigationsFixture: DemoInvestigation[] = [
       {
         role: "assistant",
         content:
-          "Kiln 1 is at 108% load while Mill 2 co-starts into the 10–11 peak TOD band. Incomer rolling MD is 4,680 kVA (6.4% headroom). Staggering starts is the highest-confidence prescription (rx_9001).",
+          "Kiln 1 is at 108% load while Mill 2 co-starts into the 10–11 peak TOD band. Incomer rolling MD is 4,680 kVA (6.4% headroom). Staggering starts is the highest-confidence prescription.",
       },
     ],
   },
@@ -813,7 +813,7 @@ export const investigationsFixture: DemoInvestigation[] = [
       {
         role: "assistant",
         content:
-          "Open evidence scoped to Cement Mill 1 PF and the APFC stage status. Claim vocabulary stays ops-confirmed until bill lines exist — do not present as bill-verified.",
+          "Open evidence scoped to Cement Mill 1 PF and the APFC stage status. Savings stay confirmed by operations until they appear on the utility bill.",
       },
     ],
   },
@@ -853,29 +853,29 @@ export const auditEventsFixture = [
     id: "aud_1",
     at: "2026-07-21T10:08:00+05:30",
     actor: "Neha Singh",
-    action: "alarm.ack",
-    detail: "alm_1002 Cement Mill 1",
+    action: "Alarm acknowledged",
+    detail: "Cement Mill 1 alarm acknowledged",
   },
   {
     id: "aud_2",
     at: "2026-07-21T09:42:00+05:30",
     actor: "Imran Khan",
-    action: "prescription.assign",
-    detail: "rx_9002 APFC health check",
+    action: "Prescription assigned",
+    detail: "APFC health check prescription assigned",
   },
   {
     id: "aud_3",
     at: "2026-07-21T08:05:00+05:30",
     actor: "Priya Nair",
-    action: "report.approve",
-    detail: "rep_2026_06 sustainability_monthly",
+    action: "Report approved",
+    detail: "Jul 2026 sustainability report approved",
   },
   {
     id: "aud_4",
     at: "2026-07-20T18:10:00+05:30",
     actor: "Asha Verma",
-    action: "api_key.create",
-    detail: "stk_d4e5f6 Partner EMS bridge",
+    action: "API key created",
+    detail: "Partner data bridge API key created",
   },
 ];
 
@@ -959,11 +959,11 @@ todaySignalsFixture = [
   },
   {
     id: "savings",
-    label: "Ops-confirmed (MTD)",
+    label: "Confirmed savings (MTD)",
     value: formatDemoInrCompact(demoOpsConfirmedInr()),
     tone: "good",
     href: "/reports",
-    hint: "Not bill-verified",
+    hint: "Pending utility bill verification",
   },
   {
     id: "deviation",

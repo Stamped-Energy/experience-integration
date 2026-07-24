@@ -1,5 +1,4 @@
-import { IntensityBoard } from "@/components/analytics/IntensityBoard";
-import { TodMdBoard } from "@/components/analytics/TodMdBoard";
+import { SustainabilityDashboard } from "@/components/analytics/SustainabilityDashboard";
 import { AppShell } from "@/components/shell/AppShell";
 import { PageHead } from "@/components/ui/primitives";
 import {
@@ -23,15 +22,12 @@ export default function IntensityPage() {
       screenTitle="Sustainability"
       contextSummary={[
         `MD headroom ${headroom}%`,
-        "SEC disclosure · TOD · MD · CMD",
+        "SEC · emissions · TOD · renewable mix",
       ]}
       criticalAlarmCount={demoCriticalAlarmCount()}
     >
-      <PageHead eyebrow="Sustainability" title="Intensity, TOD & CO₂" />
-      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-        <TodMdBoard />
-        <IntensityBoard />
-      </div>
+      <PageHead eyebrow="Sustainability" title="Intensity, emissions & demand" />
+      <SustainabilityDashboard />
     </AppShell>
   );
 }

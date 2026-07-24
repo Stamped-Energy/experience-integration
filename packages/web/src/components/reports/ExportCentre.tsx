@@ -91,9 +91,9 @@ function sustainabilityLines(periodLabel: string, id: string): string[] {
     "Stamped Energy — Sustainability pack",
     `Period: ${periodLabel}`,
     `Report id: ${id}`,
-    "Status: approved (Auto fixture)",
-    "Scope 1: not_measured_by_stamped",
-    "ops_confirmed is not bill verified.",
+    "Status: approved",
+    "Scope 1: Not measured",
+    "Savings confirmed by operations are not yet verified on the utility bill.",
   ];
 }
 
@@ -103,8 +103,8 @@ function sustainabilityCsv(periodLabel: string, id: string): string {
     [
       ["period", periodLabel],
       ["report_id", id],
-      ["scope_1", "not_measured_by_stamped"],
-      ["claim_note", "ops_confirmed is not bill verified"],
+      ["scope_1", "Not measured"],
+      ["claim_note", "Operations-confirmed savings pending utility bill verification"],
     ],
   );
 }

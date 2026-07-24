@@ -1,0 +1,211 @@
+.sust-dash {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.sust-dash__hero {
+  padding: 18px 20px !important;
+  background: linear-gradient(
+    135deg,
+    var(--forge-surface-container-lowest) 0%,
+    color-mix(in srgb, var(--forge-good) 8%, var(--forge-surface-container-low)) 100%
+  );
+  border-color: color-mix(in srgb, var(--forge-good) 25%, var(--forge-outline-variant));
+}
+
+.sust-dash__hero-title {
+  margin: 8px 0 0;
+  font-family: var(--forge-font-display);
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  font-weight: 800;
+}
+
+.sust-dash__hero-lead {
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--forge-on-surface-variant);
+  max-width: 780px;
+}
+
+.sust-dash__hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--forge-outline-variant);
+}
+
+.sust-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 100px;
+}
+
+.sust-stat__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--forge-on-surface-variant);
+}
+
+.sust-stat__value {
+  font-family: var(--forge-font-display);
+  font-weight: 800;
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+.sust-dash__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sust-dash__panel {
+  padding: 16px 18px !important;
+}
+
+.sust-dash__panel--wide {
+  grid-column: 1 / -1;
+}
+
+.sust-dash__panel--disclosure {
+  grid-column: 1 / -1;
+  background: color-mix(in srgb, var(--forge-warning) 6%, var(--forge-surface-container-lowest)) !important;
+  border-color: color-mix(in srgb, var(--forge-warning) 22%, var(--forge-outline-variant)) !important;
+}
+
+.sust-dash__block-title {
+  margin: 0 0 12px;
+  font-family: var(--forge-font-display);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--forge-secondary);
+}
+
+.sust-dash__hint {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--forge-on-surface-variant);
+  line-height: 1.45;
+}
+
+.sust-chart__bar-row {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr 3rem;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.sust-chart__bar-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--forge-on-surface-variant);
+}
+
+.sust-chart__bar-track {
+  height: 10px;
+  border-radius: var(--forge-radius-pill);
+  background: var(--forge-surface-container);
+  overflow: hidden;
+}
+
+.sust-chart__bar-fill {
+  height: 100%;
+  border-radius: var(--forge-radius-pill);
+  min-width: 2px;
+}
+
+.sust-chart__bar-value {
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.sust-split__track {
+  display: flex;
+  height: 18px;
+  border-radius: var(--forge-radius-pill);
+  overflow: hidden;
+  border: 1px solid var(--forge-outline-variant);
+}
+
+.sust-split__renewable {
+  background: var(--forge-good);
+}
+
+.sust-split__grid {
+  background: var(--forge-secondary);
+}
+
+.sust-split__legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sust-split__dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.sust-split__dot--renewable {
+  background: var(--forge-good);
+}
+
+.sust-split__dot--grid {
+  background: var(--forge-secondary);
+}
+
+.sust-tod-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.sust-tod-card {
+  padding: 12px;
+  border-radius: var(--forge-radius-md);
+  background: var(--forge-surface-container-low);
+  border: 1px solid var(--forge-outline-variant);
+}
+
+.sust-tod-card__time {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--forge-on-surface-variant);
+}
+
+.sust-tod-card__rate {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sust-disclosure-list {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .sust-dash__grid {
+    grid-template-columns: 1fr;
+  }
+}

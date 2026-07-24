@@ -104,8 +104,8 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
       { tag: "MILL_2.START", value: "TRUE", window: "07:05" },
     ],
     metadata:
-      "physics/md_overlap@v2.4 · model conf 0.90 · tariff MD slab · baseline Apr peak week",
-    mvFooter: "M&V · verify on next DISCOM MD line · plan locked at issue.",
+      "MD overlap detection · 90% confidence · tariff MD slab · baseline Apr peak week",
+    mvFooter: "Savings verification · confirm on next utility MD reading · plan locked at issue.",
     dials: [
       { label: "Kiln load", needle: 108, needleMax: 120, display: "108", unit: "%" },
       { label: "Incomer MD", needle: 92, needleMax: 100, display: "920", unit: " kVA" },
@@ -147,8 +147,8 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
       { tag: "MILL_2.START", value: "TRUE", window: "10:04" },
     ],
     metadata:
-      "physics/md_coincidence@v3.1 · model conf 0.88 · CMD slab · baseline peak week",
-    mvFooter: "M&V · reconcile with DISCOM MD register · stagger co-start before next peak.",
+      "MD coincidence detection · 88% confidence · CMD slab · baseline peak week",
+    mvFooter: "Savings verification · reconcile with utility MD register · stagger co-start before next peak.",
     dials: [
       { label: "Rolling MD", needle: 93.6, needleMax: 100, display: "4,680", unit: " kVA" },
       { label: "CMD util", needle: 93.6, needleMax: 100, display: "93.6", unit: "%" },
@@ -187,12 +187,48 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
       { tag: "FEEDER.TOD", value: "Off-peak", window: "22:00–06:00" },
     ],
     metadata:
-      "physics/hvac_idle@v1.5 · model conf 0.86 · ToD energy line · baseline last 6 idle windows",
-    mvFooter: "M&V · compare unload kWh vs night baseline · owner sign-off on cutback plan.",
+      "HVAC idle detection · 86% confidence · ToD energy line · baseline last 6 idle windows",
+    mvFooter: "Savings verification · compare unload kWh vs night baseline · owner sign-off on cutback plan.",
     dials: [
       { label: "Idle draw", needle: 118, needleMax: 120, display: "118", unit: "%" },
       { label: "Night kWh", needle: 79, needleMax: 100, display: "95", unit: " kWh" },
       { label: "Duration", needle: 78, needleMax: 100, display: "47", unit: " min" },
+    ],
+  },
+  {
+    id: "evd_4412",
+    issueTitle: "Three VFD compressors running part-load simultaneously",
+    plantId: "plant_rvpnl_demo",
+    assetId: "comp_2",
+    assetLabel: "Compressor bank",
+    rxId: "rx_9011",
+    baselineId: "bl_comp_vfd_30d",
+    chartTitle: "COMPRESSOR kW · 06:30 SNAPSHOT",
+    categoryBadge: { label: "Part-load", tone: "warning" },
+    chart: {
+      kind: "bar",
+      yAxisLabel: "kW",
+      bars: [
+        { label: "U-1", value: 43 },
+        { label: "U-2", value: 54 },
+        { label: "U-3", value: 68, highlight: true },
+        { label: "2-unit", value: 97 },
+      ],
+      annotation: "3rd unit waste",
+    },
+    tagRows: [
+      { tag: "COMP_1.KW", value: "43 kW", window: "06:30" },
+      { tag: "COMP_2.KW", value: "54 kW", window: "06:30" },
+      { tag: "COMP_3.KW", value: "68 kW", window: "06:30" },
+      { tag: "HEADER.PRESS", value: "6.8 bar", window: "06:30" },
+    ],
+    metadata:
+      "Compressor sequencing rule · 88% confidence · energy kWh line · baseline sequenced 2-unit week",
+    mvFooter: "Savings verification · compare 3-unit vs 2-unit kWh over 30 d · sequencer commissioning checklist.",
+    dials: [
+      { label: "Unit-1 load", needle: 57, needleMax: 100, display: "43", unit: " kW" },
+      { label: "Unit-3 load", needle: 91, needleMax: 100, display: "68", unit: " kW" },
+      { label: "Units online", needle: 100, needleMax: 100, display: "3", unit: "" },
     ],
   },
   {
@@ -229,8 +265,8 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
       { tag: "APFC.SETPOINT", value: "0.98", window: "design" },
     ],
     metadata:
-      "physics/pf_drift@v1.2 · model conf 0.91 · PF penalty slab · baseline healthy APFC week",
-    mvFooter: "M&V · verify PF on next bill line after stage 3 replacement · ops-confirmed only.",
+      "PF drift detection · 91% confidence · PF penalty slab · baseline healthy APFC week",
+    mvFooter: "Savings verification · verify PF on next bill line after stage 3 replacement · operations-confirmed only.",
     dials: [
       { label: "Power factor", needle: 84, needleMax: 100, display: "0.84", unit: "" },
       { label: "kVAR load", needle: 72, needleMax: 100, display: "72", unit: "%" },

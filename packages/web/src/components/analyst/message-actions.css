@@ -1,0 +1,26 @@
+.analyst-msg__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.analyst-msg__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--forge-radius-pill);
+  border: 1px solid var(--forge-outline-variant);
+  background: var(--forge-surface-container-lowest);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--forge-tertiary);
+  text-decoration: none;
+  transition: all var(--forge-motion-fast);
+}
+
+.analyst-msg__action:hover {
+  border-color: var(--forge-tertiary);
+  background: color-mix(in srgb, var(--forge-tertiary) 8%, var(--forge-surface-container-lowest));
+}

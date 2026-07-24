@@ -49,7 +49,7 @@ const TOOLS = [
   {
     href: "/settings/integrations",
     title: "Integrations",
-    blurb: "API keys, webhooks, and enterprise connectors.",
+    blurb: "Connections for exports and enterprise systems.",
     Icon: Settings,
   },
 ] as const;
@@ -65,7 +65,7 @@ export default function ToolsPage() {
       contextSummary={["Specialized plant tools", DEMO_PLANT.plantName]}
       criticalAlarmCount={demoCriticalAlarmCount()}
     >
-      <PageHead eyebrow="Control room" title="Tools" />
+      <PageHead eyebrow="Operations" title="Tools" />
       <p style={{ margin: 0, fontSize: 14, color: "var(--forge-on-surface-variant)", maxWidth: 640 }}>
         Open a specialized screen. Alarms and prescriptions stay in primary navigation.
       </p>

@@ -18,7 +18,7 @@ export default function AnalystPage() {
       screenTitle="Ask Analyst"
       contextSummary={[
         `${investigationsFixture.length} saved investigations`,
-        "Mode B · citations required",
+        "Answers include source citations",
       ]}
       criticalAlarmCount={demoCriticalAlarmCount()}
     >

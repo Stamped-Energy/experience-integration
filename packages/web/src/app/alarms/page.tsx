@@ -18,7 +18,7 @@ export default function AlarmsPage() {
       plantName={DEMO_PLANT.plantName}
       role={DEMO_SHELL_ROLE}
       connection={connectionFixture}
-      screenTitle="EMS alarm console"
+      screenTitle="Alarm console"
       contextSummary={[
         `${open} open · ${critical} critical`,
         DEMO_PLANT.shift,
@@ -27,7 +27,7 @@ export default function AlarmsPage() {
       focusEntity={{ type: "alarm", id: alarmsFixture[0]!.id }}
       criticalAlarmCount={critical}
     >
-      <PageHead eyebrow="EMS" title="Alarm console" />
+      <PageHead eyebrow="Operations" title="Alarm console" />
       <AlarmConsole initial={alarmsFixture} />
     </AppShell>
   );

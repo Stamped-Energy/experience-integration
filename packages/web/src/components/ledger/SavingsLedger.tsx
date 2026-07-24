@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { LedgerEntry } from "@/lib/types";
-import { formatInr } from "@/lib/format";
+import { formatBaselineLabel, formatEmissionFactorRef, formatInr } from "@/lib/format";
 import {
   CLAIM_BUCKETS,
   displayClaim,
@@ -19,7 +19,7 @@ const bucketLabel: Record<ClaimBucket | "all", string> = {
   all: "All",
   pending: "Potential",
   modeled: "Modeled",
-  ops_confirmed: "Ops-confirmed",
+  ops_confirmed: "Confirmed",
   disputed: "Disputed",
 };
 
@@ -34,7 +34,7 @@ export function SavingsLedger({ rows }: { rows: LedgerEntry[] }) {
       <Panel style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
         <div>
           <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
-            Ops-confirmed (MTD)
+            Confirmed savings (MTD)
           </p>
           <p
             className="tabular"
@@ -48,7 +48,7 @@ export function SavingsLedger({ rows }: { rows: LedgerEntry[] }) {
             {formatInr(opsTotal)}
           </p>
           <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--forge-warning)" }}>
-            Not bill-verified
+            Pending utility bill verification
           </p>
         </div>
         <div>
@@ -108,7 +108,7 @@ export function SavingsLedger({ rows }: { rows: LedgerEntry[] }) {
                   </h3>
                   <p style={{ margin: "6px 0 0", fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
                     {entry.entryType.replaceAll("_", " ")} · {entry.mvMethod} · baseline{" "}
-                    {entry.baselineId}
+                    {formatBaselineLabel(entry.baselineId)}
                   </p>
                 </div>
                 <div style={{ textAlign: "right" }}>
@@ -132,8 +132,8 @@ export function SavingsLedger({ rows }: { rows: LedgerEntry[] }) {
               </div>
               <p style={{ margin: "12px 0 0", fontSize: 13 }}>{claim.disclosure}</p>
               <p style={{ margin: "8px 0 0", fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
-                Emission factor: {claim.emissionFactor}
-                {claim.showBillVerified ? " · Bill line refs present" : ""}
+                Emission factor: {formatEmissionFactorRef(claim.emissionFactor)}
+                {claim.showBillVerified ? " · Matched to bill line items" : ""}
               </p>
               <div style={{ marginTop: 12 }}>
                 {(() => {

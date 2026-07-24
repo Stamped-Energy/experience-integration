@@ -47,7 +47,7 @@ describe("analytics fixtures and calculations", () => {
     assert.equal(snap.scope1Tco2e, null);
     assert.ok(snap.missing.includes("production_units"));
     assert.ok(snap.missing.includes("scope1_activity_data"));
-    assert.match(missingLabel("scope1_activity_data"), /not_measured_by_stamped/);
+    assert.match(missingLabel("scope1_activity_data"), /not available/i);
     assert.ok(snap.scope2Tco2e != null && snap.scope2Tco2e > 0);
   });
 });

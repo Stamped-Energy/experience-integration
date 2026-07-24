@@ -3,10 +3,14 @@ import "@/styles/tokens.css";
 import "@/styles/forge-ui.css";
 import "@/components/shell/shell.css";
 import "@/components/evidence/evidence.css";
+import "@/components/analyst/contextual-analyst.css";
+import "@/components/analytics/sustainability.css";
+import "@/components/alarms/alarm-full-case.css";
+import "@/components/prescriptions/prescription-full-case.css";
 
 export const metadata: Metadata = {
   title: "Stamped Energy",
-  description: "Ops-first plant control room — Stamped L6",
+  description: "Energy operations dashboard for your plant",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

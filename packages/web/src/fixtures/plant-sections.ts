@@ -200,16 +200,16 @@ const POWER_CHILDREN: PlantSectionNode[] = [
   },
 ];
 
-/** Top-level plant sections — click any to drill in. */
+/** Top-level factory sections — click any to drill in. */
 export const PLANT_ROOT_LEVEL: PlantSectionLevel = {
   id: "root",
   title: "Jaipur Works",
-  subtitle: "Plant overview · 5 major sections · click a section to explore",
+  subtitle: "Factory floor map · 5 production zones · click a zone to explore equipment",
   nodes: [
     {
       id: "section_power",
-      name: "Power & Grid",
-      area: "Incoming supply",
+      name: "Electrical Yard",
+      area: "Substation & solar tie-in",
       kw: 863,
       loadPct: 94,
       health: "watch",
@@ -221,8 +221,8 @@ export const PLANT_ROOT_LEVEL: PlantSectionLevel = {
     },
     {
       id: "section_pyro",
-      name: "Pyro / Clinker",
-      area: "Clinkerization",
+      name: "Kiln Line",
+      area: "Clinker production hall",
       kw: 412,
       loadPct: 108,
       health: "hot",
@@ -234,8 +234,8 @@ export const PLANT_ROOT_LEVEL: PlantSectionLevel = {
     },
     {
       id: "section_grind",
-      name: "Grinding",
-      area: "Raw + cement mills",
+      name: "Grinding Hall",
+      area: "Raw & finish mills",
       kw: 98.4,
       loadPct: 112,
       health: "hot",
@@ -248,7 +248,7 @@ export const PLANT_ROOT_LEVEL: PlantSectionLevel = {
     {
       id: "section_util",
       name: "Utilities & Packing",
-      area: "Air · HVAC · dispatch",
+      area: "Instrument air · HVAC · bagging",
       kw: 30.4,
       loadPct: 54,
       health: "calm",
@@ -261,7 +261,7 @@ export const PLANT_ROOT_LEVEL: PlantSectionLevel = {
     {
       id: "section_dispatch",
       name: "Dispatch & Stores",
-      area: "Outbound logistics",
+      area: "Outbound logistics bay",
       kw: 18,
       loadPct: 41,
       health: "calm",
@@ -284,8 +284,8 @@ export const PLANT_LEVELS: Record<string, PlantSectionLevel> = {
   root: PLANT_ROOT_LEVEL,
   section_power: {
     id: "section_power",
-    title: "Power & Grid",
-    subtitle: "Incoming supply · EB incomer · solar tie-in",
+    title: "Electrical Yard",
+    subtitle: "11 kV incomer · LT buses · rooftop solar",
     nodes: POWER_CHILDREN,
     edges: [
       { from: "solar_array", to: "eb_incomer", kw: 280 },
@@ -294,8 +294,8 @@ export const PLANT_LEVELS: Record<string, PlantSectionLevel> = {
   },
   section_pyro: {
     id: "section_pyro",
-    title: "Pyro / Clinker",
-    subtitle: "Kiln line · preheater · cooler · 412 kW section load",
+    title: "Kiln Line",
+    subtitle: "Rotary kiln · preheater · cooler · 412 kW zone load",
     nodes: PYRO_CHILDREN,
     edges: [
       { from: "kiln_1", to: "preheater", kw: 76 },
@@ -304,8 +304,8 @@ export const PLANT_LEVELS: Record<string, PlantSectionLevel> = {
   },
   section_grind: {
     id: "section_grind",
-    title: "Grinding",
-    subtitle: "Cement + raw mills · PF watch on CM1",
+    title: "Grinding Hall",
+    subtitle: "Cement & raw mills · PF watch on CM1",
     nodes: GRIND_CHILDREN,
     edges: [
       { from: "cm_1", to: "raw_mill_a", kw: 40 },

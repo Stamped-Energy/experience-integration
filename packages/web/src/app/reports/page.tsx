@@ -28,7 +28,7 @@ export default function ReportsPage() {
       connection={connectionFixture}
       screenTitle="Reports and ledger"
       contextSummary={[
-        `Ops-confirmed MTD ${formatInr(ops)}`,
+        `Confirmed savings MTD ${formatInr(ops)}`,
         "Approval-gated packs",
       ]}
       criticalAlarmCount={demoCriticalAlarmCount()}
@@ -37,10 +37,10 @@ export default function ReportsPage() {
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <div className="forge-kpi-strip">
           <KpiCard
-            eyebrow="Ops-confirmed MTD"
+            eyebrow="Confirmed savings (MTD)"
             value={formatInr(ops)}
             accent="primary"
-            footnote={<span style={{ color: "var(--forge-warning)" }}>Not bill-verified</span>}
+            footnote={<span style={{ color: "var(--forge-warning)" }}>Pending utility bill verification</span>}
           />
           <KpiCard
             eyebrow="Addressable potential"

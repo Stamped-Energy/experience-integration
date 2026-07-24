@@ -5,7 +5,7 @@ import { RouteStateView } from "@/components/states/RouteStateView";
 import { intensityDemoInput } from "@/fixtures/demo";
 import { intensitySnapshot, missingLabel } from "@/lib/analytics";
 import { resolveRouteState } from "@/lib/route-state";
-import { formatIndianNum } from "@/lib/format";
+import { formatEmissionFactorRef, formatIndianNum } from "@/lib/format";
 
 export function IntensityBoard() {
   // Demo plant ships production units so SEC calculates; Scope 1 stays honest.
@@ -42,9 +42,9 @@ export function IntensityBoard() {
                 ? `${formatIndianNum(snap.scope2Tco2e, 1)} tCO₂e`
                 : "—"
             }
-            hint={snap.emissionFactorRef ?? undefined}
+            hint={formatEmissionFactorRef(snap.emissionFactorRef ?? undefined)}
           />
-          <Metric label="Scope 1" value="—" hint="not_measured_by_stamped" />
+          <Metric label="Scope 1" value="—" hint="Not measured" />
         </Panel>
 
         <Panel>

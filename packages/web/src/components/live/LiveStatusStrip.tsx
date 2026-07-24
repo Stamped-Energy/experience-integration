@@ -1,5 +1,6 @@
 "use client";
 
+import { liveConnectionLabel } from "@/lib/format";
 import type { ConnectionStatus } from "@/lib/types";
 import { Activity, Clock } from "@/components/ui/icons";
 import { Panel } from "@/components/ui/primitives";
@@ -11,7 +12,7 @@ export function LiveStatusStrip({
   connection,
   syncAgeSec,
   plantMw,
-  pollLabel = "Modbus / OPC-UA · 1s poll",
+  pollLabel = "Live plant data · 1s refresh",
 }: {
   connection: ConnectionStatus;
   syncAgeSec: number;
@@ -27,7 +28,9 @@ export function LiveStatusStrip({
         <div className="forge-live-status__left">
           <span className="forge-live-status__live" aria-live="polite">
             <span className={`forge-pulse-dot${live ? "" : " forge-pulse-dot--muted"}`} />
-            <span className="forge-live-status__live-label">{live ? "LIVE" : connection.sse.toUpperCase()}</span>
+            <span className="forge-live-status__live-label">
+              {live ? "LIVE" : liveConnectionLabel(connection.sse).toUpperCase()}
+            </span>
           </span>
           <span className="forge-live-status__meta">
             <Activity size={14} aria-hidden />

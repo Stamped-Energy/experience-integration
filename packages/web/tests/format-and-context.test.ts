@@ -16,10 +16,10 @@ describe("formatInr", () => {
 
 describe("claimBadgeLabel", () => {
   it("labels ops_confirmed distinctly", () => {
-    assert.equal(claimBadgeLabel("ops_confirmed").label, "Ops-confirmed");
+    assert.equal(claimBadgeLabel("ops_confirmed").label, "Confirmed by operations");
   });
   it("labels modeled with bill disclaimer", () => {
-    assert.match(claimBadgeLabel("modeled").label, /not bill-verified/i);
+    assert.match(claimBadgeLabel("modeled").label, /pending bill check/i);
   });
 });
 
@@ -30,15 +30,15 @@ describe("analyst context", () => {
     userId: "u1",
     role: "supervisor",
     routeId: "alarms",
-    screenTitle: "EMS alarm console",
+    screenTitle: "Alarm console",
     focusEntity: { type: "alarm", id: "alm_1" },
     visibleSummary: ["critical open"],
   };
 
   it("builds removable chips", () => {
     const chips = visibleContextChips(base);
-    assert.ok(chips.some((c) => c.value === "EMS alarm console"));
-    assert.ok(chips.some((c) => c.value === "alarm:alm_1"));
+    assert.ok(chips.some((c) => c.value === "Alarm console"));
+    assert.ok(chips.some((c) => c.value === "Alarm in focus"));
   });
 
   it("honours excludeKeys", () => {

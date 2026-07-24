@@ -16,7 +16,7 @@ export default function EquipmentPage() {
       role={DEMO_SHELL_ROLE}
       connection={connectionFixture}
       screenTitle="Machine Health"
-      contextSummary={["115 assets monitored", "Predictive condition monitoring", "Modbus / OPC-UA / MQTT"]}
+      contextSummary={["115 assets monitored", "Predictive condition monitoring", "Live plant data feeds"]}
       criticalAlarmCount={demoCriticalAlarmCount()}
     >
       <PageHead

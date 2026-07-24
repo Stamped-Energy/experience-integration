@@ -29,7 +29,7 @@ export function EnergyTwinGraph({ root = energyTwinFixture }: { root?: TwinNode 
         <p className="forge-eyebrow">Energy twin</p>
         <h3 className="forge-card-title">Plant power hierarchy</h3>
         <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-          Sections collapse when dense — click a section node to expand equipment. Fixture load ·
+          Sections collapse when dense — click a section node to expand equipment. Current load ·
           Normal production · Day shift.
         </p>
       </div>

@@ -203,7 +203,7 @@
 }
 
 .forge-shell__sidebar {
-  width: 220px;
+  width: var(--forge-sidebar-width);
   flex-shrink: 0;
   height: 100%;
   background: var(--forge-surface-container-lowest);
@@ -216,7 +216,7 @@
 }
 
 .forge-shell--collapsed .forge-shell__sidebar {
-  width: 60px;
+  width: var(--forge-sidebar-collapsed);
 }
 
 .forge-shell__facility {
@@ -442,7 +442,7 @@
   min-width: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 20px var(--forge-margin-mobile);
+  padding: 16px var(--forge-margin-mobile);
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -452,7 +452,6 @@
 .forge-shell__content {
   width: 100%;
   max-width: var(--forge-content-max);
-  margin-inline: auto;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -514,8 +513,7 @@
   }
 
   .forge-shell__main {
-    padding: 20px var(--forge-gutter);
-    padding-bottom: 24px;
+    padding: 16px var(--forge-gutter) 20px var(--forge-main-inset-start);
   }
 }
 

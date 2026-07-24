@@ -1,5 +1,6 @@
 import type { AnalystContextEnvelope } from "./types";
-
+import { alarmsFixture, prescriptionsFixture } from "@/fixtures/demo";
+import { fixtureAnalystReplyRich } from "./analyst-fixtures";
 export interface ContextChip {
   key: string;
   value: string;
@@ -17,8 +18,18 @@ export type AnalystMessage = {
   role: "user" | "assistant";
   content: string;
   citations?: AnalystCitation[];
+  /** When true, UI streams content letter-by-letter. */
+  stream?: boolean;
 };
 
+export type AnalystRelatedLink = {
+  kind: "alarm" | "prescription";
+  id: string;
+  label: string;
+  href: string;
+};
+
+/** @deprecated Use relatedLinksFromReply — dashboard navigates; no upstream handoff. */
 export type ProposedAction = {
   id: string;
   kind: "ack_alarm" | "assign_rx" | "open_evidence";
@@ -37,14 +48,18 @@ export function visibleContextChips(
   const excluded = new Set(envelope.excludeKeys ?? []);
   const candidates: ContextChip[] = [
     { key: "screen", value: envelope.screenTitle },
-    { key: "route", value: envelope.routeId },
     {
       key: "focus",
       value: envelope.focusEntity
-        ? `${envelope.focusEntity.type}:${envelope.focusEntity.id}`
+        ? envelope.focusEntity.type === "alarm"
+          ? "Alarm in focus"
+          : envelope.focusEntity.type === "prescription"
+            ? "Prescription in focus"
+            : envelope.focusEntity.type === "asset"
+              ? "Asset in focus"
+              : "Entry in focus"
         : "",
-    },
-    ...(envelope.timeRange
+    },    ...(envelope.timeRange
       ? [
           {
             key: "range",
@@ -89,7 +104,7 @@ export function suggestionPrompts(envelope: AnalystContextEnvelope): string[] {
   return [
     "What needs attention on this screen?",
     "Compare vs baseline for the plant",
-    "List claim-safe savings this month",
+    "List confirmed savings this month",
   ];
 }
 
@@ -98,65 +113,83 @@ export function fixtureAnalystReply(
   envelope: AnalystContextEnvelope,
   question: string,
 ): AnalystMessage {
-  const chips = visibleContextChips(envelope);
-  const focus = envelope.focusEntity
-    ? ` Focus ${envelope.focusEntity.type} ${envelope.focusEntity.id}.`
-    : "";
-  return {
-    id: `msg_${Date.now()}`,
-    role: "assistant",
-    content: `Fixture analyst for ${envelope.plantId}.${focus} You asked: “${question.trim()}”. Context chips: ${chips
-      .map((c) => c.key)
-      .join(", ") || "none"}.`,
-    citations: [
-      {
-        id: "cite_fixture_1",
-        title: "Plant context (fixture)",
-        snippet: envelope.screenTitle,
-        path: "H",
-      },
-      {
-        id: "cite_fixture_2",
-        title: "L2 measurements window",
-        snippet: envelope.visibleSummary[0] ?? "telemetry",
-        path: "W",
-      },
-    ],
-  };
+  return fixtureAnalystReplyRich(envelope, question);
+}
+
+const ALARM_ID_PATTERN = String.raw`\b(alm_\d+)\b`;
+const RX_ID_PATTERN = String.raw`\b(rx_\d+)\b`;
+
+function collectIds(text: string, pattern: string): string[] {
+  const re = new RegExp(pattern, "gi");
+  const ids = new Set<string>();
+  for (const match of text.matchAll(re)) {
+    ids.add(match[1]!.toLowerCase());
+  }
+  return [...ids];
 }
 
 /**
- * Build a proposed L5 handoff — never auto-writes; UI must confirm.
- * Rejects injection-like payloads that try to smuggle commands.
+ * Extract alarm / prescription links cited in an analyst reply.
+ * Used for in-dashboard navigation — not upstream writes.
  */
+export function relatedLinksFromReply(reply: AnalystMessage): AnalystRelatedLink[] {
+  const text = `${reply.content}`;
+  if (/ignore (all|previous)|system:|<\/?script/i.test(text)) {
+    return [];
+  }
+
+  const alarmIds = new Set(collectIds(text, ALARM_ID_PATTERN));
+  const rxIds = new Set(collectIds(text, RX_ID_PATTERN));
+
+  for (const citation of reply.citations ?? []) {
+    const blob = `${citation.title} ${citation.snippet ?? ""} ${citation.id}`;
+    collectIds(blob, ALARM_ID_PATTERN).forEach((id) => alarmIds.add(id));
+    collectIds(blob, RX_ID_PATTERN).forEach((id) => rxIds.add(id));
+
+    const citeAlarm = citation.id.match(/^cite_(alm_\d+)$/i);
+    if (citeAlarm) alarmIds.add(citeAlarm[1]!.toLowerCase());
+    const citeRx = citation.id.match(/^cite_(rx_\d+)$/i);
+    if (citeRx) rxIds.add(citeRx[1]!.toLowerCase());
+  }
+
+  const links: AnalystRelatedLink[] = [
+    ...[...alarmIds].map((id) => {
+      const alarm = alarmsFixture.find((a) => a.id === id);
+      return {
+        kind: "alarm" as const,
+        id,
+        label: alarm ? `View ${alarm.assetLabel} alarm` : "View alarm",
+        href: `/alarms/${id}`,
+      };
+    }),
+    ...[...rxIds].map((id) => {
+      const rx = prescriptionsFixture.find((p) => p.id === id);
+      return {
+        kind: "prescription" as const,
+        id,
+        label: rx ? `View ${rx.title}` : "View prescription",
+        href: `/prescriptions/${id}`,
+      };
+    }),
+  ];
+  return links.slice(0, 4);
+}
+
+/** @deprecated Use relatedLinksFromReply */
 export function proposeActionFromReply(
   envelope: AnalystContextEnvelope,
   reply: AnalystMessage,
 ): ProposedAction | null {
-  const text = `${reply.content}`;
-  if (/ignore (all|previous)|system:|<\/?script/i.test(text)) {
-    return null;
-  }
-  const focus = envelope.focusEntity;
-  if (focus?.type === "alarm") {
-    return {
-      id: `act_${focus.id}_ack`,
-      kind: "ack_alarm",
-      label: "Acknowledge alarm",
-      targetId: focus.id,
-      summary: `Ack ${focus.id} after analyst review — requires explicit confirm.`,
-    };
-  }
-  if (focus?.type === "prescription") {
-    return {
-      id: `act_${focus.id}_assign`,
-      kind: "assign_rx",
-      label: "Assign prescription to me",
-      targetId: focus.id,
-      summary: `Assign ${focus.id} — requires explicit confirm before L5 write.`,
-    };
-  }
-  return null;
+  const links = relatedLinksFromReply(reply);
+  const first = links[0];
+  if (!first) return null;
+  return {
+    id: `act_${first.id}`,
+    kind: first.kind === "alarm" ? "ack_alarm" : "assign_rx",
+    label: first.label,
+    targetId: first.id,
+    summary: first.label,
+  };
 }
 
 export function confirmActionGate(input: {

@@ -32,8 +32,8 @@ export function EvidenceTrend({
         }}
       >
         {showBaselineBand
-          ? "Baseline band overlaid from L2 (customer-safe query)."
-          : "Baseline band omitted — L2 baseline reads are feature-gated; telemetry still shown."}
+          ? "Baseline band from meter history."
+          : "Baseline comparison not available yet; live readings still shown."}
       </p>
     </Panel>
   );
