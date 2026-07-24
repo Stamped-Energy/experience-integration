@@ -10,7 +10,8 @@ import {
   type AnalystMessage,
   type ProposedAction,
 } from "@/lib/analyst-context";
-import { GhostButton, PrimaryButton, SecondaryButton } from "@/components/ui/primitives";
+import { ForgeButton, ForgeButtonGroup } from "@/components/ui/primitives";
+import { Sparkles } from "@/components/ui/icons";
 
 export function ContextualAnalyst({
   open,
@@ -128,7 +129,14 @@ export function ContextualAnalyst({
             type="button"
             aria-label="Close analyst"
             onClick={onClose}
-            style={{ color: "#fff", fontSize: 18, padding: 8 }}
+            style={{
+              color: "#fff",
+              fontSize: 18,
+              padding: 8,
+              minWidth: 48,
+              minHeight: 48,
+              borderRadius: "var(--forge-radius-md)",
+            }}
           >
             ×
           </button>
@@ -151,10 +159,11 @@ export function ContextualAnalyst({
                   style={{
                     fontSize: 11,
                     fontWeight: 600,
-                    padding: "4px 8px",
-                    borderRadius: 999,
-                    background: "var(--forge-primary-dim)",
-                    color: "var(--forge-primary)",
+                    padding: "6px 10px",
+                    borderRadius: "var(--forge-radius-md)",
+                    border: "1px solid var(--forge-outline-variant)",
+                    background: "var(--forge-surface-container-lowest)",
+                    color: "var(--forge-on-surface)",
                   }}
                 >
                   {chip.value} ×
@@ -162,13 +171,13 @@ export function ContextualAnalyst({
               ))
             )}
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
+          <ForgeButtonGroup aria-label="Suggested prompts">
             {suggestions.map((s) => (
-              <GhostButton key={s} onClick={() => send(s)}>
+              <ForgeButton key={s} variant="ghost" size="sm" onClick={() => send(s)}>
                 {s}
-              </GhostButton>
+              </ForgeButton>
             ))}
-          </div>
+          </ForgeButtonGroup>
         </div>
 
         <div
@@ -215,27 +224,30 @@ export function ContextualAnalyst({
             >
               <p style={{ margin: 0, fontWeight: 700 }}>Proposed action</p>
               <p style={{ margin: "6px 0 0", fontSize: 13 }}>{proposal.summary}</p>
-              {!confirming ? (
-                <div style={{ marginTop: 10 }}>
-                  <SecondaryButton onClick={() => setConfirming(true)}>
+              <div style={{ marginTop: 10 }}>
+                {!confirming ? (
+                  <ForgeButton variant="secondary" onClick={() => setConfirming(true)}>
                     Preview {proposal.label}
-                  </SecondaryButton>
-                </div>
-              ) : (
-                <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <PrimaryButton
-                    onClick={() => {
-                      // ponytail: no auto-write — confirm gate only; L5 wire in consumer
-                      setToast(`${proposal.label} confirmed (fixture — not sent upstream)`);
-                      setProposal(null);
-                      setConfirming(false);
-                    }}
-                  >
-                    Confirm {proposal.label}
-                  </PrimaryButton>
-                  <GhostButton onClick={() => setConfirming(false)}>Cancel</GhostButton>
-                </div>
-              )}
+                  </ForgeButton>
+                ) : (
+                  <ForgeButtonGroup aria-label="Confirm proposed action">
+                    <ForgeButton
+                      variant="primary"
+                      onClick={() => {
+                        // ponytail: no auto-write — confirm gate only; L5 wire in consumer
+                        setToast(`${proposal.label} confirmed (fixture — not sent upstream)`);
+                        setProposal(null);
+                        setConfirming(false);
+                      }}
+                    >
+                      Confirm {proposal.label}
+                    </ForgeButton>
+                    <ForgeButton variant="ghost" onClick={() => setConfirming(false)}>
+                      Cancel
+                    </ForgeButton>
+                  </ForgeButtonGroup>
+                )}
+              </div>
             </div>
           ) : null}
           {toast ? (
@@ -266,10 +278,13 @@ export function ContextualAnalyst({
                 fontSize: 13,
               }}
             />
-            <PrimaryButton onClick={() => send(draft)}>Send</PrimaryButton>
-          </div>
-          <div style={{ marginTop: 10 }}>
-            <GhostButton onClick={onClose}>Done</GhostButton>
+            <ForgeButton
+              variant="primary"
+              icon={<Sparkles size={16} />}
+              onClick={() => send(draft)}
+            >
+              Send
+            </ForgeButton>
           </div>
         </div>
       </aside>
