@@ -56,7 +56,6 @@ export function EvidenceDetail({
         <h2 className="evidence-card__title">{sample.chartTitle}</h2>
         <p className="evidence-card__asset">
           {sample.assetLabel} · {sample.id}
-          {sample.findingId ? ` · ${sample.findingId}` : ""}
         </p>
 
         <EvidenceMiniChart chart={sample.chart} accent={accent} />
@@ -99,20 +98,23 @@ export function EvidenceDetail({
 
         <p className="evidence-mv-footer">{sample.mvFooter}</p>
 
-        <div className="evidence-card__links">
+        <div className="evidence-card__links" data-evidence-parents>
           {sample.alarmId ? (
             <StatusChip tone="critical">
               <Link href={`/alarms/${sample.alarmId}`} style={{ color: "inherit" }}>
-                Alarm {sample.alarmId}
+                Alarm · {sample.alarmId}
               </Link>
             </StatusChip>
           ) : null}
           {sample.rxId ? (
             <StatusChip tone="info">
               <Link href={`/prescriptions/${sample.rxId}`} style={{ color: "inherit" }}>
-                Rx {sample.rxId}
+                Rx · {sample.rxId}
               </Link>
             </StatusChip>
+          ) : null}
+          {sample.findingId ? (
+            <StatusChip tone="neutral">Finding · {sample.findingId}</StatusChip>
           ) : null}
         </div>
 
