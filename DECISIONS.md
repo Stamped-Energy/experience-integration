@@ -314,10 +314,11 @@ consumer DEC-012 demoted it.
 
 ### Decision
 
-- **Option B (SIMPLICITY):** Evidence stays deep-link + Reports shelf — not a
-  third ops triage queue.
 - Mental model: Alarm = attention lifecycle; Prescription = action + ?;
   Evidence = pre-scoped proof pack attached to Alarm and/or Rx.
+- **Nav (2026-07-24 revision):** Evidence lives under **Operations** with
+  Alarms and Prescriptions (not under Reports). It remains a proof index /
+  deep-link target, not a third triage lane.
 - Chrome: **Prescriptions** (drop “AI”); Alarm teaser **Signal snapshot**;
   Rx expand **Show proof** ? `/evidence?rxId=…`; Evidence detail shows parent
   chips Alarm · Rx · Finding + back links.
@@ -327,8 +328,8 @@ consumer DEC-012 demoted it.
 
 ### Alternatives
 
-- Option A — Evidence as primary nav peer (ADR-023): rejected for operators;
-  revisit if plant heads cannot find proof after sustained use.
+- Evidence under Reports only (earlier Option B shelf): superseded when product
+  asked for Evidence inside Operations for discoverability.
 - Full shadcn+Tailwind install: rejected — forks Forge and risks Overview/Live
   style bleed.
 

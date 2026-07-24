@@ -8,7 +8,6 @@ import { buildEvidencePack, resolveEvidenceScope } from "@/lib/evidence";
 import {
   ForgeButton,
   ForgeButtonGroup,
-  Panel,
   StatusChip,
   ToastRegion,
   DataTable,
@@ -126,60 +125,68 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
     );
   }
 
+  const criticalCount = open.filter((a) => a.severity === "critical").length;
+
   return (
-    <div data-alarm-console>
-      <div
-        style={{ display: "grid", gridTemplateColumns: "minmax(260px, 1fr) 1.5fr", gap: 16 }}
-        className="alarm-grid"
-      >
-        <Panel style={{ padding: 0, overflow: "hidden" }}>
-          <ul style={{ listStyle: "none", margin: 0, padding: 0 }} aria-label="Open alarms">
+    <div data-alarm-console className="forge-ops-queue">
+      <div className="forge-ops-summary">
+        <div>
+          <p className="forge-eyebrow">Open EMS queue</p>
+          <p className="forge-ops-summary__value">
+            {open.length} open
+            <span
+              style={{
+                marginLeft: 10,
+                fontSize: 14,
+                fontWeight: 600,
+                color: "var(--forge-on-surface-variant)",
+              }}
+            >
+              {criticalCount} critical
+            </span>
+          </p>
+        </div>
+        <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
+          Keyboard: j/k move · a acknowledge
+        </p>
+      </div>
+
+      <div className="forge-alarm-console alarm-grid">
+        <div className="forge-alarm-list-panel">
+          <ul className="forge-ops-list" style={{ border: "none", borderRadius: 0 }} aria-label="Open alarms">
             {open.map((a, i) => (
               <li key={a.id}>
                 <button
                   type="button"
+                  className="forge-ops-row"
                   onClick={() => setSelected(i)}
                   aria-current={current?.id === a.id ? "true" : undefined}
                   data-alarm-id={a.id}
-                  style={{
-                    width: "100%",
-                    textAlign: "left",
-                    padding: "12px 14px",
-                    borderBottom: "1px solid var(--forge-outline-variant)",
-                    background:
-                      current?.id === a.id ? "var(--forge-primary-dim)" : "transparent",
-                  }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-                    <strong style={{ fontSize: 13 }}>{a.assetLabel}</strong>
-                    <StatusChip tone={severityTone[a.severity]} />
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                      <p className="forge-ops-row__title">{a.assetLabel}</p>
+                      <StatusChip tone={severityTone[a.severity]} compact>
+                        {a.severity}
+                      </StatusChip>
+                    </div>
+                    <p className="forge-ops-row__meta">
+                      {a.state} · {a.summary}
+                    </p>
                   </div>
-                  <p
-                    style={{
-                      margin: "6px 0 0",
-                      fontSize: 12,
-                      color: "var(--forge-on-surface-variant)",
-                    }}
-                  >
-                    {a.state} · {a.summary}
-                  </p>
                 </button>
               </li>
             ))}
           </ul>
-        </Panel>
+        </div>
 
         {current ? (
-          <Panel data-alarm-detail={current.id} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+          <section className="forge-alarm-detail" data-alarm-detail={current.id}>
+            <div className="forge-alarm-detail__head">
               <div>
-                <h2 style={{ margin: 0, fontFamily: "var(--forge-font-display)", fontSize: 20 }}>
-                  {current.assetLabel}
-                </h2>
-                <p style={{ margin: "6px 0 0", fontSize: 14 }}>{current.summary}</p>
-                <p style={{ margin: "8px 0 0", fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
-                  Raised {current.raisedAt}
-                </p>
+                <h2 className="forge-alarm-detail__title">{current.assetLabel}</h2>
+                <p style={{ margin: "6px 0 0", fontSize: 14, lineHeight: 1.45 }}>{current.summary}</p>
+                <p className="forge-ops-row__meta">Raised {current.raisedAt}</p>
               </div>
               <StatusChip tone={severityTone[current.severity]}>{current.state}</StatusChip>
             </div>
@@ -187,7 +194,7 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
             <div>
               <p className="forge-eyebrow">Signal snapshot</p>
               <DataTable
-                caption="Alarm evidence"
+                caption="Alarm signal"
                 columns={[
                   { key: "metric", header: "Metric" },
                   { key: "value", header: "Value" },
@@ -255,10 +262,7 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
                 Full detail
               </ForgeButton>
             </ForgeButtonGroup>
-            <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
-              Keyboard: j/k move · a acknowledge. Lifecycle truth lives in L5.
-            </p>
-          </Panel>
+          </section>
         ) : null}
       </div>
 
@@ -295,20 +299,13 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
       <style>{`
         .alarm-mobile-bar { display: none; }
         @media (max-width: 899px) {
-          .alarm-grid { grid-template-columns: 1fr !important; }
           .alarm-actions-desktop { display: none !important; }
           .alarm-mobile-bar {
-            display: flex;
+            display: block;
             position: sticky;
             bottom: 72px;
             z-index: 20;
-            gap: 8px;
-            padding: 12px;
-            margin-top: 12px;
-            background: var(--forge-surface-container-lowest);
-            border: 1px solid var(--forge-outline-variant);
-            border-radius: 12px;
-            flex-wrap: wrap;
+            margin-top: 4px;
           }
         }
       `}</style>
