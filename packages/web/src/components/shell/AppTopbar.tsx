@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles } from "@/components/ui/icons";
+import { Menu, Sparkles } from "@/components/ui/icons";
 import { StampedLogo } from "@/components/shell/StampedLogo";
 import { liveConnectionLabel } from "@/lib/format";
 import type { ConnectionStatus } from "@/lib/types";
@@ -23,6 +23,7 @@ export function AppTopbar({
 }) {
   const live = connection.sse === "live";
   const connectionLabel = liveConnectionLabel(connection.sse);
+  const plantShort = plantName.split(",")[0]?.trim() ?? plantName;
 
   return (
     <header className="forge-shell__topbar">
@@ -34,32 +35,42 @@ export function AppTopbar({
           aria-expanded={mobileNavOpen}
           onClick={onOpenNav}
         >
-          Menu
+          <Menu size={18} strokeWidth={2.2} />
         </button>
 
-        <div className="forge-shell__brand-lockup">
-          <StampedLogo size={30} />
-          <span className="forge-shell__brand-copy">
-            <strong className="forge-shell__brand">Stamped</strong>
-            <span className="forge-shell__brand-sub">{plantName}</span>
-          </span>
+        <div className="forge-shell__brand">
+          <StampedLogo size={28} />
+          <div className="forge-shell__brand-text">
+            <span className="forge-shell__brand-name">Stamped</span>
+            <span className="forge-shell__brand-sep" aria-hidden>
+              ·
+            </span>
+            <span className="forge-shell__brand-plant" title={plantName}>
+              {plantShort}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="forge-shell__topbar-end">
+      <div className="forge-shell__topbar-actions">
         <span
           aria-live="polite"
-          className={`forge-shell__live-pill ${live ? "forge-shell__live-pill--on" : "forge-shell__live-pill--off"}`}
+          className={`forge-shell__conn${live ? " is-live" : " is-stale"}`}
           title={live ? "Live updates connected" : `${connectionLabel} — updates paused`}
         >
-          <span className={`forge-pulse-dot${live ? "" : " forge-pulse-dot--muted"}`} aria-hidden />
-          <span className="forge-shell__live-pill-text">{connectionLabel}</span>
+          <span className="forge-shell__conn-dot" aria-hidden />
+          <span className="forge-shell__conn-label">{connectionLabel}</span>
         </span>
 
-        <span ref={askAnalystRef} tabIndex={-1} className="forge-shell__cta-wrap">
-          <button type="button" className="forge-shell__cta" onClick={onAskAnalyst}>
+        <span ref={askAnalystRef} tabIndex={-1}>
+          <button
+            type="button"
+            className="forge-shell__analyst-btn"
+            onClick={onAskAnalyst}
+            aria-haspopup="dialog"
+          >
             <Sparkles size={15} strokeWidth={2.2} aria-hidden />
-            Ask Analyst
+            <span className="forge-shell__analyst-label">Ask Analyst</span>
           </button>
         </span>
       </div>
