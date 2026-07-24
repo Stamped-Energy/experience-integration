@@ -11,7 +11,9 @@ test.describe("operational journeys", () => {
     await page.goto("/alarms");
     await expect(page.locator("main").first()).toBeVisible();
     await page.goto("/alarms/alm_1001");
-    await expect(page.getByRole("link", { name: "Open evidence" })).toBeVisible();
+    await expect(
+      page.getByLabel("Alarm detail actions").getByRole("link", { name: "Evidence" }),
+    ).toBeVisible();
   });
 
   test("prescription triage and evidence scope", async ({ page }) => {

@@ -1,12 +1,12 @@
-# Stamped L6 — Implementation Decisions
+# Stamped L6 â€” Implementation Decisions
 
 Platform semantics remain authoritative in `external/`. These decisions define
 how this consumer implements them. Any conflict with a platform ADR requires an
 upstream proposal rather than silent divergence.
 
-## DEC-001 — Separate L6 modular monolith packages
+## DEC-001 â€” Separate L6 modular monolith packages
 
-**Status:** Accepted · **Date:** 2026-07-22
+**Status:** Accepted Â· **Date:** 2026-07-22
 
 ### Context
 
@@ -31,9 +31,9 @@ second domain.
 The API and worker are independently deployable, while the codebase remains a
 single modular monolith.
 
-## DEC-002 — PostgreSQL replaces Redis through P2
+## DEC-002 â€” PostgreSQL replaces Redis through P2
 
-**Status:** Accepted · **Date:** 2026-07-22
+**Status:** Accepted Â· **Date:** 2026-07-22
 
 ### Context
 
@@ -67,9 +67,9 @@ connection pools, bounded retention, indexes, and load metrics are required.
 Measured saturation is the trigger to introduce a dedicated queue/fan-out
 service later.
 
-## DEC-003 — Better Auth with L6-owned RBAC
+## DEC-003 â€” Better Auth with L6-owned RBAC
 
-**Status:** Accepted · **Date:** 2026-07-22
+**Status:** Accepted Â· **Date:** 2026-07-22
 
 ### Context
 
@@ -99,9 +99,9 @@ Authentication and authorization remain separate. A dependency/license review
 precedes adoption; official MSAL Node is the fallback Entra adapter if the
 selected Better Auth integration is unsuitable.
 
-## DEC-004 — PostgreSQL-backed resumable SSE
+## DEC-004 â€” PostgreSQL-backed resumable SSE
 
-**Status:** Accepted · **Date:** 2026-07-22
+**Status:** Accepted Â· **Date:** 2026-07-22
 
 ### Context
 
@@ -127,9 +127,9 @@ SSE uses durable IDs, heartbeats, and `Last-Event-ID` replay.
 Reconnect correctness is testable without sticky sessions. Notification loss
 does not lose events because API instances reread durable rows.
 
-## DEC-005 — Forge Industrial responsive product system
+## DEC-005 â€” Forge Industrial responsive product system
 
-**Status:** Accepted · **Date:** 2026-07-22
+**Status:** Accepted Â· **Date:** 2026-07-22
 
 ### Context
 
@@ -140,7 +140,7 @@ system.
 ### Decision
 
 Adapt Forge Industrial tokens into owned Tailwind/shadcn-based primitives.
-Use a restrained light industrial scene, ≤7 Today signals, dark structural
+Use a restrained light industrial scene, â‰¤7 Today signals, dark structural
 chrome, color only for abnormal/action state, and no nested card grids.
 Desktop and 360px mobile are equal release targets.
 
@@ -157,14 +157,14 @@ Every primary route needs default, loading, empty, error, stale, forbidden,
 and partial states. WCAG AA, visible focus, keyboard operation, 44px targets,
 reduced motion, and chart text/table alternatives are gates.
 
-## DEC-006 — Performance is measured in field and lab
+## DEC-006 â€” Performance is measured in field and lab
 
-**Status:** Accepted · **Date:** 2026-07-22
+**Status:** Accepted Â· **Date:** 2026-07-22
 
 ### Decision
 
-Measure Core Web Vitals at p75 by device class: LCP ≤2.5s, INP ≤200ms, and
-CLS ≤0.1. Primary route JavaScript has a 350 kB gzip ceiling and 250 kB
+Measure Core Web Vitals at p75 by device class: LCP â‰¤2.5s, INP â‰¤200ms, and
+CLS â‰¤0.1. Primary route JavaScript has a 350 kB gzip ceiling and 250 kB
 target. ECharts loads only on chart routes and uses sampling/progressive
 rendering for dense data.
 
@@ -173,9 +173,9 @@ rendering for dense data.
 Web-vitals instrumentation contains no PII. Bundle, Lighthouse, and
 43,200-point chart benchmarks run before cutover.
 
-## DEC-007 — Reports use Playwright and pg-boss
+## DEC-007 â€” Reports use Playwright and pg-boss
 
-**Status:** Accepted · **Date:** 2026-07-22
+**Status:** Accepted Â· **Date:** 2026-07-22
 
 ### Decision
 
@@ -190,9 +190,9 @@ Chromium never runs in the request process. Worker concurrency and memory are
 bounded. Reports disclose data windows, methodology, lineage, factors, and
 unavailable metrics.
 
-## DEC-008 — Power BI is the P2 acceptance integration
+## DEC-008 â€” Power BI is the P2 acceptance integration
 
-**Status:** Accepted · **Date:** 2026-07-22
+**Status:** Accepted Â· **Date:** 2026-07-22
 
 ### Decision
 
@@ -212,9 +212,9 @@ push semantic models and service-principal profiles.
 The fallback remains activity-data CSV/XLSX plus public API/Power Query.
 Power BI credentials are secret-manager references, never database values.
 
-## DEC-009 — Fixture-first CI, staged live cutover
+## DEC-009 â€” Fixture-first CI, staged live cutover
 
-**Status:** Accepted · **Date:** 2026-07-22
+**Status:** Accepted Â· **Date:** 2026-07-22
 
 ### Decision
 
@@ -228,9 +228,9 @@ inventing truth.
 Missing sibling routes do not block local construction, but production
 acceptance cannot be claimed until the required upstream contracts land.
 
-## DEC-010 — Auto product/UX priority over public API
+## DEC-010 â€” Auto product/UX priority over public API
 
-**Status:** Accepted · **Date:** 2026-07-22
+**Status:** Accepted Â· **Date:** 2026-07-22
 
 ### Context
 
@@ -250,14 +250,14 @@ operational product path.
 Enterprise integration (Phase H) remains in scope but is sequenced after the
 ops-first product. README and `/api/meta` advertise `public_api: false`.
 
-## DEC-011 — Single Jaipur Works demo fixture source
+## DEC-011 â€” Single Jaipur Works demo fixture source
 
-**Status:** Accepted · **Date:** 2026-07-22
+**Status:** Accepted Â· **Date:** 2026-07-22
 
 ### Context
 
 Dashboard demos need coherent plant data across Today, EMS, Rx, evidence,
-analytics, analyst, reports, and admin settings — without inventing live
+analytics, analyst, reports, and admin settings â€” without inventing live
 upstream reads.
 
 ### Decision
@@ -276,9 +276,9 @@ import shared fixtures/helpers (`demoCriticalAlarmCount`, ledger/Rx sums,
 Unit tests assert against derived fixture totals. Intensity demo ships
 production units so SEC calculates; Scope 1 stays `not_measured_by_stamped`.
 
-## DEC-012 � Full-app visual IA (Overview, Assignments, 2D twin)
+## DEC-012 — Full-app visual IA (Overview, Assignments, 2D twin)
 
-**Status:** Accepted � **Date:** 2026-07-22
+**Status:** Accepted · **Date:** 2026-07-22
 
 ### Context
 
@@ -300,39 +300,44 @@ Ops users need a denser desktop Overview, professional nav labels, inline eviden
 
 DESIGN.md route list updated. WhatsApp send remains stub toast until P2 wiring.
 
-## DEC-013 � Alarms / Prescriptions / Evidence IA (Option B)
+## DEC-013 — Alarms / Prescriptions / Evidence IA (Option B)
 
-**Status:** Accepted � **Date:** 2026-07-24
+**Status:** Accepted · **Date:** 2026-07-24
 
 ### Context
 
 Platform handoff `external/handoff/l6-alarms-prescriptions-evidence-ia.md` and
 live audit of `trying.stamped.work` showed blurred roles: Rx expand had no
-proof CTA, chrome said �AI Prescriptions�, and Alarm �Evidence snapshot�
+proof CTA, chrome said “AI Prescriptions”, and Alarm “Evidence snapshot”
 competed with the Evidence pack route. ADR-023 lists Evidence as primary nav;
 consumer DEC-012 demoted it.
 
 ### Decision
 
-- **Option B (SIMPLICITY):** Evidence stays deep-link + Reports shelf � not a
-  third ops triage queue.
 - Mental model: Alarm = attention lifecycle; Prescription = action + ?;
   Evidence = pre-scoped proof pack attached to Alarm and/or Rx.
-- Chrome: **Prescriptions** (drop �AI�); Alarm teaser **Signal snapshot**;
-  Rx expand **Show proof** ? `/evidence?rxId=�`; Evidence detail shows parent
-  chips Alarm � Rx � Finding + back links.
+- **Nav (2026-07-24 revision):** Evidence lives under **Operations** with
+  Alarms and Prescriptions (not under Reports). It remains a proof index /
+  deep-link target, not a third triage lane.
+- Chrome: **Prescriptions** (drop “AI”); Alarm teaser **Signal snapshot**;
+  entity CTAs use short nouns — **Evidence**, **Prescription**, **Alarm** (never
+  “Open …”); Evidence detail shows parent chips Alarm · Rx · Finding + back links.
+- Compact Rx cards lead with **action + why**; expand/scroll reveals bill line,
+  owner, effort, rule, due, recommended steps, and risks (fixture-rich demos).
+- Evidence index card heading = **issue statement**; card actions link Alarm /
+  Prescription / Evidence pack.
 - Inline tables are teasers only; do not merge Alarm+Rx into Cases.
 - **Forge buttons:** adapt shadcn Button patterns (variant / size / href /
-  group) into Forge tokens � do **not** install Tailwind/shadcn CLI or lucide.
+  group) into Forge tokens — do **not** install Tailwind/shadcn CLI or lucide.
 
 ### Alternatives
 
-- Option A � Evidence as primary nav peer (ADR-023): rejected for operators;
-  revisit if plant heads cannot find proof after sustained use.
-- Full shadcn+Tailwind install: rejected � forks Forge and risks Overview/Live
+- Evidence under Reports only (earlier Option B shelf): superseded when product
+  asked for Evidence inside Operations for discoverability.
+- Full shadcn+Tailwind install: rejected — forks Forge and risks Overview/Live
   style bleed.
 
 ### Consequences
 
 Nav and ops screens updated in `packages/web`. Overview panel title left as-is
-per scope. DEC-012 �AI Prescriptions� chrome wording superseded for ops nav.
+per scope. DEC-012 “AI Prescriptions” chrome wording superseded for ops nav.

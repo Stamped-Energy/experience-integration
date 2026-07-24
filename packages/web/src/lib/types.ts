@@ -48,7 +48,9 @@ export interface Alarm {
 export interface Prescription {
   id: string;
   plantId: string;
+  /** Imperative action statement — what to do. */
   title: string;
+  /** Short why — visible in the compact card. */
   why: string;
   impactInrPerMonth: number;
   confidence: number;
@@ -62,6 +64,19 @@ export interface Prescription {
     modeledInr: number;
     verificationStatus: "modeled";
   };
+  /** Compact card category, e.g. Load Management. */
+  category?: string;
+  priority?: "high" | "med" | "low";
+  billLine?: string;
+  effort?: string;
+  ruleId?: string;
+  relatedAlarmId?: string;
+  /** Human due label for compact cards, e.g. "This week". */
+  dueLabel?: string;
+  /** Expand / detail: numbered recommended steps. */
+  actions?: string[];
+  /** Expand / detail: risk → mitigation lines. */
+  risks?: string[];
 }
 
 export interface TodaySignal {

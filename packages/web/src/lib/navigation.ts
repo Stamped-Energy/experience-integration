@@ -98,7 +98,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/evidence",
     label: "Evidence",
     permission: "route:evidence",
-    tier: "reveal",
+    tier: "primary",
   },
 ];
 
@@ -196,13 +196,13 @@ export const NAV_GROUP_DEFS: readonly {
   label: string;
   keys: readonly NavKey[];
 }[] = [
-  { id: "operations", label: "Operations", keys: ["alarms", "prescriptions"] },
+  { id: "operations", label: "Operations", keys: ["alarms", "prescriptions", "evidence"] },
   {
     id: "insights",
     label: "Insights",
     keys: ["energy", "equipment", "plant_map", "intensity"],
   },
-  { id: "reports", label: "Reports", keys: ["reports", "evidence"] },
+  { id: "reports", label: "Reports", keys: ["reports"] },
   {
     id: "administration",
     label: "Administration",

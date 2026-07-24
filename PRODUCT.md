@@ -56,7 +56,7 @@ Users may switch only among plants assigned by an L6 administrator.
 
 ## Voice and vocabulary
 
-- Lead with operational verbs: “Acknowledge alarm”, “Mark done”, “Show proof”.
+- Lead with operational verbs: “Acknowledge alarm”, “Mark done”. Entity links use short nouns: “Evidence”, “Prescription”, “Alarm” — never “Open …”.
 - Use Indian number grouping and explicit units.
 - Use “Ops-confirmed (telemetry)” where additional clarity is needed.
 - Use “Modeled — not bill-verified” for counterfactual opportunity cost.

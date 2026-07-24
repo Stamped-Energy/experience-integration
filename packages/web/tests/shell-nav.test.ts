@@ -39,9 +39,9 @@ describe("role-aware navigation", () => {
     assert.ok(navForRole("admin").reveal.some((i) => i.key === "integrations"));
   });
 
-  it("keeps Evidence out of primary and labels Overview professionally", () => {
+  it("keeps Evidence in Operations primary (not Reports)", () => {
     const { primary } = navForRole("plant_head");
-    assert.equal(primary.some((i) => i.key === "evidence"), false);
+    assert.ok(primary.some((i) => i.key === "evidence" && i.label === "Evidence"));
     assert.ok(primary.some((i) => i.key === "today" && i.label === "Overview"));
     assert.ok(primary.some((i) => i.key === "energy" && i.label === "Energy Analytics"));
     assert.ok(
@@ -74,15 +74,15 @@ describe("role-aware navigation", () => {
   });
 
   it("promotes sanitized pins and drops unauthorized keys", () => {
-    const pins = sanitizePins("plant_head", ["evidence", "admin", "alarms", "evidence"]);
-    assert.deepEqual(pins, ["evidence"]);
+    const pins = sanitizePins("plant_head", ["tools", "admin", "alarms", "tools"]);
+    assert.deepEqual(pins, ["tools"]);
     const { primary, reveal } = composeNav("plant_head", pins);
-    assert.ok(primary.some((i) => i.key === "evidence"));
-    assert.equal(reveal.some((i) => i.key === "evidence"), false);
+    assert.ok(primary.some((i) => i.key === "tools"));
+    assert.equal(reveal.some((i) => i.key === "tools"), false);
   });
 
   it("groups navigation into collapsible sections instead of a flat list", () => {
-    const tree = composeNavTree("plant_head", ["evidence"], { active: "energy" });
+    const tree = composeNavTree("plant_head", [], { active: "energy" });
     assert.ok(tree.standalone.some((i) => i.key === "today"));
     assert.ok(tree.standalone.some((i) => i.key === "live"));
     assert.ok(tree.standalone.some((i) => i.key === "analyst"));
@@ -90,9 +90,13 @@ describe("role-aware navigation", () => {
     const insights = tree.groups.find((g) => g.id === "insights");
     assert.ok(insights?.items.some((i) => i.key === "energy"));
     assert.equal(insights?.defaultOpen, true);
+    const operations = tree.groups.find((g) => g.id === "operations");
+    assert.ok(operations?.items.some((i) => i.key === "alarms"));
+    assert.ok(operations?.items.some((i) => i.key === "prescriptions"));
+    assert.ok(operations?.items.some((i) => i.key === "evidence"));
     const reports = tree.groups.find((g) => g.id === "reports");
-    assert.ok(reports?.items.some((i) => i.key === "evidence"));
-    assert.equal(reports?.defaultOpen, true);
+    assert.equal(reports?.items.some((i) => i.key === "evidence"), false);
+    assert.ok(reports?.items.some((i) => i.key === "reports"));
   });
 
   it("hides empty groups for restricted roles", () => {

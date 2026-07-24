@@ -41,8 +41,10 @@ from the same helpers so shell banners stay consistent.
 ## Ops IA polish (2026-07-24)
 
 Accepted **DEC-013 Option B**: Prescriptions chrome rename, Alarm Signal
-snapshot, Rx Show proof (`?rxId=`), Evidence parent chips, ForgeButton API
-adapted from shadcn patterns. Overview / Live untouched.
+snapshot, Evidence parent chips, ForgeButton API adapted from shadcn patterns.
+Follow-on: Evidence under Operations; compact Rx (action+why → full detail);
+Evidence cards headed by issue with Alarm/Prescription links; CTAs are short
+nouns (Evidence / Prescription / Alarm). Overview / Live untouched.
 
 ## Visual + IA redesign (2026-07-22)
 

@@ -144,7 +144,7 @@ export function SavingsLedger({ rows }: { rows: LedgerEntry[] }) {
                       href={`/evidence/${evidenceId}`}
                       style={{ fontWeight: 700, fontSize: 13 }}
                     >
-                      Open proof
+                      Evidence
                     </Link>
                   );
                 })()}

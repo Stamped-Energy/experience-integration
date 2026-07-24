@@ -91,7 +91,7 @@ export default async function AlarmDetailPage({
             ) : null}
             {evidenceId ? (
               <ForgeButton variant="ghost" href={`/evidence/${evidenceId}`}>
-                Open evidence
+                Evidence
               </ForgeButton>
             ) : null}
             {alarm.relatedPrescriptionId ? (
@@ -99,7 +99,7 @@ export default async function AlarmDetailPage({
                 variant="ghost"
                 href={`/prescriptions/${alarm.relatedPrescriptionId}`}
               >
-                Open prescription
+                Prescription
               </ForgeButton>
             ) : null}
           </ForgeButtonGroup>
