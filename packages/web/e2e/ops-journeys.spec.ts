@@ -12,7 +12,7 @@ test.describe("operational journeys", () => {
     await expect(page.locator("main").first()).toBeVisible();
     await page.goto("/alarms/alm_1001");
     await expect(
-      page.getByLabel("Alarm detail actions").getByRole("link", { name: "Evidence" }),
+      page.getByLabel("Alarm links").getByRole("link", { name: "Evidence" }),
     ).toBeVisible();
   });
 

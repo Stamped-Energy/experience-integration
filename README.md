@@ -659,32 +659,60 @@ No. `/api/*` is the Forge BFF. `/v1` is a scoped read surface for partners.
 
 ## UI demo (fixture plant)
 
-Local demo data lives in `packages/web` fixtures — start web with `pnpm --filter @stamped/l6-web exec next dev --hostname 0.0.0.0 --port 3000` (or `next start` after `pnpm build`). Regenerate captures from `packages/web` with `node scripts/capture-ui-demo.mjs` while the app is on `:3000`.
+Local demo data lives in `packages/web` fixtures — Jaipur Works renders every Forge screen without Postgres or upstream siblings.
 
-### Fast walkthrough
+```bash
+# UI-only (fastest)
+pnpm --filter @stamped/l6-web exec next dev --hostname 0.0.0.0 --port 3000
+
+# Production build (recommended for capture / Playwright)
+pnpm --filter @stamped/l6-web build
+pnpm --filter @stamped/l6-web exec next start --hostname 0.0.0.0 --port 3000
+
+# Regenerate gallery + walkthrough (requires Chromium: pnpm --filter @stamped/l6-web exec playwright install chromium)
+cd packages/web && node scripts/capture-ui-demo.mjs
+```
+
+Assets land in [`docs/demo/`](docs/demo/) (22 screens + 3 video formats).
+
+### Walkthrough video
 
 <video src="docs/demo/l6-ui-demo-fast.mp4" controls width="100%"></video>
 
-[Full-speed MP4](docs/demo/l6-ui-demo.mp4) · [WebM](docs/demo/l6-ui-demo.webm)
+| Format | File | Notes |
+|--------|------|-------|
+| Fast MP4 (embedded) | [`l6-ui-demo-fast.mp4`](docs/demo/l6-ui-demo-fast.mp4) | ~3 min — every route + core ops actions |
+| Full-speed MP4 | [`l6-ui-demo.mp4`](docs/demo/l6-ui-demo.mp4) | Real-time navigation |
+| WebM | [`l6-ui-demo.webm`](docs/demo/l6-ui-demo.webm) | Source recording from Playwright |
 
-### Screens (every route)
+### Screens — every route (22)
 
-| Screen | Preview |
-|--------|---------|
-| Today | ![Today](docs/demo/01-today.png) |
-| Alarms console | ![Alarms](docs/demo/02-alarms.png) |
-| Alarm detail | ![Alarm detail](docs/demo/03-alarm-detail.png) |
-| Prescriptions | ![Prescriptions](docs/demo/04-prescriptions.png) |
-| Prescription detail | ![Prescription detail](docs/demo/05-prescription-detail.png) |
-| Evidence | ![Evidence](docs/demo/06-evidence.png) |
-| Analyst (Mode B) | ![Analyst](docs/demo/07-analyst.png) |
-| Reports & ledger | ![Reports](docs/demo/08-reports.png) |
-| Energy | ![Energy](docs/demo/09-energy.png) |
-| Equipment | ![Equipment](docs/demo/10-equipment.png) |
-| Intensity / CO₂ | ![Intensity](docs/demo/11-intensity.png) |
-| Integrations | ![Integrations](docs/demo/12-integrations.png) |
-| Admin | ![Admin](docs/demo/13-admin.png) |
-| Analyst Mode A overlay | ![Mode A](docs/demo/14-analyst-mode-a.png) |
-| Alarm ack (action) | ![Ack](docs/demo/15-alarm-acked.png) |
-| Rx defer (action) | ![Defer](docs/demo/16-rx-deferred.png) |
-| Export approve (action) | ![Approve](docs/demo/17-export-approved.png) |
+| # | Screen | Route | Preview |
+|---|--------|-------|---------|
+| 1 | Today (Overview) | `/` | ![Today](docs/demo/01-today.png) |
+| 2 | Live | `/live` | ![Live](docs/demo/02-live.png) |
+| 3 | Alarms console | `/alarms` | ![Alarms](docs/demo/03-alarms.png) |
+| 4 | Alarm detail | `/alarms/alm_1001` | ![Alarm detail](docs/demo/04-alarm-detail.png) |
+| 5 | Prescriptions | `/prescriptions` | ![Prescriptions](docs/demo/05-prescriptions.png) |
+| 6 | Prescription detail | `/prescriptions/rx_9001` | ![Prescription detail](docs/demo/06-prescription-detail.png) |
+| 7 | Evidence index | `/evidence` | ![Evidence index](docs/demo/07-evidence-index.png) |
+| 8 | Evidence detail | `/evidence/evd_4401` | ![Evidence](docs/demo/08-evidence.png) |
+| 9 | Analyst (Mode B) | `/analyst` | ![Analyst](docs/demo/09-analyst.png) |
+| 10 | Reports & ledger | `/reports` | ![Reports](docs/demo/10-reports.png) |
+| 11 | Energy analytics | `/energy` | ![Energy](docs/demo/11-energy.png) |
+| 12 | Machine health | `/equipment` | ![Equipment](docs/demo/12-equipment.png) |
+| 13 | Plant map | `/plant-map` | ![Plant map](docs/demo/13-plant-map.png) |
+| 14 | Sustainability / intensity | `/intensity` | ![Intensity](docs/demo/14-intensity.png) |
+| 15 | Tools | `/tools` | ![Tools](docs/demo/15-tools.png) |
+| 16 | Integrations | `/settings/integrations` | ![Integrations](docs/demo/16-integrations.png) |
+| 17 | Admin & members | `/settings/admin` | ![Admin](docs/demo/17-admin.png) |
+| 18 | Assignments | `/settings/assignments` | ![Assignments](docs/demo/18-assignments.png) |
+
+### Screens — analyst overlay & ops actions (4)
+
+| # | Screen | Preview |
+|---|--------|---------|
+| 19 | Analyst Mode A overlay (Ask Analyst on Today) | ![Mode A](docs/demo/19-analyst-mode-a.png) |
+| 20 | Alarm acknowledge action | ![Ack](docs/demo/20-alarm-acked.png) |
+| 21 | Prescription defer action | ![Defer](docs/demo/21-rx-deferred.png) |
+| 22 | Export approve action | ![Approve](docs/demo/22-export-approved.png) |
