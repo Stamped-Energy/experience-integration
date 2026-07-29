@@ -8,7 +8,9 @@ import {
   assertPlantAccess,
   createOrganization,
   createPlant,
+  listAuthorizedPlants,
   listMembershipsForUser,
+  resolveActivePlant,
   seedDemoTenant,
 } from "../src/tenancy/service.js";
 import { resetDatabase } from "./helpers/db.js";
@@ -31,11 +33,34 @@ describe("tenancy model", () => {
     const seeded = await seedDemoTenant(db, { adminUserId });
     assert.equal(seeded.org.slug, "demo");
     assert.equal(seeded.membership.role, "admin");
-    assert.deepEqual(seeded.membership.plantIds, [seeded.plant.id]);
+    // Membership now spans Jaipur (offline fixture baseline) + Vinayak (live path).
+    assert.deepEqual(seeded.membership.plantIds, [
+      seeded.plant.id,
+      seeded.vinayakPlant.id,
+    ]);
+    assert.equal(seeded.vinayakPlant.externalPlantId, "plant_vinayak_1");
 
     const listed = await listMembershipsForUser(db, adminUserId);
     assert.equal(listed.length, 1);
     assert.equal(listed[0]?.role, "admin");
+    assert.deepEqual(
+      new Set(listed[0]?.plantIds),
+      new Set([seeded.plant.id, seeded.vinayakPlant.id]),
+    );
+
+    // Vinayak is listed among the admin's authorized plants, active by default.
+    const authorized = await listAuthorizedPlants(db, adminUserId);
+    assert.ok(
+      authorized.some((p) => p.externalPlantId === "plant_vinayak_1"),
+    );
+    const activeResolution = await resolveActivePlant(db, {
+      userId: adminUserId,
+      orgId: seeded.org.id,
+    });
+    assert.equal(
+      activeResolution.activePlant?.externalPlantId,
+      "plant_vinayak_1",
+    );
 
     await assertPlantAccess(db, {
       userId: adminUserId,

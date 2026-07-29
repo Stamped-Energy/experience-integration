@@ -8,7 +8,7 @@ import type {
   Role,
 } from "../lib/types";
 
-/** Jaipur Works — coherent Auto demo plant for every Forge screen. */
+/** Jaipur Works — coherent Auto demo plant for every Forge screen (offline Playwright baseline). */
 export const DEMO_PLANT = {
   orgId: "org_demo",
   orgName: "Jaipur Works",
@@ -21,6 +21,23 @@ export const DEMO_PLANT = {
   shift: "A · 06:00–14:00 IST",
   demoAsOf: "2026-07-21T10:15:00+05:30",
 };
+
+/** Vinayak Plant — C-L6a live path default plant. */
+export const VINAYAK_PLANT = {
+  orgId: "org_acme",
+  orgName: "Acme",
+  plantId: "plant_vinayak_1",
+  plantName: "Vinayak Plant",
+  timezone: "Asia/Kolkata",
+  tariff: "Rajasthan HT industrial TOD",
+  cmdKva: 5000,
+  contractDemandNote: "CMD 5,000 kVA · billing window Jul 2026",
+  shift: "A · 06:00–14:00 IST",
+  demoAsOf: "2026-07-21T10:15:00+05:30",
+};
+
+/** Live-path plant switcher list — Vinayak first (default), Jaipur for offline switch. */
+export const PLANTS = [VINAYAK_PLANT, DEMO_PLANT];
 
 /** Single demo role so sidebar nav is identical on every screen. */
 export const DEMO_SHELL_ROLE: Role = "admin";
@@ -209,6 +226,48 @@ export const alarmsFixture: Alarm[] = [
     relatedPrescriptionId: "rx_9004",
   },
 ];
+
+/** Vinayak-scoped alarms — small offline set so the live-path plant switcher isn't empty. */
+export const vinayakAlarmsFixture: Alarm[] = [
+  {
+    id: "alm_v1",
+    plantId: VINAYAK_PLANT.plantId,
+    assetId: "kiln_1",
+    assetLabel: "Kiln 1",
+    severity: "critical",
+    state: "raised",
+    summary: "Load 112% — MD coincidence risk this TOD peak",
+    raisedAt: "2026-07-21T09:20:00+05:30",
+    relatedPrescriptionId: "rx_v001",
+  },
+  {
+    id: "alm_v2",
+    plantId: VINAYAK_PLANT.plantId,
+    assetId: "cm_1",
+    assetLabel: "Cement Mill 1",
+    severity: "warning",
+    state: "raised",
+    summary: "PF 0.86 drifting toward penalty slab",
+    raisedAt: "2026-07-21T08:00:00+05:30",
+    ownerRole: "supervisor",
+    relatedPrescriptionId: "rx_v002",
+  },
+  {
+    id: "alm_v3",
+    plantId: VINAYAK_PLANT.plantId,
+    assetId: "incomer",
+    assetLabel: "Main incomer",
+    severity: "info",
+    state: "acked",
+    summary: "Rolling 15-min MD steady — headroom to CMD comfortable",
+    raisedAt: "2026-07-21T07:10:00+05:30",
+  },
+];
+
+/** Alarms for the active live-path plant — Vinayak or Jaipur offline. */
+export function alarmsForPlant(plantId: string): Alarm[] {
+  return plantId === VINAYAK_PLANT.plantId ? vinayakAlarmsFixture : alarmsFixture;
+}
 
 export const prescriptionsFixture: Prescription[] = [
   {
@@ -482,6 +541,51 @@ export const prescriptionsFixture: Prescription[] = [
     ],
   },
 ];
+
+/** Vinayak-scoped prescriptions — small offline set so the live-path plant switcher isn't empty. */
+export const vinayakPrescriptionsFixture: Prescription[] = [
+  {
+    id: "rx_v001",
+    plantId: VINAYAK_PLANT.plantId,
+    title: "Stagger Kiln 1 co-start to cut MD coincidence",
+    why: "Kiln 1 co-starts pushed load 112% into the TOD peak window",
+    impactInrPerMonth: 79000,
+    confidence: 0.83,
+    lane: "needs_review",
+    ownerRole: "supervisor",
+    dueAt: "2026-07-22T18:00:00+05:30",
+    dueLabel: "This week",
+    category: "Load management",
+    priority: "high",
+    billLine: "MD (kVA)",
+    effort: "Sequence change · no new equipment",
+    ruleId: "physics/md_overlap@v2.4",
+    relatedAlarmId: "alm_v1",
+  },
+  {
+    id: "rx_v002",
+    plantId: VINAYAK_PLANT.plantId,
+    title: "APFC health check — Cement Mill 1",
+    why: "PF 0.86 drifting toward the penalty slab this billing window",
+    impactInrPerMonth: 33000,
+    confidence: 0.88,
+    lane: "active",
+    ownerRole: "operator",
+    dueAt: "2026-07-23T12:00:00+05:30",
+    dueLabel: "Before bill close",
+    category: "Power factor",
+    priority: "med",
+    billLine: "PF penalty",
+    effort: "Inspection · stage swap if needed",
+    ruleId: "pf/mill_1_slab@v3.0",
+    relatedAlarmId: "alm_v2",
+  },
+];
+
+/** Prescriptions for the active live-path plant — Vinayak or Jaipur offline. */
+export function prescriptionsForPlant(plantId: string): Prescription[] {
+  return plantId === VINAYAK_PLANT.plantId ? vinayakPrescriptionsFixture : prescriptionsFixture;
+}
 
 export const ledgerFixture: LedgerEntry[] = [
   {

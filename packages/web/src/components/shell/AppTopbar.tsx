@@ -13,6 +13,9 @@ export function AppTopbar({
   onOpenNav,
   onAskAnalyst,
   askAnalystRef,
+  plants,
+  activePlantId,
+  onPlantChange,
 }: {
   plantName: string;
   connection: ConnectionStatus;
@@ -20,6 +23,10 @@ export function AppTopbar({
   onOpenNav: () => void;
   onAskAnalyst: () => void;
   askAnalystRef?: RefObject<HTMLSpanElement | null>;
+  /** When more than one plant is authorized, renders a native plant switcher. */
+  plants?: Array<{ id: string; name: string }>;
+  activePlantId?: string;
+  onPlantChange?: (plantId: string) => void;
 }) {
   const live = connection.sse === "live";
   const connectionLabel = liveConnectionLabel(connection.sse);
@@ -50,6 +57,24 @@ export function AppTopbar({
             </span>
           </div>
         </div>
+
+        {plants && plants.length > 1 ? (
+          <label className="forge-shell__plant-switch">
+            <span className="forge-shell__plant-switch-label">Plant</span>
+            <select
+              aria-label="Switch plant"
+              className="forge-shell__plant-select"
+              value={activePlantId}
+              onChange={(e) => onPlantChange?.(e.target.value)}
+            >
+              {plants.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
       </div>
 
       <div className="forge-shell__topbar-actions">

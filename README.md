@@ -251,7 +251,9 @@ Copy [`.env.example`](.env.example) → `.env`. Never commit secrets.
 | `BETTER_AUTH_URL` | Auth | `http://localhost:3001` | Auth base URL |
 | `WEB_ORIGIN` | CORS | `http://localhost:3000` | Allowed web origin |
 | `SMTP_*` / `MAILPIT_UI` | Invites | Mailpit locals | Fake email for Phase B |
-| `L5_BASE_URL` / `L5_TIMEOUT_MS` | Upstream | `…:8105` / `5000` | L5 workflow HTTP |
+| `L5_BASE_URL` / `L5_TIMEOUT_MS` | Upstream | `http://127.0.0.1:8080` / `5000` | L5 workflow HTTP (Vinayak live path) |
+| `L5_LIVE` / `L6_L5_LIVE` | Upstream | `true` | Set either to `false` for fixture-only BFF |
+| `L5_AUTH_TOKEN` | Upstream | (bootstrap key) | Sent as `X-API-Key` |
 | `L5_FEATURE_ALARM_ACK` | Gate | `false` | Live ack vs fixture transition |
 | `L5_FEATURE_ALARM_ESCALATE` | Gate | `false` | Live escalate |
 | `L5_FEATURE_ALARM_UNSILENCE` | Gate | `false` | Live unsilence |

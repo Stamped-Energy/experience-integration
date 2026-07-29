@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PlantProvider } from "@/lib/plant-context";
 import "@/styles/tokens.css";
 import "@/styles/forge-ui.css";
 import "@/components/shell/shell.css";
@@ -22,7 +23,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <PlantProvider>{children}</PlantProvider>
+      </body>
     </html>
   );
 }

@@ -17,6 +17,8 @@ import { registerExportRoutes } from "./exports/routes.js";
 import { registerIntegrationRoutes } from "./integrations/routes.js";
 import type { Mailer } from "./mail/mailer.js";
 import { registerPlantRoutes } from "./plants/routes.js";
+import { registerPrescriptionRoutes } from "./prescriptions/routes.js";
+import type { PrescriptionStore } from "./prescriptions/service.js";
 import { problemHandler } from "./problems.js";
 import { registerPublicApiRoutes } from "./public/routes.js";
 import { registerReportRoutes } from "./reports/routes.js";
@@ -33,6 +35,7 @@ export type AppDeps = {
   pool?: pg.Pool;
   l5?: L5WorkflowClient | null;
   alarmFixture?: AlarmStore;
+  prescriptionFixture?: PrescriptionStore;
   enqueueReportGenerate?: (reportJobId: string) => Promise<string | null>;
 };
 
@@ -151,6 +154,12 @@ export async function buildApp(
       db: opts.db,
       l5: opts.l5,
       fixture: opts.alarmFixture,
+    });
+    await registerPrescriptionRoutes(app, {
+      auth: opts.auth,
+      db: opts.db,
+      l5: opts.l5,
+      fixture: opts.prescriptionFixture,
     });
     await registerExportRoutes(app, { auth: opts.auth, db: opts.db });
     await registerReportRoutes(app, {
