@@ -1,6 +1,4 @@
 import {
-  AlarmSeveritySchema,
-  AlarmStateSchema,
   WorkflowEventSchema,
   type AlarmSeverity,
   type AlarmState,
@@ -25,60 +23,62 @@ export type L5ClientOptions = {
 };
 
 /** Wire schema: accepts L5-native fields and normalizes severity/state. */
-const L5AlarmWireSchema = z
-  .object({
-    id: z.string().min(1).optional(),
-    alarm_id: z.string().min(1).optional(),
-    org_id: z.string().min(1),
-    plant_id: z.string().min(1),
-    asset_id: z.string().optional(),
-    asset_label: z.string().optional(),
-    severity: z.string().min(1),
-    state: z.string().min(1),
-    summary: z.string().optional(),
-    raised_at: z.string().optional(),
-    related_prescription_id: z.string().optional(),
-    prescription_id: z.string().optional(),
-    finding_id: z.string().optional(),
-    category_code: z.string().nullable().optional(),
-  })
-  .transform((raw) => {
-    const id = raw.id ?? raw.alarm_id;
-    if (!id) throw new Error("L5 alarm missing id/alarm_id");
-    return {
-      id,
-      org_id: raw.org_id,
-      plant_id: raw.plant_id,
-      asset_id: raw.asset_id ?? "plant",
-      asset_label: raw.asset_label ?? raw.asset_id ?? raw.plant_id,
-      severity: mapSeverity(raw.severity),
-      state: mapState(raw.state),
-      summary:
-        raw.summary ??
-        raw.category_code ??
-        `Alarm ${id} for ${raw.prescription_id ?? "prescription"}`,
-      raised_at: raw.raised_at && raw.raised_at.length > 0 ? raw.raised_at : new Date().toISOString(),
-      related_prescription_id: raw.related_prescription_id ?? raw.prescription_id,
-      finding_id: raw.finding_id,
-    };
-  })
-  .pipe(
-    z.object({
-      id: z.string().min(1),
-      org_id: z.string().min(1),
-      plant_id: z.string().min(1),
-      asset_id: z.string().min(1),
-      asset_label: z.string(),
-      severity: AlarmSeveritySchema,
-      state: AlarmStateSchema,
-      summary: z.string(),
-      raised_at: z.string().min(1),
-      related_prescription_id: z.string().optional(),
-      finding_id: z.string().optional(),
-    }),
-  );
+const L5AlarmRawSchema = z.object({
+  id: z.string().min(1).optional(),
+  alarm_id: z.string().min(1).optional(),
+  org_id: z.string().min(1),
+  plant_id: z.string().min(1),
+  asset_id: z.string().optional(),
+  asset_label: z.string().optional(),
+  severity: z.string().min(1),
+  state: z.string().min(1),
+  summary: z.string().optional(),
+  raised_at: z.string().optional(),
+  related_prescription_id: z.string().optional(),
+  prescription_id: z.string().optional(),
+  finding_id: z.string().optional(),
+  category_code: z.string().nullable().optional(),
+});
 
-export type L5Alarm = z.infer<typeof L5AlarmWireSchema>;
+export type L5Alarm = {
+  id: string;
+  org_id: string;
+  plant_id: string;
+  asset_id: string;
+  asset_label: string;
+  severity: AlarmSeverity;
+  state: AlarmState;
+  summary: string;
+  raised_at: string;
+  related_prescription_id?: string;
+  finding_id?: string;
+};
+
+function parseL5Alarm(raw: unknown): L5Alarm {
+  const data = L5AlarmRawSchema.parse(raw);
+  const id = data.id ?? data.alarm_id;
+  if (!id) throw new Error("L5 alarm missing id/alarm_id");
+  const related = data.related_prescription_id ?? data.prescription_id;
+  return {
+    id,
+    org_id: data.org_id,
+    plant_id: data.plant_id,
+    asset_id: data.asset_id ?? "plant",
+    asset_label: data.asset_label ?? data.asset_id ?? data.plant_id,
+    severity: mapSeverity(data.severity),
+    state: mapState(data.state),
+    summary:
+      data.summary ??
+      data.category_code ??
+      `Alarm ${id} for ${data.prescription_id ?? "prescription"}`,
+    raised_at:
+      data.raised_at && data.raised_at.length > 0
+        ? data.raised_at
+        : new Date().toISOString(),
+    ...(related ? { related_prescription_id: related } : {}),
+    ...(data.finding_id ? { finding_id: data.finding_id } : {}),
+  };
+}
 
 function mapSeverity(raw: string): AlarmSeverity {
   const s = raw.toLowerCase();
@@ -97,7 +97,7 @@ function mapState(raw: string): AlarmState {
 }
 
 const ListAlarmsResponseSchema = z.object({
-  items: z.array(L5AlarmWireSchema),
+  items: z.array(z.unknown()),
   next_cursor: z.union([z.string(), z.number(), z.null()]).optional(),
 });
 
@@ -149,7 +149,7 @@ export class L5WorkflowClient {
     });
     const parsed = ListAlarmsResponseSchema.parse(raw);
     return {
-      items: parsed.items,
+      items: parsed.items.map((item) => parseL5Alarm(item)),
       nextCursor:
         parsed.next_cursor === undefined || parsed.next_cursor === null
           ? null
@@ -171,7 +171,7 @@ export class L5WorkflowClient {
       timeoutMs: this.opts.timeoutMs,
       headers: this.headers(),
     });
-    return L5AlarmWireSchema.parse(raw);
+    return parseL5Alarm(raw);
   }
 
   async listPrescriptions(input: {
@@ -318,7 +318,7 @@ export class L5WorkflowClient {
     if (raw && typeof raw === "object" && "alarm_id" in (raw as object) && !("summary" in (raw as object))) {
       return this.getAlarm(alarmId, { orgId: body.orgId, plantId: body.plantId });
     }
-    return L5AlarmWireSchema.parse(raw);
+    return parseL5Alarm(raw);
   }
 }
 
