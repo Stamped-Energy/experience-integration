@@ -7,6 +7,7 @@ import { createAuth } from "../src/auth/index.js";
 import { cookieHeader } from "../src/auth/routes.js";
 import { loadEnv } from "../src/config.js";
 import { account, user } from "../src/db/auth-schema.js";
+import { loadDotEnv } from "../src/db/load-dotenv.js";
 import { createDb, createPool } from "../src/db/client.js";
 import { runMigrations } from "../src/db/migrate.js";
 import { createMailer } from "../src/mail/mailer.js";
@@ -18,7 +19,8 @@ import {
 import { seedDemoTenant } from "../src/tenancy/service.js";
 import { resetDatabase } from "./helpers/db.js";
 
-const databaseUrl = process.env.DATABASE_URL;
+loadDotEnv();
+const databaseUrl = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
 
 describe("mapL5PrescriptionToProduct", () => {
   it("maps a loosely-typed L5 prescription record to the product shape", () => {

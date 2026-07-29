@@ -213,7 +213,7 @@ docker compose -f infra/docker-compose.yml up
 **Option C — API + web without Docker** (Postgres required):
 
 ```bash
-# set DATABASE_URL in .env
+# set DATABASE_URL in .env (local Postgres or Supabase — see [docs/SUPABASE_DEMO.md](docs/SUPABASE_DEMO.md))
 pnpm --filter @stamped/l6-api db:migrate
 pnpm --filter @stamped/l6-api dev   # :3001
 pnpm --filter @stamped/l6-web dev   # :3000, NEXT_PUBLIC_BFF_URL=http://localhost:3001
@@ -245,7 +245,8 @@ Copy [`.env.example`](.env.example) → `.env`. Never commit secrets.
 |----------|----------|---------|-------------|
 | `NEXT_PUBLIC_BFF_URL` | Web→API | `http://localhost:3001` | Browser BFF origin |
 | `HOST` / `PORT` | API | `0.0.0.0` / `3001` | BFF listen |
-| `DATABASE_URL` | API/worker | local Postgres URL | L6 Postgres only |
+| `DATABASE_URL` | API/worker | local Postgres or Supabase pooler | L6 Postgres only (never commit) |
+| `DIRECT_URL` | API migrations / Prisma | Supabase session/direct URL | Prefer for drizzle migrate + Prisma CLI |
 | `REQUIRE_DATABASE` | API | `false` | Fail boot if DB missing when true |
 | `BETTER_AUTH_SECRET` | Auth | dev placeholder | Session signing |
 | `BETTER_AUTH_URL` | Auth | `http://localhost:3001` | Auth base URL |

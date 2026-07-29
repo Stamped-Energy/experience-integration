@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { describe, it } from "node:test";
+import { loadDotEnv } from "../src/db/load-dotenv.js";
 import { createDb, createPool } from "../src/db/client.js";
 import { runMigrations } from "../src/db/migrate.js";
 import {
@@ -15,7 +16,8 @@ import {
 } from "../src/tenancy/service.js";
 import { resetDatabase } from "./helpers/db.js";
 
-const databaseUrl = process.env.DATABASE_URL;
+loadDotEnv();
+const databaseUrl = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
 
 describe("tenancy model", () => {
   it("models org, plants, memberships and seeded admin", async (t) => {

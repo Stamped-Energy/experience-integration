@@ -1,4 +1,8 @@
+import { loadDotEnv } from "./db/load-dotenv.js";
 import { z } from "zod";
+
+// Load gitignored repo-root `.env` before parsing (local Supabase demo).
+loadDotEnv();
 
 const EnvSchema = z.object({
   NODE_ENV: z
@@ -10,6 +14,11 @@ const EnvSchema = z.object({
     .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
     .default("info"),
   DATABASE_URL: z.string().min(1).optional(),
+  /**
+   * Direct Postgres URL for migrations (Supabase session / non-pgbouncer).
+   * Prefer this over DATABASE_URL when applying drizzle/prisma migrations.
+   */
+  DIRECT_URL: z.string().min(1).optional(),
   /** Ready check requires DB when true. */
   REQUIRE_DATABASE: z
     .enum(["true", "false"])
@@ -93,6 +102,7 @@ export type Env = z.infer<typeof EnvSchema>;
 export function loadEnv(
   raw: NodeJS.ProcessEnv = process.env,
 ): Env {
+  loadDotEnv();
   if (raw.L2_DATABASE_URL) {
     throw new Error(
       "L2_DATABASE_URL is forbidden in L6 — use L2_BASE_URL + L2_SERVICE_KEY only",

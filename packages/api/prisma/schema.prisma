@@ -1,0 +1,84 @@
+// Prisma schema for L6 demo/simulations against Supabase.
+// Runtime BFF still uses Drizzle + Better Auth; Prisma shares the same DB for
+// Studio, typed seeds, and verification scripts (same pattern as content-os).
+//
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+/// Tenant root (L6 product).
+model Organization {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug      String   @unique(map: "organizations_slug_uidx")
+  name      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  plants          Plant[]
+  memberships     Membership[]
+  userPreferences UserPreference[]
+
+  @@map("organizations")
+}
+
+model Plant {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orgId           String   @map("org_id") @db.Uuid
+  externalPlantId String   @map("external_plant_id")
+  name            String
+  timezone        String   @default("Asia/Kolkata")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  org               Organization     @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  userPreferences   UserPreference[]
+  plantMemberships  PlantMembership[]
+
+  @@unique([orgId, externalPlantId], map: "plants_org_external_uidx")
+  @@map("plants")
+}
+
+model UserPreference {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String   @map("user_id")
+  orgId         String   @map("org_id") @db.Uuid
+  activePlantId String?  @map("active_plant_id") @db.Uuid
+  prefs         Json     @default("{}")
+  updatedAt     DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  activePlant Plant?       @relation(fields: [activePlantId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, orgId], map: "user_preferences_user_org_uidx")
+  @@map("user_preferences")
+}
+
+model Membership {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @map("user_id")
+  orgId  String @map("org_id") @db.Uuid
+  role   String
+  status String @default("active")
+
+  org              Organization      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  plantMemberships PlantMembership[]
+
+  @@map("memberships")
+}
+
+model PlantMembership {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  membershipId String @map("membership_id") @db.Uuid
+  plantId      String @map("plant_id") @db.Uuid
+
+  membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  plant      Plant      @relation(fields: [plantId], references: [id], onDelete: Cascade)
+
+  @@map("plant_memberships")
+}

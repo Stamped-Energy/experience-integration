@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { describe, it } from "node:test";
+import { loadDotEnv } from "../src/db/load-dotenv.js";
 import { createDb, createPool } from "../src/db/client.js";
 import { runMigrations } from "../src/db/migrate.js";
 import {
@@ -13,7 +14,9 @@ import {
 } from "../src/tenancy/service.js";
 import { resetDatabase } from "./helpers/db.js";
 
-const databaseUrl = process.env.DATABASE_URL;
+loadDotEnv();
+/** Prefer DIRECT_URL on Supabase so migrations/tests bypass transaction pooler. */
+const databaseUrl = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
 
 describe("seedVinayakPlant", () => {
   it("creates a standalone org (acme) + Vinayak plant when no orgId given", async (t) => {
