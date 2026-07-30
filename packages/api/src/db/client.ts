@@ -4,12 +4,19 @@ import { schema } from "./schema.js";
 
 export type Db = ReturnType<typeof createDb>;
 
+/** Supabase pooler / direct hosts need TLS; local Docker usually does not. */
+export function isSupabaseUrl(databaseUrl: string): boolean {
+  return /supabase\.(co|com)|pooler\.supabase\.com/i.test(databaseUrl);
+}
+
 export function createPool(databaseUrl: string): pg.Pool {
+  const supabase = isSupabaseUrl(databaseUrl);
   return new pg.Pool({
     connectionString: databaseUrl,
-    max: 10,
+    max: supabase ? 5 : 10,
     idleTimeoutMillis: 10_000,
-    connectionTimeoutMillis: 5_000,
+    connectionTimeoutMillis: supabase ? 15_000 : 5_000,
+    ssl: supabase ? { rejectUnauthorized: false } : undefined,
   });
 }
 

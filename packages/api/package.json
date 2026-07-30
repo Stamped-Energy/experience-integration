@@ -11,13 +11,22 @@
     "test": "tsx --test --test-concurrency=1 'tests/**/*.test.ts'",
     "build": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "tsx src/db/migrate-cli.ts"
+    "db:migrate": "tsx src/db/migrate-cli.ts",
+    "seed:vinayak": "tsx scripts/seed_vinayak_plant.ts",
+    "prisma:generate": "prisma generate --schema prisma/schema.prisma",
+    "prisma:pull": "prisma db pull --schema prisma/schema.prisma",
+    "prisma:studio": "prisma studio --schema prisma/schema.prisma",
+    "prisma:seed-vinayak": "tsx scripts/prisma_seed_vinayak.ts"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
   },
   "dependencies": {
     "@fastify/cookie": "11.0.2",
     "@fastify/cors": "11.2.0",
     "@fastify/rate-limit": "catalog:",
     "@fastify/sensible": "catalog:",
+    "@prisma/client": "^6.19.2",
     "@stamped/l6-contracts": "workspace:*",
     "better-auth": "1.6.23",
     "drizzle-orm": "catalog:",
@@ -30,6 +39,7 @@
     "@types/node": "catalog:",
     "@types/pg": "catalog:",
     "drizzle-kit": "catalog:",
+    "prisma": "^6.19.2",
     "tsx": "catalog:",
     "typescript": "catalog:"
   }

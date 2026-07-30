@@ -164,7 +164,11 @@ export async function assertPlantAccess(
   };
 }
 
-/** Seed demo org + plant + admin membership for local/dev. */
+/**
+ * Seed demo org + Jaipur plant (offline Playwright / test fixture baseline)
+ * + Vinayak plant (C-L6a live path) + admin membership scoped to both,
+ * with Vinayak set as the active plant.
+ */
 export async function seedDemoTenant(
   db: Db,
   input: { adminUserId: string },
@@ -178,19 +182,129 @@ export async function seedDemoTenant(
     externalPlantId: "plant_jaipur_01",
     name: "Jaipur Works",
   });
+  const vinayakPlant = await createPlant(db, {
+    orgId: org.id,
+    externalPlantId: "plant_vinayak_1",
+    name: "Vinayak Plant",
+    timezone: "Asia/Kolkata",
+  });
   const membership = await addMembership(db, {
     userId: input.adminUserId,
     orgId: org.id,
     role: "admin",
-    plantIds: [plant.id],
+    plantIds: [plant.id, vinayakPlant.id],
   });
   await db.insert(userPreferences).values({
     userId: input.adminUserId,
     orgId: org.id,
-    activePlantId: plant.id,
+    activePlantId: vinayakPlant.id,
     prefs: {},
   });
-  return { org, plant, membership };
+  return { org, plant, vinayakPlant, membership };
+}
+
+/**
+ * Seed/attach the Vinayak Plant (C-L6b) live path — for use standalone
+ * (creates org "acme") or against an existing org (e.g. one already seeded
+ * by `seedDemoTenant`), in which case the admin membership is extended to
+ * cover Vinayak alongside any plants it already has.
+ */
+export async function seedVinayakPlant(
+  db: Db,
+  input: { adminUserId: string; orgId?: string },
+) {
+  let org: { id: string; slug: string; name: string };
+  if (input.orgId) {
+    const [existingOrg] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.id, input.orgId));
+    if (!existingOrg) {
+      throw new Error(`Organization ${input.orgId} not found`);
+    }
+    org = existingOrg;
+  } else {
+    org = await createOrganization(db, { slug: "acme", name: "Acme" });
+  }
+
+  const existingVinayak = await db
+    .select()
+    .from(plants)
+    .where(
+      and(
+        eq(plants.orgId, org.id),
+        eq(plants.externalPlantId, "plant_vinayak_1"),
+      ),
+    )
+    .then((rows) => rows[0]);
+  const vinayakPlant =
+    existingVinayak ??
+    (await createPlant(db, {
+      orgId: org.id,
+      externalPlantId: "plant_vinayak_1",
+      name: "Vinayak Plant",
+      timezone: "Asia/Kolkata",
+    }));
+
+  const existingMembership = await db
+    .select()
+    .from(memberships)
+    .where(
+      and(
+        eq(memberships.userId, input.adminUserId),
+        eq(memberships.orgId, org.id),
+      ),
+    )
+    .then((rows) => rows[0]);
+
+  let membership: MembershipRecord;
+  if (existingMembership) {
+    const existingPlantRows = await db
+      .select()
+      .from(plantMemberships)
+      .where(eq(plantMemberships.membershipId, existingMembership.id));
+    const plantIds = Array.from(
+      new Set([...existingPlantRows.map((p) => p.plantId), vinayakPlant.id]),
+    );
+    membership = await updateMembershipRoleAndPlants(db, {
+      membershipId: existingMembership.id,
+      role: RoleSchema.parse(existingMembership.role),
+      plantIds,
+    });
+  } else {
+    membership = await addMembership(db, {
+      userId: input.adminUserId,
+      orgId: org.id,
+      role: "admin",
+      plantIds: [vinayakPlant.id],
+    });
+  }
+
+  const existingPref = await db
+    .select()
+    .from(userPreferences)
+    .where(
+      and(
+        eq(userPreferences.userId, input.adminUserId),
+        eq(userPreferences.orgId, org.id),
+      ),
+    )
+    .then((rows) => rows[0]);
+  if (existingPref) {
+    await db
+      .update(userPreferences)
+      .set({ activePlantId: vinayakPlant.id, updatedAt: new Date() })
+      .where(eq(userPreferences.id, existingPref.id));
+  } else {
+    await db.insert(userPreferences).values({
+      userId: input.adminUserId,
+      orgId: org.id,
+      activePlantId: vinayakPlant.id,
+      prefs: {},
+    });
+  }
+
+  return { org, plant: vinayakPlant, membership };
 }
 
 export async function listOrgMemberships(

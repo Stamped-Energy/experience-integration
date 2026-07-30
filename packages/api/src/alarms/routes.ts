@@ -8,6 +8,7 @@ import type { Db } from "../db/client.js";
 import { resolveActivePlant } from "../tenancy/service.js";
 import { UpstreamError } from "../upstream/http.js";
 import type { L5WorkflowClient } from "../upstream/l5/client.js";
+import { orgIdForExternalPlantId } from "../upstream/mappings.js";
 import {
   createFixtureAlarmStore,
   listAlarmsForPlant,
@@ -43,6 +44,27 @@ const DEFAULT_FIXTURE: ProductAlarm[] = [
     state: "acked",
     summary: "PF drifting toward penalty slab",
     raisedAt: "2026-07-21T08:10:00+05:30",
+  },
+  {
+    id: "alm_v1",
+    plantId: "plant_vinayak_1",
+    assetId: "kiln_1",
+    assetLabel: "Kiln 1",
+    severity: "critical",
+    state: "raised",
+    summary: "Load 112% — MD coincidence risk this TOD peak",
+    raisedAt: "2026-07-21T09:20:00+05:30",
+    relatedPrescriptionId: "rx_v001",
+  },
+  {
+    id: "alm_v2",
+    plantId: "plant_vinayak_1",
+    assetId: "cm_1",
+    assetLabel: "Cement Mill 1",
+    severity: "warning",
+    state: "raised",
+    summary: "PF 0.86 drifting toward penalty slab",
+    raisedAt: "2026-07-21T08:00:00+05:30",
   },
 ];
 
@@ -108,7 +130,7 @@ export async function registerAlarmRoutes(
     const result = await listAlarmsForPlant({
       l5: deps.l5,
       fixture,
-      orgId: "org_demo",
+      orgId: orgIdForExternalPlantId(plant.externalPlantId),
       plantId: plant.externalPlantId,
     });
     return { items: result.items, source: result.source };

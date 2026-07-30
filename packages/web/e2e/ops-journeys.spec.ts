@@ -42,4 +42,25 @@ test.describe("operational journeys", () => {
     await page.keyboard.press("Escape");
     await expect(page.getByRole("dialog")).toHaveCount(0);
   });
+
+  test("Vinayak Plant live path — alarms and prescriptions render via plant switcher", async ({ page }) => {
+    await page.goto("/alarms");
+    const switcher = page.getByLabel("Switch plant");
+    if (await switcher.isVisible().catch(() => false)) {
+      await switcher.selectOption({ label: "Vinayak Plant" });
+    }
+    await expect(page.locator("main").first()).toBeVisible();
+    await expect(
+      page.locator("main").getByText(/open alarm|Kiln 1|Cement Mill 1/i).first(),
+    ).toBeVisible();
+
+    await page.goto("/prescriptions");
+    const switcher2 = page.getByLabel("Switch plant");
+    if (await switcher2.isVisible().catch(() => false)) {
+      await switcher2.selectOption({ label: "Vinayak Plant" });
+    }
+    await expect(
+      page.locator("main").getByText(/Prescription queue|Needs review|need review/i).first(),
+    ).toBeVisible();
+  });
 });

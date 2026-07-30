@@ -111,6 +111,35 @@
   object-fit: cover;
 }
 
+.forge-shell__plant-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.forge-shell__plant-switch-label {
+  font-family: var(--forge-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+}
+
+.forge-shell__plant-select {
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-family: var(--forge-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  max-width: 160px;
+}
+
 .forge-shell__conn {
   display: inline-flex;
   align-items: center;
@@ -571,6 +600,14 @@
 }
 
 @media (max-width: 480px) {
+  .forge-shell__plant-switch-label {
+    display: none;
+  }
+
+  .forge-shell__plant-select {
+    max-width: 96px;
+  }
+
   .forge-shell__conn-label {
     position: absolute;
     width: 1px;

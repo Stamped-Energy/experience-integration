@@ -1,4 +1,8 @@
+import { loadDotEnv } from "./db/load-dotenv.js";
 import { z } from "zod";
+
+// Load gitignored repo-root `.env` before parsing (local Supabase demo).
+loadDotEnv();
 
 const EnvSchema = z.object({
   NODE_ENV: z
@@ -10,6 +14,11 @@ const EnvSchema = z.object({
     .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
     .default("info"),
   DATABASE_URL: z.string().min(1).optional(),
+  /**
+   * Direct Postgres URL for migrations (Supabase session / non-pgbouncer).
+   * Prefer this over DATABASE_URL when applying drizzle/prisma migrations.
+   */
+  DIRECT_URL: z.string().min(1).optional(),
   /** Ready check requires DB when true. */
   REQUIRE_DATABASE: z
     .enum(["true", "false"])
@@ -29,10 +38,24 @@ const EnvSchema = z.object({
   /** L5 Closure & Verification base URL (server-side only). */
   L5_BASE_URL: z.preprocess(
     (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
-    z.string().url().default("http://127.0.0.1:8105"),
+    z.string().url().default("http://127.0.0.1:8080"),
   ),
   L5_TIMEOUT_MS: z.coerce.number().int().positive().default(5_000),
   L5_AUTH_TOKEN: z.string().optional(),
+  /**
+   * Live-wire gate for the L5 client at boot (C-L6a). Both must be true
+   * (the default) to construct a real client; either explicitly "false"
+   * forces fixture-only mode. Fixture fallback still applies per-request
+   * when L5 is live but unreachable.
+   */
+  L5_LIVE: z
+    .enum(["true", "false"])
+    .default("true")
+    .transform((v) => v === "true"),
+  L6_L5_LIVE: z
+    .enum(["true", "false"])
+    .default("true")
+    .transform((v) => v === "true"),
   /** Upstream gaps — default off until OpenAPI publishes the routes. */
   L5_FEATURE_ALARM_ACK: z
     .enum(["true", "false"])
@@ -49,7 +72,7 @@ const EnvSchema = z.object({
   /** L2 query API — never L2_DATABASE_URL. */
   L2_BASE_URL: z.preprocess(
     (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
-    z.string().url().default("http://127.0.0.1:8102"),
+    z.string().url().default("http://127.0.0.1:8091"),
   ),
   L2_TIMEOUT_MS: z.coerce.number().int().positive().default(5_000),
   L2_SERVICE_KEY: z.string().optional(),
@@ -64,7 +87,7 @@ const EnvSchema = z.object({
   /** L4 Knowledge & Reasoning — fixture mode until live OpenAPI. */
   L4_BASE_URL: z.preprocess(
     (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
-    z.string().url().default("http://127.0.0.1:8104"),
+    z.string().url().default("http://127.0.0.1:8000"),
   ),
   L4_TIMEOUT_MS: z.coerce.number().int().positive().default(15_000),
   L4_AUTH_TOKEN: z.string().optional(),
@@ -79,6 +102,7 @@ export type Env = z.infer<typeof EnvSchema>;
 export function loadEnv(
   raw: NodeJS.ProcessEnv = process.env,
 ): Env {
+  loadDotEnv();
   if (raw.L2_DATABASE_URL) {
     throw new Error(
       "L2_DATABASE_URL is forbidden in L6 — use L2_BASE_URL + L2_SERVICE_KEY only",

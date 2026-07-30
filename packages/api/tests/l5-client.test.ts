@@ -45,6 +45,18 @@ function createMockL5() {
       res.end(JSON.stringify(body));
     };
 
+    if (req.method === "GET" && url.pathname.startsWith("/v1/plants/")) {
+      const plantMatch = url.pathname.match(/^\/v1\/plants\/([^/]+)\/alarms$/);
+      if (plantMatch) {
+        const plant = decodeURIComponent(plantMatch[1]!);
+        const org = url.searchParams.get("org_id");
+        const items = [...alarms.values()].filter(
+          (a) => a.org_id === org && a.plant_id === plant,
+        );
+        return send(200, { items, next_cursor: null });
+      }
+    }
+
     if (req.method === "GET" && url.pathname === "/v1/alarms") {
       const org = url.searchParams.get("org_id");
       const plant = url.searchParams.get("plant_id");

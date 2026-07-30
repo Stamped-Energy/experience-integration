@@ -213,7 +213,7 @@ docker compose -f infra/docker-compose.yml up
 **Option C — API + web without Docker** (Postgres required):
 
 ```bash
-# set DATABASE_URL in .env
+# set DATABASE_URL in .env (local Postgres or Supabase — see [docs/SUPABASE_DEMO.md](docs/SUPABASE_DEMO.md))
 pnpm --filter @stamped/l6-api db:migrate
 pnpm --filter @stamped/l6-api dev   # :3001
 pnpm --filter @stamped/l6-web dev   # :3000, NEXT_PUBLIC_BFF_URL=http://localhost:3001
@@ -245,13 +245,16 @@ Copy [`.env.example`](.env.example) → `.env`. Never commit secrets.
 |----------|----------|---------|-------------|
 | `NEXT_PUBLIC_BFF_URL` | Web→API | `http://localhost:3001` | Browser BFF origin |
 | `HOST` / `PORT` | API | `0.0.0.0` / `3001` | BFF listen |
-| `DATABASE_URL` | API/worker | local Postgres URL | L6 Postgres only |
+| `DATABASE_URL` | API/worker | local Postgres or Supabase pooler | L6 Postgres only (never commit) |
+| `DIRECT_URL` | API migrations / Prisma | Supabase session/direct URL | Prefer for drizzle migrate + Prisma CLI |
 | `REQUIRE_DATABASE` | API | `false` | Fail boot if DB missing when true |
 | `BETTER_AUTH_SECRET` | Auth | dev placeholder | Session signing |
 | `BETTER_AUTH_URL` | Auth | `http://localhost:3001` | Auth base URL |
 | `WEB_ORIGIN` | CORS | `http://localhost:3000` | Allowed web origin |
 | `SMTP_*` / `MAILPIT_UI` | Invites | Mailpit locals | Fake email for Phase B |
-| `L5_BASE_URL` / `L5_TIMEOUT_MS` | Upstream | `…:8105` / `5000` | L5 workflow HTTP |
+| `L5_BASE_URL` / `L5_TIMEOUT_MS` | Upstream | `http://127.0.0.1:8080` / `5000` | L5 workflow HTTP (Vinayak live path) |
+| `L5_LIVE` / `L6_L5_LIVE` | Upstream | `true` | Set either to `false` for fixture-only BFF |
+| `L5_AUTH_TOKEN` | Upstream | (bootstrap key) | Sent as `X-API-Key` |
 | `L5_FEATURE_ALARM_ACK` | Gate | `false` | Live ack vs fixture transition |
 | `L5_FEATURE_ALARM_ESCALATE` | Gate | `false` | Live escalate |
 | `L5_FEATURE_ALARM_UNSILENCE` | Gate | `false` | Live unsilence |

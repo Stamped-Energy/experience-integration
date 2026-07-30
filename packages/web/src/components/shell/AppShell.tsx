@@ -15,6 +15,7 @@ import { ContextualAnalyst } from "@/components/analyst/ContextualAnalyst";
 import { WebVitalsReporter } from "@/components/telemetry/WebVitalsReporter";
 import { SidebarNav } from "@/components/shell/SidebarNav";
 import { AppTopbar } from "@/components/shell/AppTopbar";
+import { DEMO_PLANT, PLANTS } from "@/fixtures/demo";
 
 function sseMeta(connection: ConnectionStatus): {
   label: string;
@@ -43,6 +44,9 @@ function sseMeta(connection: ConnectionStatus): {
 export function AppShell({
   active,
   plantName,
+  plantId = DEMO_PLANT.plantId,
+  plants,
+  onPlantChange,
   role,
   connection,
   screenTitle,
@@ -53,6 +57,11 @@ export function AppShell({
 }: {
   active: NavKey;
   plantName: string;
+  /** Active plant external id — drives telemetry + analyst envelope scope. */
+  plantId?: string;
+  /** When provided (and > 1 entry), AppTopbar renders a plant switcher. */
+  plants?: Array<{ id: string; name: string }>;
+  onPlantChange?: (plantId: string) => void;
   role: Role;
   connection: ConnectionStatus;
   screenTitle: string;
@@ -114,7 +123,7 @@ export function AppShell({
       className={`forge-shell${collapsed ? " forge-shell--collapsed" : ""}`}
       data-breakpoint-desktop="900px"
     >
-      <WebVitalsReporter plantId="plant_jaipur_01" role={role} />
+      <WebVitalsReporter plantId={plantId} role={role} />
       <a className="forge-shell__skip" href="#forge-main">
         Skip to main content
       </a>
@@ -126,6 +135,9 @@ export function AppShell({
         onOpenNav={() => setMobileNavOpen(true)}
         onAskAnalyst={() => setAnalystOpen(true)}
         askAnalystRef={askAnalystRef}
+        plants={plants}
+        activePlantId={plantId}
+        onPlantChange={onPlantChange}
       />
 
       <div className="forge-shell__body">
@@ -210,8 +222,8 @@ export function AppShell({
         onClose={() => setAnalystOpen(false)}
         returnFocusRef={askAnalystRef}
         envelope={{
-          orgId: "org_demo",
-          plantId: "plant_jaipur_01",
+          orgId: PLANTS.find((p) => p.plantId === plantId)?.orgId ?? DEMO_PLANT.orgId,
+          plantId,
           userId: "user_demo",
           role,
           routeId: active,
