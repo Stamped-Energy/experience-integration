@@ -62,7 +62,7 @@ test.describe("operational journeys", () => {
       await switcher2.selectOption({ label: "Vinayak Plant" });
     }
     await expect(
-      page.locator("main").getByText(/Prescription queue|Needs review|need review/i).first(),
+      page.locator("main").getByText(/Addressable open queue|Needs attention|Prescriptions/i).first(),
     ).toBeVisible();
   });
 });
