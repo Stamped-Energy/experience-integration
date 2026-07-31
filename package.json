@@ -13,7 +13,7 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "validate": "bash ./scripts/validate.sh",
     "ci:local": "bash ./scripts/ci-local.sh",
-    "contracts:check": "./external/scripts/contract-check.sh",
+    "contracts:check": "./external/scripts/contracts/contract-check.sh",
     "contracts:upstream": "node ./scripts/check-upstream-contracts.mjs",
     "test:integration": "pnpm --filter @stamped/l6-api --filter @stamped/l6-worker --filter @stamped/l6-infra test",
     "smoke:bff": "pnpm --filter @stamped/l6-api exec tsx ../../scripts/smoke-bff.ts",

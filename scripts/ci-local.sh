@@ -7,6 +7,6 @@ cd "$ROOT"
 git submodule update --init --recursive
 corepack enable
 pnpm install --frozen-lockfile
-./external/scripts/contract-check.sh
+./external/scripts/contracts/contract-check.sh
 pnpm contracts:upstream
 pnpm validate
