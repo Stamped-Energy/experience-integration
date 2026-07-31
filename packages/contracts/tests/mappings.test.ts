@@ -68,7 +68,7 @@ describe("workflow → UI lane mapping", () => {
 describe("external fixture corpus", () => {
   it("parses workflow_event.valid.json", () => {
     const parsed = WorkflowEventSchema.parse(
-      loadFixture("workflow_event.valid.json"),
+      loadFixture("envelope/workflow_event.valid.json"),
     );
     assert.equal(parsed.to_status, "in_progress");
     assert.equal(workflowStatusToLane(parsed.to_status), "active");
@@ -76,14 +76,14 @@ describe("external fixture corpus", () => {
 
   it("parses workflow_event_ops_verified.valid.json", () => {
     const parsed = WorkflowEventSchema.parse(
-      loadFixture("workflow_event_ops_verified.valid.json"),
+      loadFixture("envelope/workflow_event_ops_verified.valid.json"),
     );
     assert.equal(parsed.event_type, "ops_verified");
   });
 
   it("parses ledger_entry.valid.json with ops_confirmed", () => {
     const parsed = LedgerEntrySchema.parse(
-      loadFixture("ledger_entry.valid.json"),
+      loadFixture("closure/ledger_entry.valid.json"),
     );
     assert.equal(parsed.verification_status, "ops_confirmed");
     assert.equal(claimBadgeLabel(parsed.verification_status).tone, "good");
@@ -91,7 +91,7 @@ describe("external fixture corpus", () => {
 
   it("parses ledger_entry_opportunity_cost.valid.json as modeled", () => {
     const parsed = LedgerEntrySchema.parse(
-      loadFixture("ledger_entry_opportunity_cost.valid.json"),
+      loadFixture("closure/ledger_entry_opportunity_cost.valid.json"),
     );
     assert.equal(parsed.verification_status, "modeled");
     assert.equal(parsed.entry_type, "opportunity_cost");
