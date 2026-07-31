@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
-import type { PrescriptionTradeoff } from "@/lib/types";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import type { PrescriptionTradeoff } from "../src/lib/types.js";
 
-describe("tradeoff field order (₹ hero)", () => {
+describe("tradeoff field order (INR hero)", () => {
   it("lists energyBenefitInrMonthly before co-benefit fields", () => {
     const tradeoff: PrescriptionTradeoff = {
       energyBenefitInrMonthly: 84000,
@@ -13,11 +14,12 @@ describe("tradeoff field order (₹ hero)", () => {
       oeeImpact: "buffer ok",
     };
     const keys = Object.keys(tradeoff);
-    expect(keys.indexOf("energyBenefitInrMonthly")).toBeLessThan(
-      keys.indexOf("throughputRisk"),
+    assert.ok(
+      keys.indexOf("energyBenefitInrMonthly") < keys.indexOf("throughputRisk"),
     );
-    expect(keys.indexOf("energyBenefitInrMonthly")).toBeLessThan(
-      keys.indexOf("oeeImpact") === -1 ? 99 : keys.indexOf("oeeImpact"),
+    const oeeIdx = keys.indexOf("oeeImpact");
+    assert.ok(
+      keys.indexOf("energyBenefitInrMonthly") < (oeeIdx === -1 ? 99 : oeeIdx),
     );
   });
 });
