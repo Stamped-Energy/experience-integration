@@ -517,12 +517,46 @@
 .evidence-index-card {
   height: 100%;
   padding: 20px;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease,
+    background-color 180ms ease;
 }
 
-.evidence-index-card:hover {
-  border-color: var(--forge-outline);
-  box-shadow: var(--forge-shadow-sm, 0 2px 8px rgba(5, 31, 19, 0.06));
+.evidence-index-card:hover,
+.evidence-index-card:has(.evidence-index-card__hit:focus-visible) {
+  border-color: color-mix(in srgb, var(--forge-tertiary) 45%, var(--forge-outline-variant));
+  background: color-mix(in srgb, var(--forge-tertiary) 5%, var(--forge-surface-container-lowest));
+  box-shadow: 0 8px 22px rgba(5, 31, 19, 0.1);
+  transform: translateY(-3px);
+}
+
+.evidence-index-card:hover .evidence-index-card__issue,
+.evidence-index-card:has(.evidence-index-card__hit:focus-visible) .evidence-index-card__issue {
+  color: var(--forge-secondary);
+}
+
+.evidence-index-card:hover .evidence-index-card__preview,
+.evidence-index-card:has(.evidence-index-card__hit:focus-visible) .evidence-index-card__preview {
+  border-color: color-mix(in srgb, var(--forge-tertiary) 35%, var(--forge-outline-variant));
+}
+
+.evidence-index-card__hit {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--forge-radius-sm);
+  outline-offset: 2px;
+  cursor: pointer;
+}
+
+.evidence-index-card__hit:focus-visible {
+  outline: 2px solid var(--forge-primary);
 }
 
 .evidence-index-card__issue {
@@ -532,10 +566,13 @@
   font-weight: 700;
   line-height: 1.35;
   color: var(--forge-on-surface);
+  transition: color 180ms ease;
 }
 
 .evidence-index-card__actions {
   margin-top: 14px;
+  position: relative;
+  z-index: 1;
 }
 
 .evidence-index-card__footer {
@@ -554,6 +591,7 @@
   border-radius: var(--forge-radius-sm);
   background: var(--forge-surface-container-lowest);
   padding: 8px 10px;
+  transition: border-color 180ms ease;
 }
 
 .evidence-index-card__preview svg {
