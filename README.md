@@ -231,7 +231,7 @@ DATABASE_URL=postgres://stamped:stamped@127.0.0.1:5432/stamped_l6 pnpm compose:s
 Contracts:
 
 ```bash
-./external/scripts/contract-check.sh
+./external/scripts/contracts/contract-check.sh
 pnpm contracts:upstream
 ```
 

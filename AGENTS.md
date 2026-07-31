@@ -17,7 +17,7 @@ Engineering workflow: **ponytail → nawab-plans (Plan mode) → (spec-kit for f
 ```bash
 git submodule update --init --recursive
 test -f external/VERSION
-./external/scripts/contract-check.sh
+./external/scripts/contracts/contract-check.sh
 ```
 
 ### Read first (L6 order)
@@ -44,7 +44,7 @@ test -f external/VERSION
 - Workflow/alarm truth is **L5**; L6 renders and forwards actions with `Idempotency-Key`.
 - Analyst RAG is **L4**; send explicit removable context envelopes only (ADR-023).
 - English only through P2 (ADR-018).
-- Schema changes → PR in stamped-external + bump submodule; run `./external/scripts/contract-check.sh`.
+- Schema changes → PR in stamped-external + bump submodule; run `./external/scripts/contracts/contract-check.sh`.
 
 ### NOT in scope
 
