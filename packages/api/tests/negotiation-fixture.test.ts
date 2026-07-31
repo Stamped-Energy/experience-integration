@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { acceptFixture, reviseFixture } from "./fixture.js";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import { acceptFixture, reviseFixture } from "../src/negotiation/fixture.js";
 
 describe("negotiation fixtures", () => {
   it("revise is idempotent on Idempotency-Key", () => {
@@ -17,9 +18,9 @@ describe("negotiation fixtures", () => {
       constraints: { exclude_line_ids: ["line_2"] },
       idempotencyKey: "idem-revise-1",
     });
-    expect(a.id).toBe(b.id);
-    expect(a.confirmation).toEqual({ status: "proposed" });
-    expect(a.tradeoff.energy_benefit_inr_monthly).toBeGreaterThan(0);
+    assert.equal(a.id, b.id);
+    assert.deepEqual(a.confirmation, { status: "proposed" });
+    assert.ok(a.tradeoff.energy_benefit_inr_monthly > 0);
   });
 
   it("accept returns accepted status", () => {
@@ -29,6 +30,6 @@ describe("negotiation fixtures", () => {
       threadId: "neg-1",
       idempotencyKey: "idem-accept-1",
     });
-    expect(r.status).toBe("accepted");
+    assert.equal(r.status, "accepted");
   });
 });

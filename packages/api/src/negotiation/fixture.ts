@@ -1,6 +1,44 @@
 /** Fixture negotiation responses when USE_FIXTURES / L4_LIVE=false. */
 
-const idemCache = new Map<string, Record<string, unknown>>();
+export type NegotiationRevisionFixture = {
+  schema_version: string;
+  id: string;
+  org_id: string;
+  plant_id: string;
+  supersedes_rx_id: string;
+  finding_refs: string[];
+  negotiation_thread_id: string;
+  constraint_summary: string;
+  constraints: Record<string, unknown>;
+  revised_prescription: {
+    id: string;
+    org_id: string;
+    plant_id: string;
+    decision_class: string;
+    impact: { inr_monthly: number; kwh_monthly: number; tco2e_monthly: number };
+  };
+  diff_summary: string;
+  tradeoff: {
+    energy_benefit_inr_monthly: number;
+    throughput_risk: string;
+    recommended_window: string;
+    alternatives: string[];
+    department_owners: string[];
+    order_context: string;
+  };
+  confirmation: { status: string };
+  proposed_at: string;
+};
+
+export type NegotiationDecisionFixture = {
+  status: string;
+  org_id: string;
+  plant_id: string;
+  negotiation_thread_id: string;
+  prescription_id?: string;
+};
+
+const idemCache = new Map<string, NegotiationRevisionFixture | NegotiationDecisionFixture>();
 
 export function reviseFixture(input: {
   orgId: string;
@@ -9,11 +47,12 @@ export function reviseFixture(input: {
   constraints: Record<string, unknown>;
   constraintSummary?: string;
   idempotencyKey: string;
-}) {
-  if (idemCache.has(input.idempotencyKey)) {
-    return idemCache.get(input.idempotencyKey)!;
+}): NegotiationRevisionFixture {
+  const cached = idemCache.get(input.idempotencyKey);
+  if (cached && "tradeoff" in cached) {
+    return cached;
   }
-  const revision = {
+  const revision: NegotiationRevisionFixture = {
     schema_version: "1.0.0",
     id: `rxrev-fixture-${input.prescriptionId}`,
     org_id: input.orgId,
@@ -52,11 +91,12 @@ export function acceptFixture(input: {
   plantId: string;
   threadId: string;
   idempotencyKey: string;
-}) {
-  if (idemCache.has(input.idempotencyKey)) {
-    return idemCache.get(input.idempotencyKey)!;
+}): NegotiationDecisionFixture {
+  const cached = idemCache.get(input.idempotencyKey);
+  if (cached && "status" in cached && !("tradeoff" in cached)) {
+    return cached;
   }
-  const result = {
+  const result: NegotiationDecisionFixture = {
     status: "accepted",
     org_id: input.orgId,
     plant_id: input.plantId,
@@ -72,11 +112,12 @@ export function rejectFixture(input: {
   plantId: string;
   threadId: string;
   idempotencyKey: string;
-}) {
-  if (idemCache.has(input.idempotencyKey)) {
-    return idemCache.get(input.idempotencyKey)!;
+}): NegotiationDecisionFixture {
+  const cached = idemCache.get(input.idempotencyKey);
+  if (cached && "status" in cached && !("tradeoff" in cached)) {
+    return cached;
   }
-  const result = {
+  const result: NegotiationDecisionFixture = {
     status: "rejected",
     org_id: input.orgId,
     plant_id: input.plantId,
