@@ -21,6 +21,10 @@ const shellCss = readFileSync(
   join(root, "../src/components/shell/shell.css"),
   "utf8",
 );
+const forgeUiCss = readFileSync(
+  join(root, "../src/styles/forge-ui.css"),
+  "utf8",
+);
 
 describe("role-aware navigation", () => {
   it("hides admin tools from operator", () => {
@@ -116,6 +120,15 @@ describe("responsive Forge shell", () => {
     assert.match(shellCss, /\.forge-shell__nav-sub/);
     assert.match(shellCss, /height:\s*100dvh/);
     assert.match(shellCss, /overflow:\s*hidden/);
+  });
+
+  it("contains mobile overflow with minmax grid tracks and content clip", () => {
+    assert.match(shellCss, /overflow-x:\s*clip/);
+    assert.match(forgeUiCss, /grid-template-columns:\s*minmax\(0,\s*1fr\)/);
+    assert.match(forgeUiCss, /\.forge-grid-38-62\s*>\s*\*/);
+    assert.match(forgeUiCss, /max-width:\s*100%/);
+    assert.match(forgeUiCss, /\.forge-alert-feed__row/);
+    assert.match(forgeUiCss, /width:\s*44px/);
   });
 
   it("renders landmarks, skip link, and truthful offline banner", () => {

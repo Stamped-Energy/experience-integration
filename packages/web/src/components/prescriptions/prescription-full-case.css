@@ -638,12 +638,24 @@
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
+  .rx-full-case {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
   .rx-full-case__body {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rx-full-case__main,
+  .rx-full-case__aside {
+    min-width: 0;
+    max-width: 100%;
   }
 
   .rx-full-case__main-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .rx-full-case__panel--sticky {
@@ -654,8 +666,13 @@
     grid-column: auto;
   }
 
+  .rx-full-case__table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
   .rx-full-case__evidence-dials {
-    grid-template-columns: repeat(3, minmax(100px, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .rx-full-case__evidence-tags {
@@ -663,14 +680,14 @@
   }
 
   .rx-full-case__evidence-tag {
-    flex: 1 1 calc(33% - 8px);
-    min-width: 90px;
+    flex: 1 1 calc(50% - 8px);
+    min-width: 0;
   }
 }
 
 @media (max-width: 640px) {
   .rx-full-case__hero-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .rx-full-case__hero-savings {
@@ -679,14 +696,15 @@
 
   .rx-full-case__stat-box {
     width: 100%;
+    min-width: 0;
   }
 
   .rx-full-case__compact-meta {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .rx-full-case__evidence-dials {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .rx-full-case__evidence-tags {

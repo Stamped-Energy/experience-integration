@@ -6,3 +6,12 @@
   font-size: 13px;
   color: var(--forge-on-surface-variant);
 }
+
+@media (max-width: 640px) {
+  .forge-page-head [aria-label="Prescription navigation"] {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}

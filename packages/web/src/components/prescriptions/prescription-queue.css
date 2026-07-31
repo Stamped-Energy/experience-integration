@@ -547,8 +547,13 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
+  .rx-queue {
+    max-width: 100%;
+    min-width: 0;
+  }
+
   .rx-queue__hero-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     align-items: start;
   }
 
@@ -556,6 +561,16 @@
     justify-self: stretch;
     align-items: stretch;
     max-width: none;
+    width: 100%;
+  }
+
+  .rx-queue__hero-controls .forge-tabs {
+    width: 100%;
+  }
+
+  .rx-queue__hero-controls .forge-tabs__btn {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .rx-queue__facet-hint {
@@ -563,20 +578,38 @@
   }
 
   .rx-queue__row-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rx-queue__row-main {
+    min-width: 0;
+  }
+
+  .rx-queue__title {
+    overflow-wrap: anywhere;
   }
 
   .rx-queue__stat-box {
-    width: fit-content;
+    width: 100%;
     max-width: 100%;
     text-align: left;
   }
 
   .rx-queue__detail-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .rx-queue__compact-meta {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rx-queue__actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rx-queue__actions-group {
+    width: 100%;
+    flex-wrap: wrap;
   }
 }

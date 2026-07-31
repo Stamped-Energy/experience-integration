@@ -85,71 +85,31 @@ export function AlertFeedPanel({ alerts = OVERVIEW_ALERTS }: { alerts?: AlertRow
               key={a.id}
               href={href}
               className="forge-alert-feed__row"
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 10,
-                padding: "10px 14px",
-                borderBottom:
-                  i < rows.length - 1 ? "1px solid var(--forge-outline-variant)" : "none",
-                textDecoration: "none",
-                color: "inherit",
-                cursor: "pointer",
-              }}
               aria-label={`Open alarm for ${a.machine}`}
             >
               <span
-                style={{
-                  width: 3,
-                  alignSelf: "stretch",
-                  borderRadius: 4,
-                  background: BAR[a.severity],
-                  flexShrink: 0,
-                }}
+                className="forge-alert-feed__bar"
+                style={{ background: BAR[a.severity] }}
               />
-              <div
-                style={{
-                  width: 48,
-                  flexShrink: 0,
-                  fontSize: 10.5,
-                  color: "var(--forge-on-surface-variant)",
-                  paddingTop: 2,
-                }}
-              >
-                {a.time === "Now" ? (
-                  <span
-                    className="forge-pulse-dot"
-                    style={{ background: "var(--forge-error)", display: "inline-block" }}
-                    title="Live"
-                  />
-                ) : (
-                  a.time
-                )}
+              <div className="forge-alert-feed__meta">
+                <div className="forge-alert-feed__time">
+                  {a.time === "Now" ? (
+                    <span
+                      className="forge-pulse-dot"
+                      style={{ background: "var(--forge-error)", display: "inline-block" }}
+                      title="Live"
+                    />
+                  ) : (
+                    a.time
+                  )}
+                </div>
+                <SeverityTag status={a.severity} label={SEV_LABEL[a.severity]} />
               </div>
-              <SeverityTag status={a.severity} label={SEV_LABEL[a.severity]} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <span
-                  style={{
-                    color: "var(--forge-primary)",
-                    fontWeight: 600,
-                    fontSize: 13,
-                    marginRight: 6,
-                  }}
-                >
-                  {a.machine}
-                </span>
-                <span style={{ fontSize: 13 }}>{a.message}</span>
+              <div className="forge-alert-feed__body">
+                <span className="forge-alert-feed__machine">{a.machine}</span>
+                <span className="forge-alert-feed__message">{a.message}</span>
               </div>
-              <span
-                aria-hidden
-                style={{
-                  flexShrink: 0,
-                  color: "var(--forge-primary)",
-                  fontSize: 11,
-                  fontWeight: 600,
-                  paddingTop: 2,
-                }}
-              >
+              <span className="forge-alert-feed__arrow" aria-hidden>
                 →
               </span>
             </Link>

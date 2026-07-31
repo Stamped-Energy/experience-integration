@@ -346,24 +346,46 @@
 @media (max-width: 1024px) {
   .alm-console__grid,
   .alm-full-case__body {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .alm-full-case__main,
+  .alm-full-case__aside {
+    min-width: 0;
+    max-width: 100%;
   }
 
   .alm-full-case__main-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .alm-full-case__panel--sticky {
     position: static;
   }
+
+  .alm-full-case {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
 }
 
 @media (max-width: 640px) {
   .alm-console__hero-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .alm-full-case__compact-meta {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .alm-full-case__actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .alm-full-case__actions-group {
+    width: 100%;
+    flex-wrap: wrap;
   }
 }

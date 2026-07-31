@@ -113,7 +113,7 @@ export function OverviewBoard({
 
         <div className="forge-grid-38-62">
           <PrescriptionsOverviewPanel prescriptions={prescriptions} />
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0, maxWidth: "100%" }}>
             <TopConsumersTable />
             <SectionDonut />
           </div>

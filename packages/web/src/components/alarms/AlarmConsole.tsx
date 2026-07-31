@@ -301,9 +301,15 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
           .alarm-mobile-bar {
             display: block;
             position: sticky;
-            bottom: 72px;
+            bottom: calc(72px + env(safe-area-inset-bottom, 0px));
             z-index: 20;
             margin-top: 4px;
+            max-width: 100%;
+          }
+          .alarm-mobile-bar .forge-btn-group,
+          .alarm-mobile-bar [role="group"] {
+            flex-wrap: wrap;
+            width: 100%;
           }
         }
       `}</style>
