@@ -1,5 +1,5 @@
 import type { AnalystContextEnvelope } from "./types";
-import { alarmsFixture, prescriptionsFixture } from "@/fixtures/demo";
+import { alarmsFixture, findPrescription } from "@/fixtures/demo";
 import { fixtureAnalystReplyRich } from "./analyst-fixtures";
 export interface ContextChip {
   key: string;
@@ -163,7 +163,7 @@ export function relatedLinksFromReply(reply: AnalystMessage): AnalystRelatedLink
       };
     }),
     ...[...rxIds].map((id) => {
-      const rx = prescriptionsFixture.find((p) => p.id === id);
+      const rx = findPrescription(id);
       return {
         kind: "prescription" as const,
         id,

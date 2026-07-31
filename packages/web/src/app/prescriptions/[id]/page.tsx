@@ -4,14 +4,14 @@ import { PrescriptionFullCase } from "@/components/prescriptions/PrescriptionFul
 import { PrescriptionDetailNav } from "@/components/prescriptions/PrescriptionDetailNav";
 import { PageHead } from "@/components/ui/primitives";
 import {
-  DEMO_PLANT,
   DEMO_SHELL_ROLE,
-  alarmsFixture,
+  alarmsForPlant,
   assetById,
   connectionFixture,
-  demoCriticalAlarmCount,
+  findPrescription,
   ledgerFixture,
-  prescriptionsFixture,
+  plantForId,
+  prescriptionsForPlant,
 } from "@/fixtures/demo";
 import { resolveEvidenceIdForRx, findEvidenceSample } from "@/fixtures/evidence-samples";
 import { buildEvidencePack, resolveEvidenceScope } from "@/lib/evidence";
@@ -31,20 +31,24 @@ export default async function PrescriptionDetailPage({
 }) {
   const { id } = await params;
   const sp = await searchParams;
-  const rx = prescriptionsFixture.find((r) => r.id === id);
+  const rx = findPrescription(id);
   if (!rx) notFound();
+
+  const plant = plantForId(rx.plantId);
+  const plantRx = prescriptionsForPlant(rx.plantId);
+  const plantAlarms = alarmsForPlant(rx.plantId);
 
   const section = parseInboxSection(sp.section, rx);
   const facet = parseClassFacet(sp.class);
-  const nav = navForPrescription(prescriptionsFixture, rx.id, section, facet, {
+  const nav = navForPrescription(plantRx, rx.id, section, facet, {
     includeDone: section === "acknowledged" && rx.lane === "closed",
   });
 
   const scope = resolveEvidenceScope({
-    plantId: DEMO_PLANT.plantId,
+    plantId: plant.plantId,
     rxId: rx.id,
-    alarms: alarmsFixture,
-    prescriptions: prescriptionsFixture,
+    alarms: plantAlarms,
+    prescriptions: plantRx,
   });
   const pack = buildEvidencePack(scope, { baselineAvailable: true });
   const evidenceId = resolveEvidenceIdForRx(rx.id);
@@ -52,20 +56,23 @@ export default async function PrescriptionDetailPage({
   const evidenceHref = evidenceId ? `/evidence/${evidenceId}` : undefined;
   const ledger = ledgerFixture.find((e) => e.prescriptionId === rx.id);
   const alarm = rx.relatedAlarmId
-    ? alarmsFixture.find((a) => a.id === rx.relatedAlarmId)
-    : alarmsFixture.find((a) => a.relatedPrescriptionId === rx.id);
+    ? plantAlarms.find((a) => a.id === rx.relatedAlarmId)
+    : plantAlarms.find((a) => a.relatedPrescriptionId === rx.id);
   const asset = alarm ? assetById(alarm.assetId) : assetById(scope.assetId);
+  const criticalAlarmCount = plantAlarms.filter(
+    (a) => a.severity === "critical" && a.state !== "cleared",
+  ).length;
 
   return (
     <AppShell
       active="prescriptions"
-      plantName={DEMO_PLANT.plantName}
+      plantName={plant.plantName}
       role={DEMO_SHELL_ROLE}
       connection={connectionFixture}
       screenTitle={rx.title}
       contextSummary={[rx.why, formatInr(rx.impactInrPerMonth) + "/mo"]}
       focusEntity={{ type: "prescription", id: rx.id }}
-      criticalAlarmCount={demoCriticalAlarmCount()}
+      criticalAlarmCount={criticalAlarmCount}
     >
       <PageHead
         eyebrow="Prescription · Full case"

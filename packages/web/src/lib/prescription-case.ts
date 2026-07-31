@@ -1,4 +1,4 @@
-import { DEMO_PLANT, type DemoAsset } from "@/fixtures/demo";
+import { plantForId, type DemoAsset } from "@/fixtures/demo";
 import { prescriptionCaseDetailOverrides } from "@/fixtures/prescription-case-details";
 import type { EvidencePack } from "@/lib/evidence";
 import { formatBaselineLabel, formatEmissionFactorRef, formatInr, formatMetricLabel, formatRuleLabel } from "@/lib/format";
@@ -34,7 +34,7 @@ export function buildPrescriptionCaseDetail(input: {
     savingsRange: `${formatInr(rx.impactInrPerMonth)} / mo · ${annualFromMonthly(rx.impactInrPerMonth)} / yr modeled`,
     metadata: [
       { label: "Case", value: rx.title },
-      { label: "Plant", value: DEMO_PLANT.plantName },
+      { label: "Plant", value: plantForId(rx.plantId).plantName },
       { label: "Category", value: rx.category ?? "-" },
       { label: "Priority", value: rx.priority ?? "-" },
       { label: "Status", value: rx.lane.replaceAll("_", " ") },

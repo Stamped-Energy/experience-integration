@@ -6,6 +6,7 @@ import {
   demoNeedsReviewCount,
   demoNeedsReviewInr,
   energyKpisFixture,
+  findPrescription,
   prescriptionsFixture,
 } from "@/fixtures/demo";
 import type { AnalystContextEnvelope } from "@/lib/types";
@@ -233,7 +234,7 @@ export function fixtureAnalystReplyRich(
     });
   }
   if (focus?.type === "prescription") {
-    const rx = prescriptionsFixture.find((p) => p.id === focus.id);
+    const rx = findPrescription(focus.id);
     citations.push({
       id: `cite_${focus.id}`,
       title: rx?.title ?? focus.id,

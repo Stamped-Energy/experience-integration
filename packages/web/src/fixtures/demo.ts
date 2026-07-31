@@ -262,6 +262,28 @@ export const vinayakAlarmsFixture: Alarm[] = [
     summary: "Rolling 15-min MD steady - headroom to CMD comfortable",
     raisedAt: "2026-07-21T07:10:00+05:30",
   },
+  {
+    id: "alm_v4",
+    plantId: VINAYAK_PLANT.plantId,
+    assetId: "mill_2",
+    assetLabel: "Raw Mill 2",
+    severity: "warning",
+    state: "raised",
+    summary: "Idle draw 18% above night baseline for 47 minutes",
+    raisedAt: "2026-07-21T02:40:00+05:30",
+    relatedPrescriptionId: "rx_v004",
+  },
+  {
+    id: "alm_v5",
+    plantId: VINAYAK_PLANT.plantId,
+    assetId: "comp_2",
+    assetLabel: "Compressor house",
+    severity: "warning",
+    state: "raised",
+    summary: "Three VFD units online at part-load for 22 minutes",
+    raisedAt: "2026-07-21T06:30:00+05:30",
+    relatedPrescriptionId: "rx_v005",
+  },
 ];
 
 /** Alarms for the active live-path plant - Vinayak or Jaipur offline. */
@@ -563,26 +585,47 @@ export const prescriptionsFixture: Prescription[] = [
   },
 ];
 
-/** Vinayak-scoped prescriptions - small offline set so the live-path plant switcher isn't empty. */
+/**
+ * Vinayak plant prescriptions - drawn from external/demo-decks/prescriptions-examples.md
+ * (cement MD stagger, ToD shift, night idle, compressor sequencing, CMD soft-landing, APFC).
+ */
 export const vinayakPrescriptionsFixture: Prescription[] = [
   {
     id: "rx_v001",
     plantId: VINAYAK_PLANT.plantId,
-    title: "Stagger Kiln 1 co-start to cut MD coincidence",
-    why: "Kiln 1 co-starts pushed load 112% into the TOD peak window",
-    impactInrPerMonth: 79000,
-    confidence: 0.83,
+    title: "Stagger Kiln 1 + Raw Mill 2 co-start; prefer WHR",
+    why: "Kiln and mill co-started into peak TOD while WHR sat under-used",
+    impactInrPerMonth: 84000,
+    confidence: 0.89,
     lane: "needs_review",
     ownerRole: "supervisor",
     dueAt: "2026-07-22T18:00:00+05:30",
     dueLabel: "This week",
     category: "Load management",
     priority: "high",
-    billLine: "MD (kVA)",
-    effort: "Sequence change · no new equipment",
+    billLine: "MD (kVA) + peak grid energy",
+    effort: "Sequence + dispatch · no new equipment",
     ruleId: "physics/md_overlap@v2.4",
     relatedAlarmId: "alm_v1",
     decisionClass: "mgmt_schedule",
+    tradeoff: {
+      energyBenefitInrMonthly: 84000,
+      throughputRisk: "Mill hold ≤10 min; kiln ramp protected",
+      orderContext: "known",
+      recommendedWindow: "Stagger Mill 2 after Kiln 1 settles under 95%; prefer WHR first",
+      alternatives: ["Defer non-critical grind load until shoulder band"],
+      departmentOwners: ["pyro_supervisor", "electrical_supervisor"],
+      oeeImpact: "Grinding buffer preserved for Shift B",
+    },
+    actions: [
+      "On kiln ramp, hold Raw Mill 2 start until kiln load settles under 95% or 10 minutes pass with MD headroom.",
+      "If WHR is available and peak grid import is high, prefer WHR before starting grind load that can wait.",
+      "Release the mill when MD trend and process allow; log accept / override for M&V.",
+    ],
+    risks: [
+      "Throughput dip on mill hold → keep max hold at 10 min; escalate if kiln draft alarms.",
+      "Operator re-enables both early → require supervisor PIN to override.",
+    ],
   },
   {
     id: "rx_v002",
@@ -602,12 +645,158 @@ export const vinayakPrescriptionsFixture: Prescription[] = [
     ruleId: "pf/mill_1_slab@v3.0",
     decisionClass: "maint",
     relatedAlarmId: "alm_v2",
+    actions: [
+      "Walk APFC stages; confirm stage 3 contactor and capacitor bank health.",
+      "If stage open, swap spare bank and re-check PF at Mill 1 feeder within 2 h.",
+      "Mark confirmed only after PF holds ≥0.92 for one TOD peak.",
+    ],
+    risks: [
+      "Over-correction → watch for leading PF; trim one stage if PF >0.98.",
+    ],
+  },
+  {
+    id: "rx_v003",
+    plantId: VINAYAK_PLANT.plantId,
+    title: "Shift packing surge outside 18-20 peak TOD",
+    why: "Pause-able packing loads still on while buying peak-rate power",
+    impactInrPerMonth: 120000,
+    confidence: 0.88,
+    lane: "needs_review",
+    ownerRole: "supervisor",
+    dueAt: "2026-07-24T12:00:00+05:30",
+    dueLabel: "Next peak tariff window",
+    category: "TOD shift",
+    priority: "high",
+    billLine: "ToD energy (₹/kWh peak)",
+    effort: "Dispatch nudge · SOP protect-list",
+    ruleId: "physics/tod_shift@v1.6",
+    decisionClass: "mgmt_schedule",
+    tradeoff: {
+      energyBenefitInrMonthly: 120000,
+      throughputRisk: "One protected peak slot kept for contractual trucks",
+      orderContext: "partial",
+      recommendedWindow: "Move non-urgent bagging 60-90 min off 18-20 peak",
+      alternatives: ["Shed interruptible utilities first, then packing"],
+      departmentOwners: ["electrical_lead", "logistics_supervisor"],
+      oeeImpact: "Same-shift volume preserved outside peak band",
+    },
+    actions: [
+      "At peak start (or 15 min before), list pause-able packing and utility loads against process rules.",
+      "Send a ranked cut/shift list with ₹/kWh savings vs leaving them on.",
+      "Supervisor accepts or protects named loads; bring them back when peak ends.",
+    ],
+    risks: [
+      "Customer ETA slip → keep one protected peak slot for contractual loads only.",
+    ],
+  },
+  {
+    id: "rx_v004",
+    plantId: VINAYAK_PLANT.plantId,
+    title: "Cut Raw Mill 2 idle auxiliaries on night windows",
+    why: "Production at zero while aux feeders still draw elevated night idle kW",
+    impactInrPerMonth: 42000,
+    confidence: 0.86,
+    lane: "needs_review",
+    ownerRole: "operator",
+    dueAt: "2026-07-22T22:00:00+05:30",
+    dueLabel: "Next idle window",
+    category: "Idle cutback",
+    priority: "high",
+    billLine: "Energy (kWh)",
+    effort: "Idle SOP · no new equipment",
+    ruleId: "physics/idle_aux@v1.9",
+    relatedAlarmId: "alm_v4",
+    decisionClass: "maint",
+    actions: [
+      "Confirm production = 0 for at least 20 minutes and aux feeder still drawing.",
+      "Apply night setback / aux cut list with restart on production pulse or supervisor override.",
+      "Keep safety and quality loads on the protect list; log avoided kWh for the billing cycle.",
+    ],
+    risks: [
+      "Cold restart delay → keep warm-idle floor; do not hard-stop critical auxiliaries.",
+    ],
+  },
+  {
+    id: "rx_v005",
+    plantId: VINAYAK_PLANT.plantId,
+    title: "Sequence three 75 kW VFD compressors - stop part-load pile-up",
+    why: "All three running part-load when two units would carry the header",
+    impactInrPerMonth: 90000,
+    confidence: 0.92,
+    lane: "needs_review",
+    ownerRole: "supervisor",
+    dueAt: "2026-07-23T18:00:00+05:30",
+    dueLabel: "This week",
+    category: "Compressed air",
+    priority: "high",
+    billLine: "Energy (kWh) + peak kW",
+    effort: "Sequencing SOP · optional sequencer later",
+    ruleId: "physics/comp_sequence@v2.1",
+    relatedAlarmId: "alm_v5",
+    decisionClass: "maint",
+    actions: [
+      "Detect 10+ minutes with three units ON and header in 6.5-7.3 bar.",
+      "Stop or unload the lowest-loaded unit under watch, with Lag armed (+30 s).",
+      "Trial two-unit running; alarm if all three stay online over 10 min again.",
+    ],
+    risks: [
+      "Pressure dip on step-loads → add +2 m³ receiver and keep Lag-1 armed with 30 s delay.",
+      "Operator override → SOP at panel; weekly audit of set-points.",
+    ],
+  },
+  {
+    id: "rx_v006",
+    plantId: VINAYAK_PLANT.plantId,
+    title: "CMD soft-landing before MD window locks",
+    why: "Rolling MD nearing CMD headroom band with two deferrable starts queued",
+    impactInrPerMonth: 150000,
+    confidence: 0.9,
+    lane: "needs_review",
+    ownerRole: "plant_head",
+    dueAt: "2026-07-22T10:00:00+05:30",
+    dueLabel: "Live · open MD window",
+    category: "Demand management",
+    priority: "high",
+    billLine: "MD (kVA) + CMD / penalty risk",
+    effort: "Soft-hold SOP · protect critical path",
+    ruleId: "physics/cmd_softland@v1.3",
+    decisionClass: "mgmt_capacity",
+    tradeoff: {
+      energyBenefitInrMonthly: 150000,
+      throughputRisk: "Deferrable starts only; kiln/critical path protected",
+      orderContext: "known",
+      recommendedWindow: "Hold soft loads while projected MD is inside 5-8% CMD headroom",
+      alternatives: ["Delay second grind start until window closes"],
+      departmentOwners: ["electrical_lead", "plant_head"],
+      oeeImpact: "Critical path starts released when headroom recovers",
+    },
+    actions: [
+      "Estimate window-end MD from current trend and known pending starts.",
+      "If projected MD enters the headroom band, issue ranked soft holds (lowest production risk first).",
+      "Block new deferrable starts until the window closes or headroom recovers; record near-miss vs breach.",
+    ],
+    risks: [
+      "False soft-hold → release immediately if headroom recovers above 8%.",
+      "Critical path blocked → plant head override with logged reason.",
+    ],
   },
 ];
 
 /** Prescriptions for the active live-path plant - Vinayak or Jaipur offline. */
 export function prescriptionsForPlant(plantId: string): Prescription[] {
   return plantId === VINAYAK_PLANT.plantId ? vinayakPrescriptionsFixture : prescriptionsFixture;
+}
+
+/** Lookup across both plant catalogs (detail routes, evidence links). */
+export function findPrescription(id: string): Prescription | undefined {
+  return (
+    prescriptionsFixture.find((p) => p.id === id) ??
+    vinayakPrescriptionsFixture.find((p) => p.id === id)
+  );
+}
+
+export function plantForId(plantId: string) {
+  return PLANTS.find((p) => p.plantId === plantId) ?? DEMO_PLANT;
 }
 
 export const ledgerFixture: LedgerEntry[] = [

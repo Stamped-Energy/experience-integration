@@ -295,8 +295,18 @@ export function resolveEvidenceIdForAlarm(alarmId: string): string | undefined {
   return byAlarm.get(alarmId)?.id;
 }
 
+/** Map Vinayak Rx ids to analogous demo evidence samples (shared signal patterns). */
+const RX_EVIDENCE_ALIASES: Record<string, string> = {
+  rx_v001: "evd_4410",
+  rx_v002: "evd_4402",
+  rx_v003: "evd_4401",
+  rx_v004: "evd_4411",
+  rx_v005: "evd_4412",
+  rx_v006: "evd_4410",
+};
+
 export function resolveEvidenceIdForRx(rxId: string): string | undefined {
-  return byRx.get(rxId)?.id;
+  return byRx.get(rxId)?.id ?? RX_EVIDENCE_ALIASES[rxId];
 }
 
 export function resolveEvidenceIdForFinding(findingId: string): string | undefined {
