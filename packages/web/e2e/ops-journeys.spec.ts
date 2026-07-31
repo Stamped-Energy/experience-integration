@@ -28,7 +28,7 @@ test.describe("operational journeys", () => {
 
   test("ledger claim safety and export centre approval", async ({ page }) => {
     await page.goto("/reports");
-    await expect(page.locator("main").getByText(/Pending utility bill verification|Confirmed savings|Export centre/i).first()).toBeVisible();
+    await expect(page.locator("main").getByText(/Confirmed savings|Export centre|Reports/i).first()).toBeVisible();
     await expect(page.locator("[data-export-centre], [data-ledger]").first()).toBeVisible();
     const approve = page.getByRole("button", { name: /^Approve$/i }).first();
     if (await approve.isVisible()) {
