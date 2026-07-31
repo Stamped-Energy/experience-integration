@@ -1,0 +1,8 @@
+.rx-detail-nav__pos {
+  display: inline-flex;
+  align-items: center;
+  min-width: 3.5rem;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--forge-on-surface-variant);
+}

@@ -1435,3 +1435,12 @@ a.forge-btn {
   border-color: var(--forge-tertiary);
   background: color-mix(in srgb, var(--forge-tertiary) 8%, var(--forge-surface-container-lowest));
 }
+
+.forge-alert-feed__row:hover {
+  background: color-mix(in srgb, var(--forge-primary) 5%, var(--forge-surface-container-lowest));
+}
+
+.forge-alert-feed__row:focus-visible {
+  outline: 2px solid var(--forge-primary);
+  outline-offset: -2px;
+}

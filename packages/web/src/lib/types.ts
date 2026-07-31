@@ -82,6 +82,15 @@ export interface Prescription {
   /** ADR-024 — management classes show Discuss + tradeoff. */
   decisionClass?: "maint" | "mgmt_schedule" | "mgmt_capacity" | "mgmt_cross_dept";
   tradeoff?: PrescriptionTradeoff;
+  /** Per-Rx operator feedback after acknowledge (not Improve nav). */
+  feedback?: PrescriptionFeedback;
+}
+
+/** Light feedback captured on an acknowledged prescription. */
+export interface PrescriptionFeedback {
+  note: string;
+  outcome?: "helped" | "didnt_help" | "needs_follow_up";
+  at: string;
 }
 
 /** Trade-off block for management prescriptions (₹ hero first). */

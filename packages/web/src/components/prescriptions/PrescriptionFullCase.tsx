@@ -10,13 +10,14 @@ import { emphasizeCause, emphasizeLead, emphasizeNumbers } from "@/components/pr
 import {
   DiscussPanel,
   TradeoffBlock,
-  isManagementRx,
 } from "@/components/prescriptions/DiscussPanel";
+import { PrescriptionFeedbackPanel } from "@/components/prescriptions/PrescriptionFeedbackPanel";
 import { PrescriptionEvidencePreview } from "@/components/prescriptions/PrescriptionEvidencePreview";
 import type { EvidenceSample } from "@/fixtures/evidence-samples";
 import type { EvidencePack } from "@/lib/evidence";
 import { claimBadgeLabel, formatBaselineLabel, formatInr, formatIstDate, formatIstDateRange } from "@/lib/format";
 import { buildPrescriptionCaseDetail } from "@/lib/prescription-case";
+import { classLabel, isManagementClass } from "@/lib/prescriptions";
 import type { Alarm, LedgerEntry, Prescription } from "@/lib/types";
 import type { DemoAsset } from "@/fixtures/demo";
 import "./prescription-full-case.css";
@@ -147,12 +148,21 @@ export function PrescriptionFullCase({
         <div className="rx-full-case__hero-grid">
           <div className="rx-full-case__hero-left">
             <div className="rx-full-case__chips">
+              <StatusChip tone={isManagementClass(rx) ? "warning" : "info"}>
+                {classLabel(rx)}
+              </StatusChip>
               {rx.category ? <StatusChip tone="neutral">{rx.category}</StatusChip> : null}
               {rx.priority ? (
                 <StatusChip tone={priorityTone[rx.priority]}>{rx.priority}</StatusChip>
               ) : null}
               <StatusChip tone="info">{Math.round(rx.confidence * 100)}%</StatusChip>
-              <StatusChip tone="neutral">{rx.lane.replaceAll("_", " ")}</StatusChip>
+              <StatusChip tone="neutral">
+                {rx.lane === "needs_review"
+                  ? "Needs attention"
+                  : rx.lane === "closed"
+                    ? "Done"
+                    : "Acknowledged"}
+              </StatusChip>
               {rx.verificationStatus ? (
                 <StatusChip tone={badge.tone}>{badge.label}</StatusChip>
               ) : null}
@@ -199,6 +209,14 @@ export function PrescriptionFullCase({
                 />
               </CompactSection>
             </Panel>
+
+            {detail.managerTakeaway ? (
+              <Panel className="rx-full-case__panel rx-full-case__panel--wide rx-full-case__panel--takeaway">
+                <CompactSection title="Manager takeaway">
+                  <Prose lead>{detail.managerTakeaway}</Prose>
+                </CompactSection>
+              </Panel>
+            ) : null}
 
             {detail.eventSnapshot ? (
               <Panel className="rx-full-case__panel rx-full-case__panel--wide">
@@ -259,7 +277,7 @@ export function PrescriptionFullCase({
               </Panel>
             ) : null}
 
-            {isManagementRx(rx) && rx.tradeoff ? (
+            {isManagementClass(rx) && rx.tradeoff ? (
               <Panel className="rx-full-case__panel rx-full-case__panel--money">
                 <CompactSection title="Trade-off">
                   <TradeoffBlock tradeoff={rx.tradeoff} />
@@ -267,9 +285,15 @@ export function PrescriptionFullCase({
               </Panel>
             ) : null}
 
-            {isManagementRx(rx) ? (
+            {isManagementClass(rx) ? (
               <DiscussPanel rx={rx} orgId={orgId} plantId={rx.plantId} />
             ) : null}
+
+            <PrescriptionFeedbackPanel
+              rxId={rx.id}
+              lane={rx.lane}
+              initial={rx.feedback}
+            />
 
             {detail.risksTable ? (
               <Panel className="rx-full-case__panel rx-full-case__panel--warn">
@@ -336,13 +360,6 @@ export function PrescriptionFullCase({
               </Panel>
             ) : null}
 
-            {detail.managerTakeaway ? (
-              <Panel className="rx-full-case__panel rx-full-case__panel--wide rx-full-case__panel--takeaway">
-                <CompactSection title="Manager takeaway">
-                  <Prose lead>{detail.managerTakeaway}</Prose>
-                </CompactSection>
-              </Panel>
-            ) : null}
           </div>
         </div>
 

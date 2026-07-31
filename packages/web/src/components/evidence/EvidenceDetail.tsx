@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { LoadDial } from "@/components/charts/LoadDial";
 import { EvidenceTrend } from "@/components/charts/EvidenceTrend";
@@ -78,15 +80,14 @@ export function EvidenceDetail({
   sample: EvidenceSample;
   showBaselineBand?: boolean;
 }) {
+  const [moreOpen, setMoreOpen] = useState(false);
   const accent = chartAccent[sample.categoryBadge.tone];
 
   const contextRows = [
     { label: "Asset", value: sample.assetLabel },
-    { label: "Asset ID", value: sample.assetId },
     { label: "Finding", value: sample.findingId ?? "—" },
     { label: "Baseline", value: formatBaselineLabel(sample.baselineId) },
     { label: "Rule", value: formatRuleLabel(sample.findingId) },
-    { label: "Plant", value: "Jaipur Works" },
   ];
 
   return (
@@ -145,72 +146,11 @@ export function EvidenceDetail({
               <CompactMeta rows={contextRows} />
             </AsideSection>
 
-            {sample.dials.length ? (
-              <AsideSection title="Live dials at anomaly">
-                <div className="evd-full__aside-dials">
-                  {sample.dials.map((d) => (
-                    <LoadDial
-                      key={d.label}
-                      label={d.label}
-                      value={d.needle}
-                      max={d.needleMax ?? 120}
-                      displayText={d.display}
-                      unit={d.unit ?? ""}
-                      size={108}
-                    />
-                  ))}
-                </div>
-              </AsideSection>
-            ) : null}
-
-            <AsideSection title="Tag readings">
-              <p className="evd-full__prose evd-full__prose--muted evd-full__aside-note">
-                Meter tags sampled inside the anomaly window — reconcile against the utility bill.
-              </p>
-              <div className="evidence-table-wrap evd-full__aside-table">
-                <DataTable
-                  caption="Evidence tags"
-                  columns={[
-                    { key: "tag", header: "Tag" },
-                    { key: "value", header: "Value" },
-                    { key: "window", header: "Window" },
-                  ]}
-                  rows={sample.tagRows.map((row, i) => ({
-                    id: `tag-${i}`,
-                    tag: row.tag,
-                    value: row.value,
-                    window: row.window,
-                  }))}
-                />
-              </div>
-            </AsideSection>
-
-            <AsideSection title="Lineage string">
-              <pre className="evd-full__metadata">{sample.metadata}</pre>
-            </AsideSection>
-
             <AsideSection>
               <div className="evd-full__callout evd-full__callout--mv evd-full__callout--flush">
                 <span className="evd-full__callout-label">M&amp;V status</span>
                 <p className="evd-full__prose">{sample.mvFooter}</p>
               </div>
-            </AsideSection>
-
-            <AsideSection title="How to read this pack">
-              <ol className="evd-full__guide-list">
-                <li>
-                  <strong>Chart</strong> — meter signal with the highlighted anomaly band.
-                </li>
-                <li>
-                  <strong>Tags</strong> — raw SCADA readings traceable to the bill line.
-                </li>
-                <li>
-                  <strong>Lineage</strong> — rule, baseline, and sources; never invented when missing.
-                </li>
-                <li>
-                  <strong>M&amp;V footer</strong> — savings claim stays modeled until the bill confirms.
-                </li>
-              </ol>
             </AsideSection>
 
             <AsideSection>
@@ -247,6 +187,81 @@ export function EvidenceDetail({
                 </ForgeButton>
               </ForgeButtonGroup>
             </AsideSection>
+
+            <AsideSection>
+              <ForgeButton
+                variant="ghost"
+                onClick={() => setMoreOpen((v) => !v)}
+                aria-expanded={moreOpen}
+              >
+                {moreOpen ? "Hide detail" : "More detail"}
+              </ForgeButton>
+            </AsideSection>
+
+            {moreOpen ? (
+              <>
+                {sample.dials.length ? (
+                  <AsideSection title="Live dials at anomaly">
+                    <div className="evd-full__aside-dials">
+                      {sample.dials.map((d) => (
+                        <LoadDial
+                          key={d.label}
+                          label={d.label}
+                          value={d.needle}
+                          max={d.needleMax ?? 120}
+                          displayText={d.display}
+                          unit={d.unit ?? ""}
+                          size={108}
+                        />
+                      ))}
+                    </div>
+                  </AsideSection>
+                ) : null}
+
+                <AsideSection title="Tag readings">
+                  <p className="evd-full__prose evd-full__prose--muted evd-full__aside-note">
+                    Meter tags sampled inside the anomaly window — reconcile against the utility bill.
+                  </p>
+                  <div className="evidence-table-wrap evd-full__aside-table">
+                    <DataTable
+                      caption="Evidence tags"
+                      columns={[
+                        { key: "tag", header: "Tag" },
+                        { key: "value", header: "Value" },
+                        { key: "window", header: "Window" },
+                      ]}
+                      rows={sample.tagRows.map((row, i) => ({
+                        id: `tag-${i}`,
+                        tag: row.tag,
+                        value: row.value,
+                        window: row.window,
+                      }))}
+                    />
+                  </div>
+                </AsideSection>
+
+                <AsideSection title="Lineage string">
+                  <pre className="evd-full__metadata">{sample.metadata}</pre>
+                </AsideSection>
+
+                <AsideSection title="How to read this pack">
+                  <ol className="evd-full__guide-list">
+                    <li>
+                      <strong>Chart</strong> — meter signal with the highlighted anomaly band.
+                    </li>
+                    <li>
+                      <strong>Tags</strong> — raw SCADA readings traceable to the bill line.
+                    </li>
+                    <li>
+                      <strong>Lineage</strong> — rule, baseline, and sources; never invented when missing.
+                    </li>
+                    <li>
+                      <strong>M&amp;V footer</strong> — savings claim stays modeled until the bill confirms.
+                    </li>
+                  </ol>
+                </AsideSection>
+              </>
+            ) : null}
           </Panel>
         </aside>
       </div>

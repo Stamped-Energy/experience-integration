@@ -32,6 +32,25 @@
   margin-bottom: 10px;
 }
 
+.rx-full-case__feedback {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--forge-outline-variant);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.rx-detail-nav__pos {
+  display: inline-flex;
+  align-items: center;
+  min-width: 3.5rem;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--forge-on-surface-variant);
+}
+
 .rx-full-case__created {
   font-size: 14px;
   color: var(--forge-on-surface-variant);

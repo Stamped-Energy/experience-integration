@@ -325,6 +325,7 @@ export const prescriptionsFixture: Prescription[] = [
     effort: "Validated setback · no new equipment",
     ruleId: "idle/mill_night@v1.5",
     relatedAlarmId: "alm_1006",
+    decisionClass: "maint",
     actions: [
       "Confirm no batch queued in next 60 min, then apply night setback band.",
       "Log kWh before/after on Mill 2 feeder for savings verification (Option B).",
@@ -350,6 +351,7 @@ export const prescriptionsFixture: Prescription[] = [
     billLine: "Energy (kWh) · TOD",
     effort: "Schedule change · ops only",
     ruleId: "tod/pack_surge@v1.2",
+    decisionClass: "mgmt_schedule",
     actions: [
       "Move non-urgent bagging slots 60–90 min earlier or later than 18–20.",
       "Coordinate with logistics so trucks do not force a peak surge.",
@@ -374,6 +376,7 @@ export const prescriptionsFixture: Prescription[] = [
     billLine: "Energy (kWh)",
     effort: "Set-point reset now · sequencer CAPEX later",
     ruleId: "air/vfd_sequence@v2.1",
+    decisionClass: "maint",
     actions: [
       "Immediate set-point reset (no CAPEX): raise unload band and extend timer so only lead+lag stay online.",
       "Operator playbook: rotate lead weekly; never leave all three enabled 'to avoid dips'.",
@@ -401,6 +404,7 @@ export const prescriptionsFixture: Prescription[] = [
     effort: "Inspection · stage swap if needed",
     ruleId: "pf/mill_1_slab@v3.0",
     relatedAlarmId: "alm_1002",
+    decisionClass: "maint",
     actions: [
       "Walk APFC stages; confirm stage 3 contactor and capacitor bank health.",
       "If stage open, swap spare bank and re-check PF at Mill 1 feeder within 2 h.",
@@ -426,6 +430,7 @@ export const prescriptionsFixture: Prescription[] = [
     billLine: "Energy (kWh)",
     effort: "Setpoint change · no CAPEX",
     ruleId: "process/id_fan_band@v1.1",
+    decisionClass: "maint",
     actions: [
       "Narrow ID fan band during warm-up; restore production band after kiln stable.",
       "Compare warm-up kWh to 14-day baseline before closing Rx.",
@@ -451,6 +456,7 @@ export const prescriptionsFixture: Prescription[] = [
     effort: "Schedule stagger · ops only",
     ruleId: "air/pack_coincidence@v1.0",
     verificationStatus: "pending",
+    decisionClass: "mgmt_schedule",
     actions: [
       "Keep verified stagger in schedule; sample three packing peaks for verification.",
     ],
@@ -475,6 +481,7 @@ export const prescriptionsFixture: Prescription[] = [
     effort: "Repair fittings · low CAPEX",
     ruleId: "air/leak_loop_b@v1.3",
     verificationStatus: "pending",
+    decisionClass: "maint",
     actions: [
       "Close tagged fittings; re-scan loop B after 48 h.",
     ],
@@ -497,6 +504,7 @@ export const prescriptionsFixture: Prescription[] = [
     ruleId: "hvac/admin_idle@v1.5",
     relatedAlarmId: "alm_1008",
     verificationStatus: "ops_confirmed",
+    decisionClass: "maint",
     realisedInr: 11200,
     opportunityCost: {
       delayDays: 14,
@@ -524,6 +532,7 @@ export const prescriptionsFixture: Prescription[] = [
     effort: "Spare stage swap",
     ruleId: "pf/stage3_cap@v2.0",
     verificationStatus: "ops_confirmed",
+    decisionClass: "maint",
     realisedInr: 17600,
     actions: [
       "Spare bank installed; hold as operations-confirmed until PF appears on bill.",
@@ -546,6 +555,7 @@ export const prescriptionsFixture: Prescription[] = [
     effort: "Schedule change",
     ruleId: "tod/kiln_wash@v1.0",
     verificationStatus: "disputed",
+    decisionClass: "mgmt_schedule",
     realisedInr: 4200,
     actions: [
       "Re-check disputed savings against wash log and TOD meter before re-opening.",
@@ -572,6 +582,7 @@ export const vinayakPrescriptionsFixture: Prescription[] = [
     effort: "Sequence change · no new equipment",
     ruleId: "physics/md_overlap@v2.4",
     relatedAlarmId: "alm_v1",
+    decisionClass: "mgmt_schedule",
   },
   {
     id: "rx_v002",
@@ -589,6 +600,7 @@ export const vinayakPrescriptionsFixture: Prescription[] = [
     billLine: "PF penalty",
     effort: "Inspection · stage swap if needed",
     ruleId: "pf/mill_1_slab@v3.0",
+    decisionClass: "maint",
     relatedAlarmId: "alm_v2",
   },
 ];

@@ -115,25 +115,24 @@ export function AlarmFullCase({
 
   return (
     <div className="alm-full-case" data-alarm-full-case>
-      <Panel className="alm-full-case__hero">
+      <Panel
+        className={[
+          "alm-full-case__hero",
+          `alm-full-case__hero--${alarm.severity}`,
+        ].join(" ")}
+      >
         <div className="alm-full-case__hero-grid">
-          <div>
+          <div className="alm-full-case__hero-main">
             <div className="alm-full-case__chips">
               <StatusChip tone={severityTone[alarm.severity]}>{alarm.severity}</StatusChip>
               <StatusChip tone="neutral">{formatAlarmState(alarm.state)}</StatusChip>
+              <StatusChip tone="neutral">{alarm.assetLabel}</StatusChip>
               {alarm.findingId ? (
                 <StatusChip tone="info">Finding · {alarm.findingId}</StatusChip>
               ) : null}
             </div>
             <p className="alm-full-case__prose alm-full-case__prose--lead">{alarm.summary}</p>
             <p className="alm-full-case__raised">Raised {formatIstDateTime(alarm.raisedAt)}</p>
-          </div>
-          <div className="alm-full-case__stat-box">
-            <p className="forge-eyebrow">Severity</p>
-            <p className="alm-full-case__stat-value">{alarm.severity}</p>
-            <p className="alm-full-case__raised" style={{ marginTop: 8, textAlign: "right" }}>
-              {alarm.assetLabel}
-            </p>
           </div>
         </div>
       </Panel>
@@ -152,51 +151,27 @@ export function AlarmFullCase({
                   ]}
                   rows={signalRows}
                 />
-                <div className="alm-full-case__callout">
-                  <span className="alm-full-case__callout-label">What triggered this alarm</span>
-                  <p className="alm-full-case__prose">{alarm.summary}</p>
-                </div>
-              </CompactSection>
-            </Panel>
-
-            <Panel className="alm-full-case__panel alm-full-case__panel--insight">
-              <CompactSection title="Anomaly window">
-                <CompactMeta
-                  rows={[
-                    {
-                      label: "From",
-                      value: formatIstDateTime(pack.anomaly.from),
-                    },
-                    {
-                      label: "To",
-                      value: formatIstDateTime(pack.anomaly.to),
-                    },
-                    { label: "Summary", value: pack.anomaly.summary },
-                  ]}
-                />
+                <p className="alm-full-case__prose" style={{ marginTop: 10 }}>
+                  <strong>Window:</strong> {formatIstDateTime(pack.anomaly.from)} →{" "}
+                  {formatIstDateTime(pack.anomaly.to)}
+                  {" · "}
+                  {pack.anomaly.summary}
+                </p>
+                <p className="alm-full-case__prose" style={{ marginTop: 6, opacity: 0.85 }}>
+                  Rule {pack.lineage.ruleId}
+                  {pack.scope.baselineId ? ` · Baseline ${pack.scope.baselineId}` : ""}
+                </p>
                 {pack.missing.length > 0 ? (
-                  <p className="alm-full-case__prose" style={{ marginTop: 10, color: "var(--forge-warning)" }}>
+                  <p className="alm-full-case__prose" style={{ marginTop: 8, color: "var(--forge-warning)" }}>
                     Missing: {pack.missing.join(", ")}
                   </p>
                 ) : null}
               </CompactSection>
             </Panel>
 
-            <Panel className="alm-full-case__panel">
-              <CompactSection title="Lineage & sources">
-                <CompactMeta
-                  rows={[
-                    { label: "Rule", value: pack.lineage.ruleId },
-                    { label: "Baseline", value: pack.scope.baselineId ?? "Not available" },
-                    { label: "Sources", value: pack.lineage.sources.join(", ") },
-                  ]}
-                />
-              </CompactSection>
-            </Panel>
-
             <Panel className="alm-full-case__panel alm-full-case__panel--wide alm-full-case__panel--workflow">
               <CompactSection title="Workflow">
-                <CompactMeta rows={workflowRows} />
+                <CompactMeta rows={workflowRows.slice(0, 4)} />
               </CompactSection>
 
               <div className="alm-full-case__actions-bar">
