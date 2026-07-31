@@ -1,20 +1,25 @@
 /**
  * Industrial-style sweep dial (≈250° arc) with tick marks, colored
- * load zones, and a needle — adapted from stamped-energy-dashboard.
+ * load zones, and a needle - adapted from stamped-energy-dashboard.
  */
 const START = 145;
 const SWEEP = 250;
 
+/** Stable SVG coords across SSR/client (avoids float hydration drift). */
+function r4(n: number): number {
+  return Math.round(n * 1e4) / 1e4;
+}
+
 function polar(cx: number, cy: number, r: number, deg: number): [number, number] {
   const rad = (deg * Math.PI) / 180;
-  return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+  return [r4(cx + r * Math.cos(rad)), r4(cy + r * Math.sin(rad))];
 }
 
 function arcPath(cx: number, cy: number, r: number, a0: number, a1: number): string {
   const [x0, y0] = polar(cx, cy, r, a0);
   const [x1, y1] = polar(cx, cy, r, a1);
   const large = a1 - a0 > 180 ? 1 : 0;
-  return `M ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}`;
+  return `M ${x0} ${y0} A ${r4(r)} ${r4(r)} 0 ${large} 1 ${x1} ${y1}`;
 }
 
 export function LoadDial({
@@ -26,7 +31,7 @@ export function LoadDial({
   unit = "%",
   displayText,
 }: {
-  /** Legacy prop — same as `value`. */
+  /** Legacy prop - same as `value`. */
   loadPct?: number;
   value?: number;
   max?: number;
@@ -60,7 +65,9 @@ export function LoadDial({
     raw > max * 0.85 ? "var(--forge-error)" : raw > max * 0.7 ? "var(--forge-warning)" : "var(--forge-tertiary)";
 
   const centreMain = displayText ?? String(Math.round(raw));
-  const centreFontSize = displayText && displayText.length > 4 ? size * 0.13 : size * 0.18;
+  const centreFontSize = r4(
+    displayText && displayText.length > 4 ? size * 0.13 : size * 0.18,
+  );
 
   return (
     <div
@@ -118,7 +125,7 @@ export function LoadDial({
         <circle cx={cx} cy={cy} r={2} fill={valueColor} />
         <text
           x={cx}
-          y={cy + r * 0.55}
+          y={r4(cy + r * 0.55)}
           textAnchor="middle"
           fontFamily="var(--forge-font-display)"
           fontWeight={800}
@@ -127,7 +134,7 @@ export function LoadDial({
         >
           {centreMain}
           {unit ? (
-            <tspan fontSize={size * 0.1} dx={1}>
+            <tspan fontSize={r4(size * 0.1)} dx={1}>
               {unit}
             </tspan>
           ) : null}
@@ -135,11 +142,11 @@ export function LoadDial({
         {label ? (
           <text
             x={cx}
-            y={cy + r * 0.78}
+            y={r4(cy + r * 0.78)}
             textAnchor="middle"
             fontFamily="var(--forge-font-body)"
             fontWeight={600}
-            fontSize={size * 0.085}
+            fontSize={r4(size * 0.085)}
             fill="var(--forge-on-surface-variant)"
             style={{ letterSpacing: "0.08em", textTransform: "uppercase" }}
           >

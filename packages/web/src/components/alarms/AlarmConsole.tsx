@@ -65,13 +65,13 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
       {
         id: "load",
         metric: "Load",
-        value: asset ? `${asset.loadPct}%` : "—",
+        value: asset ? `${asset.loadPct}%` : "-",
         note: current.summary,
       },
       {
         id: "kwh",
         metric: "MTD energy",
-        value: asset ? `${Math.round(asset.kwhMtd / 1000)} MWh` : "—",
+        value: asset ? `${Math.round(asset.kwhMtd / 1000)} MWh` : "-",
         note: pack.lineage.sources.join(", "),
       },
       {
@@ -89,7 +89,7 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
     setAlarms((rows) =>
       rows.map((a) => (a.id === current.id ? applyAlarmAction(a, action) : a)),
     );
-    setToast(`${ACTION_LABEL[action]} — ${current.assetLabel}`);
+    setToast(`${ACTION_LABEL[action]} - ${current.assetLabel}`);
   }
 
   useEffect(() => {
@@ -121,7 +121,7 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
         state={{
           ...resolveRouteState({ empty: true }),
           title: "No open alarms",
-          detail: "Plant looks calm — new alarms will appear here.",
+          detail: "Plant looks calm - new alarms will appear here.",
         }}
       />
     );
@@ -301,9 +301,15 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
           .alarm-mobile-bar {
             display: block;
             position: sticky;
-            bottom: 72px;
+            bottom: calc(72px + env(safe-area-inset-bottom, 0px));
             z-index: 20;
             margin-top: 4px;
+            max-width: 100%;
+          }
+          .alarm-mobile-bar .forge-btn-group,
+          .alarm-mobile-bar [role="group"] {
+            flex-wrap: wrap;
+            width: 100%;
           }
         }
       `}</style>

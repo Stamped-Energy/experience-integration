@@ -111,7 +111,7 @@ export function TodMdBoard() {
           ))}
         </ul>
         <p style={{ margin: "12px 0 0", fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
-          CMD line is contractual — coincidence risk surfaces on alarms when peak MD approaches CMD.
+          CMD line is contractual - coincidence risk surfaces on alarms when peak MD approaches CMD.
         </p>
       </Panel>
     </div>

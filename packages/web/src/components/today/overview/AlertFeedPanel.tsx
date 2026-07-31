@@ -1,13 +1,19 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Panel } from "@/components/ui/primitives";
 import { FilterIconBtn, SeverityTag } from "@/components/ui/indicators";
 import { EmptyState } from "@/components/ui/empty";
 import { AlertTriangle, CheckCircle, Filter } from "@/components/ui/icons";
-import { OVERVIEW_ALERTS, type AlertSeverity } from "@/fixtures/overview-demo";
+import {
+  OVERVIEW_ALERTS,
+  alertAlarmHref,
+  type AlertSeverity,
+  type OverviewAlert,
+} from "@/fixtures/overview-demo";
 
-type AlertRow = (typeof OVERVIEW_ALERTS)[number];
+type AlertRow = OverviewAlert & { live?: boolean };
 
 const BAR: Record<AlertSeverity, string> = {
   CRITICAL: "var(--forge-error)",
@@ -36,13 +42,23 @@ export function AlertFeedPanel({ alerts = OVERVIEW_ALERTS }: { alerts?: AlertRow
   const [filter, setFilter] = useState<FilterKey>("All");
 
   const rows = useMemo(() => {
-    const source = filter === "All" ? alerts : alerts.filter((a) => a.severity === filter.toUpperCase());
+    const source =
+      filter === "All" ? alerts : alerts.filter((a) => a.severity === filter.toUpperCase());
     return source;
   }, [filter, alerts]);
 
   return (
     <Panel style={{ display: "flex", flexDirection: "column", padding: 0 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: 20, flexWrap: "wrap", gap: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          padding: 20,
+          flexWrap: "wrap",
+          gap: 12,
+        }}
+      >
         <div>
           <p className="forge-eyebrow">Operational Intelligence</p>
           <h3 className="forge-card-title">Live Anomaly & Alert Feed</h3>
@@ -62,59 +78,43 @@ export function AlertFeedPanel({ alerts = OVERVIEW_ALERTS }: { alerts?: AlertRow
       </div>
 
       <div className="forge-scroll-thin" style={{ maxHeight: 240, overflowY: "auto" }}>
-        {rows.map((a, i) => (
-          <div
-            key={a.id}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: 10,
-              padding: "10px 14px",
-              borderBottom: i < rows.length - 1 ? "1px solid var(--forge-outline-variant)" : "none",
-            }}
-          >
-            <span
-              style={{
-                width: 3,
-                alignSelf: "stretch",
-                borderRadius: 4,
-                background: BAR[a.severity],
-                flexShrink: 0,
-              }}
-            />
-            <div style={{ width: 48, flexShrink: 0, fontSize: 10.5, color: "var(--forge-on-surface-variant)", paddingTop: 2 }}>
-              {a.time === "Now" ? (
-                <span className="forge-pulse-dot" style={{ background: "var(--forge-error)", display: "inline-block" }} title="Live" />
-              ) : (
-                a.time
-              )}
-            </div>
-            <SeverityTag status={a.severity} label={SEV_LABEL[a.severity]} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ color: "var(--forge-primary)", fontWeight: 600, fontSize: 13, marginRight: 6 }}>
-                {a.machine}
-              </span>
-              <span style={{ fontSize: 13 }}>{a.message}</span>
-            </div>
-            {a.action !== "—" ? (
-              <button
-                type="button"
-                style={{
-                  flexShrink: 0,
-                  color: "var(--forge-primary)",
-                  fontSize: 11,
-                  fontWeight: 600,
-                  paddingTop: 2,
-                  cursor: "pointer",
-                  background: "none",
-                  border: "none",
-                }}
-              >
+        {rows.map((a, i) => {
+          const href = alertAlarmHref(a);
+          return (
+            <Link
+              key={a.id}
+              href={href}
+              className="forge-alert-feed__row"
+              aria-label={`Open alarm for ${a.machine}`}
+            >
+              <span
+                className="forge-alert-feed__bar"
+                style={{ background: BAR[a.severity] }}
+              />
+              <div className="forge-alert-feed__meta">
+                <div className="forge-alert-feed__time">
+                  {a.time === "Now" ? (
+                    <span
+                      className="forge-pulse-dot"
+                      style={{ background: "var(--forge-error)", display: "inline-block" }}
+                      title="Live"
+                    />
+                  ) : (
+                    a.time
+                  )}
+                </div>
+                <SeverityTag status={a.severity} label={SEV_LABEL[a.severity]} />
+              </div>
+              <div className="forge-alert-feed__body">
+                <span className="forge-alert-feed__machine">{a.machine}</span>
+                <span className="forge-alert-feed__message">{a.message}</span>
+              </div>
+              <span className="forge-alert-feed__arrow" aria-hidden>
                 →
-              </button>
-            ) : null}
-          </div>
-        ))}
+              </span>
+            </Link>
+          );
+        })}
         {rows.length === 0 ? (
           <EmptyState
             icon={Filter}

@@ -5,10 +5,17 @@ import { describe, it } from "node:test";
 import { TodayBoard } from "../src/components/today/TodayBoard.js";
 import { todaySignalsFixture } from "../src/fixtures/demo.js";
 import { resolveRouteState } from "../src/lib/route-state.js";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
+  MOBILE_ESSENTIAL_SIGNAL_IDS,
   TODAY_SIGNAL_CAP,
+  filterMobileEssentialSignals,
   selectTodaySignals,
 } from "../src/lib/today-signals.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 describe("Today decision signals", () => {
   it("never exceeds seven signals for any role", () => {
@@ -79,7 +86,49 @@ describe("Today decision signals", () => {
         state: resolveRouteState({ missing: ["ledger"] }),
       }),
     );
-    assert.match(html, /ledger/);
+    assert.match(html, /Ledger unavailable/i);
     assert.match(html, /data-today-board/);
+  });
+
+  it("phone essentials keep only alarms, rx, and savings in role order", () => {
+    const head = selectTodaySignals("plant_head", todaySignalsFixture);
+    const phone = filterMobileEssentialSignals(head);
+    assert.deepEqual(
+      phone.map((s) => s.id),
+      ["savings", "alarms", "rx"],
+    );
+    assert.deepEqual([...MOBILE_ESSENTIAL_SIGNAL_IDS].sort(), [
+      "alarms",
+      "rx",
+      "savings",
+    ]);
+    assert.equal(
+      phone.some((s) =>
+        ["closure", "md", "deviation", "stale"].includes(s.id),
+      ),
+      false,
+    );
+  });
+
+  it("KPI hero strip stays 2-column at ≤899px and is not forced to 1-col at ≤700px", () => {
+    const css = readFileSync(
+      join(__dirname, "../src/styles/forge-ui.css"),
+      "utf8",
+    );
+    assert.match(
+      css,
+      /@media \(max-width: 899px\)[\s\S]*?\.forge-kpi-hero-strip\s*\{[\s\S]*?repeat\(2,\s*minmax\(0,\s*1fr\)\)/,
+    );
+    const at700 = css.match(
+      /@media \(max-width: 700px\)\s*\{([\s\S]*?)(?=@media|$)/,
+    );
+    assert.ok(at700, "expected ≤700px media query");
+    assert.equal(
+      /\.forge-kpi-hero-strip\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)/.test(
+        at700[1] ?? "",
+      ),
+      false,
+      "≤700px must not collapse KPI hero to a single column",
+    );
   });
 });

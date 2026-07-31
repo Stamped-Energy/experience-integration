@@ -1,4 +1,4 @@
-/** Machine health demo datasets — ported from stamped-energy-dashboard pagesData. */
+/** Machine health demo datasets - ported from stamped-energy-dashboard pagesData. */
 
 export type HealthAssetStatus = "CRITICAL" | "WARNING" | "GOOD" | "OPTIMIZED";
 

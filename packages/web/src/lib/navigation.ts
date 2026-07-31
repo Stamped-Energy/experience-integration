@@ -10,7 +10,7 @@ export type NavItem = {
 
 /**
  * Nav order mirrors stamped-energy-dashboard, plus ops screens (Alarms, Ask Analyst, Tools).
- * Plant Map is its own route — not a Machine Health tab.
+ * Plant Map is its own route - not a Machine Health tab.
  */
 export const NAV_ITEMS: NavItem[] = [
   { key: "today", href: "/", label: "Overview", permission: "route:today", tier: "primary" },
@@ -185,12 +185,12 @@ export const NAV_PIN_STORAGE_KEY = "stamped.l6.nav.pins";
 export const NAV_COLLAPSE_STORAGE_KEY = "stamped.l6.nav.collapsed";
 export const NAV_GROUPS_STORAGE_KEY = "stamped.l6.nav.groups";
 
-/** Top-level links — always visible, never tucked in a group. */
+/** Top-level links - always visible, never tucked in a group. */
 export const STANDALONE_NAV_KEYS: readonly NavKey[] = ["today", "live", "analyst"];
 
 export type NavGroupId = "operations" | "insights" | "reports" | "administration";
 
-/** Collapsible sidebar groups — keeps the nav calm instead of 15 flat links. */
+/** Collapsible sidebar groups - keeps the nav calm instead of 15 flat links. */
 export const NAV_GROUP_DEFS: readonly {
   id: NavGroupId;
   label: string;

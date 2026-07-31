@@ -43,7 +43,7 @@ describe("evidence scope and honesty", () => {
     assert.match(scope.title, /Raw Mill 2/);
   });
 
-  it("keeps baseline missing when gated — never invents band", () => {
+  it("keeps baseline missing when gated - never invents band", () => {
     const scope = resolveEvidenceScope({
       plantId: DEMO_PLANT.plantId,
       alarms: alarmsFixture,

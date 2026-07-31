@@ -1,14 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import type { Prescription, PrescriptionLane } from "@/lib/types";
+import { useEffect, useMemo, useState } from "react";
+import type { Prescription, PrescriptionFeedback } from "@/lib/types";
+import { hydrateRxFeedback, saveRxFeedback } from "@/lib/rx-feedback-store";
 import { claimBadgeLabel, formatInr, formatIstDate, formatRuleLabel } from "@/lib/format";
 import { assetsFixture, alarmsFixture, prescriptionsFixture, DEMO_PLANT } from "@/fixtures/demo";
 import { buildEvidencePack, resolveEvidenceScope } from "@/lib/evidence";
 import { resolveEvidenceIdForRx } from "@/fixtures/evidence-samples";
 import type { NotifyPerson } from "@/fixtures/assignments";
 import { AssignAssigneeSheet } from "@/components/assignments/AssignAssigneeSheet";
-import { ChevronDown, ChevronRight, CheckCircle, FileText, Users } from "@/components/ui/icons";
+import { CheckCircle, FileText, MessageSquare, Users } from "@/components/ui/icons";
 import {
   ForgeButton,
   ForgeButtonGroup,
@@ -20,21 +21,39 @@ import {
   emphasizeLead,
   emphasizeNumbers,
 } from "@/components/prescriptions/prescription-formatting";
+import { prescriptionDetailHref } from "@/lib/prescription-nav";
 import {
-  filterLane,
+  type ClassFacet,
+  type InboxSection,
+  classLabel,
+  filterInbox,
+  isManagementClass,
+  optimisticRxFeedback,
   optimisticRxUpdate,
   requiresReason,
   type RxAction,
 } from "@/lib/prescriptions";
 import "./prescription-queue.css";
 
-const LANES: PrescriptionLane[] = ["needs_review", "active", "verifying", "closed"];
+const SECTIONS: InboxSection[] = ["needs_attention", "acknowledged"];
 
-const laneLabel: Record<PrescriptionLane, string> = {
-  needs_review: "Needs review",
-  active: "Active",
-  verifying: "Verifying",
-  closed: "Closed",
+const sectionLabel: Record<InboxSection, string> = {
+  needs_attention: "Needs attention",
+  acknowledged: "Acknowledged",
+};
+
+const FACETS: ClassFacet[] = ["all", "maintenance", "management"];
+
+const facetLabel: Record<ClassFacet, string> = {
+  all: "All",
+  maintenance: "Maintenance",
+  management: "Management",
+};
+
+const outcomeLabel: Record<NonNullable<PrescriptionFeedback["outcome"]>, string> = {
+  helped: "Helped",
+  didnt_help: "Didn't help",
+  needs_follow_up: "Needs follow-up",
 };
 
 const priorityTone = {
@@ -52,19 +71,26 @@ function areaForRx(rx: Prescription): { area?: string; assetId?: string } {
   return { area: hit?.area, assetId: hit?.id };
 }
 
-function laneCount(rows: Prescription[], lane: PrescriptionLane): number {
-  return filterLane(rows, lane).length;
-}
-
 function ownerLabel(role: string): string {
   return role.replaceAll("_", " ");
 }
 
-function CompactMeta({ rows }: { rows: Array<{ label: string; value: string }> }) {
+function CompactMeta({
+  rows,
+}: {
+  rows: Array<{ label: string; value: string; wide?: boolean }>;
+}) {
   return (
     <dl className="rx-queue__compact-meta">
       {rows.map((row) => (
-        <div key={row.label} className="rx-queue__compact-meta-row">
+        <div
+          key={row.label}
+          className={
+            row.wide
+              ? "rx-queue__compact-meta-row rx-queue__compact-meta-row--wide"
+              : "rx-queue__compact-meta-row"
+          }
+        >
           <dt>{row.label}</dt>
           <dd>{row.value}</dd>
         </div>
@@ -88,9 +114,17 @@ function NumberedActions({ items }: { items: string[] }) {
   );
 }
 
+function truncateNote(note: string, max = 120): string {
+  const t = note.trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, max - 1)}…`;
+}
+
 export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
   const [rows, setRows] = useState(initial);
-  const [lane, setLane] = useState<PrescriptionLane>("needs_review");
+  const [section, setSection] = useState<InboxSection>("needs_attention");
+  const [facet, setFacet] = useState<ClassFacet>("all");
+  const [includeDone, setIncludeDone] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [assignFor, setAssignFor] = useState<Prescription | null>(null);
   const [pendingAction, setPendingAction] = useState<{
@@ -98,9 +132,23 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
     action: RxAction;
   } | null>(null);
   const [reason, setReason] = useState("");
+  const [feedbackFor, setFeedbackFor] = useState<string | null>(null);
+  const [feedbackNote, setFeedbackNote] = useState("");
+  const [feedbackOutcome, setFeedbackOutcome] =
+    useState<PrescriptionFeedback["outcome"]>(undefined);
   const [toast, setToast] = useState<string | null>(null);
 
-  const sorted = useMemo(() => filterLane(rows, lane), [rows, lane]);
+  useEffect(() => {
+    setRows(hydrateRxFeedback(initial));
+  }, [initial]);
+
+  const sorted = useMemo(
+    () => filterInbox(rows, section, facet, { includeDone }),
+    [rows, section, facet, includeDone],
+  );
+
+  const needsCount = filterInbox(rows, "needs_attention", facet).length;
+  const ackCount = filterInbox(rows, "acknowledged", facet, { includeDone }).length;
 
   const openInr = rows
     .filter((r) => r.lane === "needs_review" || r.lane === "active")
@@ -118,7 +166,15 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
     }
     const { next } = optimisticRxUpdate(rows, id, action);
     setRows(next);
-    setToast(`${action} applied`);
+    setToast(
+      action === "ack"
+        ? "Acknowledged - moved to Acknowledged"
+        : `${action} applied`,
+    );
+    if (action === "ack") {
+      setSection("acknowledged");
+      setExpanded(id);
+    }
   }
 
   function confirmReasoned() {
@@ -134,54 +190,104 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
     if (!assignFor) return;
     const { next } = optimisticRxUpdate(rows, assignFor.id, "assign");
     setRows(next);
-    setToast(`Assigned to ${person.name} — WhatsApp notification queued`);
+    setToast(`Assigned to ${person.name} - WhatsApp notification queued`);
     setAssignFor(null);
+    setSection("acknowledged");
     setExpanded(assignFor.id);
+  }
+
+  function openFeedback(id: string) {
+    const existing = rows.find((r) => r.id === id)?.feedback;
+    setFeedbackFor(id);
+    setFeedbackNote(existing?.note ?? "");
+    setFeedbackOutcome(existing?.outcome);
+  }
+
+  function saveFeedback() {
+    if (!feedbackFor || !feedbackNote.trim()) return;
+    const feedback: PrescriptionFeedback = {
+      note: feedbackNote.trim(),
+      outcome: feedbackOutcome,
+      at: new Date().toISOString(),
+    };
+    saveRxFeedback(feedbackFor, feedback);
+    const { next } = optimisticRxFeedback(rows, feedbackFor, feedback);
+    setRows(next);
+    setFeedbackFor(null);
+    setFeedbackNote("");
+    setFeedbackOutcome(undefined);
+    setToast("Feedback saved");
   }
 
   return (
     <div className="rx-queue" data-rx-queue>
       <Panel className="rx-queue__hero">
         <div className="rx-queue__hero-grid">
-          <div>
+          <div className="rx-queue__hero-summary">
             <p className="forge-eyebrow">Addressable open queue</p>
             <p className="rx-queue__summary-value tabular">{formatInr(openInr)}/mo</p>
             <p className="rx-queue__summary-sub">
-              {openCount} open · {laneCount(rows, "needs_review")} need review
+              {openCount} open · {needsCount} need attention
             </p>
           </div>
-          <div className="forge-tabs" role="tablist" aria-label="Prescription lanes">
-            {LANES.map((l) => (
-              <button
-                key={l}
-                type="button"
-                role="tab"
-                className="forge-tabs__btn"
-                onClick={() => setLane(l)}
-                aria-selected={lane === l}
-              >
-                {laneLabel[l]}
-                <span
-                  style={{
-                    marginLeft: 6,
-                    fontVariantNumeric: "tabular-nums",
-                    opacity: lane === l ? 0.9 : 0.65,
-                  }}
+          <div className="rx-queue__hero-controls">
+            <div className="forge-tabs" role="tablist" aria-label="Inbox section">
+              {SECTIONS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  role="tab"
+                  className="forge-tabs__btn"
+                  onClick={() => setSection(s)}
+                  aria-selected={section === s}
                 >
-                  {laneCount(rows, l)}
-                </span>
-              </button>
-            ))}
+                  {sectionLabel[s]}
+                  <span className="rx-queue__tab-count">
+                    {s === "needs_attention" ? needsCount : ackCount}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="forge-tabs forge-tabs--secondary" role="tablist" aria-label="Prescription class">
+              {FACETS.map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  role="tab"
+                  className="forge-tabs__btn"
+                  onClick={() => setFacet(f)}
+                  aria-selected={facet === f}
+                >
+                  {facetLabel[f]}
+                </button>
+              ))}
+            </div>
+            <p className="rx-queue__facet-hint">
+              Maintenance = work that needs doing. Management = review and decide.
+            </p>
           </div>
         </div>
       </Panel>
 
+      {section === "acknowledged" ? (
+        <div className="rx-queue__done-toggle">
+          <label>
+            <input
+              type="checkbox"
+              checked={includeDone}
+              onChange={(e) => setIncludeDone(e.target.checked)}
+            />
+            Show done
+          </label>
+        </div>
+      ) : null}
+
       {sorted.length === 0 ? (
         <Panel>
-          <p className="rx-queue__empty">Nothing in {laneLabel[lane]}.</p>
+          <p className="rx-queue__empty">Nothing in {sectionLabel[section]}.</p>
         </Panel>
       ) : (
-        <ul className="rx-queue__list" aria-label={laneLabel[lane]}>
+        <ul className="rx-queue__list" aria-label={sectionLabel[section]}>
           {sorted.map((rx) => {
             const badge = claimBadgeLabel(rx.verificationStatus);
             const isOpen = expanded === rx.id;
@@ -197,17 +303,22 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
             const evidenceHref = resolveEvidenceIdForRx(rx.id)
               ? `/evidence?rxId=${rx.id}`
               : null;
+            const detailHref = prescriptionDetailHref(rx.id, section, facet);
+            const klass = classLabel(rx);
+            const isMgmt = isManagementClass(rx);
+            const isNeeds = rx.lane === "needs_review";
+            const isAcked = !isNeeds && rx.lane !== "closed";
 
             const metaRows = [
               { label: "Owner", value: `${ownerLabel(rx.ownerRole)}${ctx.area ? ` · ${ctx.area}` : ""}` },
-              { label: "Bill line", value: rx.billLine ?? "—" },
-              { label: "Effort", value: rx.effort ?? "—" },
+              { label: "Bill line", value: rx.billLine ?? "-" },
+              { label: "Effort", value: rx.effort ?? "-", wide: true },
               {
                 label: "Rule",
                 value: `${formatRuleLabel(rx.ruleId ?? pack.lineage.ruleId)} · ${Math.round(rx.confidence * 100)}%`,
               },
               { label: "Due", value: rx.dueLabel ?? formatIstDate(rx.dueAt) },
-              { label: "Lane", value: laneLabel[rx.lane] },
+              { label: "Class", value: klass },
             ];
 
             return (
@@ -219,13 +330,11 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                     aria-expanded={isOpen}
                     onClick={() => setExpanded(isOpen ? null : rx.id)}
                   >
-                    <span className="rx-queue__row-chevron">
-                      {isOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                    </span>
                     <div className="rx-queue__row-body">
                       <div className="rx-queue__row-grid">
                         <div className="rx-queue__row-main">
                           <div className="rx-queue__chips">
+                            <StatusChip tone={isMgmt ? "warning" : "info"}>{klass}</StatusChip>
                             {rx.category ? (
                               <StatusChip tone="neutral">{rx.category}</StatusChip>
                             ) : (
@@ -237,6 +346,12 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                                 : priority[0]!.toUpperCase() + priority.slice(1)}
                             </StatusChip>
                             <StatusChip tone="info">{Math.round(rx.confidence * 100)}%</StatusChip>
+                            {rx.lane === "closed" ? (
+                              <StatusChip tone="neutral">Done</StatusChip>
+                            ) : null}
+                            {rx.lane === "verifying" ? (
+                              <StatusChip tone="warning">Verifying</StatusChip>
+                            ) : null}
                             {rx.verificationStatus ? (
                               <StatusChip tone={badge.tone}>{badge.label}</StatusChip>
                             ) : null}
@@ -247,6 +362,15 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                             <p className="rx-queue__meta">
                               {rx.effort ?? ctx.area ?? "Plant"}
                               {rx.dueLabel ? ` · ${rx.dueLabel}` : ` · Due ${formatIstDate(rx.dueAt)}`}
+                            </p>
+                          ) : null}
+                          {!isOpen && rx.feedback ? (
+                            <p className="rx-queue__feedback-preview">
+                              Feedback
+                              {rx.feedback.outcome
+                                ? ` · ${outcomeLabel[rx.feedback.outcome]}`
+                                : ""}
+                              : {truncateNote(rx.feedback.note)}
                             </p>
                           ) : null}
                         </div>
@@ -292,10 +416,20 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                         </div>
                       ) : null}
 
+                      {rx.feedback ? (
+                        <div className="rx-queue__panel-section rx-queue__panel-section--feedback">
+                          <h3 className="rx-queue__block-title">Feedback</h3>
+                          {rx.feedback.outcome ? (
+                            <StatusChip tone="good">{outcomeLabel[rx.feedback.outcome]}</StatusChip>
+                          ) : null}
+                          <p className="rx-queue__feedback-note">{rx.feedback.note}</p>
+                        </div>
+                      ) : null}
+
                       {rx.opportunityCost ? (
                         <p className="rx-queue__opportunity tabular">
                           Delay cost {formatInr(rx.opportunityCost.modeledInr)} over{" "}
-                          {rx.opportunityCost.delayDays} days — estimated, pending bill check.
+                          {rx.opportunityCost.delayDays} days.
                         </p>
                       ) : null}
 
@@ -319,33 +453,53 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                               Evidence
                             </ForgeButton>
                           ) : null}
-                          <ForgeButton variant="ghost" href={`/prescriptions/${rx.id}`}>
+                          <ForgeButton variant="ghost" href={detailHref}>
                             Full case
                           </ForgeButton>
                         </ForgeButtonGroup>
 
-                        {(lane === "needs_review" || lane === "active") && (
+                        {(isNeeds || isAcked) && (
                           <ForgeButtonGroup
                             aria-label="Prescription actions"
                             toolbar
                             className="rx-queue__actions-group rx-queue__actions-group--ops"
                           >
-                            {lane === "needs_review" ? (
-                              <ForgeButton
-                                variant="primary"
-                                icon={<Users size={16} />}
-                                onClick={() => setAssignFor(rx)}
-                              >
-                                Assign
-                              </ForgeButton>
+                            {isNeeds ? (
+                              <>
+                                <ForgeButton
+                                  variant="primary"
+                                  icon={<CheckCircle size={16} />}
+                                  onClick={() => run(rx.id, "ack")}
+                                >
+                                  Acknowledge
+                                </ForgeButton>
+                                <ForgeButton
+                                  variant="secondary"
+                                  icon={<Users size={16} />}
+                                  onClick={() => setAssignFor(rx)}
+                                >
+                                  Assign
+                                </ForgeButton>
+                              </>
                             ) : null}
-                            <ForgeButton
-                              variant="secondary"
-                              icon={<CheckCircle size={16} />}
-                              onClick={() => run(rx.id, "done")}
-                            >
-                              Mark done
-                            </ForgeButton>
+                            {isAcked ? (
+                              <>
+                                <ForgeButton
+                                  variant="secondary"
+                                  icon={<MessageSquare size={16} />}
+                                  onClick={() => openFeedback(rx.id)}
+                                >
+                                  {rx.feedback ? "Edit feedback" : "Add feedback"}
+                                </ForgeButton>
+                                <ForgeButton
+                                  variant="secondary"
+                                  icon={<CheckCircle size={16} />}
+                                  onClick={() => run(rx.id, "done")}
+                                >
+                                  Mark done
+                                </ForgeButton>
+                              </>
+                            ) : null}
                             <ForgeButton variant="ghost" onClick={() => run(rx.id, "defer")}>
                               Defer…
                             </ForgeButton>
@@ -355,6 +509,64 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                           </ForgeButtonGroup>
                         )}
                       </div>
+
+                      {feedbackFor === rx.id ? (
+                        <div className="rx-queue__feedback-form">
+                          <p className="rx-queue__block-title">Add feedback</p>
+                          <div className="rx-queue__outcome-chips" role="group" aria-label="Outcome">
+                            {(
+                              [
+                                ["helped", "Helped"],
+                                ["didnt_help", "Didn't help"],
+                                ["needs_follow_up", "Needs follow-up"],
+                              ] as const
+                            ).map(([key, label]) => (
+                              <button
+                                key={key}
+                                type="button"
+                                className={[
+                                  "rx-queue__outcome-chip",
+                                  feedbackOutcome === key ? "is-active" : "",
+                                ]
+                                  .filter(Boolean)
+                                  .join(" ")}
+                                onClick={() =>
+                                  setFeedbackOutcome((cur) => (cur === key ? undefined : key))
+                                }
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </div>
+                          <label htmlFor={`feedback-${rx.id}`}>Note (required)</label>
+                          <textarea
+                            id={`feedback-${rx.id}`}
+                            value={feedbackNote}
+                            onChange={(e) => setFeedbackNote(e.target.value)}
+                            rows={2}
+                            placeholder="What worked, what didn’t, or what to follow up…"
+                          />
+                          <ForgeButtonGroup>
+                            <ForgeButton
+                              variant="primary"
+                              onClick={saveFeedback}
+                              disabled={!feedbackNote.trim()}
+                            >
+                              Save feedback
+                            </ForgeButton>
+                            <ForgeButton
+                              variant="ghost"
+                              onClick={() => {
+                                setFeedbackFor(null);
+                                setFeedbackNote("");
+                                setFeedbackOutcome(undefined);
+                              }}
+                            >
+                              Cancel
+                            </ForgeButton>
+                          </ForgeButtonGroup>
+                        </div>
+                      ) : null}
 
                       {pendingAction?.id === rx.id ? (
                         <div className="rx-queue__reason-form">

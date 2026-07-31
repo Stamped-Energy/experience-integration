@@ -13,12 +13,12 @@ import {
 } from "react";
 import { StatusBadge } from "@/components/ui/indicators";
 
-/** Touch / primary CTA floor — design system §7.1 */
+/** Touch / primary CTA floor - design system §7.1 */
 export const TOUCH_MIN_PX = 48;
 
 export type StatusTone = "critical" | "warning" | "good" | "neutral" | "info";
 
-/** Charter: never color alone — every tone has a visible English label. */
+/** Charter: never color alone - every tone has a visible English label. */
 export const STATUS_LABELS: Record<StatusTone, string> = {
   critical: "Critical",
   warning: "Warning",
@@ -126,7 +126,7 @@ export function PageHead({
   );
 }
 
-/** Standard panel header — eyebrow, title, optional subtitle/meta */
+/** Standard panel header - eyebrow, title, optional subtitle/meta */
 export function PanelHeader({
   eyebrow,
   title,
@@ -256,7 +256,7 @@ function sizeStyle(size: ForgeButtonSize): CSSProperties {
 }
 
 /**
- * Unified Forge button — API shaped like shadcn Button (variant/size/href)
+ * Unified Forge button - API shaped like shadcn Button (variant/size/href)
  * but styled with Forge CSS variables. Prefer this for new ops chrome.
  */
 export function ForgeButton({
@@ -325,7 +325,7 @@ export function ForgeButton({
   );
 }
 
-/** Action row — shadcn ButtonGroup analogue. Use `toolbar` for a visible ops bar. */
+/** Action row - shadcn ButtonGroup analogue. Use `toolbar` for a visible ops bar. */
 export function ForgeButtonGroup({
   children,
   className,

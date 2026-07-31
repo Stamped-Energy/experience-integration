@@ -21,6 +21,7 @@ export type LiveAlert = {
   machine: string;
   message: string;
   action: string;
+  alarmId?: string;
   live?: boolean;
 };
 

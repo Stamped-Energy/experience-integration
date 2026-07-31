@@ -55,7 +55,7 @@ export function AlarmDetailClient({
   function onAction(id: string) {
     const action = id as Exclude<AlarmAction, "evidence">;
     setAlarm((prev) => applyAlarmAction(prev, action));
-    setToast(`${ACTION_LABEL[action]} — ${alarm.assetLabel}`);
+    setToast(`${ACTION_LABEL[action]} - ${alarm.assetLabel}`);
   }
 
   return (

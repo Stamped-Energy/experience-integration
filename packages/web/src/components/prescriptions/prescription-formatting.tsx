@@ -34,7 +34,7 @@ export function emphasizeLead(text: string): ReactNode {
 
 /** Bold first clause before em-dash or arrow. */
 export function emphasizeCause(text: string): ReactNode {
-  const split = text.split(/\s*(→|—)\s*/);
+  const split = text.split(/\s*(→|-)\s*/);
   if (split.length >= 3) {
     return (
       <>

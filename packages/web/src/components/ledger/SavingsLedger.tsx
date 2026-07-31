@@ -14,6 +14,7 @@ import {
 } from "@/lib/ledger";
 import { Panel, StatusChip } from "@/components/ui/primitives";
 import { resolveEvidenceIdForRx } from "@/fixtures/evidence-samples";
+import "@/components/reports/reports.css";
 
 const bucketLabel: Record<ClaimBucket | "all", string> = {
   all: "All",
@@ -30,7 +31,7 @@ export function SavingsLedger({ rows }: { rows: LedgerEntry[] }) {
   const potentialTotal = sumPotentialInr(rows);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }} data-ledger>
+    <div className="reports-stack" data-ledger>
       <Panel style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
         <div>
           <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
@@ -46,9 +47,6 @@ export function SavingsLedger({ rows }: { rows: LedgerEntry[] }) {
             }}
           >
             {formatInr(opsTotal)}
-          </p>
-          <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--forge-warning)" }}>
-            Pending utility bill verification
           </p>
         </div>
         <div>
@@ -99,10 +97,11 @@ export function SavingsLedger({ rows }: { rows: LedgerEntry[] }) {
       ) : (
         visible.map((entry) => {
           const claim = displayClaim(entry);
+          const evidenceId = resolveEvidenceIdForRx(entry.prescriptionId);
           return (
             <Panel key={entry.entryId} as="article" data-ledger-id={entry.entryId}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                <div>
+              <div className="reports-ledger-row">
+                <div className="reports-ledger-row__main">
                   <h3 style={{ margin: 0, fontFamily: "var(--forge-font-display)", fontSize: 17 }}>
                     <Link href={`/prescriptions/${entry.prescriptionId}`}>{entry.title}</Link>
                   </h3>
@@ -111,7 +110,7 @@ export function SavingsLedger({ rows }: { rows: LedgerEntry[] }) {
                     {formatBaselineLabel(entry.baselineId)}
                   </p>
                 </div>
-                <div style={{ textAlign: "right" }}>
+                <div className="reports-ledger-row__side">
                   <p
                     className="tabular"
                     style={{
@@ -130,24 +129,30 @@ export function SavingsLedger({ rows }: { rows: LedgerEntry[] }) {
                   <StatusChip tone={claim.badge.tone}>{claim.badge.label}</StatusChip>
                 </div>
               </div>
-              <p style={{ margin: "12px 0 0", fontSize: 13 }}>{claim.disclosure}</p>
-              <p style={{ margin: "8px 0 0", fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
-                Emission factor: {formatEmissionFactorRef(claim.emissionFactor)}
-                {claim.showBillVerified ? " · Matched to bill line items" : ""}
-              </p>
-              <div style={{ marginTop: 12 }}>
+              {claim.disclosure ? (
+                <p style={{ margin: "12px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
+                  {claim.disclosure}
+                </p>
+              ) : null}
+              <div className="reports-ledger-row__footer">
                 {(() => {
-                  const evidenceId = resolveEvidenceIdForRx(entry.prescriptionId);
-                  if (!evidenceId) return null;
-                  return (
-                    <Link
-                      href={`/evidence/${evidenceId}`}
-                      style={{ fontWeight: 700, fontSize: 13 }}
-                    >
-                      Evidence
-                    </Link>
+                  const factor = formatEmissionFactorRef(claim.emissionFactor);
+                  return factor ? (
+                    <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
+                      Emission factor: {factor}
+                    </p>
+                  ) : (
+                    <span />
                   );
                 })()}
+                {evidenceId ? (
+                  <Link
+                    href={`/evidence/${evidenceId}`}
+                    className="reports-ledger-evidence"
+                  >
+                    Evidence
+                  </Link>
+                ) : null}
               </div>
             </Panel>
           );

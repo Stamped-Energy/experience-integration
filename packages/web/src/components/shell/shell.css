@@ -1,4 +1,4 @@
-/* Forge responsive shell — desktop ≥900px, mobile sheet + dock below */
+/* Forge responsive shell - desktop ≥900px, mobile sheet + dock below */
 
 .forge-shell {
   height: 100dvh;
@@ -592,10 +592,28 @@
 
   .forge-shell__topbar {
     padding: 0 14px;
+    gap: 10px;
+  }
+
+  .forge-shell__topbar-start {
+    gap: 8px;
+  }
+
+  .forge-shell__topbar-actions {
+    gap: 8px;
   }
 
   .forge-shell__brand-plant {
     max-width: 160px;
+  }
+
+  .forge-shell__content {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .forge-shell__main {
+    overflow-x: clip;
   }
 }
 

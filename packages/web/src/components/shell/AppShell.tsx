@@ -16,6 +16,7 @@ import { WebVitalsReporter } from "@/components/telemetry/WebVitalsReporter";
 import { SidebarNav } from "@/components/shell/SidebarNav";
 import { AppTopbar } from "@/components/shell/AppTopbar";
 import { DEMO_PLANT, PLANTS } from "@/fixtures/demo";
+import { usePlant } from "@/lib/plant-context";
 
 function sseMeta(connection: ConnectionStatus): {
   label: string;
@@ -30,7 +31,7 @@ function sseMeta(connection: ConnectionStatus): {
       label: "Reconnecting",
       live: false,
       banner:
-        "Live updates paused — reconnecting. Actions still work; lists may be stale.",
+        "Live updates paused - reconnecting. Actions still work; lists may be stale.",
     };
   }
   return {
@@ -57,7 +58,7 @@ export function AppShell({
 }: {
   active: NavKey;
   plantName: string;
-  /** Active plant external id — drives telemetry + analyst envelope scope. */
+  /** Active plant external id - drives telemetry + analyst envelope scope. */
   plantId?: string;
   /** When provided (and > 1 entry), AppTopbar renders a plant switcher. */
   plants?: Array<{ id: string; name: string }>;
@@ -73,6 +74,7 @@ export function AppShell({
   criticalAlarmCount: number;
   children: React.ReactNode;
 }) {
+  const plantCtx = usePlant();
   const [analystOpen, setAnalystOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [pins, setPins] = useState<NavKey[]>([]);
@@ -84,6 +86,22 @@ export function AppShell({
     setPins(readPins(storage));
     setCollapsed(readCollapsed(storage));
   }, []);
+
+  // Keep plant switcher + facility label identical on every route.
+  const shellPlants = useMemo(
+    () =>
+      plants && plants.length > 0
+        ? plants
+        : plantCtx.plants.map((p) => ({ id: p.plantId, name: p.plantName })),
+    [plants, plantCtx.plants],
+  );
+  const shellPlantId = plants && plants.length > 0 ? plantId : plantCtx.activePlantId;
+  const shellPlantName =
+    plants && plants.length > 0 ? plantName : plantCtx.activePlant.plantName;
+  const shellOnPlantChange =
+    plants && plants.length > 0 && onPlantChange
+      ? onPlantChange
+      : plantCtx.setActivePlantId;
 
   const dock = useMemo(() => mobileDock(role, pins), [role, pins]);
   const sse = useMemo(() => sseMeta(connection), [connection]);
@@ -123,21 +141,21 @@ export function AppShell({
       className={`forge-shell${collapsed ? " forge-shell--collapsed" : ""}`}
       data-breakpoint-desktop="900px"
     >
-      <WebVitalsReporter plantId={plantId} role={role} />
+      <WebVitalsReporter plantId={shellPlantId} role={role} />
       <a className="forge-shell__skip" href="#forge-main">
         Skip to main content
       </a>
 
       <AppTopbar
-        plantName={plantName}
+        plantName={shellPlantName}
         connection={connection}
         mobileNavOpen={mobileNavOpen}
         onOpenNav={() => setMobileNavOpen(true)}
         onAskAnalyst={() => setAnalystOpen(true)}
         askAnalystRef={askAnalystRef}
-        plants={plants}
-        activePlantId={plantId}
-        onPlantChange={onPlantChange}
+        plants={shellPlants}
+        activePlantId={shellPlantId}
+        onPlantChange={shellOnPlantChange}
       />
 
       <div className="forge-shell__body">
@@ -151,10 +169,10 @@ export function AppShell({
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Factory size={18} color="var(--forge-primary)" aria-hidden />
                 <span className="forge-shell__facility-name">
-                  {plantName.split(",")[0] ?? plantName}
+                  {shellPlantName.split(",")[0] ?? shellPlantName}
                 </span>
               </div>
-              <p className="forge-shell__facility-meta">{plantName}</p>
+              <p className="forge-shell__facility-meta">{shellPlantName}</p>
               <span className="forge-chip forge-chip--primary" style={{ marginTop: 8 }}>
                 115 MW Peak Load
               </span>
@@ -212,7 +230,7 @@ export function AppShell({
         <nav aria-label="Mobile full" className="forge-shell__mobile-nav">
           {mobileNav}
           <p style={{ marginTop: 16, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
-            Role: {role.replaceAll("_", " ")} · {plantName}
+            Role: {role.replaceAll("_", " ")} · {shellPlantName}
           </p>
         </nav>
       </Sheet>
@@ -222,8 +240,9 @@ export function AppShell({
         onClose={() => setAnalystOpen(false)}
         returnFocusRef={askAnalystRef}
         envelope={{
-          orgId: PLANTS.find((p) => p.plantId === plantId)?.orgId ?? DEMO_PLANT.orgId,
-          plantId,
+          orgId:
+            PLANTS.find((p) => p.plantId === shellPlantId)?.orgId ?? DEMO_PLANT.orgId,
+          plantId: shellPlantId,
           userId: "user_demo",
           role,
           routeId: active,

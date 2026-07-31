@@ -48,7 +48,7 @@ export default function PrescriptionsPage() {
           setSource("l5");
         }
       } catch {
-        // BFF unreachable — keep fixture data
+        // BFF unreachable - keep fixture data
       }
     }
     void loadLive();
@@ -77,13 +77,13 @@ export default function PrescriptionsPage() {
       connection={connectionFixture}
       screenTitle="Prescription queue"
       contextSummary={[
-        `${needsReview.length} need review · ${formatInr(needsReviewInr)}/mo`,
-        source === "l5" ? "Live from L5" : "Savings status badges",
+        `${needsReview.length} need attention · ${formatInr(needsReviewInr)}/mo`,
+        source === "l5" ? "Live from L5" : "Maintenance & management inbox",
       ]}
       focusEntity={rows[0] ? { type: "prescription", id: rows[0].id } : undefined}
       criticalAlarmCount={criticalAlarmCount}
     >
-      <PageHead eyebrow="Closure" title="Prescriptions" />
+      <PageHead eyebrow="Plant inbox" title="Prescriptions" />
       <PrescriptionQueue key={`${activePlant.plantId}:${source}`} initial={rows} />
     </AppShell>
   );

@@ -17,6 +17,7 @@ import { registerExportRoutes } from "./exports/routes.js";
 import { registerIntegrationRoutes } from "./integrations/routes.js";
 import type { Mailer } from "./mail/mailer.js";
 import { registerPlantRoutes } from "./plants/routes.js";
+import { registerNegotiationRoutes } from "./negotiation/routes.js";
 import { registerPrescriptionRoutes } from "./prescriptions/routes.js";
 import type { PrescriptionStore } from "./prescriptions/service.js";
 import { problemHandler } from "./problems.js";
@@ -160,6 +161,11 @@ export async function buildApp(
       db: opts.db,
       l5: opts.l5,
       fixture: opts.prescriptionFixture,
+    });
+    await registerNegotiationRoutes(app, {
+      auth: opts.auth,
+      db: opts.db,
+      discussEnabled: env.DISCUSS_ENABLED,
     });
     await registerExportRoutes(app, { auth: opts.auth, db: opts.db });
     await registerReportRoutes(app, {

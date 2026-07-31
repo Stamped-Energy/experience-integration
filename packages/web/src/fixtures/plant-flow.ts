@@ -1,4 +1,4 @@
-/** Jaipur Works — animated plant flow topology (2D flowchart twin). */
+/** Jaipur Works - animated plant flow topology (2D flowchart twin). */
 
 export type FlowNodeStatus = "SOURCE" | "CRITICAL" | "WARNING" | "GOOD" | "RENEWABLE";
 
@@ -38,7 +38,7 @@ export const NODE_COLORS: Record<FlowNodeStatus, string> = {
   RENEWABLE: "#0d8b94",
 };
 
-/** Positions tuned for 900×520 viewBox — left-to-right energy routing. */
+/** Positions tuned for 900×520 viewBox - left-to-right energy routing. */
 export const PLANT_FLOW_NODES: PlantFlowNode[] = [
   { id: "grid", name: "Grid Substation", x: 96, y: 260, kw: 4680, loadPct: 94, status: "SOURCE", area: "Power" },
   { id: "solar", name: "Solar Array", x: 96, y: 88, kw: 280, loadPct: 40, status: "RENEWABLE", area: "Renewables" },
@@ -75,7 +75,7 @@ export const plantFlowNodeById = Object.fromEntries(
   PLANT_FLOW_NODES.map((n) => [n.id, n]),
 ) as Record<string, PlantFlowNode>;
 
-/** Quadratic bezier between two node centres — arc rises with distance. */
+/** Quadratic bezier between two node centres - arc rises with distance. */
 export function flowBezierPath(from: PlantFlowNode, to: PlantFlowNode): string {
   const dx = to.x - from.x;
   const dy = to.y - from.y;

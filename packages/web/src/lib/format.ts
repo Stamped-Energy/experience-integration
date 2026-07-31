@@ -1,7 +1,7 @@
 /** Indian-locale formatters for client-facing surfaces. */
 
 const IST = "Asia/Kolkata";
-const MISSING = "—";
+const MISSING = "-";
 
 function parseIso(iso: string): Date | null {
   if (!iso || iso === MISSING || iso === "-") return null;
@@ -50,6 +50,39 @@ export function formatIstTime(iso: string): string {
     hour12: true,
   });
   return `${formatted} IST`;
+}
+
+/** Compact stamp for dense chrome - e.g. "21 Jul, 10:08 am". */
+export function formatIstCompactDateTime(iso: string): string {
+  const date = parseIso(iso);
+  if (!date) return iso || MISSING;
+  return formatWithTimeZone(date, {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+/** Compact range - e.g. "21 Jul, 10:08 am → 2:30 pm". */
+export function formatIstCompactDateTimeRange(from: string, to: string): string {
+  const fromDate = parseIso(from);
+  const toDate = parseIso(to);
+  if (!fromDate || !toDate) return MISSING;
+  const fromLabel = formatIstCompactDateTime(from);
+  const sameDay =
+    fromDate.toLocaleString("en-IN", { timeZone: IST, day: "numeric", month: "short", year: "numeric" }) ===
+    toDate.toLocaleString("en-IN", { timeZone: IST, day: "numeric", month: "short", year: "numeric" });
+  if (sameDay) {
+    const toTime = formatWithTimeZone(toDate, {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+    return `${fromLabel} → ${toTime}`;
+  }
+  return `${fromLabel} → ${formatIstCompactDateTime(to)}`;
 }
 
 /** e.g. "21 Jul → 31 Jul 2026" */
@@ -104,15 +137,15 @@ export function claimBadgeLabel(
 ): { label: string; tone: "good" | "warning" | "neutral" | "critical" } {
   switch (status) {
     case "ops_confirmed":
-      return { label: "Confirmed by operations", tone: "good" };
+      return { label: "Confirmed", tone: "good" };
     case "modeled":
-      return { label: "Estimated — pending bill check", tone: "warning" };
+      return { label: "Estimated", tone: "warning" };
     case "pending":
       return { label: "Pending", tone: "neutral" };
     case "disputed":
       return { label: "Disputed", tone: "critical" };
     case "verified":
-      return { label: "Verified on utility bill", tone: "good" };
+      return { label: "Verified", tone: "good" };
     default:
       return { label: "Unknown", tone: "neutral" };
   }
@@ -123,7 +156,7 @@ export function citationPathLabel(path?: "H" | "W"): string {
 }
 
 export function formatRuleLabel(ruleId?: string): string {
-  if (!ruleId) return "—";
+  if (!ruleId) return "-";
   const base = ruleId.split("@")[0] ?? ruleId;
   const segment = base.split("/").pop() ?? base;
   return segment.replaceAll("_", " ");
@@ -134,12 +167,12 @@ export function formatMetricLabel(metric: string): string {
 }
 
 export function formatBaselineLabel(baselineId?: string | null): string {
-  if (!baselineId) return "—";
+  if (!baselineId) return "-";
   return baselineId.replace(/^bl_/, "").replaceAll("_", " ");
 }
 
 export function formatEmissionFactorRef(ref?: string): string {
-  if (!ref || ref === "not_measured_by_stamped") return "Not measured";
+  if (!ref || ref === "not_measured_by_stamped") return "";
   if (ref.startsWith("cea_grid")) return "CEA grid factor 2024";
   return ref.replaceAll("_", " ");
 }

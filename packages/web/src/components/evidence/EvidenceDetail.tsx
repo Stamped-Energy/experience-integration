@@ -1,9 +1,12 @@
+"use client";
+
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { LoadDial } from "@/components/charts/LoadDial";
 import { EvidenceTrend } from "@/components/charts/EvidenceTrend";
 import { EvidenceMiniChart } from "@/components/evidence/EvidenceMiniChart";
 import { emphasizeNumbers } from "@/components/prescriptions/prescription-formatting";
+import { ForgeDisclosure } from "@/components/ui/ForgeDisclosure";
 import {
   DataTable,
   ForgeButton,
@@ -82,12 +85,133 @@ export function EvidenceDetail({
 
   const contextRows = [
     { label: "Asset", value: sample.assetLabel },
-    { label: "Asset ID", value: sample.assetId },
-    { label: "Finding", value: sample.findingId ?? "—" },
+    { label: "Finding", value: sample.findingId ?? "-" },
     { label: "Baseline", value: formatBaselineLabel(sample.baselineId) },
     { label: "Rule", value: formatRuleLabel(sample.findingId) },
-    { label: "Plant", value: "Jaipur Works" },
   ];
+
+  const renderChart = () => (
+    <Panel className="evd-full__panel evd-full__panel--chart">
+      <h3 className="evd-full__block-title">What the chart shows</h3>
+      <p className="evd-full__chart-caption">{sample.chartTitle}</p>
+      <EvidenceMiniChart chart={sample.chart} accent={accent} />
+
+      {sample.chart.kind === "line" && sample.chart.highlight ? (
+        <div className="evd-full__callout evd-full__callout--key">
+          <span className="evd-full__callout-label">Highlighted window</span>
+          <p className="evd-full__prose">
+            {sample.chart.highlight.label}. Highlighted interval linked to this alarm or
+            prescription.
+          </p>
+        </div>
+      ) : null}
+
+      {sample.chart.kind === "bar" && sample.chart.annotation ? (
+        <div className="evd-full__callout evd-full__callout--key">
+          <span className="evd-full__callout-label">Bar chart note</span>
+          <p className="evd-full__prose">{sample.chart.annotation}</p>
+        </div>
+      ) : null}
+    </Panel>
+  );
+
+  const renderNav = () => (
+    <div className="evd-full__mobile-nav">
+      <div className="evd-full__links" data-evidence-parents>
+        {sample.alarmId ? (
+          <StatusChip tone="critical">
+            <Link href={`/alarms/${sample.alarmId}`} style={{ color: "inherit" }}>
+              Alarm · {sample.assetLabel}
+            </Link>
+          </StatusChip>
+        ) : null}
+        {sample.rxId ? (
+          <StatusChip tone="info">
+            <Link href={`/prescriptions/${sample.rxId}`} style={{ color: "inherit" }}>
+              Prescriptions
+            </Link>
+          </StatusChip>
+        ) : null}
+      </div>
+      <ForgeButtonGroup aria-label="Evidence navigation" toolbar className="evd-full__actions">
+        {sample.alarmId ? (
+          <ForgeButton variant="ghost" href={`/alarms/${sample.alarmId}`}>
+            Alarm
+          </ForgeButton>
+        ) : null}
+        {sample.rxId ? (
+          <ForgeButton variant="ghost" href={`/prescriptions/${sample.rxId}`}>
+            Prescriptions
+          </ForgeButton>
+        ) : null}
+        <ForgeButton variant="secondary" href={backHref(sample)}>
+          {backLabel(sample)}
+        </ForgeButton>
+      </ForgeButtonGroup>
+    </div>
+  );
+
+  const renderContext = () => (
+    <>
+      <AsideSection title="Case context">
+        <CompactMeta rows={contextRows} />
+      </AsideSection>
+      <AsideSection>
+        <div className="evd-full__callout evd-full__callout--mv evd-full__callout--flush">
+          <span className="evd-full__callout-label">M&amp;V status</span>
+          <p className="evd-full__prose">{sample.mvFooter}</p>
+        </div>
+      </AsideSection>
+    </>
+  );
+
+  const renderMoreDetail = () => (
+    <>
+      {sample.dials.length ? (
+        <AsideSection title="Live dials at anomaly">
+          <div className="evd-full__aside-dials">
+            {sample.dials.map((d) => (
+              <LoadDial
+                key={d.label}
+                label={d.label}
+                value={d.needle}
+                max={d.needleMax ?? 120}
+                displayText={d.display}
+                unit={d.unit ?? ""}
+                size={108}
+              />
+            ))}
+          </div>
+        </AsideSection>
+      ) : null}
+
+      <AsideSection title="Tag readings">
+        <p className="evd-full__prose evd-full__prose--muted evd-full__aside-note">
+          Meter tags sampled inside the anomaly window.
+        </p>
+        <div className="evidence-table-wrap evd-full__aside-table">
+          <DataTable
+            caption="Evidence tags"
+            columns={[
+              { key: "tag", header: "Tag" },
+              { key: "value", header: "Value" },
+              { key: "window", header: "Window" },
+            ]}
+            rows={sample.tagRows.map((row, i) => ({
+              id: `tag-${i}`,
+              tag: row.tag,
+              value: row.value,
+              window: row.window,
+            }))}
+          />
+        </div>
+      </AsideSection>
+
+      <AsideSection title="Lineage">
+        <pre className="evd-full__metadata">{sample.metadata}</pre>
+      </AsideSection>
+    </>
+  );
 
   return (
     <div className="evd-full" data-evidence-detail>
@@ -101,7 +225,9 @@ export function EvidenceDetail({
               </StatusChip>
             </div>
             <h2 className="evd-full__issue">{sample.issueTitle}</h2>
-            <p className="evd-full__lead">{emphasizeNumbers(sample.mvFooter)}</p>
+            <p className="evd-full__lead evd-full__lead--mobile-clamp">
+              {emphasizeNumbers(sample.mvFooter)}
+            </p>
           </div>
           <div className="evd-full__stat-box">
             <p className="forge-eyebrow">Signal window</p>
@@ -111,144 +237,38 @@ export function EvidenceDetail({
         </div>
       </Panel>
 
-      <div className="evd-full__body">
+      {/* Desktop: chart + trend | sticky aside */}
+      <div className="evd-full__body forge-desktop-stack">
         <div className="evd-full__main">
-          <Panel className="evd-full__panel evd-full__panel--chart">
-            <h3 className="evd-full__block-title">What the chart shows</h3>
-            <p className="evd-full__chart-caption">{sample.chartTitle}</p>
-            <EvidenceMiniChart chart={sample.chart} accent={accent} />
-
-            {sample.chart.kind === "line" && sample.chart.highlight ? (
-              <div className="evd-full__callout evd-full__callout--key">
-                <span className="evd-full__callout-label">Highlighted window</span>
-                <p className="evd-full__prose">
-                  {sample.chart.highlight.label} — this is the interval Stamped uses to tie the
-                  alarm or prescription to metered behaviour.
-                </p>
-              </div>
-            ) : null}
-
-            {sample.chart.kind === "bar" && sample.chart.annotation ? (
-              <div className="evd-full__callout evd-full__callout--key">
-                <span className="evd-full__callout-label">Bar chart note</span>
-                <p className="evd-full__prose">{sample.chart.annotation}</p>
-              </div>
-            ) : null}
-          </Panel>
-
+          {renderChart()}
           <EvidenceTrend assetLabel={sample.assetLabel} showBaselineBand={showBaselineBand} />
         </div>
 
         <aside className="evd-full__aside">
           <Panel className="evd-full__panel evd-full__panel--sticky">
-            <AsideSection title="Case context">
-              <CompactMeta rows={contextRows} />
-            </AsideSection>
-
-            {sample.dials.length ? (
-              <AsideSection title="Live dials at anomaly">
-                <div className="evd-full__aside-dials">
-                  {sample.dials.map((d) => (
-                    <LoadDial
-                      key={d.label}
-                      label={d.label}
-                      value={d.needle}
-                      max={d.needleMax ?? 120}
-                      displayText={d.display}
-                      unit={d.unit ?? ""}
-                      size={108}
-                    />
-                  ))}
-                </div>
-              </AsideSection>
-            ) : null}
-
-            <AsideSection title="Tag readings">
-              <p className="evd-full__prose evd-full__prose--muted evd-full__aside-note">
-                Meter tags sampled inside the anomaly window — reconcile against the utility bill.
-              </p>
-              <div className="evidence-table-wrap evd-full__aside-table">
-                <DataTable
-                  caption="Evidence tags"
-                  columns={[
-                    { key: "tag", header: "Tag" },
-                    { key: "value", header: "Value" },
-                    { key: "window", header: "Window" },
-                  ]}
-                  rows={sample.tagRows.map((row, i) => ({
-                    id: `tag-${i}`,
-                    tag: row.tag,
-                    value: row.value,
-                    window: row.window,
-                  }))}
-                />
-              </div>
-            </AsideSection>
-
-            <AsideSection title="Lineage string">
-              <pre className="evd-full__metadata">{sample.metadata}</pre>
-            </AsideSection>
-
-            <AsideSection>
-              <div className="evd-full__callout evd-full__callout--mv evd-full__callout--flush">
-                <span className="evd-full__callout-label">M&amp;V status</span>
-                <p className="evd-full__prose">{sample.mvFooter}</p>
-              </div>
-            </AsideSection>
-
-            <AsideSection title="How to read this pack">
-              <ol className="evd-full__guide-list">
-                <li>
-                  <strong>Chart</strong> — meter signal with the highlighted anomaly band.
-                </li>
-                <li>
-                  <strong>Tags</strong> — raw SCADA readings traceable to the bill line.
-                </li>
-                <li>
-                  <strong>Lineage</strong> — rule, baseline, and sources; never invented when missing.
-                </li>
-                <li>
-                  <strong>M&amp;V footer</strong> — savings claim stays modeled until the bill confirms.
-                </li>
-              </ol>
-            </AsideSection>
-
-            <AsideSection>
-              <div className="evd-full__links" data-evidence-parents>
-                {sample.alarmId ? (
-                  <StatusChip tone="critical">
-                    <Link href={`/alarms/${sample.alarmId}`} style={{ color: "inherit" }}>
-                      Alarm · {sample.assetLabel}
-                    </Link>
-                  </StatusChip>
-                ) : null}
-                {sample.rxId ? (
-                  <StatusChip tone="info">
-                    <Link href={`/prescriptions/${sample.rxId}`} style={{ color: "inherit" }}>
-                      Prescription
-                    </Link>
-                  </StatusChip>
-                ) : null}
-              </div>
-
-              <ForgeButtonGroup aria-label="Evidence navigation" toolbar className="evd-full__actions">
-                {sample.alarmId ? (
-                  <ForgeButton variant="ghost" href={`/alarms/${sample.alarmId}`}>
-                    Alarm
-                  </ForgeButton>
-                ) : null}
-                {sample.rxId ? (
-                  <ForgeButton variant="ghost" href={`/prescriptions/${sample.rxId}`}>
-                    Prescription
-                  </ForgeButton>
-                ) : null}
-                <ForgeButton variant="secondary" href={backHref(sample)}>
-                  {backLabel(sample)}
-                </ForgeButton>
-              </ForgeButtonGroup>
-            </AsideSection>
+            {renderContext()}
+            <AsideSection>{renderNav()}</AsideSection>
+            <ForgeDisclosure title="More detail">{renderMoreDetail()}</ForgeDisclosure>
           </Panel>
         </aside>
+      </div>
+
+      {/* Mobile essentials */}
+      <div className="forge-mobile-always" data-testid="evd-mobile-always">
+        {renderChart()}
+        <Panel className="evd-full__panel">{renderNav()}</Panel>
+      </div>
+
+      <div className="forge-disclosure-stack" data-testid="evd-mobile-disclosures">
+        <ForgeDisclosure title="Trend">
+          <EvidenceTrend assetLabel={sample.assetLabel} showBaselineBand={showBaselineBand} />
+        </ForgeDisclosure>
+        <ForgeDisclosure title="Case context">
+          <Panel className="evd-full__panel">{renderContext()}</Panel>
+        </ForgeDisclosure>
+        <ForgeDisclosure title="More detail">
+          <Panel className="evd-full__panel">{renderMoreDetail()}</Panel>
+        </ForgeDisclosure>
       </div>
     </div>
   );

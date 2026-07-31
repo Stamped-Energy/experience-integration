@@ -1,0 +1,153 @@
+/* Reports + ledger export alignment + print-safe layout */
+
+.reports-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.reports-export-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 16px;
+  width: 100%;
+}
+
+.reports-export-head__copy {
+  min-width: 0;
+  flex: 1 1 220px;
+}
+
+.reports-export-head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.reports-job {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--forge-outline-variant);
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.reports-job__meta {
+  min-width: 0;
+  flex: 1 1 200px;
+}
+
+.reports-job__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.reports-ledger-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.reports-ledger-row__main {
+  min-width: 0;
+  flex: 1 1 220px;
+}
+
+.reports-ledger-row__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  margin-left: auto;
+  text-align: right;
+}
+
+.reports-ledger-row__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.reports-ledger-row__footer .reports-ledger-evidence {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+@media print {
+  .forge-shell__skip,
+  .forge-shell__topbar,
+  .forge-shell__sidebar,
+  .forge-shell__dock,
+  .forge-shell__mobile-nav,
+  [data-shell="mobile-dock"],
+  [data-shell="desktop-nav"],
+  .forge-shell__menu-btn,
+  .forge-shell__analyst-btn,
+  .forge-shell__plant-switch,
+  .forge-shell__conn,
+  .reports-export-head__actions,
+  .reports-job__actions button,
+  .reports-job__actions a {
+    display: none !important;
+  }
+
+  .forge-shell__body {
+    display: block !important;
+  }
+
+  .forge-shell__main,
+  .forge-shell__content,
+  [data-shell-main] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .reports-job,
+  .reports-ledger-row,
+  [data-ledger-id] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .reports-ledger-evidence[href]::after {
+    content: " (" attr(href) ")";
+    font-weight: 500;
+    font-size: 11px;
+    color: #444;
+  }
+
+  .reports-job,
+  .reports-ledger-row {
+    flex-wrap: nowrap;
+  }
+
+  .reports-job__actions,
+  .reports-ledger-row__side {
+    margin-left: auto;
+  }
+}

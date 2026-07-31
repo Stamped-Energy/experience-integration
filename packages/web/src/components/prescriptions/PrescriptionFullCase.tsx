@@ -6,12 +6,22 @@ import {
   Panel,
   StatusChip,
 } from "@/components/ui/primitives";
+import { ForgeDisclosure } from "@/components/ui/ForgeDisclosure";
 import { emphasizeCause, emphasizeLead, emphasizeNumbers } from "@/components/prescriptions/prescription-formatting";
 import { PrescriptionEvidencePreview } from "@/components/prescriptions/PrescriptionEvidencePreview";
+import { PrescriptionResponseActions } from "@/components/prescriptions/PrescriptionResponseActions";
 import type { EvidenceSample } from "@/fixtures/evidence-samples";
 import type { EvidencePack } from "@/lib/evidence";
-import { claimBadgeLabel, formatBaselineLabel, formatInr, formatIstDate, formatIstDateRange } from "@/lib/format";
+import {
+  claimBadgeLabel,
+  formatBaselineLabel,
+  formatInr,
+  formatIstCompactDateTimeRange,
+  formatIstDate,
+  formatIstDateRange,
+} from "@/lib/format";
 import { buildPrescriptionCaseDetail } from "@/lib/prescription-case";
+import { classLabel, isManagementClass } from "@/lib/prescriptions";
 import type { Alarm, LedgerEntry, Prescription } from "@/lib/types";
 import type { DemoAsset } from "@/fixtures/demo";
 import "./prescription-full-case.css";
@@ -101,6 +111,12 @@ function CompactMeta({ rows }: { rows: Array<{ label: string; value: string }> }
   );
 }
 
+function shortenSummary(text: string, max = 96): string {
+  const trimmed = text.trim();
+  if (trimmed.length <= max) return trimmed;
+  return `${trimmed.slice(0, max - 1).trimEnd()}…`;
+}
+
 export function PrescriptionFullCase({
   rx,
   pack,
@@ -109,6 +125,7 @@ export function PrescriptionFullCase({
   asset,
   evidenceSample,
   evidenceHref,
+  orgId = "org_acme",
 }: {
   rx: Prescription;
   pack: EvidencePack;
@@ -117,35 +134,126 @@ export function PrescriptionFullCase({
   asset?: DemoAsset;
   evidenceSample?: EvidenceSample;
   evidenceHref?: string;
+  orgId?: string;
 }) {
   const detail = buildPrescriptionCaseDetail({ rx, pack, ledger, alarm, asset });
   const badge = claimBadgeLabel(rx.verificationStatus);
+  const anomalyRange = formatIstCompactDateTimeRange(pack.anomaly.from, pack.anomaly.to);
+  const anomalySummary = shortenSummary(pack.anomaly.summary);
+  const actionItems =
+    rx.actions && rx.actions.length > 0 ? rx.actions : (detail.commissioning ?? []);
 
-  const workflowRows = [
-    { label: "Owner", value: rx.ownerRole.replaceAll("_", " ") },
-    { label: "Bill line", value: rx.billLine ?? "—" },
-    { label: "Effort", value: rx.effort ?? "—" },
-    { label: "Due", value: rx.dueLabel ?? formatIstDate(rx.dueAt) },
-  ];
+  const hasMoreDetails = Boolean(
+    detail.costBenefit ||
+      detail.risksTable ||
+      rx.risks?.length ||
+      detail.kpis ||
+      detail.commissioning?.length ||
+      ledger,
+  );
 
-  const metaRows = [
-    ...(detail.metadata ?? []).slice(0, 8),
-    ...(detail.lineage ?? []).slice(0, 6),
-  ];
+  const renderAction = () => (
+    <Panel className="rx-full-case__panel rx-full-case__panel--action">
+      <CompactSection title="Recommended action" variant="accent">
+        <NumberedList items={actionItems} />
+      </CompactSection>
+    </Panel>
+  );
+
+  const renderTakeaway = () =>
+    detail.managerTakeaway ? (
+      <Panel className="rx-full-case__panel rx-full-case__panel--wide rx-full-case__panel--takeaway">
+        <CompactSection title="Manager takeaway">
+          <Prose lead>{detail.managerTakeaway}</Prose>
+        </CompactSection>
+      </Panel>
+    ) : null;
+
+  const renderRca = () =>
+    detail.rootCause?.length ? (
+      <Panel className="rx-full-case__panel rx-full-case__panel--insight">
+        <CompactSection title="Root-cause analysis" variant="insight">
+          <BulletList items={detail.rootCause} emphasize="cause" />
+        </CompactSection>
+      </Panel>
+    ) : null;
+
+  const renderSnapshot = () =>
+    detail.eventSnapshot ? (
+      <Panel className="rx-full-case__panel rx-full-case__panel--wide">
+        <CompactSection title={detail.eventSnapshot.caption}>
+          <p className="rx-full-case__timestamp tabular">{detail.eventSnapshot.timestamp}</p>
+          <div className="rx-full-case__table-wrap">
+            <DataTable
+              caption={detail.eventSnapshot.caption}
+              columns={detail.eventSnapshot.columns}
+              rows={detail.eventSnapshot.rows}
+            />
+          </div>
+          <div className="rx-full-case__callout rx-full-case__callout--key">
+            <span className="rx-full-case__callout-label">What this shows</span>
+            <Prose>{detail.eventSnapshot.interpretation}</Prose>
+          </div>
+          {detail.eventSnapshot.sanityCheck ? (
+            <div className="rx-full-case__callout rx-full-case__callout--muted">
+              <span className="rx-full-case__callout-label">Sanity check</span>
+              <Prose>{detail.eventSnapshot.sanityCheck}</Prose>
+            </div>
+          ) : null}
+        </CompactSection>
+      </Panel>
+    ) : null;
+
+  const renderProof = (compact?: boolean) => (
+    <Panel className="rx-full-case__panel rx-full-case__panel--proof">
+      <PrescriptionEvidencePreview
+        sample={evidenceSample}
+        pack={pack}
+        evidenceHref={evidenceHref}
+        compact={compact}
+      />
+      <div className="rx-full-case__anomaly-slim">
+        <p className="rx-full-case__anomaly-range tabular">{anomalyRange}</p>
+        {anomalySummary ? (
+          <p className="rx-full-case__anomaly-summary">{anomalySummary}</p>
+        ) : null}
+        {pack.missing.length > 0 ? (
+          <p className="rx-full-case__missing">Missing: {pack.missing.join(", ")}</p>
+        ) : null}
+        {rx.relatedAlarmId ? (
+          <div className="rx-full-case__aside-actions">
+            <ForgeButtonGroup>
+              <ForgeButton variant="ghost" href={`/alarms/${rx.relatedAlarmId}`}>
+                Alarm
+              </ForgeButton>
+            </ForgeButtonGroup>
+          </div>
+        ) : null}
+      </div>
+    </Panel>
+  );
 
   return (
     <div className="rx-full-case" data-rx-full-case>
-      {/* ── Full-width compact hero ── */}
       <Panel className="rx-full-case__hero">
         <div className="rx-full-case__hero-grid">
           <div className="rx-full-case__hero-left">
             <div className="rx-full-case__chips">
+              <StatusChip tone={isManagementClass(rx) ? "warning" : "info"}>
+                {classLabel(rx)}
+              </StatusChip>
               {rx.category ? <StatusChip tone="neutral">{rx.category}</StatusChip> : null}
               {rx.priority ? (
                 <StatusChip tone={priorityTone[rx.priority]}>{rx.priority}</StatusChip>
               ) : null}
               <StatusChip tone="info">{Math.round(rx.confidence * 100)}%</StatusChip>
-              <StatusChip tone="neutral">{rx.lane.replaceAll("_", " ")}</StatusChip>
+              <StatusChip tone="neutral">
+                {rx.lane === "needs_review"
+                  ? "Needs attention"
+                  : rx.lane === "closed"
+                    ? "Done"
+                    : "Acknowledged"}
+              </StatusChip>
               {rx.verificationStatus ? (
                 <StatusChip tone={badge.tone}>{badge.label}</StatusChip>
               ) : null}
@@ -168,59 +276,51 @@ export function PrescriptionFullCase({
         </div>
       </Panel>
 
-      {/* ── Two-column body ── */}
-      <div className="rx-full-case__body">
-        {/* LEFT — narrative & tables */}
+      {/* Desktop: narrative left | Signal proof right */}
+      <div className="rx-full-case__body forge-desktop-stack">
         <div className="rx-full-case__main">
           <div className="rx-full-case__main-grid">
-            {detail.rootCause?.length ? (
-              <Panel className="rx-full-case__panel rx-full-case__panel--insight">
-                <CompactSection title="Root-cause analysis" variant="insight">
-                  <BulletList items={detail.rootCause} emphasize="cause" />
-                </CompactSection>
-              </Panel>
-            ) : null}
+            {renderRca()}
+            {renderAction()}
+            {renderTakeaway()}
+            {renderSnapshot()}
+          </div>
+        </div>
+        <aside className="rx-full-case__aside">{renderProof()}</aside>
+      </div>
 
-            <Panel className="rx-full-case__panel rx-full-case__panel--action">
-              <CompactSection title="Recommended action" variant="accent">
-                <NumberedList
-                  items={
-                    rx.actions && rx.actions.length > 0
-                      ? rx.actions
-                      : (detail.commissioning ?? [])
-                  }
-                />
-              </CompactSection>
-            </Panel>
+      {/* Mobile essentials: action + takeaway always on */}
+      <div className="forge-mobile-always" data-testid="rx-mobile-always">
+        {renderAction()}
+        {renderTakeaway()}
+      </div>
 
-            {detail.eventSnapshot ? (
-              <Panel className="rx-full-case__panel rx-full-case__panel--wide">
-                <CompactSection title={detail.eventSnapshot.caption}>
-                  <p className="rx-full-case__timestamp tabular">{detail.eventSnapshot.timestamp}</p>
-                  <div className="rx-full-case__table-wrap">
-                    <DataTable
-                      caption={detail.eventSnapshot.caption}
-                      columns={detail.eventSnapshot.columns}
-                      rows={detail.eventSnapshot.rows}
-                    />
-                  </div>
-                  <div className="rx-full-case__callout rx-full-case__callout--key">
-                    <span className="rx-full-case__callout-label">What this shows</span>
-                    <Prose>{detail.eventSnapshot.interpretation}</Prose>
-                  </div>
-                  {detail.eventSnapshot.sanityCheck ? (
-                    <div className="rx-full-case__callout rx-full-case__callout--muted">
-                      <span className="rx-full-case__callout-label">Sanity check</span>
-                      <Prose>{detail.eventSnapshot.sanityCheck}</Prose>
-                    </div>
-                  ) : null}
-                </CompactSection>
-              </Panel>
-            ) : null}
+      <PrescriptionResponseActions
+        rx={rx}
+        orgId={orgId}
+        plantId={rx.plantId}
+      />
 
+      {/* Mobile disclosures */}
+      <div className="forge-disclosure-stack" data-testid="rx-mobile-disclosures">
+        {detail.rootCause?.length ? (
+          <ForgeDisclosure title="Root-cause analysis">{renderRca()}</ForgeDisclosure>
+        ) : null}
+        <ForgeDisclosure title="Signal proof">{renderProof(true)}</ForgeDisclosure>
+        {detail.eventSnapshot ? (
+          <ForgeDisclosure title="Event snapshot">{renderSnapshot()}</ForgeDisclosure>
+        ) : null}
+      </div>
+
+      {hasMoreDetails ? (
+        <details className="rx-full-case__more forge-disclosure">
+          <summary className="rx-full-case__more-summary forge-disclosure__summary">
+            Cost, risk, KPIs &amp; verification
+          </summary>
+          <div className="rx-full-case__more-grid">
             {detail.costBenefit ? (
               <Panel className="rx-full-case__panel rx-full-case__panel--money">
-                <CompactSection title="Cost–benefit & ROI">
+                <CompactSection title="Cost-benefit & ROI">
                   <div className="rx-full-case__stat-inline">
                     <Prose>{detail.costBenefit.wasteIdentified}</Prose>
                   </div>
@@ -311,79 +411,15 @@ export function PrescriptionFullCase({
                         label: "Status",
                         value: claimBadgeLabel(ledger.verificationStatus).label,
                       },
+                      { label: "Due", value: rx.dueLabel ?? formatIstDate(rx.dueAt) },
                     ]}
                   />
                 </CompactSection>
               </Panel>
             ) : null}
-
-            {detail.managerTakeaway ? (
-              <Panel className="rx-full-case__panel rx-full-case__panel--wide rx-full-case__panel--takeaway">
-                <CompactSection title="Manager takeaway">
-                  <Prose lead>{detail.managerTakeaway}</Prose>
-                </CompactSection>
-              </Panel>
-            ) : null}
           </div>
-        </div>
-
-        {/* RIGHT — evidence visual + compact context */}
-        <aside className="rx-full-case__aside">
-          <Panel className="rx-full-case__panel rx-full-case__panel--sticky">
-            <PrescriptionEvidencePreview
-              sample={evidenceSample}
-              pack={pack}
-              evidenceHref={evidenceHref}
-            />
-
-            <CompactSection title="Anomaly window">
-              <CompactMeta
-                rows={[
-                  {
-                    label: "From",
-                    value: pack.anomaly.from.replace("T", " ").slice(0, 16),
-                  },
-                  {
-                    label: "To",
-                    value: pack.anomaly.to.replace("T", " ").slice(0, 16),
-                  },
-                  { label: "Summary", value: pack.anomaly.summary },
-                ]}
-              />
-              {pack.missing.length > 0 ? (
-                <p className="rx-full-case__missing">Missing: {pack.missing.join(", ")}</p>
-              ) : null}
-            </CompactSection>
-
-            {metaRows.length ? (
-              <CompactSection title="Case details">
-                <CompactMeta rows={metaRows} />
-              </CompactSection>
-            ) : null}
-
-            <CompactSection title="Workflow">
-              <CompactMeta rows={workflowRows} />
-              <div className="rx-full-case__aside-actions">
-                <ForgeButtonGroup>
-                  {rx.relatedAlarmId ? (
-                    <ForgeButton variant="ghost" href={`/alarms/${rx.relatedAlarmId}`}>
-                      Alarm
-                    </ForgeButton>
-                  ) : null}
-                  {evidenceHref ? (
-                    <ForgeButton variant="ghost" href={evidenceHref}>
-                      Evidence
-                    </ForgeButton>
-                  ) : null}
-                  <ForgeButton variant="ghost" href="/settings/assignments">
-                    Assignments
-                  </ForgeButton>
-                </ForgeButtonGroup>
-              </div>
-            </CompactSection>
-          </Panel>
-        </aside>
-      </div>
+        </details>
+      ) : null}
     </div>
   );
 }

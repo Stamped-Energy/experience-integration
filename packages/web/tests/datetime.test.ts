@@ -37,8 +37,8 @@ describe("IST datetime formatters", () => {
   });
 
   it("returns em dash for missing or invalid timestamps", () => {
-    assert.equal(formatIstDateTime("—"), "—");
-    assert.equal(formatIstDateTime(""), "—");
+    assert.equal(formatIstDateTime("-"), "-");
+    assert.equal(formatIstDateTime(""), "-");
     assert.equal(formatIstDateTime("not-a-date"), "not-a-date");
   });
 });

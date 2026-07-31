@@ -1,4 +1,4 @@
-/** Rich per-item evidence samples — each opens at `/evidence/[id]`. */
+/** Rich per-item evidence samples - each opens at `/evidence/[id]`. */
 
 export type EvidenceTagRow = {
   tag: string;
@@ -266,7 +266,7 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
     ],
     metadata:
       "PF drift detection · 91% confidence · PF penalty slab · baseline healthy APFC week",
-    mvFooter: "Savings verification · verify PF on next bill line after stage 3 replacement · operations-confirmed only.",
+    mvFooter: "Savings verification · verify PF on next bill line after stage 3 replacement.",
     dials: [
       { label: "Power factor", needle: 84, needleMax: 100, display: "0.84", unit: "" },
       { label: "kVAR load", needle: 72, needleMax: 100, display: "72", unit: "%" },
@@ -303,7 +303,7 @@ export function resolveEvidenceIdForFinding(findingId: string): string | undefin
   return byFinding.get(findingId)?.id;
 }
 
-/** Primary evidence id for deep links — prefers alarm, then rx, then finding. */
+/** Primary evidence id for deep links - prefers alarm, then rx, then finding. */
 export function resolvePrimaryEvidenceId(input: {
   alarmId?: string;
   rxId?: string;

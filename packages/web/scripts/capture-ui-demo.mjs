@@ -18,7 +18,7 @@ mkdirSync(OUT, { recursive: true });
 mkdirSync(VIDEO_DIR, { recursive: true });
 mkdirSync(REPO_DOCS, { recursive: true });
 
-/** Every Forge screen — static routes first, then detail/action captures. */
+/** Every Forge screen - static routes first, then detail/action captures. */
 const routes = [
   { path: "/", name: "01-today", label: "Today (Overview)" },
   { path: "/live", name: "02-live", label: "Live" },
@@ -111,7 +111,7 @@ const browser = await chromium.launch({ headless: true });
     await shot(page, "20-alarm-acked");
   }
 
-  // Prescription defer action (expand row first — Defer is in expanded panel)
+  // Prescription defer action (expand row first - Defer is in expanded panel)
   await page.goto(`${BASE}/prescriptions`, { waitUntil: "domcontentloaded" });
   await settle(page);
   await page.locator(".rx-queue li button").first().click({ force: true }).catch(() => {});

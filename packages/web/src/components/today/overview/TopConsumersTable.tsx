@@ -17,7 +17,7 @@ export function TopConsumersTable() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: 20 }}>
         <div>
           <p className="forge-eyebrow">Consumption Breakdown</p>
-          <h3 className="forge-card-title">Top Energy Consumers — This Month</h3>
+          <h3 className="forge-card-title">Top Energy Consumers - This Month</h3>
         </div>
         <span
           style={{

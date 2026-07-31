@@ -1,4 +1,4 @@
-/** Rich overview demo datasets — ported from stamped-energy-dashboard, aligned with Jaipur Works. */
+/** Rich overview demo datasets - ported from stamped-energy-dashboard, aligned with Jaipur Works. */
 
 export const OVERVIEW_TARIFF = 6.32;
 
@@ -157,13 +157,92 @@ export const OVERVIEW_WASTERS_FOOTER = {
 
 export type AlertSeverity = "CRITICAL" | "WARNING" | "INFO" | "RESOLVED";
 
-export const OVERVIEW_ALERTS = [
-  { id: "a1", time: "Now", severity: "CRITICAL" as AlertSeverity, machine: "Kiln 1", message: "Load 108% — 14% above design. Drawing 4,820 kWh/h. MD coincidence risk in 10–11 TOD peak.", action: "View →" },
-  { id: "a2", time: "4m ago", severity: "CRITICAL" as AlertSeverity, machine: "Cement Mill 1", message: "PF 0.84 drifting toward penalty slab. Overload sustained >35 min.", action: "View →" },
-  { id: "a3", time: "11m ago", severity: "WARNING" as AlertSeverity, machine: "Raw Mill A", message: "Vibration anomaly on main bearing (Z-axis 4.2mm/s, threshold 3.5mm/s).", action: "Schedule →" },
-  { id: "a4", time: "18m ago", severity: "WARNING" as AlertSeverity, machine: "Chiller Unit 1", message: "COP dropped from 4.1 to 3.3. Possible fouling on heat exchanger.", action: "View →" },
-  { id: "a5", time: "23m ago", severity: "WARNING" as AlertSeverity, machine: "Admin HVAC", message: "Off-peak schedule drift — still running into morning peak TOD.", action: "Prescribe →" },
-  { id: "a6", time: "41m ago", severity: "INFO" as AlertSeverity, machine: "Conveyor B1", message: "Idle energy draw during scheduled break. 93 kWh wasted.", action: "Resolved ✓" },
-  { id: "a7", time: "52m ago", severity: "RESOLVED" as AlertSeverity, machine: "Compressor 2", message: "AI optimization applied. Load reduced from 84% to 54%. Saving ₹1,800/day.", action: "View →" },
-  { id: "a8", time: "1h ago", severity: "INFO" as AlertSeverity, machine: "Packing Line 2", message: "Equipment offline since 05:30. Planned maintenance. Expected restart: 14:00.", action: "—" },
+export type OverviewAlert = {
+  id: string;
+  time: string;
+  severity: AlertSeverity;
+  machine: string;
+  message: string;
+  action: string;
+  /** Linked alarm detail when one exists; otherwise open the alarms console. */
+  alarmId?: string;
+};
+
+export const OVERVIEW_ALERTS: OverviewAlert[] = [
+  {
+    id: "a1",
+    time: "Now",
+    severity: "CRITICAL",
+    machine: "Kiln 1",
+    message:
+      "Load 108% - 14% above design. Drawing 4,820 kWh/h. MD coincidence risk in 10–11 TOD peak.",
+    action: "View →",
+    alarmId: "alm_1001",
+  },
+  {
+    id: "a2",
+    time: "4m ago",
+    severity: "CRITICAL",
+    machine: "Cement Mill 1",
+    message: "PF 0.84 drifting toward penalty slab. Overload sustained >35 min.",
+    action: "View →",
+    alarmId: "alm_1002",
+  },
+  {
+    id: "a3",
+    time: "11m ago",
+    severity: "WARNING",
+    machine: "Raw Mill A",
+    message: "Vibration anomaly on main bearing (Z-axis 4.2mm/s, threshold 3.5mm/s).",
+    action: "View →",
+    alarmId: "alm_1006",
+  },
+  {
+    id: "a4",
+    time: "18m ago",
+    severity: "WARNING",
+    machine: "Chiller Unit 1",
+    message: "COP dropped from 4.1 to 3.3. Possible fouling on heat exchanger.",
+    action: "View →",
+  },
+  {
+    id: "a5",
+    time: "23m ago",
+    severity: "WARNING",
+    machine: "Admin HVAC",
+    message: "Off-peak schedule drift - still running into morning peak TOD.",
+    action: "View →",
+    alarmId: "alm_1008",
+  },
+  {
+    id: "a6",
+    time: "41m ago",
+    severity: "INFO",
+    machine: "Conveyor B1",
+    message: "Idle energy draw during scheduled break. 93 kWh wasted.",
+    action: "View →",
+  },
+  {
+    id: "a7",
+    time: "52m ago",
+    severity: "RESOLVED",
+    machine: "Compressor 2",
+    message: "AI optimization applied. Load reduced from 84% to 54%. Saving ₹1,800/day.",
+    action: "View →",
+    alarmId: "alm_1003",
+  },
+  {
+    id: "a8",
+    time: "1h ago",
+    severity: "INFO",
+    machine: "Packing Line 2",
+    message: "Equipment offline since 05:30. Planned maintenance. Expected restart: 14:00.",
+    action: "View →",
+    alarmId: "alm_1007",
+  },
 ];
+
+/** Detail page when mapped; otherwise alarms console. */
+export function alertAlarmHref(alert: Pick<OverviewAlert, "alarmId">): string {
+  return alert.alarmId ? `/alarms/${alert.alarmId}` : "/alarms";
+}

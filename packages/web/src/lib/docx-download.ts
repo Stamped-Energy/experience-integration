@@ -1,5 +1,5 @@
 /**
- * Minimal Word OOXML (.docx) without zip deps — store method only.
+ * Minimal Word OOXML (.docx) without zip deps - store method only.
  * Enough for a short sustainability pack Word can open.
  */
 

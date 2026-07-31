@@ -19,6 +19,31 @@ import {
   type PlantSectionNode,
 } from "@/fixtures/plant-sections";
 
+const ZOOM_MIN = 0.75;
+const ZOOM_MAX = 2.5;
+const ZOOM_STEP = 0.25;
+const DEFAULT_MAP_PAD = 38;
+
+function clampZoom(z: number) {
+  return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(z * 100) / 100));
+}
+
+function zoomedViewBox(
+  base: { viewBox: string; aspectRatio: number },
+  scale: number,
+): { viewBox: string; aspectRatio: number } {
+  const parts = base.viewBox.split(/\s+/).map(Number);
+  const [x = 0, y = 0, w = 1, h = 1] = parts;
+  const zw = w / scale;
+  const zh = h / scale;
+  const zx = x + (w - zw) / 2;
+  const zy = y + (h - zh) / 2;
+  return {
+    viewBox: `${zx} ${zy} ${zw} ${zh}`,
+    aspectRatio: base.aspectRatio,
+  };
+}
+
 function FlowPath({
   from,
   to,
@@ -287,13 +312,17 @@ export function PlantSectionMap() {
     return () => mq.removeEventListener("change", fn);
   }, []);
 
+  const [zoom, setZoom] = useState(1);
+
   useEffect(() => {
     setAnimKey(level.id);
     setSelectedId(null);
+    setZoom(1);
   }, [level.id]);
 
   const nodeMap = useMemo(() => Object.fromEntries(level.nodes.map((n) => [n.id, n])), [level.nodes]);
-  const vb = useMemo(() => viewBoxMetrics(level, 64), [level]);
+  const baseVb = useMemo(() => viewBoxMetrics(level, DEFAULT_MAP_PAD), [level]);
+  const vb = useMemo(() => zoomedViewBox(baseVb, zoom), [baseVb, zoom]);
 
   const focusNode = selectedId ? nodeById(level, selectedId) ?? findSectionNode(selectedId) : null;
 
@@ -313,6 +342,10 @@ export function PlantSectionMap() {
 
   function goUp() {
     setDrillStack((stack) => (stack.length > 1 ? stack.slice(0, -1) : stack));
+  }
+
+  function nudgeZoom(delta: number) {
+    setZoom((z) => clampZoom(z + delta));
   }
 
   return (
@@ -349,6 +382,35 @@ export function PlantSectionMap() {
         </div>
 
         <div className="forge-section-stage">
+          <div className="forge-section-zoom" role="group" aria-label="Map zoom">
+            <button
+              type="button"
+              className="forge-section-zoom__btn"
+              aria-label="Zoom in"
+              disabled={zoom >= ZOOM_MAX}
+              onClick={() => nudgeZoom(ZOOM_STEP)}
+            >
+              +
+            </button>
+            <button
+              type="button"
+              className="forge-section-zoom__btn"
+              aria-label="Zoom out"
+              disabled={zoom <= ZOOM_MIN}
+              onClick={() => nudgeZoom(-ZOOM_STEP)}
+            >
+              −
+            </button>
+            <button
+              type="button"
+              className="forge-section-zoom__btn forge-section-zoom__btn--reset"
+              aria-label="Reset zoom"
+              disabled={zoom === 1}
+              onClick={() => setZoom(1)}
+            >
+              Reset
+            </button>
+          </div>
           <svg
             key={animKey}
             viewBox={vb.viewBox}

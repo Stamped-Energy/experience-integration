@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/shell/AppShell";
 import { PrescriptionFullCase } from "@/components/prescriptions/PrescriptionFullCase";
-import { ForgeButton, PageHead } from "@/components/ui/primitives";
+import { PrescriptionDetailNav } from "@/components/prescriptions/PrescriptionDetailNav";
+import { PageHead } from "@/components/ui/primitives";
 import {
   DEMO_PLANT,
   DEMO_SHELL_ROLE,
@@ -15,15 +16,29 @@ import {
 import { resolveEvidenceIdForRx, findEvidenceSample } from "@/fixtures/evidence-samples";
 import { buildEvidencePack, resolveEvidenceScope } from "@/lib/evidence";
 import { formatInr } from "@/lib/format";
+import {
+  navForPrescription,
+  parseClassFacet,
+  parseInboxSection,
+} from "@/lib/prescription-nav";
 
 export default async function PrescriptionDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ section?: string; class?: string }>;
 }) {
   const { id } = await params;
+  const sp = await searchParams;
   const rx = prescriptionsFixture.find((r) => r.id === id);
   if (!rx) notFound();
+
+  const section = parseInboxSection(sp.section, rx);
+  const facet = parseClassFacet(sp.class);
+  const nav = navForPrescription(prescriptionsFixture, rx.id, section, facet, {
+    includeDone: section === "acknowledged" && rx.lane === "closed",
+  });
 
   const scope = resolveEvidenceScope({
     plantId: DEMO_PLANT.plantId,
@@ -56,9 +71,11 @@ export default async function PrescriptionDetailPage({
         eyebrow="Prescription · Full case"
         title={rx.title}
         actions={
-          <ForgeButton variant="link" href="/prescriptions">
-            Back to queue
-          </ForgeButton>
+          <PrescriptionDetailNav
+            prevHref={nav.prevHref}
+            nextHref={nav.nextHref}
+            label={nav.label}
+          />
         }
       />
       <PrescriptionFullCase

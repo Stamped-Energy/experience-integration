@@ -5,7 +5,7 @@ import { Panel, StatusChip } from "@/components/ui/primitives";
 import { assetsFixture } from "@/fixtures/demo";
 import { formatIndianNum } from "@/lib/format";
 
-/** Calm health map — colour + label; not a noisy heatmap. */
+/** Calm health map - colour + label; not a noisy heatmap. */
 export function EquipmentMap() {
   const dials = [...assetsFixture].sort((a, b) => b.loadPct - a.loadPct).slice(0, 3);
 

@@ -8,7 +8,7 @@ import type {
   Role,
 } from "../lib/types";
 
-/** Jaipur Works — coherent Auto demo plant for every Forge screen (offline Playwright baseline). */
+/** Jaipur Works - coherent Auto demo plant for every Forge screen (offline Playwright baseline). */
 export const DEMO_PLANT = {
   orgId: "org_demo",
   orgName: "Jaipur Works",
@@ -22,7 +22,7 @@ export const DEMO_PLANT = {
   demoAsOf: "2026-07-21T10:15:00+05:30",
 };
 
-/** Vinayak Plant — C-L6a live path default plant. */
+/** Vinayak Plant - C-L6a live path default plant. */
 export const VINAYAK_PLANT = {
   orgId: "org_acme",
   orgName: "Acme",
@@ -36,7 +36,7 @@ export const VINAYAK_PLANT = {
   demoAsOf: "2026-07-21T10:15:00+05:30",
 };
 
-/** Live-path plant switcher list — Vinayak first (default), Jaipur for offline switch. */
+/** Live-path plant switcher list - Vinayak first (default), Jaipur for offline switch. */
 export const PLANTS = [VINAYAK_PLANT, DEMO_PLANT];
 
 /** Single demo role so sidebar nav is identical on every screen. */
@@ -131,14 +131,14 @@ export const assetsFixture: DemoAsset[] = [
   },
 ];
 
-/** Compact INR for Today tiles — kept in sync with ledger / Rx helpers below. */
+/** Compact INR for Today tiles - kept in sync with ledger / Rx helpers below. */
 function formatDemoInrCompact(n: number): string {
   if (n >= 100_000) return `₹${(n / 100_000).toFixed(2)}L`;
   if (n >= 1_000) return `₹${(n / 1_000).toFixed(1)}k`;
   return `₹${n}`;
 }
 
-// Placeholder — rebuilt after Rx / ledger fixtures so tiles match derived counts.
+// Placeholder - rebuilt after Rx / ledger fixtures so tiles match derived counts.
 export let todaySignalsFixture: TodaySignal[] = [];
 
 export const alarmsFixture: Alarm[] = [
@@ -149,7 +149,7 @@ export const alarmsFixture: Alarm[] = [
     assetLabel: "Kiln 1",
     severity: "critical",
     state: "raised",
-    summary: "Load 108% — 14% above design; MD coincidence risk in 10–11 TOD peak",
+    summary: "Load 108% - 14% above design; MD coincidence risk in 10–11 TOD peak",
     raisedAt: "2026-07-21T09:40:00+05:30",
     relatedPrescriptionId: "rx_9001",
     findingId: "fnd_4401",
@@ -174,7 +174,7 @@ export const alarmsFixture: Alarm[] = [
     assetLabel: "Main incomer",
     severity: "critical",
     state: "raised",
-    summary: "Rolling 15-min MD at 4,680 kVA — 6.4% headroom to CMD",
+    summary: "Rolling 15-min MD at 4,680 kVA - 6.4% headroom to CMD",
     raisedAt: "2026-07-21T10:05:00+05:30",
     relatedPrescriptionId: "rx_9001",
     findingId: "fnd_4410",
@@ -199,7 +199,7 @@ export const alarmsFixture: Alarm[] = [
     assetLabel: "Packing line 1",
     severity: "info",
     state: "silenced",
-    summary: "Short TOD overlap with packing surge — monitoring only",
+    summary: "Short TOD overlap with packing surge - monitoring only",
     raisedAt: "2026-07-21T06:50:00+05:30",
     ownerRole: "supervisor",
   },
@@ -220,14 +220,14 @@ export const alarmsFixture: Alarm[] = [
     assetLabel: "Admin HVAC",
     severity: "warning",
     state: "acked",
-    summary: "Off-peak schedule drift — still running into morning peak",
+    summary: "Off-peak schedule drift - still running into morning peak",
     raisedAt: "2026-07-21T05:15:00+05:30",
     ownerRole: "energy_manager",
     relatedPrescriptionId: "rx_9004",
   },
 ];
 
-/** Vinayak-scoped alarms — small offline set so the live-path plant switcher isn't empty. */
+/** Vinayak-scoped alarms - small offline set so the live-path plant switcher isn't empty. */
 export const vinayakAlarmsFixture: Alarm[] = [
   {
     id: "alm_v1",
@@ -236,7 +236,7 @@ export const vinayakAlarmsFixture: Alarm[] = [
     assetLabel: "Kiln 1",
     severity: "critical",
     state: "raised",
-    summary: "Load 112% — MD coincidence risk this TOD peak",
+    summary: "Load 112% - MD coincidence risk this TOD peak",
     raisedAt: "2026-07-21T09:20:00+05:30",
     relatedPrescriptionId: "rx_v001",
   },
@@ -259,12 +259,12 @@ export const vinayakAlarmsFixture: Alarm[] = [
     assetLabel: "Main incomer",
     severity: "info",
     state: "acked",
-    summary: "Rolling 15-min MD steady — headroom to CMD comfortable",
+    summary: "Rolling 15-min MD steady - headroom to CMD comfortable",
     raisedAt: "2026-07-21T07:10:00+05:30",
   },
 ];
 
-/** Alarms for the active live-path plant — Vinayak or Jaipur offline. */
+/** Alarms for the active live-path plant - Vinayak or Jaipur offline. */
 export function alarmsForPlant(plantId: string): Alarm[] {
   return plantId === VINAYAK_PLANT.plantId ? vinayakAlarmsFixture : alarmsFixture;
 }
@@ -287,6 +287,17 @@ export const prescriptionsFixture: Prescription[] = [
     effort: "Sequence change · no new equipment",
     ruleId: "physics/md_overlap@v2.4",
     relatedAlarmId: "alm_1001",
+    decisionClass: "mgmt_schedule",
+    tradeoff: {
+      energyBenefitInrMonthly: 84000,
+      throughputRisk: "PO-8842 on Line 2 protected through 14:00",
+      orderContext: "known",
+      recommendedWindow: "Stagger Line 3 at 06:55; revisit Line 2 after 14:00",
+      alternatives: ["Shed non-critical HVAC 15 min during peak"],
+      departmentOwners: ["electrical_supervisor", "body_shop_supervisor"],
+      orderIds: ["PO-8842"],
+      oeeImpact: "Line 2 buffer preserved until due_at",
+    },
     actions: [
       "Immediate: hold Mill 2 start until Kiln 1 load settles below 95% (no CAPEX).",
       "Operator playbook: rotate co-starts so only one large load enters the 10–11 TOD window.",
@@ -314,6 +325,7 @@ export const prescriptionsFixture: Prescription[] = [
     effort: "Validated setback · no new equipment",
     ruleId: "idle/mill_night@v1.5",
     relatedAlarmId: "alm_1006",
+    decisionClass: "maint",
     actions: [
       "Confirm no batch queued in next 60 min, then apply night setback band.",
       "Log kWh before/after on Mill 2 feeder for savings verification (Option B).",
@@ -339,6 +351,7 @@ export const prescriptionsFixture: Prescription[] = [
     billLine: "Energy (kWh) · TOD",
     effort: "Schedule change · ops only",
     ruleId: "tod/pack_surge@v1.2",
+    decisionClass: "mgmt_schedule",
     actions: [
       "Move non-urgent bagging slots 60–90 min earlier or later than 18–20.",
       "Coordinate with logistics so trucks do not force a peak surge.",
@@ -350,7 +363,7 @@ export const prescriptionsFixture: Prescription[] = [
   {
     id: "rx_9011",
     plantId: DEMO_PLANT.plantId,
-    title: "Sequence three 75 kW VFD compressors — stop part-load pile-up",
+    title: "Sequence three 75 kW VFD compressors - stop part-load pile-up",
     why: "All three running part-load when two units would carry the header",
     impactInrPerMonth: 108000,
     confidence: 0.88,
@@ -363,6 +376,7 @@ export const prescriptionsFixture: Prescription[] = [
     billLine: "Energy (kWh)",
     effort: "Set-point reset now · sequencer CAPEX later",
     ruleId: "air/vfd_sequence@v2.1",
+    decisionClass: "maint",
     actions: [
       "Immediate set-point reset (no CAPEX): raise unload band and extend timer so only lead+lag stay online.",
       "Operator playbook: rotate lead weekly; never leave all three enabled 'to avoid dips'.",
@@ -376,7 +390,7 @@ export const prescriptionsFixture: Prescription[] = [
   {
     id: "rx_9002",
     plantId: DEMO_PLANT.plantId,
-    title: "APFC health check — Cement Mill 1",
+    title: "APFC health check - Cement Mill 1",
     why: "PF 0.84 drifting toward the penalty slab this billing window",
     impactInrPerMonth: 38000,
     confidence: 0.91,
@@ -390,6 +404,7 @@ export const prescriptionsFixture: Prescription[] = [
     effort: "Inspection · stage swap if needed",
     ruleId: "pf/mill_1_slab@v3.0",
     relatedAlarmId: "alm_1002",
+    decisionClass: "maint",
     actions: [
       "Walk APFC stages; confirm stage 3 contactor and capacitor bank health.",
       "If stage open, swap spare bank and re-check PF at Mill 1 feeder within 2 h.",
@@ -415,6 +430,7 @@ export const prescriptionsFixture: Prescription[] = [
     billLine: "Energy (kWh)",
     effort: "Setpoint change · no CAPEX",
     ruleId: "process/id_fan_band@v1.1",
+    decisionClass: "maint",
     actions: [
       "Narrow ID fan band during warm-up; restore production band after kiln stable.",
       "Compare warm-up kWh to 14-day baseline before closing Rx.",
@@ -440,6 +456,7 @@ export const prescriptionsFixture: Prescription[] = [
     effort: "Schedule stagger · ops only",
     ruleId: "air/pack_coincidence@v1.0",
     verificationStatus: "pending",
+    decisionClass: "mgmt_schedule",
     actions: [
       "Keep verified stagger in schedule; sample three packing peaks for verification.",
     ],
@@ -450,7 +467,7 @@ export const prescriptionsFixture: Prescription[] = [
   {
     id: "rx_9008",
     plantId: DEMO_PLANT.plantId,
-    title: "Leak survey — instrument air loop B",
+    title: "Leak survey - instrument air loop B",
     why: "Ultrasonic hotspots mapped on night round",
     impactInrPerMonth: 15000,
     confidence: 0.72,
@@ -464,6 +481,7 @@ export const prescriptionsFixture: Prescription[] = [
     effort: "Repair fittings · low CAPEX",
     ruleId: "air/leak_loop_b@v1.3",
     verificationStatus: "pending",
+    decisionClass: "maint",
     actions: [
       "Close tagged fittings; re-scan loop B after 48 h.",
     ],
@@ -486,6 +504,7 @@ export const prescriptionsFixture: Prescription[] = [
     ruleId: "hvac/admin_idle@v1.5",
     relatedAlarmId: "alm_1008",
     verificationStatus: "ops_confirmed",
+    decisionClass: "maint",
     realisedInr: 11200,
     opportunityCost: {
       delayDays: 14,
@@ -513,6 +532,7 @@ export const prescriptionsFixture: Prescription[] = [
     effort: "Spare stage swap",
     ruleId: "pf/stage3_cap@v2.0",
     verificationStatus: "ops_confirmed",
+    decisionClass: "maint",
     realisedInr: 17600,
     actions: [
       "Spare bank installed; hold as operations-confirmed until PF appears on bill.",
@@ -535,6 +555,7 @@ export const prescriptionsFixture: Prescription[] = [
     effort: "Schedule change",
     ruleId: "tod/kiln_wash@v1.0",
     verificationStatus: "disputed",
+    decisionClass: "mgmt_schedule",
     realisedInr: 4200,
     actions: [
       "Re-check disputed savings against wash log and TOD meter before re-opening.",
@@ -542,7 +563,7 @@ export const prescriptionsFixture: Prescription[] = [
   },
 ];
 
-/** Vinayak-scoped prescriptions — small offline set so the live-path plant switcher isn't empty. */
+/** Vinayak-scoped prescriptions - small offline set so the live-path plant switcher isn't empty. */
 export const vinayakPrescriptionsFixture: Prescription[] = [
   {
     id: "rx_v001",
@@ -561,11 +582,12 @@ export const vinayakPrescriptionsFixture: Prescription[] = [
     effort: "Sequence change · no new equipment",
     ruleId: "physics/md_overlap@v2.4",
     relatedAlarmId: "alm_v1",
+    decisionClass: "mgmt_schedule",
   },
   {
     id: "rx_v002",
     plantId: VINAYAK_PLANT.plantId,
-    title: "APFC health check — Cement Mill 1",
+    title: "APFC health check - Cement Mill 1",
     why: "PF 0.86 drifting toward the penalty slab this billing window",
     impactInrPerMonth: 33000,
     confidence: 0.88,
@@ -578,11 +600,12 @@ export const vinayakPrescriptionsFixture: Prescription[] = [
     billLine: "PF penalty",
     effort: "Inspection · stage swap if needed",
     ruleId: "pf/mill_1_slab@v3.0",
+    decisionClass: "maint",
     relatedAlarmId: "alm_v2",
   },
 ];
 
-/** Prescriptions for the active live-path plant — Vinayak or Jaipur offline. */
+/** Prescriptions for the active live-path plant - Vinayak or Jaipur offline. */
 export function prescriptionsForPlant(plantId: string): Prescription[] {
   return plantId === VINAYAK_PLANT.plantId ? vinayakPrescriptionsFixture : prescriptionsFixture;
 }
@@ -622,7 +645,7 @@ export const ledgerFixture: LedgerEntry[] = [
     entryId: "led_1010",
     plantId: DEMO_PLANT.plantId,
     prescriptionId: "rx_9008",
-    title: "Leak survey — instrument air loop B",
+    title: "Leak survey - instrument air loop B",
     entryType: "realised_savings",
     periodStart: "2026-06-15T00:00:00+05:30",
     periodEnd: "2026-07-15T00:00:00+05:30",
@@ -652,7 +675,7 @@ export const ledgerFixture: LedgerEntry[] = [
     entryId: "led_1005",
     plantId: DEMO_PLANT.plantId,
     prescriptionId: "rx_9005",
-    title: "Night idle cutback — Raw Mill 2",
+    title: "Night idle cutback - Raw Mill 2",
     entryType: "potential_savings",
     periodStart: "2026-07-01T00:00:00+05:30",
     periodEnd: "2026-07-31T00:00:00+05:30",
@@ -667,14 +690,14 @@ export const ledgerFixture: LedgerEntry[] = [
     entryId: "led_1003",
     plantId: DEMO_PLANT.plantId,
     prescriptionId: "rx_9002",
-    title: "APFC health check — Cement Mill 1",
+    title: "APFC health check - Cement Mill 1",
     entryType: "opportunity_cost",
     periodStart: "2026-07-01T00:00:00+05:30",
     periodEnd: "2026-07-21T00:00:00+05:30",
     potentialInr: 38000,
     realisedInr: 0,
     verificationStatus: "modeled",
-    mvMethod: "counterfactual TOD slab",
+    mvMethod: "TOD slab baseline",
     baselineId: "bl_mill_1_pf",
     emissionFactorRef: null,
     modeledReason: "Delay cost while APFC outage continues",
@@ -690,10 +713,10 @@ export const ledgerFixture: LedgerEntry[] = [
     potentialInr: 31000,
     realisedInr: 0,
     verificationStatus: "modeled",
-    mvMethod: "tariff band counterfactual",
+    mvMethod: "tariff band baseline",
     baselineId: "bl_pack_tod",
     emissionFactorRef: "cea_grid_india_2024_v1",
-    modeledReason: "Modeled if packing stays on 18–20 peak",
+    modeledReason: "If packing stays on the 18-20 peak band",
   },
   {
     entryId: "led_1004",
@@ -783,7 +806,7 @@ export const membersFixture: DemoMember[] = [
     email: "kabir.das@demo.stamped.energy",
     role: "sustainability",
     status: "invited",
-    lastActive: "—",
+    lastActive: "-",
   },
 ];
 
@@ -889,7 +912,7 @@ export const investigationsFixture: DemoInvestigation[] = [
     id: "inv_1",
     title: "Kiln 1 MD coincidence",
     focus: "alarm:alm_1001",
-    summary: "Peak TOD overlap with Mill 2 start — ₹84k/mo addressable",
+    summary: "Peak TOD overlap with Mill 2 start - ₹84k/mo addressable",
     savedAt: "2026-07-21T09:50:00+05:30",
     seedMessages: [
       {
@@ -907,7 +930,7 @@ export const investigationsFixture: DemoInvestigation[] = [
     id: "inv_2",
     title: "Mill 1 PF slab",
     focus: "prescription:rx_9002",
-    summary: "PF 0.84 — APFC stage health check in flight",
+    summary: "PF 0.84 - APFC stage health check in flight",
     savedAt: "2026-07-21T08:30:00+05:30",
     seedMessages: [
       {
@@ -923,7 +946,7 @@ export const investigationsFixture: DemoInvestigation[] = [
   },
   {
     id: "inv_3",
-    title: "Night idle — Raw Mill 2",
+    title: "Night idle - Raw Mill 2",
     focus: "prescription:rx_9005",
     summary: "47 minutes elevated idle vs night baseline",
     savedAt: "2026-07-21T07:40:00+05:30",
@@ -983,7 +1006,7 @@ export const auditEventsFixture = [
   },
 ];
 
-/** Derived demo counts — keep Today / shell banners consistent. */
+/** Derived demo counts - keep Today / shell banners consistent. */
 export function demoCriticalAlarmCount(): number {
   return alarmsFixture.filter((a) => a.severity === "critical" && a.state !== "cleared")
     .length;
@@ -1067,7 +1090,7 @@ todaySignalsFixture = [
     value: formatDemoInrCompact(demoOpsConfirmedInr()),
     tone: "good",
     href: "/reports",
-    hint: "Pending utility bill verification",
+    hint: "Confirmed this month",
   },
   {
     id: "deviation",

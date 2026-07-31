@@ -1,7 +1,7 @@
 import type { LedgerEntry, VerificationStatus } from "@/lib/types";
 import { claimBadgeLabel } from "@/lib/format";
 
-/** Buckets plant-heads can act on — bill `verified` is reserved and hidden from Auto ops. */
+/** Buckets plant-heads can act on - bill `verified` is reserved and hidden from Auto ops. */
 export const CLAIM_BUCKETS = [
   "pending",
   "modeled",
@@ -33,20 +33,18 @@ export function isBillVerifiedVisible(entry: LedgerEntry): boolean {
 export function claimDisclosure(entry: LedgerEntry): string {
   const status = sanitizeClaimStatus(entry);
   if (status === "ops_confirmed") {
-    return "Confirmed from plant data — pending utility bill verification.";
+    return "Confirmed by operations.";
   }
   if (status === "modeled") {
-    return entry.modeledReason
-      ? `Estimated — ${entry.modeledReason}. Pending bill check.`
-      : "Estimated counterfactual — not yet confirmed and pending bill check.";
+    return entry.modeledReason ? entry.modeledReason : "Estimated savings.";
   }
   if (status === "disputed") {
-    return "Disputed — excluded from confirmed totals until resolved.";
+    return "Under review.";
   }
   if (status === "verified") {
-    return "Verified against utility bill line items.";
+    return "Verified on utility bill.";
   }
-  return "Pending verification.";
+  return "Awaiting confirmation.";
 }
 
 export function emissionFactorLabel(entry: LedgerEntry): string {

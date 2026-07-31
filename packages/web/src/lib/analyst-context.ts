@@ -29,7 +29,7 @@ export type AnalystRelatedLink = {
   href: string;
 };
 
-/** @deprecated Use relatedLinksFromReply — dashboard navigates; no upstream handoff. */
+/** @deprecated Use relatedLinksFromReply - dashboard navigates; no upstream handoff. */
 export type ProposedAction = {
   id: string;
   kind: "ack_alarm" | "assign_rx" | "open_evidence";
@@ -108,7 +108,7 @@ export function suggestionPrompts(envelope: AnalystContextEnvelope): string[] {
   ];
 }
 
-/** Fixture Auto L4 reply — mirrors API client shape without network. */
+/** Fixture Auto L4 reply - mirrors API client shape without network. */
 export function fixtureAnalystReply(
   envelope: AnalystContextEnvelope,
   question: string,
@@ -130,7 +130,7 @@ function collectIds(text: string, pattern: string): string[] {
 
 /**
  * Extract alarm / prescription links cited in an analyst reply.
- * Used for in-dashboard navigation — not upstream writes.
+ * Used for in-dashboard navigation - not upstream writes.
  */
 export function relatedLinksFromReply(reply: AnalystMessage): AnalystRelatedLink[] {
   const text = `${reply.content}`;

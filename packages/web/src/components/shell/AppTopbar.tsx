@@ -81,7 +81,7 @@ export function AppTopbar({
         <span
           aria-live="polite"
           className={`forge-shell__conn${live ? " is-live" : " is-stale"}`}
-          title={live ? "Live updates connected" : `${connectionLabel} — updates paused`}
+          title={live ? "Live updates connected" : `${connectionLabel} - updates paused`}
         >
           <span className="forge-shell__conn-dot" aria-hidden />
           <span className="forge-shell__conn-label">{connectionLabel}</span>

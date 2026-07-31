@@ -1,4 +1,4 @@
-/** Dense series sampling — LTTB + min/max envelopes for 30-day minute charts. */
+/** Dense series sampling - LTTB + min/max envelopes for 30-day minute charts. */
 
 export type Point = { t: number; v: number };
 
@@ -48,7 +48,7 @@ export function sampleLttb(points: readonly Point[], threshold: number): Point[]
   return sampled;
 }
 
-/** Per-bucket min/max envelope — preserves extrema for demand spikes. */
+/** Per-bucket min/max envelope - preserves extrema for demand spikes. */
 export function sampleMinMax(points: readonly Point[], buckets: number): Point[] {
   const n = points.length;
   if (buckets >= n || buckets < 1) return [...points];
