@@ -79,6 +79,21 @@ export interface Prescription {
   risks?: string[];
   /** Rich full-case detail — overrides builder defaults when present. */
   caseDetail?: PrescriptionCaseDetail;
+  /** ADR-024 — management classes show Discuss + tradeoff. */
+  decisionClass?: "maint" | "mgmt_schedule" | "mgmt_capacity" | "mgmt_cross_dept";
+  tradeoff?: PrescriptionTradeoff;
+}
+
+/** Trade-off block for management prescriptions (₹ hero first). */
+export interface PrescriptionTradeoff {
+  energyBenefitInrMonthly: number;
+  throughputRisk: string;
+  orderContext: "known" | "unknown" | "partial";
+  recommendedWindow: string;
+  alternatives: string[];
+  departmentOwners: string[];
+  orderIds?: string[];
+  oeeImpact?: string;
 }
 
 export interface CaseTableColumn {

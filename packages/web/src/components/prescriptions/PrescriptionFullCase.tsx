@@ -7,6 +7,11 @@ import {
   StatusChip,
 } from "@/components/ui/primitives";
 import { emphasizeCause, emphasizeLead, emphasizeNumbers } from "@/components/prescriptions/prescription-formatting";
+import {
+  DiscussPanel,
+  TradeoffBlock,
+  isManagementRx,
+} from "@/components/prescriptions/DiscussPanel";
 import { PrescriptionEvidencePreview } from "@/components/prescriptions/PrescriptionEvidencePreview";
 import type { EvidenceSample } from "@/fixtures/evidence-samples";
 import type { EvidencePack } from "@/lib/evidence";
@@ -109,6 +114,7 @@ export function PrescriptionFullCase({
   asset,
   evidenceSample,
   evidenceHref,
+  orgId = "org_acme",
 }: {
   rx: Prescription;
   pack: EvidencePack;
@@ -117,6 +123,7 @@ export function PrescriptionFullCase({
   asset?: DemoAsset;
   evidenceSample?: EvidenceSample;
   evidenceHref?: string;
+  orgId?: string;
 }) {
   const detail = buildPrescriptionCaseDetail({ rx, pack, ledger, alarm, asset });
   const badge = claimBadgeLabel(rx.verificationStatus);
@@ -250,6 +257,18 @@ export function PrescriptionFullCase({
                   ) : null}
                 </CompactSection>
               </Panel>
+            ) : null}
+
+            {isManagementRx(rx) && rx.tradeoff ? (
+              <Panel className="rx-full-case__panel rx-full-case__panel--money">
+                <CompactSection title="Trade-off">
+                  <TradeoffBlock tradeoff={rx.tradeoff} />
+                </CompactSection>
+              </Panel>
+            ) : null}
+
+            {isManagementRx(rx) ? (
+              <DiscussPanel rx={rx} orgId={orgId} plantId={rx.plantId} />
             ) : null}
 
             {detail.risksTable ? (

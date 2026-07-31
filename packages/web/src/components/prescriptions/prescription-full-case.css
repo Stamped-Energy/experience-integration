@@ -678,3 +678,43 @@
     flex: 1 1 30%;
   }
 }
+
+.rx-tradeoff__hero {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.rx-discuss__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.rx-discuss__chip {
+  border: 1px solid var(--forge-border, #ccc);
+  background: transparent;
+  padding: 0.35rem 0.65rem;
+  cursor: pointer;
+}
+
+.rx-discuss__chip.is-on {
+  border-color: var(--forge-accent, #0a7);
+  background: color-mix(in srgb, var(--forge-accent, #0a7) 12%, transparent);
+}
+
+.rx-discuss__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.rx-discuss__error {
+  color: #b00020;
+}
+
+.rx-discuss__done {
+  color: #0a7;
+}

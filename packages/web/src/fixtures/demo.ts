@@ -287,6 +287,17 @@ export const prescriptionsFixture: Prescription[] = [
     effort: "Sequence change · no new equipment",
     ruleId: "physics/md_overlap@v2.4",
     relatedAlarmId: "alm_1001",
+    decisionClass: "mgmt_schedule",
+    tradeoff: {
+      energyBenefitInrMonthly: 84000,
+      throughputRisk: "PO-8842 on Line 2 protected through 14:00",
+      orderContext: "known",
+      recommendedWindow: "Stagger Line 3 at 06:55; revisit Line 2 after 14:00",
+      alternatives: ["Shed non-critical HVAC 15 min during peak"],
+      departmentOwners: ["electrical_supervisor", "body_shop_supervisor"],
+      orderIds: ["PO-8842"],
+      oeeImpact: "Line 2 buffer preserved until due_at",
+    },
     actions: [
       "Immediate: hold Mill 2 start until Kiln 1 load settles below 95% (no CAPEX).",
       "Operator playbook: rotate co-starts so only one large load enters the 10–11 TOD window.",
