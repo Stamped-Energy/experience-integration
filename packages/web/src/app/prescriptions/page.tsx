@@ -48,7 +48,7 @@ export default function PrescriptionsPage() {
           setSource("l5");
         }
       } catch {
-        // BFF unreachable — keep fixture data
+        // BFF unreachable - keep fixture data
       }
     }
     void loadLive();

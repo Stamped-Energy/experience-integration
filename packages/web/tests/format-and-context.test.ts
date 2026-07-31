@@ -21,10 +21,10 @@ describe("formatInr", () => {
 
 describe("claimBadgeLabel", () => {
   it("labels ops_confirmed distinctly", () => {
-    assert.equal(claimBadgeLabel("ops_confirmed").label, "Confirmed by operations");
+    assert.equal(claimBadgeLabel("ops_confirmed").label, "Confirmed");
   });
-  it("labels modeled with bill disclaimer", () => {
-    assert.match(claimBadgeLabel("modeled").label, /pending bill check/i);
+  it("labels modeled as estimated", () => {
+    assert.equal(claimBadgeLabel("modeled").label, "Estimated");
   });
 });
 

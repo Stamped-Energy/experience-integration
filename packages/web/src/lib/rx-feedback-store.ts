@@ -21,7 +21,7 @@ function writeMap(map: FeedbackMap): void {
   try {
     window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(map));
   } catch {
-    // quota / private mode — ignore
+    // quota / private mode - ignore
   }
 }
 

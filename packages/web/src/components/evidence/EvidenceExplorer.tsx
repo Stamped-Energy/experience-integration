@@ -125,7 +125,7 @@ export function EvidenceExplorer({ pack }: { pack: EvidencePack }) {
                   ? pack.missing.includes("baseline")
                     ? `${formatBaselineLabel(scope.baselineId)} (unavailable)`
                     : formatBaselineLabel(scope.baselineId)
-                  : "—",
+                  : "-",
               },
             ]}
           />

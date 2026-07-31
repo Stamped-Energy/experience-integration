@@ -1,4 +1,4 @@
-/** Shared L6 reference types — mirror contracts, do not invent fields. */
+/** Shared L6 reference types - mirror contracts, do not invent fields. */
 
 export type Role =
   | "operator"
@@ -48,9 +48,9 @@ export interface Alarm {
 export interface Prescription {
   id: string;
   plantId: string;
-  /** Imperative action statement — what to do. */
+  /** Imperative action statement - what to do. */
   title: string;
-  /** Short why — visible in the compact card. */
+  /** Short why - visible in the compact card. */
   why: string;
   impactInrPerMonth: number;
   confidence: number;
@@ -77,9 +77,9 @@ export interface Prescription {
   actions?: string[];
   /** Expand / detail: risk → mitigation lines. */
   risks?: string[];
-  /** Rich full-case detail — overrides builder defaults when present. */
+  /** Rich full-case detail - overrides builder defaults when present. */
   caseDetail?: PrescriptionCaseDetail;
-  /** ADR-024 — management classes show Discuss + tradeoff. */
+  /** ADR-024 - management classes show Discuss + tradeoff. */
   decisionClass?: "maint" | "mgmt_schedule" | "mgmt_capacity" | "mgmt_cross_dept";
   tradeoff?: PrescriptionTradeoff;
   /** Per-Rx operator feedback after acknowledge (not Improve nav). */
@@ -184,7 +184,7 @@ export interface LedgerEntry {
   baselineId: string;
   emissionFactorRef: string | null;
   modeledReason?: string;
-  /** Bill path only — never set from ops confirmation alone. */
+  /** Bill path only - never set from ops confirmation alone. */
   billLineRefs?: string[];
 }
 

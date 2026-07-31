@@ -1,8 +1,8 @@
-/* Forge Industrial v2.0 — generated from external/design/forge-industrial-v2.tokens.yaml
+/* Forge Industrial v2.0 - generated from external/design/forge-industrial-v2.tokens.yaml
  * Do not invent brand colors. Authority: external/design/
  */
 :root {
-  /* Surfaces — light industrial office */
+  /* Surfaces - light industrial office */
   --forge-surface: #f7faf5;
   --forge-surface-dim: #d8dbd6;
   --forge-surface-bright: #f7faf5;
@@ -20,7 +20,7 @@
   --forge-inverse-on-surface: #eff2ed;
 
   /* Structure / brand */
-  /* Brand coral+white ~3.33 — CTAs use ≥16px/700; small text uses primary-fixed */
+  /* Brand coral+white ~3.33 - CTAs use ≥16px/700; small text uses primary-fixed */
   --forge-primary: #f75440;
   --forge-on-primary: #ffffff;
   --forge-primary-container: #f75440;
@@ -43,7 +43,7 @@
   --forge-tertiary-container: #008287;
   --forge-on-tertiary-container: #f4ffff;
 
-  /* Feedback — always pair with text, never color alone */
+  /* Feedback - always pair with text, never color alone */
   --forge-error: #ba1a1a;
   --forge-on-error: #ffffff;
   --forge-error-container: #ffdad6;
@@ -58,7 +58,7 @@
   --forge-outline: #8f706b;
   --forge-outline-variant: #e3beb8;
 
-  /* Typography — Plus Jakarta Sans display, Public Sans body */
+  /* Typography - Plus Jakarta Sans display, Public Sans body */
   --forge-font-display: "Plus Jakarta Sans", system-ui, sans-serif;
   --forge-font-body: "Public Sans", system-ui, sans-serif;
   --forge-size-display: 2rem;
@@ -83,7 +83,7 @@
   --forge-sidebar-width: 260px;
   --forge-sidebar-collapsed: 60px;
 
-  /* Radius — dashboard craft: cards 12px, controls 8px */
+  /* Radius - dashboard craft: cards 12px, controls 8px */
   --forge-radius-sm: 0.25rem;
   --forge-radius-md: 0.5rem;
   --forge-radius-card: 12px;
@@ -91,13 +91,13 @@
   --forge-radius-xl: 1.5rem;
   --forge-radius-pill: 999px;
 
-  /* Motion — calm, reduce under prefers-reduced-motion */
+  /* Motion - calm, reduce under prefers-reduced-motion */
   --forge-motion-fast: 120ms;
   --forge-motion-base: 200ms;
   --forge-motion-slow: 320ms;
   --forge-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 
-  /* Elevation — restrained; no multi-layer glow */
+  /* Elevation - restrained; no multi-layer glow */
   --forge-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
   --forge-shadow-panel: var(--forge-shadow-card);
   --forge-shadow-sheet: 0 -4px 24px rgba(25, 28, 26, 0.12);

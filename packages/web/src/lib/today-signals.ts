@@ -1,11 +1,22 @@
 import type { Role, TodaySignal } from "@/lib/types";
 import { canAccessRoute } from "@/lib/navigation";
 
-/** Hard charter cap — Today is a decision strip, not a dashboard. */
+/** Hard charter cap - Today is a decision strip, not a dashboard. */
 export const TODAY_SIGNAL_CAP = 7;
 
+/** Phone Overview: triage essentials only (≤899px). */
+export const MOBILE_ESSENTIAL_SIGNAL_IDS = ["alarms", "rx", "savings"] as const;
+
+/** Keep role order but drop non-essential signals for narrow viewports. */
+export function filterMobileEssentialSignals(
+  signals: readonly TodaySignal[],
+): TodaySignal[] {
+  const allow = new Set<string>(MOBILE_ESSENTIAL_SIGNAL_IDS);
+  return signals.filter((s) => allow.has(s.id));
+}
+
 /**
- * Role priority for signal ids — first match wins until cap.
+ * Role priority for signal ids - first match wins until cap.
  * Signals whose href route the role cannot access are dropped.
  */
 const ROLE_SIGNAL_ORDER: Record<Role, readonly string[]> = {

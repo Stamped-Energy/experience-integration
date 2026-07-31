@@ -50,7 +50,6 @@ import {
   IndianRupee,
   MessageSquare,
   Sparkles,
-  Zap,
 } from "@/components/ui/icons";
 
 import type { StatusTone } from "@/components/ui/primitives";
@@ -64,7 +63,7 @@ const BASE_ENVELOPE: AnalystContextEnvelope = {
   role: "energy_manager",
   routeId: "analyst",
   screenTitle: "Ask Analyst",
-  visibleSummary: [DEMO_PLANT.plantName, "Cited answers · plant data only"],
+  visibleSummary: [DEMO_PLANT.plantName, "Cited answers from plant data"],
   focusEntity: { type: "alarm", id: "alm_1001" },
 };
 
@@ -186,7 +185,7 @@ function QuickPromptButton({
   );
 }
 
-/** Mode B — full-page analyst workspace with streaming replies. */
+/** Mode B - full-page analyst workspace with streaming replies. */
 export function AnalystWorkspace() {
   const [sessions, setSessions] = useState<AnalystChatSession[]>(analystChatHistoryFixture);
   const [activeSessionId, setActiveSessionId] = useState(analystChatHistoryFixture[0]!.id);
@@ -310,13 +309,6 @@ export function AnalystWorkspace() {
             </div>
             <p className="analyst-kpi__value tabular">{formatInr(snapshot.needsReviewInr)}</p>
             <p className="analyst-kpi__hint">{snapshot.needsReview} prescriptions</p>
-          </div>
-          <div className="analyst-kpi" role="listitem">
-            <div className="analyst-kpi__head">
-              <IconBadge icon={Zap} tone="info" size={30} iconSize={15} />
-              <p className="analyst-kpi__label">MD headroom</p>
-            </div>
-            <p className="analyst-kpi__value tabular">{snapshot.headroomPct.toFixed(1)}%</p>
           </div>
           <div className="analyst-kpi" role="listitem">
             <div className="analyst-kpi__head">

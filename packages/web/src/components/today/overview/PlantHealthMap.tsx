@@ -83,7 +83,7 @@ export function PlantHealthMap({ machines = OVERVIEW_MACHINES }: { machines?: Ov
                   {m.load}%
                 </span>
                 <span style={{ fontSize: 8.5, color: "var(--forge-on-surface-variant)" }}>
-                  {m.kwh == null ? "—" : formatIndianNum(m.kwh)}
+                  {m.kwh == null ? "-" : formatIndianNum(m.kwh)}
                 </span>
               </div>
             </div>
@@ -134,7 +134,7 @@ export function PlantHealthMap({ machines = OVERVIEW_MACHINES }: { machines?: Ov
           </div>
           <div className="forge-tooltip__row">
             <span>Energy</span>
-            <span>{hover.m.kwh == null ? "—" : `${formatIndianNum(hover.m.kwh)} kWh/h`}</span>
+            <span>{hover.m.kwh == null ? "-" : `${formatIndianNum(hover.m.kwh)} kWh/h`}</span>
           </div>
           <div style={{ marginTop: 5, fontSize: 11, opacity: 0.85, lineHeight: 1.4 }}>{hover.m.reason}</div>
         </div>

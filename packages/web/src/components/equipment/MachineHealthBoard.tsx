@@ -89,7 +89,7 @@ export function MachineHealthBoard() {
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
           <div>
             <p className="forge-eyebrow">Live Instrumentation</p>
-            <h3 className="forge-card-title">Asset Load Dials — Full Fleet</h3>
+            <h3 className="forge-card-title">Asset Load Dials - Full Fleet</h3>
           </div>
           <span style={{ fontSize: 11, color: "var(--forge-on-surface-variant)" }}>Modbus / OPC-UA · 1s poll</span>
         </div>
@@ -134,7 +134,7 @@ export function MachineHealthBoard() {
           </Panel>
           <Panel>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
-              <div><p className="forge-eyebrow">Spectral</p><h3 className="forge-card-title">Vibration FFT — Cement Mill 1</h3></div>
+              <div><p className="forge-eyebrow">Spectral</p><h3 className="forge-card-title">Vibration FFT - Cement Mill 1</h3></div>
               <span style={{ fontSize: 10.5, color: "var(--forge-error)", fontWeight: 600 }}>Bearing defect freq detected</span>
             </div>
             <ChartHost height={180} option={{
@@ -238,7 +238,7 @@ export function MachineHealthBoard() {
               </div>
               <span style={{ width: 4, alignSelf: "stretch", borderRadius: 4, background: priorityBarColor(m.priority) }} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: 13 }}>{m.machine} — {m.task}</div>
+                <div style={{ fontWeight: 600, fontSize: 13 }}>{m.machine} - {m.task}</div>
                 <div style={{ fontSize: 11.5, color: "var(--forge-on-surface-variant)" }}>Team {m.team} · {m.duration}</div>
               </div>
               <StatusBadgeByStatus status={m.priority} />

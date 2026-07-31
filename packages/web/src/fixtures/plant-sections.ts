@@ -1,4 +1,4 @@
-/** Plant section hierarchy for drill-down flow map — Jaipur Works. */
+/** Plant section hierarchy for drill-down flow map - Jaipur Works. */
 
 export type SectionHealth = "calm" | "watch" | "hot";
 
@@ -11,7 +11,7 @@ export type PlantSectionNode = {
   health: SectionHealth;
   /** Card accent (border + flow line). */
   accent: string;
-  /** Card fill — soft pastel. */
+  /** Card fill - soft pastel. */
   surface: string;
   x: number;
   y: number;
@@ -200,7 +200,7 @@ const POWER_CHILDREN: PlantSectionNode[] = [
   },
 ];
 
-/** Top-level factory sections — click any to drill in. */
+/** Top-level factory sections - click any to drill in. */
 export const PLANT_ROOT_LEVEL: PlantSectionLevel = {
   id: "root",
   title: "Jaipur Works",
@@ -507,7 +507,7 @@ export function flowPathBetween(from: PlantSectionNode, to: PlantSectionNode): s
   return `M ${p0.x} ${p0.y} Q ${p1.x} ${p1.y} ${p2.x} ${p2.y}`;
 }
 
-/** Midpoint on a flow path for kW labels — nudged into open corridors. */
+/** Midpoint on a flow path for kW labels - nudged into open corridors. */
 export function flowLabelPoint(from: PlantSectionNode, to: PlantSectionNode): FlowPoint {
   const curve = flowCurveBetween(from, to);
   const point =

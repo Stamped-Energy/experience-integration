@@ -40,7 +40,6 @@ export default function ReportsPage() {
             eyebrow="Confirmed savings (MTD)"
             value={formatInr(ops)}
             accent="primary"
-            footnote={<span style={{ color: "var(--forge-warning)" }}>Pending utility bill verification</span>}
           />
           <KpiCard
             eyebrow="Addressable potential"

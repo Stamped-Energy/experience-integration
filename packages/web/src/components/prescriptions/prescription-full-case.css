@@ -6,6 +6,24 @@
   font-size: 15px;
 }
 
+@media (max-width: 899px) {
+  .rx-full-case__hero .rx-full-case__prose--lead {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .rx-full-case__more-grid {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rx-full-case__more-grid > .rx-full-case__panel {
+    min-height: 0;
+  }
+}
+
 /* ── Hero ── */
 .rx-full-case__hero {
   padding: 16px 18px !important;
@@ -526,8 +544,9 @@
 .rx-full-case__compact-meta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 16px;
+  gap: 12px 14px;
   margin: 0;
+  width: 100%;
 }
 
 .rx-full-case__compact-meta-row {
@@ -535,6 +554,10 @@
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+}
+
+.rx-full-case__compact-meta-row--wide {
+  grid-column: 1 / -1;
 }
 
 .rx-full-case__compact-meta dt {
@@ -889,9 +912,7 @@
     min-width: 0;
   }
 
-  .rx-full-case__compact-meta {
-    grid-template-columns: minmax(0, 1fr);
-  }
+  /* Keep compact meta as a 2-col grid on phone - do not collapse to a tall stack. */
 
   .rx-full-case__decide-row {
     grid-template-columns: minmax(0, 1fr);

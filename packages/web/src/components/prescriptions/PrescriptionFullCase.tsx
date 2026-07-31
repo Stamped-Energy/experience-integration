@@ -6,6 +6,7 @@ import {
   Panel,
   StatusChip,
 } from "@/components/ui/primitives";
+import { ForgeDisclosure } from "@/components/ui/ForgeDisclosure";
 import { emphasizeCause, emphasizeLead, emphasizeNumbers } from "@/components/prescriptions/prescription-formatting";
 import { PrescriptionEvidencePreview } from "@/components/prescriptions/PrescriptionEvidencePreview";
 import { PrescriptionResponseActions } from "@/components/prescriptions/PrescriptionResponseActions";
@@ -139,6 +140,8 @@ export function PrescriptionFullCase({
   const badge = claimBadgeLabel(rx.verificationStatus);
   const anomalyRange = formatIstCompactDateTimeRange(pack.anomaly.from, pack.anomaly.to);
   const anomalySummary = shortenSummary(pack.anomaly.summary);
+  const actionItems =
+    rx.actions && rx.actions.length > 0 ? rx.actions : (detail.commissioning ?? []);
 
   const hasMoreDetails = Boolean(
     detail.costBenefit ||
@@ -147,6 +150,87 @@ export function PrescriptionFullCase({
       detail.kpis ||
       detail.commissioning?.length ||
       ledger,
+  );
+
+  const renderAction = () => (
+    <Panel className="rx-full-case__panel rx-full-case__panel--action">
+      <CompactSection title="Recommended action" variant="accent">
+        <NumberedList items={actionItems} />
+      </CompactSection>
+    </Panel>
+  );
+
+  const renderTakeaway = () =>
+    detail.managerTakeaway ? (
+      <Panel className="rx-full-case__panel rx-full-case__panel--wide rx-full-case__panel--takeaway">
+        <CompactSection title="Manager takeaway">
+          <Prose lead>{detail.managerTakeaway}</Prose>
+        </CompactSection>
+      </Panel>
+    ) : null;
+
+  const renderRca = () =>
+    detail.rootCause?.length ? (
+      <Panel className="rx-full-case__panel rx-full-case__panel--insight">
+        <CompactSection title="Root-cause analysis" variant="insight">
+          <BulletList items={detail.rootCause} emphasize="cause" />
+        </CompactSection>
+      </Panel>
+    ) : null;
+
+  const renderSnapshot = () =>
+    detail.eventSnapshot ? (
+      <Panel className="rx-full-case__panel rx-full-case__panel--wide">
+        <CompactSection title={detail.eventSnapshot.caption}>
+          <p className="rx-full-case__timestamp tabular">{detail.eventSnapshot.timestamp}</p>
+          <div className="rx-full-case__table-wrap">
+            <DataTable
+              caption={detail.eventSnapshot.caption}
+              columns={detail.eventSnapshot.columns}
+              rows={detail.eventSnapshot.rows}
+            />
+          </div>
+          <div className="rx-full-case__callout rx-full-case__callout--key">
+            <span className="rx-full-case__callout-label">What this shows</span>
+            <Prose>{detail.eventSnapshot.interpretation}</Prose>
+          </div>
+          {detail.eventSnapshot.sanityCheck ? (
+            <div className="rx-full-case__callout rx-full-case__callout--muted">
+              <span className="rx-full-case__callout-label">Sanity check</span>
+              <Prose>{detail.eventSnapshot.sanityCheck}</Prose>
+            </div>
+          ) : null}
+        </CompactSection>
+      </Panel>
+    ) : null;
+
+  const renderProof = (compact?: boolean) => (
+    <Panel className="rx-full-case__panel rx-full-case__panel--proof">
+      <PrescriptionEvidencePreview
+        sample={evidenceSample}
+        pack={pack}
+        evidenceHref={evidenceHref}
+        compact={compact}
+      />
+      <div className="rx-full-case__anomaly-slim">
+        <p className="rx-full-case__anomaly-range tabular">{anomalyRange}</p>
+        {anomalySummary ? (
+          <p className="rx-full-case__anomaly-summary">{anomalySummary}</p>
+        ) : null}
+        {pack.missing.length > 0 ? (
+          <p className="rx-full-case__missing">Missing: {pack.missing.join(", ")}</p>
+        ) : null}
+        {rx.relatedAlarmId ? (
+          <div className="rx-full-case__aside-actions">
+            <ForgeButtonGroup>
+              <ForgeButton variant="ghost" href={`/alarms/${rx.relatedAlarmId}`}>
+                Alarm
+              </ForgeButton>
+            </ForgeButtonGroup>
+          </div>
+        ) : null}
+      </div>
+    </Panel>
   );
 
   return (
@@ -192,93 +276,23 @@ export function PrescriptionFullCase({
         </div>
       </Panel>
 
-      {/* Primary: narrative (left) | Signal proof (right) */}
-      <div className="rx-full-case__body">
+      {/* Desktop: narrative left | Signal proof right */}
+      <div className="rx-full-case__body forge-desktop-stack">
         <div className="rx-full-case__main">
           <div className="rx-full-case__main-grid">
-            {detail.rootCause?.length ? (
-              <Panel className="rx-full-case__panel rx-full-case__panel--insight">
-                <CompactSection title="Root-cause analysis" variant="insight">
-                  <BulletList items={detail.rootCause} emphasize="cause" />
-                </CompactSection>
-              </Panel>
-            ) : null}
-
-            <Panel className="rx-full-case__panel rx-full-case__panel--action">
-              <CompactSection title="Recommended action" variant="accent">
-                <NumberedList
-                  items={
-                    rx.actions && rx.actions.length > 0
-                      ? rx.actions
-                      : (detail.commissioning ?? [])
-                  }
-                />
-              </CompactSection>
-            </Panel>
-
-            {detail.managerTakeaway ? (
-              <Panel className="rx-full-case__panel rx-full-case__panel--wide rx-full-case__panel--takeaway">
-                <CompactSection title="Manager takeaway">
-                  <Prose lead>{detail.managerTakeaway}</Prose>
-                </CompactSection>
-              </Panel>
-            ) : null}
-
-            {detail.eventSnapshot ? (
-              <Panel className="rx-full-case__panel rx-full-case__panel--wide">
-                <CompactSection title={detail.eventSnapshot.caption}>
-                  <p className="rx-full-case__timestamp tabular">{detail.eventSnapshot.timestamp}</p>
-                  <div className="rx-full-case__table-wrap">
-                    <DataTable
-                      caption={detail.eventSnapshot.caption}
-                      columns={detail.eventSnapshot.columns}
-                      rows={detail.eventSnapshot.rows}
-                    />
-                  </div>
-                  <div className="rx-full-case__callout rx-full-case__callout--key">
-                    <span className="rx-full-case__callout-label">What this shows</span>
-                    <Prose>{detail.eventSnapshot.interpretation}</Prose>
-                  </div>
-                  {detail.eventSnapshot.sanityCheck ? (
-                    <div className="rx-full-case__callout rx-full-case__callout--muted">
-                      <span className="rx-full-case__callout-label">Sanity check</span>
-                      <Prose>{detail.eventSnapshot.sanityCheck}</Prose>
-                    </div>
-                  ) : null}
-                </CompactSection>
-              </Panel>
-            ) : null}
+            {renderRca()}
+            {renderAction()}
+            {renderTakeaway()}
+            {renderSnapshot()}
           </div>
         </div>
+        <aside className="rx-full-case__aside">{renderProof()}</aside>
+      </div>
 
-        <aside className="rx-full-case__aside">
-          <Panel className="rx-full-case__panel rx-full-case__panel--proof">
-            <PrescriptionEvidencePreview
-              sample={evidenceSample}
-              pack={pack}
-              evidenceHref={evidenceHref}
-            />
-
-            <div className="rx-full-case__anomaly-slim">
-              <p className="rx-full-case__anomaly-range tabular">{anomalyRange}</p>
-              {anomalySummary ? (
-                <p className="rx-full-case__anomaly-summary">{anomalySummary}</p>
-              ) : null}
-              {pack.missing.length > 0 ? (
-                <p className="rx-full-case__missing">Missing: {pack.missing.join(", ")}</p>
-              ) : null}
-              {rx.relatedAlarmId ? (
-                <div className="rx-full-case__aside-actions">
-                  <ForgeButtonGroup>
-                    <ForgeButton variant="ghost" href={`/alarms/${rx.relatedAlarmId}`}>
-                      Alarm
-                    </ForgeButton>
-                  </ForgeButtonGroup>
-                </div>
-              ) : null}
-            </div>
-          </Panel>
-        </aside>
+      {/* Mobile essentials: action + takeaway always on */}
+      <div className="forge-mobile-always" data-testid="rx-mobile-always">
+        {renderAction()}
+        {renderTakeaway()}
       </div>
 
       <PrescriptionResponseActions
@@ -287,9 +301,20 @@ export function PrescriptionFullCase({
         plantId={rx.plantId}
       />
 
+      {/* Mobile disclosures */}
+      <div className="forge-disclosure-stack" data-testid="rx-mobile-disclosures">
+        {detail.rootCause?.length ? (
+          <ForgeDisclosure title="Root-cause analysis">{renderRca()}</ForgeDisclosure>
+        ) : null}
+        <ForgeDisclosure title="Signal proof">{renderProof(true)}</ForgeDisclosure>
+        {detail.eventSnapshot ? (
+          <ForgeDisclosure title="Event snapshot">{renderSnapshot()}</ForgeDisclosure>
+        ) : null}
+      </div>
+
       {hasMoreDetails ? (
-        <details className="rx-full-case__more">
-          <summary className="rx-full-case__more-summary">
+        <details className="rx-full-case__more forge-disclosure">
+          <summary className="rx-full-case__more-summary forge-disclosure__summary">
             Cost, risk, KPIs &amp; verification
           </summary>
           <div className="rx-full-case__more-grid">

@@ -6,7 +6,7 @@ import type {
 
 export type RxAction = "assign" | "ack" | "defer" | "reject" | "done";
 
-/** Client inbox sections — maps backend lanes without inventing a second product. */
+/** Client inbox sections - maps backend lanes without inventing a second product. */
 export type InboxSection = "needs_attention" | "acknowledged";
 
 /** Optional facet over decision_class. */

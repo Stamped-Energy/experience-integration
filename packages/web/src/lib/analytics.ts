@@ -71,7 +71,7 @@ export function mdHeadroomPct(peakMdKva: number, cmdKva: number): number {
 }
 
 /**
- * Intensity / emissions snapshot — never invent Scope 1 or missing factors.
+ * Intensity / emissions snapshot - never invent Scope 1 or missing factors.
  */
 export function intensitySnapshot(input: {
   productionUnits?: number | null;
@@ -116,7 +116,7 @@ export function intensitySnapshot(input: {
     scope1Tco2e: null,
     missing: [
       ...missing,
-      "scope1_activity_data", // always explicit — Stamped does not invent Scope 1
+      "scope1_activity_data", // always explicit - Stamped does not invent Scope 1
     ].filter((v, i, a) => a.indexOf(v) === i),
     emissionFactorRef: input.emissionFactorRef ?? null,
     cmdKva: input.cmdKva,
@@ -126,10 +126,12 @@ export function intensitySnapshot(input: {
 
 export function missingLabel(field: string): string {
   const labels: Record<string, string> = {
-    production_units: "Production units not available",
-    renewable_kwh: "Renewable share not available",
-    grid_kwh: "Grid consumption not available",
-    emission_factor: "Emission factor not available",
+    production_units: "Production units unavailable",
+    renewable_kwh: "Renewable share unavailable",
+    grid_kwh: "Grid consumption unavailable",
+    emission_factor: "Emission factor unavailable",
+    scope1_activity_data: "Scope 1 activity data unavailable",
+    ledger: "Ledger unavailable",
   };
-  return labels[field] ?? `${field.replaceAll("_", " ")} not available`;
+  return labels[field] ?? `${field.replaceAll("_", " ")} unavailable`;
 }

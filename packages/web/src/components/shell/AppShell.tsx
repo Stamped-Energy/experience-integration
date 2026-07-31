@@ -31,7 +31,7 @@ function sseMeta(connection: ConnectionStatus): {
       label: "Reconnecting",
       live: false,
       banner:
-        "Live updates paused — reconnecting. Actions still work; lists may be stale.",
+        "Live updates paused - reconnecting. Actions still work; lists may be stale.",
     };
   }
   return {
@@ -58,7 +58,7 @@ export function AppShell({
 }: {
   active: NavKey;
   plantName: string;
-  /** Active plant external id — drives telemetry + analyst envelope scope. */
+  /** Active plant external id - drives telemetry + analyst envelope scope. */
   plantId?: string;
   /** When provided (and > 1 entry), AppTopbar renders a plant switcher. */
   plants?: Array<{ id: string; name: string }>;

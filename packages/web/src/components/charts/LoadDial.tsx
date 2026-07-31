@@ -1,6 +1,6 @@
 /**
  * Industrial-style sweep dial (≈250° arc) with tick marks, colored
- * load zones, and a needle — adapted from stamped-energy-dashboard.
+ * load zones, and a needle - adapted from stamped-energy-dashboard.
  */
 const START = 145;
 const SWEEP = 250;
@@ -31,7 +31,7 @@ export function LoadDial({
   unit = "%",
   displayText,
 }: {
-  /** Legacy prop — same as `value`. */
+  /** Legacy prop - same as `value`. */
   loadPct?: number;
   value?: number;
   max?: number;

@@ -161,7 +161,7 @@ export function PrescriptionResponseActions({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={4}
-            placeholder="Example: Can only stage half the set-point tonight — production run until 22:00."
+            placeholder="Example: Can only stage half the set-point tonight - production run until 22:00."
           />
 
           <ForgeButtonGroup>
@@ -194,7 +194,7 @@ export function PrescriptionResponseActions({
             </div>
 
             <p className="rx-response__sheet-hint">
-              Tell us what you cannot do as written. We propose a constrained revision —
+              Tell us what you cannot do as written. We propose a constrained revision -
               propose is not commit.
             </p>
 

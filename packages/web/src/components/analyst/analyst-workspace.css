@@ -183,7 +183,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 32px 24px 40px;
+  padding: 24px 20px 28px;
 }
 
 .analyst-empty .forge-empty {
@@ -211,10 +211,12 @@
 .analyst-quick {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 8px;
+  gap: 12px;
+  margin: 12px 0 4px;
   width: 100%;
+  max-width: 100%;
   text-align: left;
+  box-sizing: border-box;
 }
 
 .analyst-quick--inline {
@@ -230,6 +232,7 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
+  min-width: 0;
   padding: 14px 16px;
   border-radius: var(--forge-radius-md);
   border: 1px solid var(--forge-outline-variant);
@@ -776,7 +779,33 @@
   }
 
   .analyst-kpi-strip {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 899px) {
+  .analyst-layout,
+  .analyst-chat-shell {
+    min-height: min(420px, 55vh);
+  }
+
+  .analyst-history {
+    min-height: 200px;
+  }
+
+  .analyst-empty {
+    padding: 16px 14px 20px;
+  }
+
+  .analyst-quick {
+    gap: 12px;
+    margin: 10px 2px 8px;
+    padding-inline: 2px;
+  }
+
+  .analyst-quick--inline {
+    margin: 0;
+    padding: 10px 14px 4px;
   }
 }
 

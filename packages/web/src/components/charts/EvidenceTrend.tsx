@@ -5,13 +5,13 @@ import { ForgeChart } from "@/components/charts/ForgeChart";
 import { buildMinuteSeries } from "@/lib/chart-sample";
 import { Panel } from "@/components/ui/primitives";
 
-/** Evidence route chart island — ECharts loads only here, not on Today. */
+/** Evidence route chart island - ECharts loads only here, not on Today. */
 export function EvidenceTrend({
   assetLabel = "Kiln 1",
   showBaselineBand = false,
 }: {
   assetLabel?: string;
-  /** When false, chart stays telemetry-only (honest partial — no invented band). */
+  /** When false, chart stays telemetry-only (honest partial - no invented band). */
   showBaselineBand?: boolean;
 }) {
   const points = useMemo(() => buildMinuteSeries(43_200), []);

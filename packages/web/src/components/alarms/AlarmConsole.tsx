@@ -65,13 +65,13 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
       {
         id: "load",
         metric: "Load",
-        value: asset ? `${asset.loadPct}%` : "—",
+        value: asset ? `${asset.loadPct}%` : "-",
         note: current.summary,
       },
       {
         id: "kwh",
         metric: "MTD energy",
-        value: asset ? `${Math.round(asset.kwhMtd / 1000)} MWh` : "—",
+        value: asset ? `${Math.round(asset.kwhMtd / 1000)} MWh` : "-",
         note: pack.lineage.sources.join(", "),
       },
       {
@@ -89,7 +89,7 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
     setAlarms((rows) =>
       rows.map((a) => (a.id === current.id ? applyAlarmAction(a, action) : a)),
     );
-    setToast(`${ACTION_LABEL[action]} — ${current.assetLabel}`);
+    setToast(`${ACTION_LABEL[action]} - ${current.assetLabel}`);
   }
 
   useEffect(() => {
@@ -121,7 +121,7 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
         state={{
           ...resolveRouteState({ empty: true }),
           title: "No open alarms",
-          detail: "Plant looks calm — new alarms will appear here.",
+          detail: "Plant looks calm - new alarms will appear here.",
         }}
       />
     );

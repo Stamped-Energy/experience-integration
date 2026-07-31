@@ -7,6 +7,7 @@ import {
   PrimaryButton,
   Skeleton,
 } from "@/components/ui/primitives";
+import { missingLabel } from "@/lib/analytics";
 import type { RouteStateModel } from "@/lib/route-state";
 
 export function RouteStateView({
@@ -85,14 +86,14 @@ export function RouteStateView({
           {state.missing?.length ? (
             <ul style={{ margin: "8px 0 0", paddingLeft: 18 }}>
               {state.missing.map((m) => (
-                <li key={m}>{m}</li>
+                <li key={m}>{missingLabel(m)}</li>
               ))}
             </ul>
           ) : null}
         </div>
         {children}
         {state.retryable && onRetry ? (
-          <GhostButton onClick={onRetry}>Retry missing slices</GhostButton>
+          <GhostButton onClick={onRetry}>Retry</GhostButton>
         ) : null}
       </div>
     );

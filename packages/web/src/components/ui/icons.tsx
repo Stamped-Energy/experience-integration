@@ -1,4 +1,4 @@
-/** Minimal stroke icons — ponytail: avoid lucide dep while registry hangs. */
+/** Minimal stroke icons - ponytail: avoid lucide dep while registry hangs. */
 import type { SVGProps } from "react";
 
 type IconProps = SVGProps<SVGSVGElement> & { size?: number; strokeWidth?: number };

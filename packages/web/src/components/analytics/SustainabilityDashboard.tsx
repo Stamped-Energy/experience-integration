@@ -1,8 +1,6 @@
 "use client";
 
 import { Panel, StatusChip } from "@/components/ui/primitives";
-import { TodMdBoard } from "@/components/analytics/TodMdBoard";
-import { IntensityBoard } from "@/components/analytics/IntensityBoard";
 import {
   DEMO_PLANT,
   energyKpisFixture,
@@ -89,20 +87,19 @@ export function SustainabilityDashboard() {
         <p className="forge-eyebrow">Jaipur Works · {DEMO_PLANT.tariff}</p>
         <h2 className="sust-dash__hero-title">Sustainability & intensity snapshot</h2>
         <p className="sust-dash__hero-lead">
-          SEC, emissions, renewable mix, and demand metrics — with explicit disclosure when data is
-          missing. Nothing is invented for Scope 1 or unmeasured activity.
+          SEC, emissions, renewable mix, and demand metrics for this billing window.
         </p>
         <div className="sust-dash__hero-stats">
           <div className="sust-stat">
             <span className="sust-stat__label">SEC</span>
             <span className="sust-stat__value tabular">
-              {snap.secKwhPerUnit != null ? `${formatIndianNum(snap.secKwhPerUnit, 2)} kWh/u` : "—"}
+              {snap.secKwhPerUnit != null ? `${formatIndianNum(snap.secKwhPerUnit, 2)} kWh/u` : "-"}
             </span>
           </div>
           <div className="sust-stat">
             <span className="sust-stat__label">Scope 2</span>
             <span className="sust-stat__value tabular">
-              {snap.scope2Tco2e != null ? `${formatIndianNum(snap.scope2Tco2e, 1)} tCO₂e` : "—"}
+              {snap.scope2Tco2e != null ? `${formatIndianNum(snap.scope2Tco2e, 1)} tCO₂e` : "-"}
             </span>
           </div>
           <div className="sust-stat">
@@ -132,7 +129,11 @@ export function SustainabilityDashboard() {
         <Panel className="sust-dash__panel">
           <h3 className="sust-dash__block-title">Scope 2 emissions trend (tCO₂e)</h3>
           <MiniBarChart items={emissionsTrend.map((p) => ({ ...p, color: "var(--forge-good)" }))} />
-          <p className="sust-dash__hint">{formatEmissionFactorRef(snap.emissionFactorRef ?? undefined)}</p>
+          {formatEmissionFactorRef(snap.emissionFactorRef ?? undefined) ? (
+            <p className="sust-dash__hint">
+              {formatEmissionFactorRef(snap.emissionFactorRef ?? undefined)}
+            </p>
+          ) : null}
         </Panel>
 
         <Panel className="sust-dash__panel">
@@ -173,22 +174,7 @@ export function SustainabilityDashboard() {
             {formatIndianNum(energyKpisFixture.cmdKva)} kVA
           </p>
         </Panel>
-
-        <Panel className="sust-dash__panel sust-dash__panel--disclosure">
-          <h3 className="sust-dash__block-title">Honest disclosure</h3>
-          <ul className="sust-disclosure-list">
-            <li>Scope 1 (onsite fuel) — <strong>not measured</strong> by Stamped in this demo plant.</li>
-            <li>Scope 2 uses {formatEmissionFactorRef(snap.emissionFactorRef ?? undefined)} — bill-verified where available.</li>
-            {snap.missing.map((m) => (
-              <li key={m}>{m.replaceAll("_", " ")}</li>
-            ))}
-          </ul>
-          <StatusChip tone="warning">Never invent missing activity data</StatusChip>
-        </Panel>
       </div>
-
-      <TodMdBoard />
-      <IntensityBoard />
     </div>
   );
 }

@@ -1,6 +1,6 @@
-# Transfer manifest — stamped-l6 reference → this consumer
+# Transfer manifest - stamped-l6 reference → this consumer
 
-Copied from `external/consumers/stamped-l6/` into `packages/web/` (2026-07-21). Contracts stay in the submodule — do **not** fork them.
+Copied from `external/consumers/stamped-l6/` into `packages/web/` (2026-07-21). Contracts stay in the submodule - do **not** fork them.
 
 | Seed path (under `external/consumers/stamped-l6/`) | Destination | Notes |
 |---------------------------------------------------|-------------|-------|
@@ -17,7 +17,7 @@ Copied from `external/consumers/stamped-l6/` into `packages/web/` (2026-07-21). 
 
 - Platform “non-canonical seed” framing as product docs
 - Hard-coded `org_demo` / plant ids into production paths
-- Inline `<style>` media queries long-term — move to CSS modules/Tailwind
+- Inline `<style>` media queries long-term - move to CSS modules/Tailwind
 
 ## Parity checklist
 

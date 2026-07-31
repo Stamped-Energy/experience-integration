@@ -101,7 +101,7 @@ export function AssignmentsBoard() {
         </h2>
         <p style={{ margin: "8px 0 0", fontSize: 14, color: "var(--forge-on-surface-variant)", maxWidth: 720 }}>
           Decide who is responsible for each plant area or asset. Alarm WhatsApp alerts follow these
-          routes. When assigning a prescription, Stamped recommends 2–3 people from this matrix —
+          routes. When assigning a prescription, Stamped recommends 2–3 people from this matrix -
           with an option to browse everyone who can be notified.
         </p>
       </Panel>
@@ -245,7 +245,7 @@ function PersonRow({ person }: { person: NotifyPerson }) {
         {person.role.replaceAll("_", " ")} · {person.phoneMasked}
       </p>
       <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
-        Areas: {person.areas.join(", ") || "—"}
+        Areas: {person.areas.join(", ") || "-"}
       </p>
       {person.skills.length ? (
         <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
@@ -301,11 +301,11 @@ function RouteRow({
       </div>
 
       <p style={{ margin: "12px 0 0", fontSize: 13 }}>
-        <strong>Primary:</strong> {primary?.name ?? "—"}
+        <strong>Primary:</strong> {primary?.name ?? "-"}
       </p>
       <p style={{ margin: "4px 0 0", fontSize: 13 }}>
         <strong>Backup:</strong>{" "}
-        {backups.length ? backups.map((b) => b.name).join(", ") : "—"}
+        {backups.length ? backups.map((b) => b.name).join(", ") : "-"}
       </p>
 
       {editing ? (

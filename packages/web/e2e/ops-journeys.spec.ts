@@ -45,7 +45,7 @@ test.describe("operational journeys", () => {
     await expect(page.getByRole("dialog")).toHaveCount(0);
   });
 
-  test("Vinayak Plant live path — alarms and prescriptions render via plant switcher", async ({ page }) => {
+  test("Vinayak Plant live path - alarms and prescriptions render via plant switcher", async ({ page }) => {
     await page.goto("/alarms");
     const switcher = page.getByLabel("Switch plant");
     if (await switcher.isVisible().catch(() => false)) {

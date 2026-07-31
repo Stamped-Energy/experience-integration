@@ -1,5 +1,5 @@
 /**
- * Circular gauge — adapted from stamped-energy-dashboard Gauge.jsx.
+ * Circular gauge - adapted from stamped-energy-dashboard Gauge.jsx.
  * Pure SVG; provide accessible text via `label` + `valueText`.
  */
 export function Gauge({

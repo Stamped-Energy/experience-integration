@@ -349,8 +349,9 @@
 .rx-queue__compact-meta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 16px;
+  gap: 12px 14px;
   margin: 0;
+  width: 100%;
 }
 
 .rx-queue__compact-meta-row {
@@ -358,6 +359,10 @@
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+}
+
+.rx-queue__compact-meta-row--wide {
+  grid-column: 1 / -1;
 }
 
 .rx-queue__compact-meta dt {
@@ -599,9 +604,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .rx-queue__compact-meta {
-    grid-template-columns: minmax(0, 1fr);
-  }
+  /* Keep Case details as a 2-col grid on phone - do not collapse to a tall stack. */
 
   .rx-queue__actions-bar {
     flex-direction: column;

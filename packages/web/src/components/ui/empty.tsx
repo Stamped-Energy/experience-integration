@@ -2,7 +2,7 @@ import type { ComponentType, ReactNode, SVGProps } from "react";
 
 type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number; strokeWidth?: number }>;
 
-/** shadcn-inspired empty state — calm placeholder when a list or panel has nothing to show. */
+/** shadcn-inspired empty state - calm placeholder when a list or panel has nothing to show. */
 export function EmptyState({
   icon: Icon,
   title,

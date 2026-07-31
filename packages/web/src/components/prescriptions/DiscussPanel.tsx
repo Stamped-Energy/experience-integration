@@ -59,7 +59,7 @@ export function TradeoffBlock({ tradeoff }: { tradeoff: PrescriptionTradeoff }) 
   );
 }
 
-/** Negotiation form body — used inside the Respond → Negotiate sheet. */
+/** Negotiation form body - used inside the Respond → Negotiate sheet. */
 export function DiscussForm({
   rx,
   orgId,
@@ -72,7 +72,7 @@ export function DiscussForm({
   const [chips, setChips] = useState<Set<ChipKey>>(
     () => new Set<ChipKey>(["exclude_line_2", "protect_po8842", "no_stagger_until"]),
   );
-  const [summary, setSummary] = useState("Cannot stagger Line 2 — order PO-8842 due 14:00");
+  const [summary, setSummary] = useState("Cannot stagger Line 2 - order PO-8842 due 14:00");
   const [revision, setRevision] = useState<Record<string, unknown> | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -141,7 +141,7 @@ export function DiscussForm({
         },
       );
       if (!res.ok) throw new Error(await res.text());
-      setDone("Revision accepted — original prescription superseded.");
+      setDone("Revision accepted - original prescription superseded.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Accept failed");
     } finally {
@@ -204,7 +204,7 @@ export function DiscussForm({
           value={summary}
           onChange={(e) => setSummary(e.target.value)}
           rows={3}
-          placeholder="Example: Cannot stagger Line 2 — order PO-8842 due 14:00"
+          placeholder="Example: Cannot stagger Line 2 - order PO-8842 due 14:00"
         />
       </label>
       <ForgeButtonGroup>
@@ -248,7 +248,7 @@ export function DiscussForm({
   );
 }
 
-/** @deprecated Prefer PrescriptionResponseActions — kept for import compatibility. */
+/** @deprecated Prefer PrescriptionResponseActions - kept for import compatibility. */
 export function DiscussPanel({
   rx,
   orgId,

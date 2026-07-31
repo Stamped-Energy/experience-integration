@@ -40,7 +40,7 @@ export default function AlarmsPage() {
           setSource("l5");
         }
       } catch {
-        // BFF unreachable — keep fixture data
+        // BFF unreachable - keep fixture data
       }
     }
     void loadLive();

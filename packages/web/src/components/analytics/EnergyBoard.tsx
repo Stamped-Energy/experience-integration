@@ -21,7 +21,7 @@ import {
   FORGE_ECHARTS_THEME_NAME,
 } from "@/components/charts/forgeTheme";
 
-/** Module-level options — stable refs so charts don't remount every render. */
+/** Module-level options - stable refs so charts don't remount every render. */
 const MONTHLY_OPTION: EChartsCoreOption = {
   tooltip: { trigger: "axis" },
   legend: { data: ["Baseline", "Actual", "Cost"] },
@@ -353,7 +353,7 @@ function HeatRow({
       {row.map((cell) => (
         <span
           key={cell.hour}
-          title={`${cell.day} ${cell.hour}:00 — ${cell.v}% load`}
+          title={`${cell.day} ${cell.hour}:00 - ${cell.v}% load`}
           style={{ height: 18, borderRadius: 3, background: color(cell.v) }}
         />
       ))}

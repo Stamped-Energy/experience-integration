@@ -18,7 +18,7 @@ const SCOPE_LABELS: Record<string, string> = {
 const WEBHOOK_STATUS_LABELS: Record<string, string> = {
   delivered: "Delivered",
   pending: "Pending",
-  dlq: "Failed — retry pending",
+  dlq: "Failed - retry pending",
 };
 
 export default function IntegrationsSettingsPage() {

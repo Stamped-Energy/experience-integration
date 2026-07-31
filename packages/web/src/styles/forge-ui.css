@@ -1,4 +1,4 @@
-/* Forge craft utilities — ported from stamped-energy-dashboard visual system */
+/* Forge craft utilities - ported from stamped-energy-dashboard visual system */
 
 .forge-eyebrow {
   font-family: var(--forge-font-body);
@@ -112,7 +112,7 @@
   outline-offset: 2px;
 }
 
-/* Ops list surfaces — Alarms + Prescriptions */
+/* Ops list surfaces - Alarms + Prescriptions */
 .forge-ops-queue {
   display: flex;
   flex-direction: column;
@@ -384,6 +384,8 @@
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
   align-items: stretch;
+  width: 100%;
+  max-width: 100%;
 }
 
 .forge-kpi-hero-card {
@@ -391,6 +393,22 @@
   padding: 20px;
   position: relative;
   height: 100%;
+}
+
+@media (max-width: 899px) {
+  .forge-signal-strip {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .forge-kpi-hero-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .forge-kpi-hero-card {
+    padding: 14px 12px;
+  }
 }
 
 .forge-kpi-card {
@@ -509,10 +527,11 @@
   }
 
   .forge-kpi-strip,
-  .forge-signal-strip,
-  .forge-kpi-hero-strip {
+  .forge-signal-strip {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  /* KPI hero stays 2×2 on phone (see ≤899px rule); do not collapse to 1-col. */
 
   .forge-filter-icon {
     width: 44px;
@@ -549,6 +568,55 @@
     radial-gradient(circle at 50% 46%, rgba(0, 102, 107, 0.06), transparent 30%),
     linear-gradient(165deg, #fbfcf9 0%, #f3f7f2 48%, #edf2ed 100%);
   padding-bottom: 4px;
+}
+
+.forge-section-zoom {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.forge-section-zoom__btn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--forge-outline-variant);
+  background: color-mix(in srgb, var(--forge-surface-container-lowest) 92%, transparent);
+  color: var(--forge-on-surface);
+  font-family: var(--forge-font-body);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--forge-shadow-card);
+  backdrop-filter: blur(6px);
+}
+
+.forge-section-zoom__btn--reset {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.forge-section-zoom__btn:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--forge-primary) 35%, var(--forge-outline-variant));
+  background: var(--forge-surface-container-lowest);
+}
+
+.forge-section-zoom__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.forge-section-zoom__btn:focus-visible {
+  outline: 2px solid var(--forge-primary);
+  outline-offset: 2px;
 }
 
 .forge-section-stage__svg {

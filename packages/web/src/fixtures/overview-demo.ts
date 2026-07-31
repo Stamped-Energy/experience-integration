@@ -1,4 +1,4 @@
-/** Rich overview demo datasets — ported from stamped-energy-dashboard, aligned with Jaipur Works. */
+/** Rich overview demo datasets - ported from stamped-energy-dashboard, aligned with Jaipur Works. */
 
 export const OVERVIEW_TARIFF = 6.32;
 
@@ -175,7 +175,7 @@ export const OVERVIEW_ALERTS: OverviewAlert[] = [
     severity: "CRITICAL",
     machine: "Kiln 1",
     message:
-      "Load 108% — 14% above design. Drawing 4,820 kWh/h. MD coincidence risk in 10–11 TOD peak.",
+      "Load 108% - 14% above design. Drawing 4,820 kWh/h. MD coincidence risk in 10–11 TOD peak.",
     action: "View →",
     alarmId: "alm_1001",
   },
@@ -210,7 +210,7 @@ export const OVERVIEW_ALERTS: OverviewAlert[] = [
     time: "23m ago",
     severity: "WARNING",
     machine: "Admin HVAC",
-    message: "Off-peak schedule drift — still running into morning peak TOD.",
+    message: "Off-peak schedule drift - still running into morning peak TOD.",
     action: "View →",
     alarmId: "alm_1008",
   },

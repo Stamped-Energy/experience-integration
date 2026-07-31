@@ -42,7 +42,7 @@ export type EvidencePack = {
   scope: EvidenceScope;
   lineage: EvidenceLineage;
   anomaly: { from: string; to: string; summary: string };
-  /** Honest missing upstream slices — never invent baseline when gated. */
+  /** Honest missing upstream slices - never invent baseline when gated. */
   missing: string[];
   loadDialPct: Record<string, number>;
 };
@@ -113,7 +113,7 @@ export function resolveEvidenceScope(input: {
   };
 }
 
-/** Fixture Auto pack — baseline slice gated until L2 publishes reads. */
+/** Fixture Auto pack - baseline slice gated until L2 publishes reads. */
 export function buildEvidencePack(
   scope: EvidenceScope,
   opts: { baselineAvailable?: boolean } = {},

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-/** Typewriter stream — letter by letter with optional cursor. */
+/** Typewriter stream - letter by letter with optional cursor. */
 export function useStreamText(
   fullText: string,
   enabled: boolean,

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 const VITALS = new Set(["LCP", "INP", "CLS"]);
 
-/** Reports Core Web Vitals to BFF allowlisted telemetry — no PII. */
+/** Reports Core Web Vitals to BFF allowlisted telemetry - no PII. */
 export function WebVitalsReporter({
   plantId,
   role,
@@ -39,7 +39,7 @@ export function WebVitalsReporter({
         }),
         keepalive: true,
       }).catch(() => {
-        /* swallow — telemetry must never break UX */
+        /* swallow - telemetry must never break UX */
       });
     }
 

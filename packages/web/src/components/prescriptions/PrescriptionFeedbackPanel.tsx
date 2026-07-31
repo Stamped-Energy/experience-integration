@@ -69,7 +69,7 @@ export function PrescriptionFeedbackPanel({
           </>
         ) : (
           <p className="rx-queue__facet-hint" style={{ textAlign: "left" }}>
-            Optional note after you take this on — what worked or what to follow up.
+            Optional note after you take this on - what worked or what to follow up.
           </p>
         )}
 

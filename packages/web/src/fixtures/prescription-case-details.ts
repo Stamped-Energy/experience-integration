@@ -20,7 +20,7 @@ export const prescriptionCaseDetailOverrides: Record<string, PrescriptionCaseDet
         { id: "u1", unit: "Unit-1", power: "43", loadPct: "57%", comment: "Part-load" },
         { id: "u2", unit: "Unit-2", power: "54", loadPct: "72%", comment: "Part-load" },
         { id: "u3", unit: "Unit-3", power: "68", loadPct: "91%", comment: "Near loaded" },
-        { id: "combined", unit: "Combined", power: "165", loadPct: "—", comment: "Three online at partial load" },
+        { id: "combined", unit: "Combined", power: "165", loadPct: "-", comment: "Three online at partial load" },
       ],
       interpretation:
         "Three machines stayed online while demand fit a sequenced two-unit strategy. The third unit idling/modulating adds approximately 130 MWh/year.",
@@ -28,7 +28,7 @@ export const prescriptionCaseDetailOverrides: Record<string, PrescriptionCaseDet
         "During a similar load window, shut the lowest-loaded unit under supervision. Stable pressure proves two units suffice when sequenced correctly. Log header pressure, kW, and alarms for 15–30 minutes to confirm.",
     },
     rootCause: [
-      "No central sequencer — each compressor obeys its own pressure switch.",
+      "No central sequencer - each compressor obeys its own pressure switch.",
       "Overlapping set-points keep all units cutting in.",
       'Operator habit leaves all three enabled to "avoid dips," sacrificing efficiency.',
     ],
@@ -103,7 +103,7 @@ export const prescriptionCaseDetailOverrides: Record<string, PrescriptionCaseDet
   rx_9001: {
     createdAt: "2026-07-21",
     description:
-      "Kiln 1 and Raw Mill 2 co-started into the 10–11 TOD peak window, pushing rolling MD to 4,680 kVA — only 6.4% headroom below CMD 5,000 kVA. Staggering the second large load by 10 minutes avoids MD coincidence charges.",
+      "Kiln 1 and Raw Mill 2 co-started into the 10–11 TOD peak window, pushing rolling MD to 4,680 kVA - only 6.4% headroom below CMD 5,000 kVA. Staggering the second large load by 10 minutes avoids MD coincidence charges.",
     savingsRange: "₹84k / mo · ₹10.1L / yr modeled",
     eventSnapshot: {
       timestamp: "2026-07-21 09:40 IST",
@@ -115,14 +115,14 @@ export const prescriptionCaseDetailOverrides: Record<string, PrescriptionCaseDet
         { key: "comment", header: "Comment" },
       ],
       rows: [
-        { id: "k1", asset: "Kiln 1", load: "108%", mdKva: "1,860", comment: "Above design — critical" },
+        { id: "k1", asset: "Kiln 1", load: "108%", mdKva: "1,860", comment: "Above design - critical" },
         { id: "m2", asset: "Raw Mill 2", load: "72%", mdKva: "640", comment: "Co-start with Kiln 1" },
         { id: "inc", asset: "Main incomer", load: "94%", mdKva: "4,680", comment: "Rolling 15-min MD peak" },
       ],
       interpretation:
         "Two large loads entered the peak TOD band simultaneously. A 10-minute stagger on Mill 2 start keeps rolling MD below the penalty threshold.",
       sanityCheck:
-        "Hold Mill 2 start until Kiln 1 load settles below 95%. Monitor rolling MD for 15 min — should drop ≥120 kVA if stagger holds.",
+        "Hold Mill 2 start until Kiln 1 load settles below 95%. Monitor rolling MD for 15 min - should drop ≥120 kVA if stagger holds.",
     },
     rootCause: [
       "No interlock between Kiln 1 warm-up sequence and Mill 2 start permission.",
@@ -130,7 +130,7 @@ export const prescriptionCaseDetailOverrides: Record<string, PrescriptionCaseDet
       "Peak TOD window (10–11) overlaps with routine pyro + grinding ramp.",
     ],
     costBenefit: {
-      wasteIdentified: "MD coincidence risk — potential penalty exposure on CMD breach + peak TOD energy premium.",
+      wasteIdentified: "MD coincidence risk - potential penalty exposure on CMD breach + peak TOD energy premium.",
       tariffScenarios: {
         columns: [
           { key: "scenario", header: "Scenario" },
@@ -187,7 +187,7 @@ export const prescriptionCaseDetailOverrides: Record<string, PrescriptionCaseDet
   rx_9005: {
     createdAt: "2026-07-21",
     description:
-      "Raw Mill 2 idle draw ran 18% above the night baseline for 47 minutes — auxiliaries and feeders left in warm-idle when no batch was queued.",
+      "Raw Mill 2 idle draw ran 18% above the night baseline for 47 minutes - auxiliaries and feeders left in warm-idle when no batch was queued.",
     savingsRange: "₹42k / mo · ₹5.0L / yr modeled",
     eventSnapshot: {
       timestamp: "2026-07-21 07:22 IST",
@@ -200,8 +200,8 @@ export const prescriptionCaseDetailOverrides: Record<string, PrescriptionCaseDet
       ],
       rows: [
         { id: "kw", metric: "Idle kW", baseline: "142", observed: "168", delta: "+18%" },
-        { id: "dur", metric: "Duration", baseline: "—", observed: "47 min", delta: "—" },
-        { id: "kwh", metric: "Excess kWh (window)", baseline: "—", observed: "20.3", delta: "—" },
+        { id: "dur", metric: "Duration", baseline: "-", observed: "47 min", delta: "-" },
+        { id: "kwh", metric: "Excess kWh (window)", baseline: "-", observed: "20.3", delta: "-" },
       ],
       interpretation:
         "Elevated idle persists beyond the warm-idle floor when no batch is scheduled. Night setback band would cut ~20 kWh per occurrence.",
@@ -225,7 +225,7 @@ export const prescriptionCaseDetailOverrides: Record<string, PrescriptionCaseDet
           { id: "t8", tariff: "8.00", saving: "₹4.2L" },
         ],
       },
-      capexNote: "No CAPEX — validated setback only. Optional auto-timer (~₹40k) for persistent compliance.",
+      capexNote: "No CAPEX - validated setback only. Optional auto-timer (~₹40k) for persistent compliance.",
     },
     risksTable: {
       columns: [
@@ -257,6 +257,6 @@ export const prescriptionCaseDetailOverrides: Record<string, PrescriptionCaseDet
       "Escalate if idle returns >10% above baseline within 24 h.",
     ],
     managerTakeaway:
-      "Night idle on Mill 2 is a zero-CAPEX win — ₹42k/mo recoverable with a validated setback and operator checklist.",
+      "Night idle on Mill 2 is a zero-CAPEX win - ₹42k/mo recoverable with a validated setback and operator checklist.",
   },
 };

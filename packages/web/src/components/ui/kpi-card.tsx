@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Panel } from "@/components/ui/primitives";
 
-/** Consistent KPI tile — no hero glow, optional left accent only. */
+/** Consistent KPI tile - no hero glow, optional left accent only. */
 export function KpiCard({
   eyebrow,
   value,

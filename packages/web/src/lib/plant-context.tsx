@@ -36,7 +36,7 @@ function resolvePlant(plantId: string): PlantOption {
 }
 
 /**
- * Active-plant provider for the live path — defaults to Vinayak Plant and
+ * Active-plant provider for the live path - defaults to Vinayak Plant and
  * persists the operator's selection (including offline Jaipur) across
  * sessions via localStorage.
  */
@@ -53,7 +53,7 @@ export function PlantProvider({ children }: { children: ReactNode }) {
         setActivePlantIdState(stored);
       }
     } catch {
-      /* localStorage unavailable — keep default */
+      /* localStorage unavailable - keep default */
     }
   }, []);
 

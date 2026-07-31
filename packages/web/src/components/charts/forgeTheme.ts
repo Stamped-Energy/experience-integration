@@ -1,4 +1,4 @@
-/** Forge Industrial v2 palette for ECharts — brand tokens only. */
+/** Forge Industrial v2 palette for ECharts - brand tokens only. */
 
 export const FORGE_ECHARTS_THEME = {
   color: ["#00666b", "#f75440", "#051f13", "#c97a00", "#1b6b3a"],

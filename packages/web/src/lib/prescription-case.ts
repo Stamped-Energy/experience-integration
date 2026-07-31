@@ -35,12 +35,12 @@ export function buildPrescriptionCaseDetail(input: {
     metadata: [
       { label: "Case", value: rx.title },
       { label: "Plant", value: DEMO_PLANT.plantName },
-      { label: "Category", value: rx.category ?? "—" },
-      { label: "Priority", value: rx.priority ?? "—" },
+      { label: "Category", value: rx.category ?? "-" },
+      { label: "Priority", value: rx.priority ?? "-" },
       { label: "Status", value: rx.lane.replaceAll("_", " ") },
       { label: "Owner", value: ownerLabel(rx.ownerRole) },
-      { label: "Bill line", value: rx.billLine ?? "—" },
-      { label: "Effort", value: rx.effort ?? "—" },
+      { label: "Bill line", value: rx.billLine ?? "-" },
+      { label: "Effort", value: rx.effort ?? "-" },
       { label: "Due", value: rx.dueLabel ?? rx.dueAt.slice(0, 10) },
       { label: "Confidence", value: `${Math.round(rx.confidence * 100)}%` },
     ],
@@ -90,7 +90,7 @@ export function buildPrescriptionCaseDetail(input: {
             return {
               id: `risk-${i}`,
               risk: parts[0] ?? line,
-              detail: parts[1] ?? "—",
+              detail: parts[1] ?? "-",
             };
           }),
         }
@@ -119,7 +119,7 @@ export function buildPrescriptionCaseDetail(input: {
     commissioning: rx.actions?.slice(0, 4) ?? [
       "Confirm finding against live load for the named assets.",
       "Assign an owner from the Assignments matrix.",
-      "Mark done when ops confirm; claim status stays separate from bill verification.",
+      "Mark done when operations confirm completion.",
     ],
     managerTakeaway: `${rx.title}. ${rx.why} Addressable ${formatInr(rx.impactInrPerMonth)}/mo at ${Math.round(rx.confidence * 100)}% confidence.`,
   };

@@ -1,4 +1,4 @@
-/** Energy Analytics demo datasets — ported from stamped-energy-dashboard pagesData. */
+/** Energy Analytics demo datasets - ported from stamped-energy-dashboard pagesData. */
 
 const TARIFF = 6.32;
 
@@ -53,11 +53,11 @@ export const WEEKDAY_PROFILE = [
 ];
 
 export const FEEDER_WISE = [
-  { feeder: "Feeder 11kV — A", kwh: 98400, share: 34.6, pf: 0.91 },
-  { feeder: "Feeder 11kV — B", kwh: 81200, share: 28.5, pf: 0.88 },
-  { feeder: "Feeder 11kV — C", kwh: 56300, share: 19.8, pf: 0.74 },
-  { feeder: "Feeder LT — Utilities", kwh: 31900, share: 11.2, pf: 0.93 },
-  { feeder: "Feeder LT — Lighting", kwh: 16800, share: 5.9, pf: 0.96 },
+  { feeder: "Feeder 11kV - A", kwh: 98400, share: 34.6, pf: 0.91 },
+  { feeder: "Feeder 11kV - B", kwh: 81200, share: 28.5, pf: 0.88 },
+  { feeder: "Feeder 11kV - C", kwh: 56300, share: 19.8, pf: 0.74 },
+  { feeder: "Feeder LT - Utilities", kwh: 31900, share: 11.2, pf: 0.93 },
+  { feeder: "Feeder LT - Lighting", kwh: 16800, share: 5.9, pf: 0.96 },
 ];
 
 export const LOAD_HEATMAP = (() => {

@@ -508,6 +508,21 @@
   text-decoration: underline;
 }
 
+.evd-full__mobile-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (max-width: 899px) {
+  .evd-full__lead--mobile-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
 .evidence-index-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));

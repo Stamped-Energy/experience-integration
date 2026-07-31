@@ -127,7 +127,7 @@ export function IconBadge({
   );
 }
 
-/** Compact status — dot-only, inline label, or subtle pill */
+/** Compact status - dot-only, inline label, or subtle pill */
 export function StatusBadge({
   tone,
   label,
@@ -196,7 +196,7 @@ export function StatusBadgeByStatus({ status, compact, variant }: { status: stri
   );
 }
 
-/** Inline metric — icon badge + label + value, no heavy box */
+/** Inline metric - icon badge + label + value, no heavy box */
 export function MetricInline({
   icon: Icon,
   label,
@@ -293,7 +293,7 @@ export function FilterIconBtn({
   );
 }
 
-/** Severity count pill — icon + number */
+/** Severity count pill - icon + number */
 export function CountPill({ tone, count, label }: { tone: StatusTone; count: number; label: string }) {
   const Icon = TONE_ICON[tone];
   return (
@@ -305,7 +305,7 @@ export function CountPill({ tone, count, label }: { tone: StatusTone; count: num
   );
 }
 
-/** Clean horizontal legend — colored swatch + readable label */
+/** Clean horizontal legend - colored swatch + readable label */
 export function StatusLegend({
   items,
 }: {
@@ -323,7 +323,7 @@ export function StatusLegend({
   );
 }
 
-/** Anomaly / severity breakdown — dot · count · label */
+/** Anomaly / severity breakdown - dot · count · label */
 export function SeverityStrip({
   items,
 }: {
@@ -347,7 +347,7 @@ export function SeverityStrip({
   );
 }
 
-/** Inline severity tag for table rows — dot + short label */
+/** Inline severity tag for table rows - dot + short label */
 export function SeverityTag({ status, label }: { status: string; label?: string }) {
   const tone = statusToTone(status);
   const text = label ?? status.charAt(0) + status.slice(1).toLowerCase();

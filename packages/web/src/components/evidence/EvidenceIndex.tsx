@@ -28,8 +28,7 @@ export function EvidenceIndex({ samples }: { samples: readonly EvidenceSample[] 
         </h2>
         <p className="evd-full__index-lead">
           Every prescription and alarm links to scoped SCADA tags, charts, and M&amp;V lineage.
-          Click a pack to see exactly what the signal looked like — and what is still pending bill
-          verification.
+          Open a pack to review the metered signal behind the action.
         </p>
       </Panel>
 

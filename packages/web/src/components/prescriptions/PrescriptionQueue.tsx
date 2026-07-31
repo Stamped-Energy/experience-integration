@@ -75,11 +75,22 @@ function ownerLabel(role: string): string {
   return role.replaceAll("_", " ");
 }
 
-function CompactMeta({ rows }: { rows: Array<{ label: string; value: string }> }) {
+function CompactMeta({
+  rows,
+}: {
+  rows: Array<{ label: string; value: string; wide?: boolean }>;
+}) {
   return (
     <dl className="rx-queue__compact-meta">
       {rows.map((row) => (
-        <div key={row.label} className="rx-queue__compact-meta-row">
+        <div
+          key={row.label}
+          className={
+            row.wide
+              ? "rx-queue__compact-meta-row rx-queue__compact-meta-row--wide"
+              : "rx-queue__compact-meta-row"
+          }
+        >
           <dt>{row.label}</dt>
           <dd>{row.value}</dd>
         </div>
@@ -157,7 +168,7 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
     setRows(next);
     setToast(
       action === "ack"
-        ? "Acknowledged — moved to Acknowledged"
+        ? "Acknowledged - moved to Acknowledged"
         : `${action} applied`,
     );
     if (action === "ack") {
@@ -179,7 +190,7 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
     if (!assignFor) return;
     const { next } = optimisticRxUpdate(rows, assignFor.id, "assign");
     setRows(next);
-    setToast(`Assigned to ${person.name} — WhatsApp notification queued`);
+    setToast(`Assigned to ${person.name} - WhatsApp notification queued`);
     setAssignFor(null);
     setSection("acknowledged");
     setExpanded(assignFor.id);
@@ -300,8 +311,8 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
 
             const metaRows = [
               { label: "Owner", value: `${ownerLabel(rx.ownerRole)}${ctx.area ? ` · ${ctx.area}` : ""}` },
-              { label: "Bill line", value: rx.billLine ?? "—" },
-              { label: "Effort", value: rx.effort ?? "—" },
+              { label: "Bill line", value: rx.billLine ?? "-" },
+              { label: "Effort", value: rx.effort ?? "-", wide: true },
               {
                 label: "Rule",
                 value: `${formatRuleLabel(rx.ruleId ?? pack.lineage.ruleId)} · ${Math.round(rx.confidence * 100)}%`,
@@ -418,7 +429,7 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
                       {rx.opportunityCost ? (
                         <p className="rx-queue__opportunity tabular">
                           Delay cost {formatInr(rx.opportunityCost.modeledInr)} over{" "}
-                          {rx.opportunityCost.delayDays} days — estimated, pending bill check.
+                          {rx.opportunityCost.delayDays} days.
                         </p>
                       ) : null}
 

@@ -50,7 +50,7 @@ export function navForPrescription(
   const orderedIds = ordered.map((r) => r.id);
   const { prevId, nextId, index, total } = neighborsInList(orderedIds, currentId);
   const label =
-    index >= 0 && total > 0 ? `${index + 1} / ${total}` : `— / ${total}`;
+    index >= 0 && total > 0 ? `${index + 1} / ${total}` : `- / ${total}`;
   return {
     prevHref: prevId ? prescriptionDetailHref(prevId, section, facet) : null,
     nextHref: nextId ? prescriptionDetailHref(nextId, section, facet) : null,

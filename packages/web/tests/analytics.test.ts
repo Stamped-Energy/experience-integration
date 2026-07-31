@@ -33,7 +33,7 @@ describe("analytics fixtures and calculations", () => {
     assert.equal(mdHeadroomPct(4200, 5000), 16);
   });
 
-  it("keeps intensity honest — Scope 1 always missing, no invented SEC", () => {
+  it("keeps intensity honest - Scope 1 always missing, no invented SEC", () => {
     const snap = intensitySnapshot({
       productionUnits: null,
       gridKwh: 1_200_000,
@@ -47,7 +47,7 @@ describe("analytics fixtures and calculations", () => {
     assert.equal(snap.scope1Tco2e, null);
     assert.ok(snap.missing.includes("production_units"));
     assert.ok(snap.missing.includes("scope1_activity_data"));
-    assert.match(missingLabel("scope1_activity_data"), /not available/i);
+    assert.match(missingLabel("scope1_activity_data"), /unavailable/i);
     assert.ok(snap.scope2Tco2e != null && snap.scope2Tco2e > 0);
   });
 });

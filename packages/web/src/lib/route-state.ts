@@ -1,4 +1,4 @@
-/** Shared route surface contract — every primary route must handle these. */
+/** Shared route surface contract - every primary route must handle these. */
 
 export const ROUTE_STATES = [
   "default",
@@ -59,7 +59,7 @@ export function resolveRouteState(input: {
     return {
       kind: "partial",
       title: "Some data is unavailable",
-      detail: "Showing what we have; missing slices are listed.",
+      detail: "Showing available plant data for this view.",
       missing: input.missing,
       retryable: true,
     };

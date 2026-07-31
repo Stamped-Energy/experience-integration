@@ -13,6 +13,8 @@ import {
   StatusChip,
 } from "@/components/ui/primitives";
 
+import "./reports.css";
+
 type LocalReport = {
   id: string;
   kind: string;
@@ -88,12 +90,10 @@ function prescriptionAuditCsv(rows: readonly Prescription[]): string {
 
 function sustainabilityLines(periodLabel: string, id: string): string[] {
   return [
-    "Stamped Energy — Sustainability pack",
+    "Stamped Energy - Sustainability pack",
     `Period: ${periodLabel}`,
     `Report id: ${id}`,
     "Status: approved",
-    "Scope 1: Not measured",
-    "Savings confirmed by operations are not yet verified on the utility bill.",
   ];
 }
 
@@ -103,13 +103,12 @@ function sustainabilityCsv(periodLabel: string, id: string): string {
     [
       ["period", periodLabel],
       ["report_id", id],
-      ["scope_1", "Not measured"],
-      ["claim_note", "Operations-confirmed savings pending utility bill verification"],
+      ["status", "approved"],
     ],
   );
 }
 
-/** P0 Export Centre — CSV + DOCX after approval (no HTML pack). */
+/** P0 Export Centre - CSV + DOCX after approval (no HTML pack). */
 export function ExportCentre({
   ledger,
   prescriptions,
@@ -149,14 +148,14 @@ export function ExportCentre({
       },
       ...prev,
     ]);
-    setStatus(`Generated ${id} — pending approval before external send`);
+    setStatus(`Generated ${id} - pending approval before external send`);
   }
 
   function approve(id: string) {
     setReports((prev) =>
       prev.map((r) => (r.id === id ? { ...r, state: "approved" as const } : r)),
     );
-    setStatus(`Approved ${id} — CSV / DOCX download unlocked`);
+    setStatus(`Approved ${id} - CSV / DOCX download unlocked`);
   }
 
   function requireApproved(id: string): LocalReport | null {
@@ -189,37 +188,41 @@ export function ExportCentre({
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }} data-export-centre>
+    <div className="reports-stack" data-export-centre>
       <Panel>
-        <h2
-          style={{
-            margin: 0,
-            fontFamily: "var(--forge-font-display)",
-            fontSize: 16,
-          }}
-        >
-          Export centre
-        </h2>
-        <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-          Generate → review → approve → download. External send is blocked until approved.
-        </p>
-        <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
-          <PrimaryButton onClick={generate}>Generate sustainability pack</PrimaryButton>
-          <SecondaryButton
-            onClick={() => downloadTextFile("ledger_jaipur.csv", ledgerCsv(ledger))}
-          >
-            Ledger CSV
-          </SecondaryButton>
-          <GhostButton
-            onClick={() =>
-              downloadTextFile(
-                "prescription_audit_jaipur.csv",
-                prescriptionAuditCsv(prescriptions),
-              )
-            }
-          >
-            Prescription audit CSV
-          </GhostButton>
+        <div className="reports-export-head">
+          <div className="reports-export-head__copy">
+            <h2
+              style={{
+                margin: 0,
+                fontFamily: "var(--forge-font-display)",
+                fontSize: 16,
+              }}
+            >
+              Export centre
+            </h2>
+            <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
+              Generate → review → approve → download. External send is blocked until approved.
+            </p>
+          </div>
+          <div className="reports-export-head__actions">
+            <PrimaryButton onClick={generate}>Generate sustainability pack</PrimaryButton>
+            <SecondaryButton
+              onClick={() => downloadTextFile("ledger_jaipur.csv", ledgerCsv(ledger))}
+            >
+              Ledger CSV
+            </SecondaryButton>
+            <GhostButton
+              onClick={() =>
+                downloadTextFile(
+                  "prescription_audit_jaipur.csv",
+                  prescriptionAuditCsv(prescriptions),
+                )
+              }
+            >
+              Prescription audit CSV
+            </GhostButton>
+          </div>
         </div>
       </Panel>
 
@@ -232,19 +235,8 @@ export function ExportCentre({
         ) : (
           <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 10 }}>
             {reports.map((r) => (
-              <li
-                key={r.id}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 12,
-                  flexWrap: "wrap",
-                  alignItems: "center",
-                  paddingBottom: 10,
-                  borderBottom: "1px solid var(--forge-outline-variant)",
-                }}
-              >
-                <div>
+              <li key={r.id} className="reports-job">
+                <div className="reports-job__meta">
                   <p style={{ margin: 0, fontWeight: 700 }}>
                     {r.kind.replaceAll("_", " ")} · {r.periodLabel}
                   </p>
@@ -252,7 +244,7 @@ export function ExportCentre({
                     {r.id}
                   </p>
                 </div>
-                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                <div className="reports-job__actions">
                   <StatusChip
                     tone={
                       r.state === "approved"

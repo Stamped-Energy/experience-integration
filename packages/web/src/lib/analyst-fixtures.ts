@@ -42,7 +42,7 @@ function alarmSummaryReply(envelope: AnalystContextEnvelope): string {
     .slice(0, 5)
     .map(
       (a) =>
-        `• **${a.assetLabel}** (${a.severity}, ${a.state}) — ${a.summary}`,
+        `• **${a.assetLabel}** (${a.severity}, ${a.state}) - ${a.summary}`,
     )
     .join("\n");
 
@@ -53,7 +53,7 @@ function alarmSummaryReply(envelope: AnalystContextEnvelope): string {
       : "";
 
   return [
-    `**${DEMO_PLANT.plantName} — ${open.length} open alarms** (${critical.length} critical, ${warning.length} warning, ${open.length - critical.length - warning.length} info).`,
+    `**${DEMO_PLANT.plantName} - ${open.length} open alarms** (${critical.length} critical, ${warning.length} warning, ${open.length - critical.length - warning.length} info).`,
     "",
     lines,
     focusNote,
@@ -61,7 +61,7 @@ function alarmSummaryReply(envelope: AnalystContextEnvelope): string {
     "**Recommended next steps:**",
     "1. Ack Kiln 1 MD coincidence and review incomer headroom.",
     "2. Assign APFC health check on Cement Mill 1.",
-    "3. Open evidence for any alarm before closing — cite sources in your notes.",
+    "3. Open evidence for any alarm before closing - cite sources in your notes.",
   ]
     .filter(Boolean)
     .join("\n");
@@ -94,14 +94,14 @@ function demandReply(): string {
       energyKpisFixture.cmdKva) *
     100;
   return [
-    `**Peak demand last 7 days — ${DEMO_PLANT.plantName}**`,
+    `**Peak demand last 7 days - ${DEMO_PLANT.plantName}**`,
     "",
     `• **Rolling peak MD:** ${energyKpisFixture.peakMdKva.toLocaleString("en-IN")} kVA vs **CMD ${energyKpisFixture.cmdKva.toLocaleString("en-IN")} kVA** (${headroom.toFixed(1)}% headroom)`,
     `• **Primary driver:** Kiln 1 + Raw Mill 2 co-start into **10–11 TOD peak** (Jul 21 09:40 IST)`,
-    `• **Vs baseline (7d):** +${energyKpisFixture.vsBaselinePct}% grid kWh — pyro + grinding overlap`,
+    `• **Vs baseline (7d):** +${energyKpisFixture.vsBaselinePct}% grid kWh - pyro + grinding overlap`,
     `• **Peak TOD share:** ${energyKpisFixture.todPeakSharePct}% of MTD energy cost`,
     "",
-    "**What to do:** Stagger large-load starts by 10 min to recover ~₹84k/mo MD risk. Monitor incomer rolling MD — alert at <5% headroom.",
+    "**What to do:** Stagger large-load starts by 10 min to recover ~₹84k/mo MD risk. Monitor incomer rolling MD - alert at <5% headroom.",
   ].join("\n");
 }
 
@@ -112,14 +112,14 @@ function closureReply(): string {
   const closure = demoClosurePct();
 
   return [
-    `**Prescription closure — Jul 2026 billing window**`,
+    `**Prescription closure - Jul 2026 billing window**`,
     "",
     `• **Closure rate (30d):** ${closure}% (${closed}/${prescriptionsFixture.length} closed)`,
     `• **Needs review:** ${needsReview} prescriptions · **${fmtInr(demoNeedsReviewInr())}/mo** addressable`,
     `• **Verifying:** ${verifying} prescriptions awaiting savings verification`,
-    `• **Confirmed savings (MTD):** HVAC setback + APFC stage swap; pending utility bill verification`,
+    `• **Confirmed savings (MTD):** HVAC setback + APFC stage swap`,
     "",
-    "**Bottleneck:** Kiln MD and compressor sequencing prescriptions still in needs review — assign owners this week to protect the billing cycle.",
+    "**Bottleneck:** Kiln MD and compressor sequencing prescriptions still in needs review - assign owners this week to protect the billing cycle.",
   ].join("\n");
 }
 
@@ -127,16 +127,16 @@ function whyCriticalReply(envelope: AnalystContextEnvelope): string {
   const id = envelope.focusEntity?.id ?? "alm_1001";
   const alarm = alarmsFixture.find((a) => a.id === id);
   if (!alarm) {
-    return `Focus alarm not found — open the alarm console for live state. Cross-check evidence before ack.`;
+    return `Focus alarm not found - open the alarm console for live state. Cross-check evidence before ack.`;
   }
   return [
-    `**${alarm.assetLabel} is ${alarm.severity}** — state: ${alarm.state}.`,
+    `**${alarm.assetLabel} is ${alarm.severity}** - state: ${alarm.state}.`,
     "",
     alarm.summary,
     "",
     alarm.relatedPrescriptionId
-      ? `Linked prescription **Stagger co-start** — highest-confidence ops action on this screen.`
-      : "No linked prescription yet — review similar assets for patterns.",
+      ? `Linked prescription **Stagger co-start** - highest-confidence ops action on this screen.`
+      : "No linked prescription yet - review similar assets for patterns.",
     "",
     "Open **Evidence** for the Jul 21 signal window before acknowledging.",
   ].join("\n");
@@ -150,7 +150,7 @@ function evidenceReply(envelope: AnalystContextEnvelope): string {
       "",
       "Use meter readings and baseline bands for savings verification. Detection rules explain the finding.",
       "",
-      "Do **not** label savings as verified on the utility bill until lines land — operations-confirmed only.",
+      "Do **not** label savings as verified on the utility bill until lines land - operations-confirmed only.",
     ].join("\n");
   }
   return [
