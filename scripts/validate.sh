@@ -27,7 +27,7 @@ if grep -R --line-number -E 'L2_DATABASE_URL\s*=' packages/api/src packages/web/
 fi
 
 echo "== validate: contracts =="
-./external/scripts/contract-check.sh
+./external/scripts/contracts/contract-check.sh
 pnpm contracts:upstream
 
 echo "== validate: typecheck =="

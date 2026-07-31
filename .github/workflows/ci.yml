@@ -57,7 +57,7 @@ jobs:
         run: pip install jsonschema
 
       - name: Platform contract check
-        run: ./external/scripts/contract-check.sh
+        run: ./external/scripts/contracts/contract-check.sh
 
       - name: Upstream OpenAPI drift check
         run: pnpm contracts:upstream
