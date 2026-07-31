@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { claimBadgeLabel, formatInr } from "../src/lib/format";
+import {
+  claimBadgeLabel,
+  formatInr,
+  formatIstCompactDateTime,
+  formatIstCompactDateTimeRange,
+} from "../src/lib/format";
 import {
   assertTenantMatch,
   visibleContextChips,
@@ -20,6 +25,25 @@ describe("claimBadgeLabel", () => {
   });
   it("labels modeled with bill disclaimer", () => {
     assert.match(claimBadgeLabel("modeled").label, /pending bill check/i);
+  });
+});
+
+describe("compact IST stamps", () => {
+  it("shortens datetime without weekday or IST suffix", () => {
+    const stamp = formatIstCompactDateTime("2026-07-21T10:08:00+05:30");
+    assert.match(stamp, /21/);
+    assert.match(stamp, /Jul/i);
+    assert.match(stamp, /10:08/i);
+    assert.doesNotMatch(stamp, /IST/);
+  });
+
+  it("collapses same-day ranges to time on the end", () => {
+    const range = formatIstCompactDateTimeRange(
+      "2026-07-21T10:08:00+05:30",
+      "2026-07-21T14:30:00+05:30",
+    );
+    assert.match(range, /→/);
+    assert.match(range, /2:30|14:30/i);
   });
 });
 

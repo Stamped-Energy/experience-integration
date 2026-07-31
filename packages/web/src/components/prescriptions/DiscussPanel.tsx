@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ForgeButton, ForgeButtonGroup, Panel } from "@/components/ui/primitives";
+import { ForgeButton, ForgeButtonGroup } from "@/components/ui/primitives";
 import { formatInr } from "@/lib/format";
 import type { Prescription, PrescriptionTradeoff } from "@/lib/types";
 import { bffUrl } from "@/lib/bff";
@@ -59,7 +59,8 @@ export function TradeoffBlock({ tradeoff }: { tradeoff: PrescriptionTradeoff }) 
   );
 }
 
-export function DiscussPanel({
+/** Negotiation form body — used inside the Respond → Negotiate sheet. */
+export function DiscussForm({
   rx,
   orgId,
   plantId,
@@ -68,7 +69,6 @@ export function DiscussPanel({
   orgId: string;
   plantId: string;
 }) {
-  const [open, setOpen] = useState(false);
   const [chips, setChips] = useState<Set<ChipKey>>(
     () => new Set<ChipKey>(["exclude_line_2", "protect_po8842", "no_stagger_until"]),
   );
@@ -77,8 +77,6 @@ export function DiscussPanel({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
-
-  if (!isManagementRx(rx)) return null;
 
   function toggleChip(key: ChipKey) {
     setChips((prev) => {
@@ -187,82 +185,83 @@ export function DiscussPanel({
   }
 
   return (
-    <Panel className="rx-full-case__panel" data-testid="discuss-panel">
-      <div className="rx-discuss__header">
-        <h3 className="rx-full-case__block-title">Discuss this prescription</h3>
-        {!open ? (
-          <ForgeButton
+    <div className="rx-discuss__body">
+      <div className="rx-discuss__chips" data-testid="discuss-chips">
+        {CHIP_DEFS.map((c) => (
+          <button
+            key={c.key}
             type="button"
-            data-testid="discuss-open"
-            onClick={() => setOpen(true)}
+            className={chips.has(c.key) ? "rx-discuss__chip is-on" : "rx-discuss__chip"}
+            onClick={() => toggleChip(c.key)}
           >
-            Discuss
-          </ForgeButton>
-        ) : null}
+            {c.label}
+          </button>
+        ))}
       </div>
-      {open ? (
-        <div className="rx-discuss__body">
-          <p className="rx-full-case__prose">
-            Structured constraints only — not a free rewrite of What. Propose ≠ commit.
+      <label className="rx-discuss__summary">
+        Why you cannot do this as written
+        <textarea
+          value={summary}
+          onChange={(e) => setSummary(e.target.value)}
+          rows={3}
+          placeholder="Example: Cannot stagger Line 2 — order PO-8842 due 14:00"
+        />
+      </label>
+      <ForgeButtonGroup>
+        <ForgeButton type="button" data-testid="discuss-propose" disabled={busy} onClick={propose}>
+          Propose revision
+        </ForgeButton>
+      </ForgeButtonGroup>
+      {revision ? (
+        <div className="rx-discuss__diff" data-testid="discuss-diff">
+          <p>
+            <strong>Suggested change:</strong>{" "}
+            {String(revision.diff_summary ?? revision.diffSummary ?? "")}
           </p>
-          <div className="rx-discuss__chips" data-testid="discuss-chips">
-            {CHIP_DEFS.map((c) => (
-              <button
-                key={c.key}
-                type="button"
-                className={chips.has(c.key) ? "rx-discuss__chip is-on" : "rx-discuss__chip"}
-                onClick={() => toggleChip(c.key)}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
-          <label className="rx-discuss__summary">
-            Constraint summary
-            <textarea
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
-              rows={2}
-            />
-          </label>
           <ForgeButtonGroup>
-            <ForgeButton type="button" data-testid="discuss-propose" disabled={busy} onClick={propose}>
-              Propose revision
+            <ForgeButton
+              type="button"
+              data-testid="discuss-accept"
+              disabled={busy || !revision}
+              onClick={accept}
+            >
+              Accept revision
+            </ForgeButton>
+            <ForgeButton
+              type="button"
+              data-testid="discuss-keep"
+              disabled={busy || !revision}
+              onClick={keepOriginal}
+            >
+              Keep original
             </ForgeButton>
           </ForgeButtonGroup>
-          {revision ? (
-            <div className="rx-discuss__diff" data-testid="discuss-diff">
-              <p>
-                <strong>Diff:</strong> {String(revision.diff_summary ?? revision.diffSummary ?? "")}
-              </p>
-              <ForgeButtonGroup>
-                <ForgeButton
-                  type="button"
-                  data-testid="discuss-accept"
-                  disabled={busy || !revision}
-                  onClick={accept}
-                >
-                  Accept revision
-                </ForgeButton>
-                <ForgeButton
-                  type="button"
-                  data-testid="discuss-keep"
-                  disabled={busy || !revision}
-                  onClick={keepOriginal}
-                >
-                  Keep original
-                </ForgeButton>
-              </ForgeButtonGroup>
-            </div>
-          ) : (
-            <p className="rx-full-case__prose" data-testid="discuss-accept-disabled">
-              Accept stays disabled until a revision is proposed.
-            </p>
-          )}
-          {error ? <p className="rx-discuss__error">{error}</p> : null}
-          {done ? <p className="rx-discuss__done">{done}</p> : null}
         </div>
-      ) : null}
-    </Panel>
+      ) : (
+        <p className="rx-full-case__prose" data-testid="discuss-accept-disabled">
+          Accept stays off until a revision is proposed.
+        </p>
+      )}
+      {error ? <p className="rx-discuss__error">{error}</p> : null}
+      {done ? <p className="rx-discuss__done">{done}</p> : null}
+    </div>
+  );
+}
+
+/** @deprecated Prefer PrescriptionResponseActions — kept for import compatibility. */
+export function DiscussPanel({
+  rx,
+  orgId,
+  plantId,
+}: {
+  rx: Prescription;
+  orgId: string;
+  plantId: string;
+}) {
+  if (!isManagementRx(rx)) return null;
+  return (
+    <div data-testid="discuss-panel">
+      <DiscussForm rx={rx} orgId={orgId} plantId={plantId} />
+    </div>
   );
 }

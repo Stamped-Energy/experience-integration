@@ -52,6 +52,39 @@ export function formatIstTime(iso: string): string {
   return `${formatted} IST`;
 }
 
+/** Compact stamp for dense chrome — e.g. "21 Jul, 10:08 am". */
+export function formatIstCompactDateTime(iso: string): string {
+  const date = parseIso(iso);
+  if (!date) return iso || MISSING;
+  return formatWithTimeZone(date, {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+/** Compact range — e.g. "21 Jul, 10:08 am → 2:30 pm". */
+export function formatIstCompactDateTimeRange(from: string, to: string): string {
+  const fromDate = parseIso(from);
+  const toDate = parseIso(to);
+  if (!fromDate || !toDate) return MISSING;
+  const fromLabel = formatIstCompactDateTime(from);
+  const sameDay =
+    fromDate.toLocaleString("en-IN", { timeZone: IST, day: "numeric", month: "short", year: "numeric" }) ===
+    toDate.toLocaleString("en-IN", { timeZone: IST, day: "numeric", month: "short", year: "numeric" });
+  if (sameDay) {
+    const toTime = formatWithTimeZone(toDate, {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+    return `${fromLabel} → ${toTime}`;
+  }
+  return `${fromLabel} → ${formatIstCompactDateTime(to)}`;
+}
+
 /** e.g. "21 Jul → 31 Jul 2026" */
 export function formatIstDateRange(from: string, to: string): string {
   const fromDate = parseIso(from);

@@ -7,15 +7,18 @@ import {
   StatusChip,
 } from "@/components/ui/primitives";
 import { emphasizeCause, emphasizeLead, emphasizeNumbers } from "@/components/prescriptions/prescription-formatting";
-import {
-  DiscussPanel,
-  TradeoffBlock,
-} from "@/components/prescriptions/DiscussPanel";
-import { PrescriptionFeedbackPanel } from "@/components/prescriptions/PrescriptionFeedbackPanel";
 import { PrescriptionEvidencePreview } from "@/components/prescriptions/PrescriptionEvidencePreview";
+import { PrescriptionResponseActions } from "@/components/prescriptions/PrescriptionResponseActions";
 import type { EvidenceSample } from "@/fixtures/evidence-samples";
 import type { EvidencePack } from "@/lib/evidence";
-import { claimBadgeLabel, formatBaselineLabel, formatInr, formatIstDate, formatIstDateRange } from "@/lib/format";
+import {
+  claimBadgeLabel,
+  formatBaselineLabel,
+  formatInr,
+  formatIstCompactDateTimeRange,
+  formatIstDate,
+  formatIstDateRange,
+} from "@/lib/format";
 import { buildPrescriptionCaseDetail } from "@/lib/prescription-case";
 import { classLabel, isManagementClass } from "@/lib/prescriptions";
 import type { Alarm, LedgerEntry, Prescription } from "@/lib/types";
@@ -107,6 +110,12 @@ function CompactMeta({ rows }: { rows: Array<{ label: string; value: string }> }
   );
 }
 
+function shortenSummary(text: string, max = 96): string {
+  const trimmed = text.trim();
+  if (trimmed.length <= max) return trimmed;
+  return `${trimmed.slice(0, max - 1).trimEnd()}…`;
+}
+
 export function PrescriptionFullCase({
   rx,
   pack,
@@ -128,22 +137,20 @@ export function PrescriptionFullCase({
 }) {
   const detail = buildPrescriptionCaseDetail({ rx, pack, ledger, alarm, asset });
   const badge = claimBadgeLabel(rx.verificationStatus);
+  const anomalyRange = formatIstCompactDateTimeRange(pack.anomaly.from, pack.anomaly.to);
+  const anomalySummary = shortenSummary(pack.anomaly.summary);
 
-  const workflowRows = [
-    { label: "Owner", value: rx.ownerRole.replaceAll("_", " ") },
-    { label: "Bill line", value: rx.billLine ?? "—" },
-    { label: "Effort", value: rx.effort ?? "—" },
-    { label: "Due", value: rx.dueLabel ?? formatIstDate(rx.dueAt) },
-  ];
-
-  const metaRows = [
-    ...(detail.metadata ?? []).slice(0, 8),
-    ...(detail.lineage ?? []).slice(0, 6),
-  ];
+  const hasMoreDetails = Boolean(
+    detail.costBenefit ||
+      detail.risksTable ||
+      rx.risks?.length ||
+      detail.kpis ||
+      detail.commissioning?.length ||
+      ledger,
+  );
 
   return (
     <div className="rx-full-case" data-rx-full-case>
-      {/* ── Full-width compact hero ── */}
       <Panel className="rx-full-case__hero">
         <div className="rx-full-case__hero-grid">
           <div className="rx-full-case__hero-left">
@@ -185,9 +192,8 @@ export function PrescriptionFullCase({
         </div>
       </Panel>
 
-      {/* ── Two-column body ── */}
+      {/* Primary: narrative (left) | Signal proof (right) */}
       <div className="rx-full-case__body">
-        {/* LEFT — narrative & tables */}
         <div className="rx-full-case__main">
           <div className="rx-full-case__main-grid">
             {detail.rootCause?.length ? (
@@ -242,10 +248,54 @@ export function PrescriptionFullCase({
                 </CompactSection>
               </Panel>
             ) : null}
+          </div>
+        </div>
 
+        <aside className="rx-full-case__aside">
+          <Panel className="rx-full-case__panel rx-full-case__panel--proof">
+            <PrescriptionEvidencePreview
+              sample={evidenceSample}
+              pack={pack}
+              evidenceHref={evidenceHref}
+            />
+
+            <div className="rx-full-case__anomaly-slim">
+              <p className="rx-full-case__anomaly-range tabular">{anomalyRange}</p>
+              {anomalySummary ? (
+                <p className="rx-full-case__anomaly-summary">{anomalySummary}</p>
+              ) : null}
+              {pack.missing.length > 0 ? (
+                <p className="rx-full-case__missing">Missing: {pack.missing.join(", ")}</p>
+              ) : null}
+              {rx.relatedAlarmId ? (
+                <div className="rx-full-case__aside-actions">
+                  <ForgeButtonGroup>
+                    <ForgeButton variant="ghost" href={`/alarms/${rx.relatedAlarmId}`}>
+                      Alarm
+                    </ForgeButton>
+                  </ForgeButtonGroup>
+                </div>
+              ) : null}
+            </div>
+          </Panel>
+        </aside>
+      </div>
+
+      <PrescriptionResponseActions
+        rx={rx}
+        orgId={orgId}
+        plantId={rx.plantId}
+      />
+
+      {hasMoreDetails ? (
+        <details className="rx-full-case__more">
+          <summary className="rx-full-case__more-summary">
+            Cost, risk, KPIs &amp; verification
+          </summary>
+          <div className="rx-full-case__more-grid">
             {detail.costBenefit ? (
               <Panel className="rx-full-case__panel rx-full-case__panel--money">
-                <CompactSection title="Cost–benefit & ROI">
+                <CompactSection title="Cost-benefit & ROI">
                   <div className="rx-full-case__stat-inline">
                     <Prose>{detail.costBenefit.wasteIdentified}</Prose>
                   </div>
@@ -276,24 +326,6 @@ export function PrescriptionFullCase({
                 </CompactSection>
               </Panel>
             ) : null}
-
-            {isManagementClass(rx) && rx.tradeoff ? (
-              <Panel className="rx-full-case__panel rx-full-case__panel--money">
-                <CompactSection title="Trade-off">
-                  <TradeoffBlock tradeoff={rx.tradeoff} />
-                </CompactSection>
-              </Panel>
-            ) : null}
-
-            {isManagementClass(rx) ? (
-              <DiscussPanel rx={rx} orgId={orgId} plantId={rx.plantId} />
-            ) : null}
-
-            <PrescriptionFeedbackPanel
-              rxId={rx.id}
-              lane={rx.lane}
-              initial={rx.feedback}
-            />
 
             {detail.risksTable ? (
               <Panel className="rx-full-case__panel rx-full-case__panel--warn">
@@ -354,72 +386,15 @@ export function PrescriptionFullCase({
                         label: "Status",
                         value: claimBadgeLabel(ledger.verificationStatus).label,
                       },
+                      { label: "Due", value: rx.dueLabel ?? formatIstDate(rx.dueAt) },
                     ]}
                   />
                 </CompactSection>
               </Panel>
             ) : null}
-
           </div>
-        </div>
-
-        {/* RIGHT — evidence visual + compact context */}
-        <aside className="rx-full-case__aside">
-          <Panel className="rx-full-case__panel rx-full-case__panel--sticky">
-            <PrescriptionEvidencePreview
-              sample={evidenceSample}
-              pack={pack}
-              evidenceHref={evidenceHref}
-            />
-
-            <CompactSection title="Anomaly window">
-              <CompactMeta
-                rows={[
-                  {
-                    label: "From",
-                    value: pack.anomaly.from.replace("T", " ").slice(0, 16),
-                  },
-                  {
-                    label: "To",
-                    value: pack.anomaly.to.replace("T", " ").slice(0, 16),
-                  },
-                  { label: "Summary", value: pack.anomaly.summary },
-                ]}
-              />
-              {pack.missing.length > 0 ? (
-                <p className="rx-full-case__missing">Missing: {pack.missing.join(", ")}</p>
-              ) : null}
-            </CompactSection>
-
-            {metaRows.length ? (
-              <CompactSection title="Case details">
-                <CompactMeta rows={metaRows} />
-              </CompactSection>
-            ) : null}
-
-            <CompactSection title="Workflow">
-              <CompactMeta rows={workflowRows} />
-              <div className="rx-full-case__aside-actions">
-                <ForgeButtonGroup>
-                  {rx.relatedAlarmId ? (
-                    <ForgeButton variant="ghost" href={`/alarms/${rx.relatedAlarmId}`}>
-                      Alarm
-                    </ForgeButton>
-                  ) : null}
-                  {evidenceHref ? (
-                    <ForgeButton variant="ghost" href={evidenceHref}>
-                      Evidence
-                    </ForgeButton>
-                  ) : null}
-                  <ForgeButton variant="ghost" href="/settings/assignments">
-                    Assignments
-                  </ForgeButton>
-                </ForgeButtonGroup>
-              </div>
-            </CompactSection>
-          </Panel>
-        </aside>
-      </div>
+        </details>
+      ) : null}
     </div>
   );
 }

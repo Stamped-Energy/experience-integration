@@ -5,6 +5,7 @@ import { EvidenceMiniChart } from "@/components/evidence/EvidenceMiniChart";
 import { ForgeButton, StatusChip } from "@/components/ui/primitives";
 import type { EvidenceSample } from "@/fixtures/evidence-samples";
 import type { EvidencePack } from "@/lib/evidence";
+import { formatBaselineLabel, formatIstDateRange } from "@/lib/format";
 
 const chartAccent = {
   critical: "critical",
@@ -34,6 +35,18 @@ function fallbackChartFromPack(pack: EvidencePack) {
   };
 }
 
+function dialsFromPack(pack: EvidencePack) {
+  return Object.entries(pack.loadDialPct)
+    .slice(0, 3)
+    .map(([id, pct]) => ({
+      label: id.replaceAll("_", " "),
+      needle: pct,
+      needleMax: 120,
+      display: String(Math.round(pct)),
+      unit: "%",
+    }));
+}
+
 export function PrescriptionEvidencePreview({
   sample,
   pack,
@@ -47,8 +60,28 @@ export function PrescriptionEvidencePreview({
 }) {
   const chart = sample?.chart ?? fallbackChartFromPack(pack);
   const accent = sample ? chartAccent[sample.categoryBadge.tone] : "warning";
-  const dials = sample?.dials.slice(0, 3) ?? [];
-  const dialSize = compact ? 108 : 130;
+  const dials = (sample?.dials?.length ? sample.dials : dialsFromPack(pack)).slice(0, 3);
+  const tagRows = sample?.tagRows?.length
+    ? sample.tagRows.slice(0, compact ? 3 : 6)
+    : Object.entries(pack.loadDialPct)
+        .slice(0, compact ? 3 : 4)
+        .map(([id, pct]) => ({
+          tag: id.replaceAll("_", ".").toUpperCase(),
+          value: `${Math.round(pct)}%`,
+          window: "now",
+        }));
+  const dialSize = compact ? 108 : 122;
+  const contextRows = [
+    { label: "Metric", value: pack.scope.metric.replaceAll("_", " ") },
+    { label: "Baseline", value: formatBaselineLabel(pack.scope.baselineId) },
+    {
+      label: "Scope",
+      value: formatIstDateRange(pack.scope.from, pack.scope.to),
+    },
+    ...(pack.lineage.ruleLabel
+      ? [{ label: "Rule", value: pack.lineage.ruleLabel }]
+      : []),
+  ];
 
   return (
     <div className={`rx-full-case__evidence-preview${compact ? " rx-full-case__evidence-preview--compact" : ""}`}>
@@ -89,9 +122,9 @@ export function PrescriptionEvidencePreview({
         </div>
       ) : null}
 
-      {sample?.tagRows.length ? (
+      {tagRows.length ? (
         <dl className="rx-full-case__evidence-tags">
-          {sample.tagRows.slice(0, 3).map((row) => (
+          {tagRows.map((row) => (
             <div key={row.tag} className="rx-full-case__evidence-tag">
               <dt>{row.tag}</dt>
               <dd className="rx-full-case__evidence-tag-body">
@@ -103,11 +136,27 @@ export function PrescriptionEvidencePreview({
         </dl>
       ) : null}
 
+      <dl className="rx-full-case__evidence-context">
+        {contextRows.map((row) => (
+          <div key={row.label} className="rx-full-case__evidence-context-row">
+            <dt>{row.label}</dt>
+            <dd>{row.value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {sample?.metadata && !compact ? (
+        <p className="rx-full-case__evidence-note">{sample.metadata}</p>
+      ) : null}
+
       {evidenceHref ? (
         <ForgeButton variant="secondary" href={evidenceHref} fullWidth>
           Open full evidence
         </ForgeButton>
       ) : null}
+
+      {/* Absorbs leftover column height so the chart keeps a fixed size */}
+      <div className="rx-full-case__evidence-spacer" aria-hidden />
     </div>
   );
 }
