@@ -3,9 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Prescription, PrescriptionFeedback } from "@/lib/types";
 import { hydrateRxFeedback, saveRxFeedback } from "@/lib/rx-feedback-store";
-import { claimBadgeLabel, formatInr, formatIstDate, formatRuleLabel } from "@/lib/format";
-import { assetsFixture, alarmsFixture, prescriptionsFixture, DEMO_PLANT } from "@/fixtures/demo";
-import { buildEvidencePack, resolveEvidenceScope } from "@/lib/evidence";
+import { claimBadgeLabel, formatInr } from "@/lib/format";
+import { assetsFixture } from "@/fixtures/demo";
 import { resolveEvidenceIdForRx } from "@/fixtures/evidence-samples";
 import type { NotifyPerson } from "@/fixtures/assignments";
 import { AssignAssigneeSheet } from "@/components/assignments/AssignAssigneeSheet";
@@ -19,8 +18,8 @@ import {
 } from "@/components/ui/primitives";
 import {
   emphasizeLead,
-  emphasizeNumbers,
 } from "@/components/prescriptions/prescription-formatting";
+import { PrescriptionFlipCard } from "@/components/prescriptions/PrescriptionFlipCard";
 import { prescriptionDetailHref } from "@/lib/prescription-nav";
 import {
   type ClassFacet,
@@ -56,12 +55,6 @@ const outcomeLabel: Record<NonNullable<PrescriptionFeedback["outcome"]>, string>
   needs_follow_up: "Needs follow-up",
 };
 
-const priorityTone = {
-  high: "critical",
-  med: "warning",
-  low: "info",
-} as const;
-
 function areaForRx(rx: Prescription): { area?: string; assetId?: string } {
   const hit = assetsFixture.find(
     (a) =>
@@ -71,61 +64,23 @@ function areaForRx(rx: Prescription): { area?: string; assetId?: string } {
   return { area: hit?.area, assetId: hit?.id };
 }
 
-function ownerLabel(role: string): string {
-  return role.replaceAll("_", " ");
-}
-
-function CompactMeta({
-  rows,
-}: {
-  rows: Array<{ label: string; value: string; wide?: boolean }>;
-}) {
-  return (
-    <dl className="rx-queue__compact-meta">
-      {rows.map((row) => (
-        <div
-          key={row.label}
-          className={
-            row.wide
-              ? "rx-queue__compact-meta-row rx-queue__compact-meta-row--wide"
-              : "rx-queue__compact-meta-row"
-          }
-        >
-          <dt>{row.label}</dt>
-          <dd>{row.value}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
-function NumberedActions({ items }: { items: string[] }) {
-  return (
-    <ol className="rx-queue__action-list">
-      {items.map((item, i) => (
-        <li key={item} className="rx-queue__action-item">
-          <span className="rx-queue__action-num" aria-hidden>
-            {i + 1}
-          </span>
-          <span className="rx-queue__action-text">{emphasizeLead(item)}</span>
-        </li>
-      ))}
-    </ol>
-  );
-}
-
 function truncateNote(note: string, max = 120): string {
   const t = note.trim();
   if (t.length <= max) return t;
   return `${t.slice(0, max - 1)}…`;
 }
 
-export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
+export function PrescriptionQueue({
+  initial,
+  loadError,
+}: {
+  initial: Prescription[];
+  loadError?: string | null;
+}) {
   const [rows, setRows] = useState(initial);
   const [section, setSection] = useState<InboxSection>("needs_attention");
   const [facet, setFacet] = useState<ClassFacet>("all");
   const [includeDone, setIncludeDone] = useState(false);
-  const [expanded, setExpanded] = useState<string | null>(null);
   const [assignFor, setAssignFor] = useState<Prescription | null>(null);
   const [pendingAction, setPendingAction] = useState<{
     id: string;
@@ -173,7 +128,6 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
     );
     if (action === "ack") {
       setSection("acknowledged");
-      setExpanded(id);
     }
   }
 
@@ -193,7 +147,6 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
     setToast(`Assigned to ${person.name} - WhatsApp notification queued`);
     setAssignFor(null);
     setSection("acknowledged");
-    setExpanded(assignFor.id);
   }
 
   function openFeedback(id: string) {
@@ -282,6 +235,12 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
         </div>
       ) : null}
 
+      {loadError ? (
+        <Panel>
+          <p className="rx-queue__error">{loadError}</p>
+        </Panel>
+      ) : null}
+
       {sorted.length === 0 ? (
         <Panel>
           <p className="rx-queue__empty">Nothing in {sectionLabel[section]}.</p>
@@ -290,317 +249,220 @@ export function PrescriptionQueue({ initial }: { initial: Prescription[] }) {
         <ul className="rx-queue__list" aria-label={sectionLabel[section]}>
           {sorted.map((rx) => {
             const badge = claimBadgeLabel(rx.verificationStatus);
-            const isOpen = expanded === rx.id;
-            const ctx = areaForRx(rx);
-            const scope = resolveEvidenceScope({
-              plantId: DEMO_PLANT.plantId,
-              rxId: rx.id,
-              alarms: alarmsFixture,
-              prescriptions: prescriptionsFixture,
-            });
-            const pack = buildEvidencePack(scope, { baselineAvailable: true });
-            const priority = rx.priority ?? "med";
             const evidenceHref = resolveEvidenceIdForRx(rx.id)
               ? `/evidence?rxId=${rx.id}`
               : null;
             const detailHref = prescriptionDetailHref(rx.id, section, facet);
             const klass = classLabel(rx);
-            const isMgmt = isManagementClass(rx);
             const isNeeds = rx.lane === "needs_review";
             const isAcked = !isNeeds && rx.lane !== "closed";
-
-            const metaRows = [
-              { label: "Owner", value: `${ownerLabel(rx.ownerRole)}${ctx.area ? ` · ${ctx.area}` : ""}` },
-              { label: "Bill line", value: rx.billLine ?? "-" },
-              { label: "Effort", value: rx.effort ?? "-", wide: true },
-              {
-                label: "Rule",
-                value: `${formatRuleLabel(rx.ruleId ?? pack.lineage.ruleId)} · ${Math.round(rx.confidence * 100)}%`,
-              },
-              { label: "Due", value: rx.dueLabel ?? formatIstDate(rx.dueAt) },
-              { label: "Class", value: klass },
-            ];
 
             return (
               <li key={rx.id} data-rx-id={rx.id}>
                 <Panel className="rx-queue__card">
-                  <button
-                    type="button"
-                    className="rx-queue__row"
-                    aria-expanded={isOpen}
-                    onClick={() => setExpanded(isOpen ? null : rx.id)}
-                  >
-                    <div className="rx-queue__row-body">
-                      <div className="rx-queue__row-grid">
-                        <div className="rx-queue__row-main">
-                          <div className="rx-queue__chips">
-                            <StatusChip tone={isMgmt ? "warning" : "info"}>{klass}</StatusChip>
-                            {rx.category ? (
-                              <StatusChip tone="neutral">{rx.category}</StatusChip>
-                            ) : (
-                              <StatusChip tone="neutral">Energy</StatusChip>
-                            )}
-                            <StatusChip tone={priorityTone[priority]}>
-                              {priority === "med"
-                                ? "Med"
-                                : priority[0]!.toUpperCase() + priority.slice(1)}
-                            </StatusChip>
-                            <StatusChip tone="info">{Math.round(rx.confidence * 100)}%</StatusChip>
-                            {rx.lane === "closed" ? (
-                              <StatusChip tone="neutral">Done</StatusChip>
-                            ) : null}
-                            {rx.lane === "verifying" ? (
-                              <StatusChip tone="warning">Verifying</StatusChip>
-                            ) : null}
-                            {rx.verificationStatus ? (
-                              <StatusChip tone={badge.tone}>{badge.label}</StatusChip>
-                            ) : null}
-                          </div>
-                          <p className="rx-queue__title">{rx.title}</p>
-                          <p className="rx-queue__why">{emphasizeNumbers(rx.why)}</p>
-                          {!isOpen ? (
-                            <p className="rx-queue__meta">
-                              {rx.effort ?? ctx.area ?? "Plant"}
-                              {rx.dueLabel ? ` · ${rx.dueLabel}` : ` · Due ${formatIstDate(rx.dueAt)}`}
-                            </p>
-                          ) : null}
-                          {!isOpen && rx.feedback ? (
-                            <p className="rx-queue__feedback-preview">
-                              Feedback
-                              {rx.feedback.outcome
-                                ? ` · ${outcomeLabel[rx.feedback.outcome]}`
-                                : ""}
-                              : {truncateNote(rx.feedback.note)}
-                            </p>
-                          ) : null}
-                        </div>
-                        <div className="rx-queue__stat-box">
-                          <p className="forge-eyebrow">Savings</p>
-                          <p className="rx-queue__stat-value tabular">
-                            {formatInr(rx.impactInrPerMonth)}
-                          </p>
-                          <p className="rx-queue__stat-period">per month</p>
-                        </div>
-                      </div>
+                  <div className="rx-queue__card-body">
+                    <div className="rx-queue__chips">
+                      <StatusChip tone={isManagementClass(rx) ? "warning" : "info"}>
+                        {klass}
+                      </StatusChip>
+                      {rx.lane === "closed" ? (
+                        <StatusChip tone="neutral">Done</StatusChip>
+                      ) : null}
+                      {rx.lane === "verifying" ? (
+                        <StatusChip tone="warning">Verifying</StatusChip>
+                      ) : null}
+                      {rx.verificationStatus ? (
+                        <StatusChip tone={badge.tone}>{badge.label}</StatusChip>
+                      ) : null}
                     </div>
-                  </button>
 
-                  {isOpen ? (
-                    <div className="rx-queue__expand">
-                      <div className="rx-queue__detail-grid">
-                        <div className="rx-queue__panel-section">
-                          <h3 className="rx-queue__block-title">Case details</h3>
-                          <CompactMeta rows={metaRows} />
-                        </div>
+                    <PrescriptionFlipCard rx={rx} />
 
-                        {rx.actions && rx.actions.length > 0 ? (
-                          <div className="rx-queue__panel-section rx-queue__panel-section--accent">
-                            <h3 className="rx-queue__block-title rx-queue__block-title--accent">
-                              Recommended action
-                            </h3>
-                            <NumberedActions items={rx.actions} />
-                          </div>
+                    {rx.feedback ? (
+                      <p className="rx-queue__feedback-preview">
+                        Feedback
+                        {rx.feedback.outcome
+                          ? ` · ${outcomeLabel[rx.feedback.outcome]}`
+                          : ""}
+                        : {truncateNote(rx.feedback.note)}
+                      </p>
+                    ) : null}
+
+                    {rx.risks && rx.risks.length > 0 ? (
+                      <ul className="rx-queue__risk-list">
+                        {rx.risks.slice(0, 2).map((line) => (
+                          <li key={line}>{emphasizeLead(line)}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+
+                    <div className="rx-queue__actions-bar">
+                      <ForgeButtonGroup
+                        aria-label="Prescription links"
+                        toolbar
+                        className="rx-queue__actions-group rx-queue__actions-group--links"
+                      >
+                        {rx.relatedAlarmId ? (
+                          <ForgeButton variant="ghost" href={`/alarms/${rx.relatedAlarmId}`}>
+                            Alarm
+                          </ForgeButton>
                         ) : null}
-                      </div>
+                        {evidenceHref ? (
+                          <ForgeButton
+                            variant="secondary"
+                            icon={<FileText size={16} />}
+                            href={evidenceHref}
+                          >
+                            Evidence
+                          </ForgeButton>
+                        ) : null}
+                        <ForgeButton variant="ghost" href={detailHref}>
+                          Full case
+                        </ForgeButton>
+                      </ForgeButtonGroup>
 
-                      {rx.risks && rx.risks.length > 0 ? (
-                        <div className="rx-queue__panel-section rx-queue__panel-section--warn">
-                          <h3 className="rx-queue__block-title rx-queue__block-title--warn">
-                            Risks & mitigations
-                          </h3>
-                          <ul className="rx-queue__risk-list">
-                            {rx.risks.map((line) => (
-                              <li key={line}>{emphasizeLead(line)}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      ) : null}
-
-                      {rx.feedback ? (
-                        <div className="rx-queue__panel-section rx-queue__panel-section--feedback">
-                          <h3 className="rx-queue__block-title">Feedback</h3>
-                          {rx.feedback.outcome ? (
-                            <StatusChip tone="good">{outcomeLabel[rx.feedback.outcome]}</StatusChip>
-                          ) : null}
-                          <p className="rx-queue__feedback-note">{rx.feedback.note}</p>
-                        </div>
-                      ) : null}
-
-                      {rx.opportunityCost ? (
-                        <p className="rx-queue__opportunity tabular">
-                          Delay cost {formatInr(rx.opportunityCost.modeledInr)} over{" "}
-                          {rx.opportunityCost.delayDays} days.
-                        </p>
-                      ) : null}
-
-                      <div className="rx-queue__actions-bar">
+                      {(isNeeds || isAcked) && (
                         <ForgeButtonGroup
-                          aria-label="Prescription links"
+                          aria-label="Prescription actions"
                           toolbar
-                          className="rx-queue__actions-group rx-queue__actions-group--links"
+                          className="rx-queue__actions-group rx-queue__actions-group--ops"
                         >
-                          {rx.relatedAlarmId ? (
-                            <ForgeButton variant="ghost" href={`/alarms/${rx.relatedAlarmId}`}>
-                              Alarm
-                            </ForgeButton>
+                          {isNeeds ? (
+                            <>
+                              <ForgeButton
+                                variant="primary"
+                                icon={<CheckCircle size={16} />}
+                                onClick={() => run(rx.id, "ack")}
+                              >
+                                Acknowledge
+                              </ForgeButton>
+                              <ForgeButton
+                                variant="secondary"
+                                icon={<Users size={16} />}
+                                onClick={() => setAssignFor(rx)}
+                              >
+                                Assign
+                              </ForgeButton>
+                            </>
                           ) : null}
-                          {evidenceHref ? (
-                            <ForgeButton
-                              variant="secondary"
-                              icon={<FileText size={16} />}
-                              href={evidenceHref}
-                            >
-                              Evidence
-                            </ForgeButton>
+                          {isAcked ? (
+                            <>
+                              <ForgeButton
+                                variant="secondary"
+                                icon={<MessageSquare size={16} />}
+                                onClick={() => openFeedback(rx.id)}
+                              >
+                                {rx.feedback ? "Edit feedback" : "Add feedback"}
+                              </ForgeButton>
+                              <ForgeButton
+                                variant="secondary"
+                                icon={<CheckCircle size={16} />}
+                                onClick={() => run(rx.id, "done")}
+                              >
+                                Mark done
+                              </ForgeButton>
+                            </>
                           ) : null}
-                          <ForgeButton variant="ghost" href={detailHref}>
-                            Full case
+                          <ForgeButton variant="ghost" onClick={() => run(rx.id, "defer")}>
+                            Defer…
+                          </ForgeButton>
+                          <ForgeButton variant="destructive" onClick={() => run(rx.id, "reject")}>
+                            Reject…
                           </ForgeButton>
                         </ForgeButtonGroup>
-
-                        {(isNeeds || isAcked) && (
-                          <ForgeButtonGroup
-                            aria-label="Prescription actions"
-                            toolbar
-                            className="rx-queue__actions-group rx-queue__actions-group--ops"
-                          >
-                            {isNeeds ? (
-                              <>
-                                <ForgeButton
-                                  variant="primary"
-                                  icon={<CheckCircle size={16} />}
-                                  onClick={() => run(rx.id, "ack")}
-                                >
-                                  Acknowledge
-                                </ForgeButton>
-                                <ForgeButton
-                                  variant="secondary"
-                                  icon={<Users size={16} />}
-                                  onClick={() => setAssignFor(rx)}
-                                >
-                                  Assign
-                                </ForgeButton>
-                              </>
-                            ) : null}
-                            {isAcked ? (
-                              <>
-                                <ForgeButton
-                                  variant="secondary"
-                                  icon={<MessageSquare size={16} />}
-                                  onClick={() => openFeedback(rx.id)}
-                                >
-                                  {rx.feedback ? "Edit feedback" : "Add feedback"}
-                                </ForgeButton>
-                                <ForgeButton
-                                  variant="secondary"
-                                  icon={<CheckCircle size={16} />}
-                                  onClick={() => run(rx.id, "done")}
-                                >
-                                  Mark done
-                                </ForgeButton>
-                              </>
-                            ) : null}
-                            <ForgeButton variant="ghost" onClick={() => run(rx.id, "defer")}>
-                              Defer…
-                            </ForgeButton>
-                            <ForgeButton variant="destructive" onClick={() => run(rx.id, "reject")}>
-                              Reject…
-                            </ForgeButton>
-                          </ForgeButtonGroup>
-                        )}
-                      </div>
-
-                      {feedbackFor === rx.id ? (
-                        <div className="rx-queue__feedback-form">
-                          <p className="rx-queue__block-title">Add feedback</p>
-                          <div className="rx-queue__outcome-chips" role="group" aria-label="Outcome">
-                            {(
-                              [
-                                ["helped", "Helped"],
-                                ["didnt_help", "Didn't help"],
-                                ["needs_follow_up", "Needs follow-up"],
-                              ] as const
-                            ).map(([key, label]) => (
-                              <button
-                                key={key}
-                                type="button"
-                                className={[
-                                  "rx-queue__outcome-chip",
-                                  feedbackOutcome === key ? "is-active" : "",
-                                ]
-                                  .filter(Boolean)
-                                  .join(" ")}
-                                onClick={() =>
-                                  setFeedbackOutcome((cur) => (cur === key ? undefined : key))
-                                }
-                              >
-                                {label}
-                              </button>
-                            ))}
-                          </div>
-                          <label htmlFor={`feedback-${rx.id}`}>Note (required)</label>
-                          <textarea
-                            id={`feedback-${rx.id}`}
-                            value={feedbackNote}
-                            onChange={(e) => setFeedbackNote(e.target.value)}
-                            rows={2}
-                            placeholder="What worked, what didn’t, or what to follow up…"
-                          />
-                          <ForgeButtonGroup>
-                            <ForgeButton
-                              variant="primary"
-                              onClick={saveFeedback}
-                              disabled={!feedbackNote.trim()}
-                            >
-                              Save feedback
-                            </ForgeButton>
-                            <ForgeButton
-                              variant="ghost"
-                              onClick={() => {
-                                setFeedbackFor(null);
-                                setFeedbackNote("");
-                                setFeedbackOutcome(undefined);
-                              }}
-                            >
-                              Cancel
-                            </ForgeButton>
-                          </ForgeButtonGroup>
-                        </div>
-                      ) : null}
-
-                      {pendingAction?.id === rx.id ? (
-                        <div className="rx-queue__reason-form">
-                          <label htmlFor={`reason-${rx.id}`}>
-                            {pendingAction.action} reason (required)
-                          </label>
-                          <textarea
-                            id={`reason-${rx.id}`}
-                            value={reason}
-                            onChange={(e) => setReason(e.target.value)}
-                            rows={2}
-                          />
-                          <ForgeButtonGroup>
-                            <ForgeButton
-                              variant="primary"
-                              onClick={confirmReasoned}
-                              disabled={!reason.trim()}
-                            >
-                              Confirm {pendingAction.action}
-                            </ForgeButton>
-                            <ForgeButton
-                              variant="ghost"
-                              onClick={() => {
-                                setPendingAction(null);
-                                setReason("");
-                              }}
-                            >
-                              Cancel
-                            </ForgeButton>
-                          </ForgeButtonGroup>
-                        </div>
-                      ) : null}
+                      )}
                     </div>
-                  ) : null}
+
+                    {feedbackFor === rx.id ? (
+                      <div className="rx-queue__feedback-form">
+                        <p className="rx-queue__block-title">Add feedback</p>
+                        <div className="rx-queue__outcome-chips" role="group" aria-label="Outcome">
+                          {(
+                            [
+                              ["helped", "Helped"],
+                              ["didnt_help", "Didn't help"],
+                              ["needs_follow_up", "Needs follow-up"],
+                            ] as const
+                          ).map(([key, label]) => (
+                            <button
+                              key={key}
+                              type="button"
+                              className={[
+                                "rx-queue__outcome-chip",
+                                feedbackOutcome === key ? "is-active" : "",
+                              ]
+                                .filter(Boolean)
+                                .join(" ")}
+                              onClick={() =>
+                                setFeedbackOutcome((cur) => (cur === key ? undefined : key))
+                              }
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                        <label htmlFor={`feedback-${rx.id}`}>Note (required)</label>
+                        <textarea
+                          id={`feedback-${rx.id}`}
+                          value={feedbackNote}
+                          onChange={(e) => setFeedbackNote(e.target.value)}
+                          rows={2}
+                          placeholder="What worked, what didn’t, or what to follow up…"
+                        />
+                        <ForgeButtonGroup>
+                          <ForgeButton
+                            variant="primary"
+                            onClick={saveFeedback}
+                            disabled={!feedbackNote.trim()}
+                          >
+                            Save feedback
+                          </ForgeButton>
+                          <ForgeButton
+                            variant="ghost"
+                            onClick={() => {
+                              setFeedbackFor(null);
+                              setFeedbackNote("");
+                              setFeedbackOutcome(undefined);
+                            }}
+                          >
+                            Cancel
+                          </ForgeButton>
+                        </ForgeButtonGroup>
+                      </div>
+                    ) : null}
+
+                    {pendingAction?.id === rx.id ? (
+                      <div className="rx-queue__reason-form">
+                        <label htmlFor={`reason-${rx.id}`}>
+                          {pendingAction.action} reason (required)
+                        </label>
+                        <textarea
+                          id={`reason-${rx.id}`}
+                          value={reason}
+                          onChange={(e) => setReason(e.target.value)}
+                          rows={2}
+                        />
+                        <ForgeButtonGroup>
+                          <ForgeButton
+                            variant="primary"
+                            onClick={confirmReasoned}
+                            disabled={!reason.trim()}
+                          >
+                            Confirm {pendingAction.action}
+                          </ForgeButton>
+                          <ForgeButton
+                            variant="ghost"
+                            onClick={() => {
+                              setPendingAction(null);
+                              setReason("");
+                            }}
+                          >
+                            Cancel
+                          </ForgeButton>
+                        </ForgeButtonGroup>
+                      </div>
+                    ) : null}
+                  </div>
                 </Panel>
               </li>
             );

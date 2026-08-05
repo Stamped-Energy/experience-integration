@@ -27,7 +27,7 @@ const auth = createAuth(db, env, mailer);
 // C-L6a: construct the live L5 client by default; either gate flag set to
 // "false" forces fixture-only mode. Per-request fixture fallback still
 // applies (see alarms/prescriptions services) when L5 is live but down.
-const l5Live = env.L5_LIVE && env.L6_L5_LIVE;
+const l5Live = !env.USE_FIXTURES && env.L5_LIVE && env.L6_L5_LIVE;
 const l5 = l5Live
   ? new L5WorkflowClient({
       baseUrl: env.L5_BASE_URL,

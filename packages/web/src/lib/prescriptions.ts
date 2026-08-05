@@ -135,3 +135,41 @@ export function neighborsInList(
     total: orderedIds.length,
   };
 }
+
+/** L3 waste category labels for pillar badges. */
+export const WASTE_CATEGORY_LABELS: Record<number, string> = {
+  1: "MD & power quality",
+  2: "Process heat",
+  3: "Idle load",
+  4: "Compressed air",
+  5: "HVAC",
+  6: "Source mix",
+};
+
+export function pillarBadges(rx: Prescription): string[] {
+  const badges: string[] = [];
+  if (rx.valueDomain === "energy_efficiency") badges.push("Load & energy");
+  else if (rx.valueDomain === "equipment_health") badges.push("Equipment health");
+  if (rx.wasteCategory && WASTE_CATEGORY_LABELS[rx.wasteCategory]) {
+    badges.push(WASTE_CATEGORY_LABELS[rx.wasteCategory]!);
+  }
+  return badges;
+}
+
+/** Parse wire evidence refs into flip-back table rows. */
+export function evidenceRowsFromRefs(
+  refs: readonly string[] | undefined,
+): Array<{ tag: string; value: string; window: string }> {
+  if (!refs?.length) return [];
+  return refs.map((ref) => {
+    const colon = ref.indexOf(":");
+    if (colon <= 0) return { tag: ref, value: "—", window: "—" };
+    const kind = ref.slice(0, colon);
+    const rest = ref.slice(colon + 1);
+    const q = rest.indexOf("?");
+    if (q >= 0) {
+      return { tag: rest.slice(0, q), value: kind, window: rest.slice(q + 1) };
+    }
+    return { tag: kind, value: rest, window: "—" };
+  });
+}

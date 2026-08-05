@@ -28,6 +28,10 @@ export const ProductPrescriptionSchema = z.object({
   ruleId: z.string().optional(),
   relatedAlarmId: z.string().optional(),
   dueLabel: z.string().optional(),
+  whoLabel: z.string().optional(),
+  valueDomain: z.enum(["energy_efficiency", "equipment_health"]).optional(),
+  wasteCategory: z.number().int().min(1).max(6).optional(),
+  evidenceRefs: z.array(z.string()).optional(),
 });
 export type ProductPrescription = z.infer<typeof ProductPrescriptionSchema>;
 
@@ -45,6 +49,36 @@ function firstNumber(...values: unknown[]): number | undefined {
       return Number(v);
     }
   }
+  return undefined;
+}
+
+function impactObject(raw: Record<string, unknown>): Record<string, unknown> | undefined {
+  const impact = raw.impact;
+  return impact && typeof impact === "object" && !Array.isArray(impact)
+    ? (impact as Record<string, unknown>)
+    : undefined;
+}
+
+function priorityFromRaw(raw: Record<string, unknown>): "high" | "med" | "low" | undefined {
+  const label = firstString(raw.priority);
+  if (label === "high" || label === "med" || label === "low") return label;
+  const n = firstNumber(raw.priority);
+  if (n === undefined) return undefined;
+  if (n <= 2) return "high";
+  if (n <= 3) return "med";
+  return "low";
+}
+
+function evidenceRefsFromRaw(raw: Record<string, unknown>): string[] | undefined {
+  const refs = raw.evidence_refs ?? raw.evidenceRefs;
+  if (!Array.isArray(refs)) return undefined;
+  const strings = refs.filter((r): r is string => typeof r === "string" && r.length > 0);
+  return strings.length > 0 ? strings : undefined;
+}
+
+function valueDomainFromRaw(raw: Record<string, unknown>): "energy_efficiency" | "equipment_health" | undefined {
+  const v = firstString(raw.value_domain, raw.valueDomain);
+  if (v === "energy_efficiency" || v === "equipment_health") return v;
   return undefined;
 }
 
@@ -85,25 +119,35 @@ export function mapL5PrescriptionToProduct(
   if (!id) throw new Error("L5 prescription missing id/prescription_id");
   const plantId = firstString(raw.plant_id, raw.plantId);
   if (!plantId) throw new Error("L5 prescription missing plant_id");
+  const impact = impactObject(raw);
 
   return ProductPrescriptionSchema.parse({
     id,
     plantId,
-    title: firstString(raw.title, raw.action, raw.summary) ?? `Prescription ${id}`,
+    title: firstString(raw.title, raw.what, raw.action, raw.summary) ?? `Prescription ${id}`,
     why: firstString(raw.why, raw.reason, raw.description) ?? "",
     impactInrPerMonth:
-      firstNumber(raw.impact_inr_per_month, raw.impact_inr, raw.savings_inr_per_month) ?? 0,
-    confidence: firstNumber(raw.confidence) ?? 0,
+      firstNumber(
+        raw.impact_inr_per_month,
+        raw.impact_inr,
+        raw.savings_inr_per_month,
+        impact?.inr_monthly,
+      ) ?? 0,
+    confidence: firstNumber(raw.confidence) ?? 0.75,
     lane: laneFromRaw(raw),
     ownerRole: ownerRoleFromRaw(raw),
     dueAt: firstString(raw.due_at, raw.dueAt) ?? new Date().toISOString(),
     category: firstString(raw.category),
-    priority: (firstString(raw.priority) as "high" | "med" | "low" | undefined) ?? undefined,
+    priority: priorityFromRaw(raw),
     billLine: firstString(raw.bill_line, raw.billLine),
     effort: firstString(raw.effort),
-    ruleId: firstString(raw.rule_id, raw.ruleId),
+    ruleId: firstString(raw.rule_id, raw.ruleId, raw.template_id),
     relatedAlarmId: firstString(raw.related_alarm_id, raw.relatedAlarmId),
-    dueLabel: firstString(raw.due_label, raw.dueLabel),
+    dueLabel: firstString(raw.when, raw.due_label, raw.dueLabel),
+    whoLabel: firstString(raw.who, raw.who_label, raw.whoLabel),
+    valueDomain: valueDomainFromRaw(raw),
+    wasteCategory: firstNumber(raw.waste_category, raw.wasteCategory),
+    evidenceRefs: evidenceRefsFromRaw(raw),
   });
 }
 

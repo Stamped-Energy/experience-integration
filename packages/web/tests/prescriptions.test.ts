@@ -7,11 +7,13 @@ import { prescriptionsFixture } from "../src/fixtures/demo.js";
 import {
   applyRxAction,
   classLabel,
+  evidenceRowsFromRefs,
   filterInbox,
   filterLane,
   isManagementClass,
   optimisticRxFeedback,
   optimisticRxUpdate,
+  pillarBadges,
   requiresReason,
   sortPrescriptions,
 } from "../src/lib/prescriptions.js";
@@ -21,11 +23,40 @@ const queueSrc = readFileSync(
   join(root, "../src/components/prescriptions/PrescriptionQueue.tsx"),
   "utf8",
 );
+const flipSrc = readFileSync(
+  join(root, "../src/components/prescriptions/PrescriptionFlipCard.tsx"),
+  "utf8",
+);
 
 describe("prescription triage", () => {
   it("offers Evidence deep-link from expand via rxId query", () => {
     assert.match(queueSrc, />\s*Evidence\s*</);
     assert.match(queueSrc, /\/evidence\?rxId=\$\{rx\.id\}/);
+  });
+
+  it("renders practical flip cards with What/Why/Who/Effort/Impact/When", () => {
+    assert.match(flipSrc, /Flip for evidence/);
+    assert.match(flipSrc, /<dt>Why</);
+    assert.match(flipSrc, /<dt>Who</);
+    assert.match(flipSrc, /<dt>Effort</);
+    assert.match(flipSrc, /<dt>Impact</);
+    assert.match(flipSrc, /<dt>When</);
+  });
+
+  it("builds pillar badges from value domain and waste category", () => {
+    const rich = prescriptionsFixture[0]!;
+    const badges = pillarBadges({
+      ...rich,
+      valueDomain: "energy_efficiency",
+      wasteCategory: 1,
+    });
+    assert.ok(badges.includes("Load & energy"));
+    assert.ok(badges.includes("MD & power quality"));
+    const rows = evidenceRowsFromRefs([
+      "tag:incomer_1/apparent_power_kva?window=2026-06-15T06:00:00Z/2026-06-15T07:00:00Z",
+    ]);
+    assert.equal(rows[0]?.tag, "incomer_1/apparent_power_kva");
+    assert.equal(rows[0]?.value, "tag");
   });
 
   it("uses Needs attention / Acknowledged inbox sections", () => {
