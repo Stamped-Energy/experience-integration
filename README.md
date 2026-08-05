@@ -7,6 +7,12 @@
 **Runtime:** Node ≥22.14 · pnpm 11 · Next.js 16 · Fastify 5 · PostgreSQL 16 · AWS `ap-south-1` (Mumbai pilot definitions)  
 **Platform SoT:** [`external/`](external/) git submodule → [stamped-external](https://github.com/Vinayak-RZ/stamped-external)
 
+**Platform pin:** `external/` → stamped-external **v2026.08.05** (`5900531`) · contracts **0.11.2**
+
+- **Wave A:** live L5 BFF (`L5_BASE_URL`); flip evidence one tap away on prescriptions
+- Lists exclude withheld / `pending_stamped_review`; approved-only client surface
+- **Wave B:** Discuss + negotiation UI (holistic phase)
+
 ---
 
 **TL;DR**
