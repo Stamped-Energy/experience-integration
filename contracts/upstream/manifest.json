@@ -1,21 +1,21 @@
 {
-  "generated_at": "2026-08-01T17:46:41.020Z",
+  "generated_at": "2026-07-22T09:50:42.355Z",
   "note": "Fixture placeholders until sibling OpenAPI is published. See SOURCE.md per layer.",
   "layers": {
     "l5": {
       "path": "l5/openapi.json",
       "status": "fixture_placeholder",
-      "sha256": "d43e323f7525adad6267c2b3e37d27608b0d01f37cd38dda45ba0a88ae9c0640"
+      "sha256": "88b235d861926e12641286be3e49af4eec113c3484c1358b5d71ad41d5159847"
     },
     "l4": {
       "path": "l4/openapi.json",
       "status": "fixture_placeholder",
-      "sha256": "73ef5f5c28560af7e348c8dd58a99ff3156fa32bfaf6aebef73a946ed73561c5"
+      "sha256": "d2e5cd03c3c3f74b366624c6c5b65d80162d9c8c0abeb16e56b38cf4f5a4d4ee"
     },
     "l2": {
       "path": "l2/openapi.json",
       "status": "fixture_placeholder",
-      "sha256": "7241cc52a2feee781a0273136cda514201ba2059b31c98f83e2ab78056dc9c83"
+      "sha256": "d2b9320be15a1746cc19b3621be639eb8fb9ec1bec062dc999739e52c2f09010"
     }
   }
 }
