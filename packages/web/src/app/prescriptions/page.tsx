@@ -25,14 +25,17 @@ export default function PrescriptionsPage() {
     prescriptionsForPlant(activePlant.plantId),
   );
   const [source, setSource] = useState<"fixture" | "l5">("fixture");
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    setRows(prescriptionsForPlant(activePlant.plantId));
+    const fixtureRows = prescriptionsForPlant(activePlant.plantId);
+    setRows(fixtureRows);
     setSource("fixture");
+    setLoading(true);
+    setLoadError(null);
 
-    // Prefer the live BFF when a session cookie is present; offline/unauthenticated
-    // requests fall through to the plant-scoped fixture set above.
     async function loadLive() {
       try {
         const res = await fetch(
@@ -41,14 +44,32 @@ export default function PrescriptionsPage() {
           ),
           { credentials: "include" },
         );
-        if (!res.ok) return;
-        const body = (await res.json()) as { items?: Prescription[] };
-        if (!cancelled && Array.isArray(body.items) && body.items.length > 0) {
-          setRows(body.items);
-          setSource("l5");
+        if (!res.ok) {
+          if (!cancelled) {
+            setLoadError(
+              res.status === 401
+                ? "Sign in to load live prescriptions from L5."
+                : "Could not load live prescriptions — showing demo data.",
+            );
+          }
+          return;
+        }
+        const body = (await res.json()) as {
+          items?: Prescription[];
+          source?: "fixture" | "l5";
+        };
+        if (!cancelled) {
+          if (Array.isArray(body.items)) {
+            setRows(body.items);
+            setSource(body.source === "l5" ? "l5" : "fixture");
+          }
         }
       } catch {
-        // BFF unreachable - keep fixture data
+        if (!cancelled) {
+          setLoadError("BFF unreachable — showing demo prescriptions.");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
     void loadLive();
@@ -66,6 +87,15 @@ export default function PrescriptionsPage() {
     (a) => a.severity === "critical" && a.state !== "cleared",
   ).length;
 
+  const contextLine =
+    loading
+      ? "Loading prescriptions…"
+      : source === "l5"
+        ? rows.length === 0
+          ? "Live from L5 · no approved prescriptions yet"
+          : "Live from L5"
+        : "Maintenance & management inbox";
+
   return (
     <AppShell
       active="prescriptions"
@@ -78,13 +108,17 @@ export default function PrescriptionsPage() {
       screenTitle="Prescription queue"
       contextSummary={[
         `${needsReview.length} need attention · ${formatInr(needsReviewInr)}/mo`,
-        source === "l5" ? "Live from L5" : "Maintenance & management inbox",
+        contextLine,
       ]}
       focusEntity={rows[0] ? { type: "prescription", id: rows[0].id } : undefined}
       criticalAlarmCount={criticalAlarmCount}
     >
       <PageHead eyebrow="Plant inbox" title="Prescriptions" />
-      <PrescriptionQueue key={`${activePlant.plantId}:${source}`} initial={rows} />
+      <PrescriptionQueue
+        key={`${activePlant.plantId}:${source}:${loading}`}
+        initial={rows}
+        loadError={loadError}
+      />
     </AppShell>
   );
 }

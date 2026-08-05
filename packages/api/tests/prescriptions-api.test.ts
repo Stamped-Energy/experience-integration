@@ -42,6 +42,33 @@ describe("mapL5PrescriptionToProduct", () => {
     assert.equal(mapped.impactInrPerMonth, 79000);
   });
 
+  it("maps L5 wire fields what/who/when, pillars, and evidence refs", () => {
+    const mapped = mapL5PrescriptionToProduct({
+      id: "rx-2",
+      plant_id: "plant_vinayak_1",
+      what: "Hold second feeder",
+      why: "MD spike",
+      who: "electrical_supervisor",
+      effort: "low_schedule_change",
+      when: "next_monday_shift_start",
+      waste_category: 1,
+      value_domain: "energy_efficiency",
+      evidence_refs: ["tag:incomer_1/apparent_power_kva?window=1h"],
+      impact: { inr_monthly: 31200 },
+      status: "open",
+      owner_role: "supervisor",
+    });
+    assert.equal(mapped.title, "Hold second feeder");
+    assert.equal(mapped.whoLabel, "electrical_supervisor");
+    assert.equal(mapped.dueLabel, "next_monday_shift_start");
+    assert.equal(mapped.impactInrPerMonth, 31200);
+    assert.equal(mapped.wasteCategory, 1);
+    assert.equal(mapped.valueDomain, "energy_efficiency");
+    assert.deepEqual(mapped.evidenceRefs, [
+      "tag:incomer_1/apparent_power_kva?window=1h",
+    ]);
+  });
+
   it("throws when id/plant_id missing so callers can fall back to fixture", () => {
     assert.throws(() => mapL5PrescriptionToProduct({ plant_id: "p1" }));
     assert.throws(() => mapL5PrescriptionToProduct({ id: "rx-1" }));

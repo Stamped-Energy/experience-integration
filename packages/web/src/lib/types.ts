@@ -73,6 +73,14 @@ export interface Prescription {
   relatedAlarmId?: string;
   /** Human due label for compact cards, e.g. "This week". */
   dueLabel?: string;
+  /** L4 who string when distinct from ownerRole. */
+  whoLabel?: string;
+  /** Two-pillar value domain from linked finding. */
+  valueDomain?: "energy_efficiency" | "equipment_health";
+  /** L3 waste category 1–6 for pillar badge. */
+  wasteCategory?: number;
+  /** Wire evidence refs for flip-back panel. */
+  evidenceRefs?: string[];
   /** Expand / detail: numbered recommended steps. */
   actions?: string[];
   /** Expand / detail: risk → mitigation lines. */

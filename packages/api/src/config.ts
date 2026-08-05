@@ -56,6 +56,11 @@ const EnvSchema = z.object({
     .enum(["true", "false"])
     .default("true")
     .transform((v) => v === "true"),
+  /** Offline / CI — skip L5 client even when live gates are on. */
+  USE_FIXTURES: z
+    .enum(["true", "false", "1", "0"])
+    .default("false")
+    .transform((v) => v === "true" || v === "1"),
   /** Upstream gaps — default off until OpenAPI publishes the routes. */
   L5_FEATURE_ALARM_ACK: z
     .enum(["true", "false"])
