@@ -17,6 +17,12 @@ function sha256(buf) {
   return createHash("sha256").update(buf).digest("hex");
 }
 
+/** Hash as CI does (LF). Windows autocrlf must not drift the pin. */
+function sha256Normalized(buf) {
+  const text = buf.toString("utf8").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  return sha256(Buffer.from(text, "utf8"));
+}
+
 function fail(msg) {
   console.error(`contracts:upstream: ${msg}`);
   process.exit(1);
@@ -54,7 +60,7 @@ for (const layer of layers) {
     fail(`${layer}/openapi.json missing paths`);
   }
 
-  const digest = sha256(openapiRaw);
+  const digest = sha256Normalized(openapiRaw);
   const entry = manifest.layers?.[layer];
   if (!entry) fail(`manifest missing layers.${layer}`);
 
