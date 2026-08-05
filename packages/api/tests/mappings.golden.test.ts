@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   AlarmStateSchema,
+  STAMPED_INTERNAL_WORKFLOW_STATUSES,
   VerificationStatusSchema,
   WorkflowStatusSchema,
 } from "@stamped/l6-contracts";
@@ -25,6 +26,10 @@ describe("canonical workflow and claim mappings", () => {
       disputed: "closed",
     };
     for (const status of WorkflowStatusSchema.options) {
+      if (STAMPED_INTERNAL_WORKFLOW_STATUSES.has(status)) {
+        assert.throws(() => projectPrescriptionLane(status));
+        continue;
+      }
       assert.equal(projectPrescriptionLane(status), expected[status]);
     }
   });
