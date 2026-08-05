@@ -54,7 +54,7 @@ export const WorkflowStatusSchema = z.enum([
 export type WorkflowStatus = z.infer<typeof WorkflowStatusSchema>;
 
 /** Stamped-internal statuses — never map to customer lanes. */
-export const STAMPED_INTERNAL_WORKFLOW_STATUSES = new Set<WorkflowStatus>([
+export const STAMPED_INTERNAL_WORKFLOW_STATUSES: ReadonlySet<string> = new Set([
   "pending_stamped_review",
   "withheld",
 ]);
