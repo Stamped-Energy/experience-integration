@@ -7,6 +7,7 @@ import {
   claimBadgeLabel,
   LedgerEntrySchema,
   missingDataLabel,
+  STAMPED_INTERNAL_WORKFLOW_STATUSES,
   VerificationStatusSchema,
   workflowStatusToLane,
   WorkflowEventSchema,
@@ -48,7 +49,7 @@ describe("claim vocabulary", () => {
 });
 
 describe("workflow → UI lane mapping", () => {
-  it("covers every WorkflowStatus", () => {
+  it("covers every customer-visible WorkflowStatus", () => {
     const expected: Record<string, string> = {
       open: "needs_review",
       blocked: "needs_review",
@@ -60,7 +61,14 @@ describe("workflow → UI lane mapping", () => {
       disputed: "closed",
     };
     for (const status of WorkflowStatusSchema.options) {
+      if (STAMPED_INTERNAL_WORKFLOW_STATUSES.has(status)) continue;
       assert.equal(workflowStatusToLane(status), expected[status]);
+    }
+  });
+
+  it("throws for stamped-internal statuses", () => {
+    for (const status of STAMPED_INTERNAL_WORKFLOW_STATUSES) {
+      assert.throws(() => workflowStatusToLane(status as never));
     }
   });
 });

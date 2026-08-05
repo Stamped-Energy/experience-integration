@@ -1,6 +1,7 @@
 import {
   PrescriptionLaneSchema,
   RoleSchema,
+  STAMPED_INTERNAL_WORKFLOW_STATUSES,
   WorkflowStatusSchema,
   workflowStatusToLane,
   type PrescriptionLane,
@@ -47,8 +48,17 @@ function firstNumber(...values: unknown[]): number | undefined {
   return undefined;
 }
 
+export function isCustomerVisiblePrescription(raw: Record<string, unknown>): boolean {
+  const status = firstString(raw.status, raw.workflow_status, raw.to_status);
+  if (status && STAMPED_INTERNAL_WORKFLOW_STATUSES.has(status)) return false;
+  return true;
+}
+
 function laneFromRaw(raw: Record<string, unknown>): PrescriptionLane {
   const status = firstString(raw.status, raw.workflow_status, raw.to_status);
+  if (status && STAMPED_INTERNAL_WORKFLOW_STATUSES.has(status)) {
+    throw new Error(`gated prescription leaked to customer mapper: ${status}`);
+  }
   if (status) {
     const parsed = WorkflowStatusSchema.safeParse(status);
     if (parsed.success) return workflowStatusToLane(parsed.data);
@@ -139,7 +149,9 @@ export async function listPrescriptionsForPlant(input: {
       });
       return {
         source: "l5",
-        items: sortProductPrescriptions(items.map(mapL5PrescriptionToProduct)),
+        items: sortProductPrescriptions(
+          items.filter(isCustomerVisiblePrescription).map(mapL5PrescriptionToProduct),
+        ),
       };
     } catch (err) {
       if (!(err instanceof UpstreamError)) throw err;

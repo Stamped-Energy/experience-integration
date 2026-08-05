@@ -1,10 +1,14 @@
 import type { PrescriptionLane, VerificationStatus, WorkflowStatus } from "./enums.js";
+import { STAMPED_INTERNAL_WORKFLOW_STATUSES } from "./enums.js";
 
 /**
  * Map L5 workflow status → UI triage lane.
  * Runtime truth stays on L5; this is display projection only.
  */
 export function workflowStatusToLane(status: WorkflowStatus): PrescriptionLane {
+  if (STAMPED_INTERNAL_WORKFLOW_STATUSES.has(status)) {
+    throw new Error(`internal workflow status ${status} must not reach customer mapping`);
+  }
   switch (status) {
     case "open":
     case "blocked":
