@@ -6,6 +6,9 @@ import type { PrescriptionLane, VerificationStatus, WorkflowStatus } from "./enu
  */
 export function workflowStatusToLane(status: WorkflowStatus): PrescriptionLane {
   switch (status) {
+    case "pending_stamped_review":
+    case "withheld":
+      throw new Error(`internal workflow status ${status} must not reach customer mapping`);
     case "open":
     case "blocked":
       return "needs_review";

@@ -41,6 +41,8 @@ export type VerificationStatus = z.infer<typeof VerificationStatusSchema>;
 /** L5 WorkflowEvent.to_status / from_status (platform schema). */
 export const WorkflowStatusSchema = z.enum([
   "blocked",
+  "pending_stamped_review",
+  "withheld",
   "open",
   "in_progress",
   "done",
@@ -50,6 +52,12 @@ export const WorkflowStatusSchema = z.enum([
   "disputed",
 ]);
 export type WorkflowStatus = z.infer<typeof WorkflowStatusSchema>;
+
+/** Stamped-internal statuses — never map to customer lanes. */
+export const STAMPED_INTERNAL_WORKFLOW_STATUSES: ReadonlySet<string> = new Set([
+  "pending_stamped_review",
+  "withheld",
+]);
 
 /** UI prescription triage lanes (charter). */
 export const PrescriptionLaneSchema = z.enum([
