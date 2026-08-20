@@ -52,7 +52,6 @@ describe("workflow → UI lane mapping", () => {
   it("covers every customer-visible WorkflowStatus", () => {
     const expected: Record<string, string> = {
       open: "needs_review",
-      blocked: "needs_review",
       in_progress: "active",
       deferred: "active",
       done: "verifying",
@@ -66,7 +65,10 @@ describe("workflow → UI lane mapping", () => {
     }
   });
 
-  it("throws for stamped-internal statuses", () => {
+  it("throws for stamped-internal statuses including blocked", () => {
+    assert.ok(STAMPED_INTERNAL_WORKFLOW_STATUSES.has("blocked"));
+    assert.ok(STAMPED_INTERNAL_WORKFLOW_STATUSES.has("pending_stamped_review"));
+    assert.ok(STAMPED_INTERNAL_WORKFLOW_STATUSES.has("withheld"));
     for (const status of STAMPED_INTERNAL_WORKFLOW_STATUSES) {
       assert.throws(() => workflowStatusToLane(status as never));
     }

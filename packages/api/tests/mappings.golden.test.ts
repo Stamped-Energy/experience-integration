@@ -17,7 +17,6 @@ describe("canonical workflow and claim mappings", () => {
   it("maps every workflow status to a UI lane (golden)", () => {
     const expected: Record<string, string> = {
       open: "needs_review",
-      blocked: "needs_review",
       in_progress: "active",
       deferred: "active",
       done: "verifying",

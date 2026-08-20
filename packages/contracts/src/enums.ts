@@ -53,8 +53,9 @@ export const WorkflowStatusSchema = z.enum([
 ]);
 export type WorkflowStatus = z.infer<typeof WorkflowStatusSchema>;
 
-/** Stamped-internal statuses — never map to customer lanes. */
+/** Stamped-internal statuses — never map to customer lanes (ADR-029). */
 export const STAMPED_INTERNAL_WORKFLOW_STATUSES: ReadonlySet<string> = new Set([
+  "blocked",
   "pending_stamped_review",
   "withheld",
 ]);
