@@ -276,6 +276,86 @@ export function PrescriptionFullCase({
         </div>
       </Panel>
 
+      <Panel className="rx-full-case__panel rx-full-case__panel--wide">
+        <CompactSection title="Closure timeline">
+          <CompactMeta
+            rows={[
+              {
+                label: "Issued",
+                value: rx.firstRecommendedAt
+                  ? `${formatIstDate(rx.firstRecommendedAt)}${
+                      rx.dueLabel ? ` · do: ${rx.dueLabel}` : ""
+                    }`
+                  : rx.dueLabel
+                    ? `Window: ${rx.dueLabel}`
+                    : "—",
+              },
+              {
+                label: "Assumed done",
+                value: rx.dueLabel ?? "—",
+              },
+              {
+                label: "Actually done",
+                value: rx.implementedAt ? formatIstDate(rx.implementedAt) : "Not marked done",
+              },
+              {
+                label: "Verified",
+                value: rx.verifiedAt
+                  ? `${formatIstDate(rx.verifiedAt)} · Ops-confirmed (not bill-verified)`
+                  : rx.verificationStatus === "ops_confirmed"
+                    ? "Ops-confirmed (not bill-verified)"
+                    : "Pending ops clearance",
+              },
+            ]}
+          />
+        </CompactSection>
+        <CompactSection title="Money">
+          <CompactMeta
+            rows={[
+              {
+                label: "Potential",
+                value: `${formatInr(rx.potentialInr ?? rx.impactInrPerMonth)}/mo at issue`,
+              },
+              {
+                label: "Realised",
+                value:
+                  rx.realisedInr != null
+                    ? `${formatInr(rx.realisedInr)} · Ops-confirmed`
+                    : "Only after ops clearance",
+              },
+              {
+                label: "Modeled delay",
+                value: rx.opportunityCost
+                  ? `${formatInr(rx.opportunityCost.modeledInr)} (${rx.opportunityCost.delayDays}d) — not bill-verified`
+                  : "—",
+              },
+            ]}
+          />
+          {rx.mdEpisode ? (
+            <div className="rx-full-case__callout rx-full-case__callout--key" style={{ marginTop: 12 }}>
+              <span className="rx-full-case__callout-label">Plant MD for period</span>
+              <Prose>
+                Peak {String(rx.mdEpisode.peak_kva ?? "—")} kVA vs CMD{" "}
+                {String(rx.mdEpisode.cmd_kva ?? "—")} kVA · capped{" "}
+                {formatInr(Number(rx.mdEpisode.episode_inr_cap ?? 0))}/mo
+                {rx.mdEpisode.clearance_status
+                  ? ` · clearance ${String(rx.mdEpisode.clearance_status)}`
+                  : ""}
+                . Demand-charge ₹ is shared across related Rx — not additive.
+              </Prose>
+            </div>
+          ) : rx.isMdDemand ? (
+            <p className="rx-full-case__prose" style={{ marginTop: 8, fontSize: 13 }}>
+              MD / demand-charge impact is non-additive across cards until an MD episode binds
+              them.
+            </p>
+          ) : null}
+          <p className="rx-full-case__prose" style={{ marginTop: 8, fontSize: 12, opacity: 0.8 }}>
+            Ops-confirmed means telemetry clearance held. It is not DISCOM bill verification.
+          </p>
+        </CompactSection>
+      </Panel>
+
       {/* Desktop: narrative left | Signal proof right */}
       <div className="rx-full-case__body forge-desktop-stack">
         <div className="rx-full-case__main">

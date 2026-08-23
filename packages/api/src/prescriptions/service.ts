@@ -32,6 +32,30 @@ export const ProductPrescriptionSchema = z.object({
   valueDomain: z.enum(["energy_efficiency", "equipment_health"]).optional(),
   wasteCategory: z.number().int().min(1).max(6).optional(),
   evidenceRefs: z.array(z.string()).optional(),
+  /** Issued — L4 first_recommended_at */
+  firstRecommendedAt: z.string().nullable().optional(),
+  acceptedAt: z.string().nullable().optional(),
+  /** Actually done — L5 DONE */
+  implementedAt: z.string().nullable().optional(),
+  /** Ops-confirmed clearance — not bill verified */
+  verifiedAt: z.string().nullable().optional(),
+  opsLabel: z.string().optional(),
+  billLabel: z.string().optional(),
+  verificationStatus: z
+    .enum(["pending", "ops_confirmed", "verified", "disputed", "modeled"])
+    .optional(),
+  realisedInr: z.number().optional(),
+  potentialInr: z.number().optional(),
+  opportunityCost: z
+    .object({
+      delayDays: z.number(),
+      modeledInr: z.number(),
+      verificationStatus: z.literal("modeled"),
+    })
+    .optional(),
+  isMdDemand: z.boolean().optional(),
+  mdEpisodeId: z.string().optional(),
+  mdEpisode: z.record(z.unknown()).optional(),
 });
 export type ProductPrescription = z.infer<typeof ProductPrescriptionSchema>;
 
@@ -111,6 +135,46 @@ function ownerRoleFromRaw(raw: Record<string, unknown>): Role {
   return parsed?.success ? parsed.data : "operator";
 }
 
+function ledgerSummaryFromRaw(raw: Record<string, unknown>): {
+  potentialInr?: number;
+  realisedInr?: number;
+  opportunityCost?: {
+    delayDays: number;
+    modeledInr: number;
+    verificationStatus: "modeled";
+  };
+  verificationStatus?: "pending" | "ops_confirmed" | "verified" | "disputed" | "modeled";
+} {
+  const ls = raw.ledger_summary;
+  if (!ls || typeof ls !== "object" || Array.isArray(ls)) {
+    return {};
+  }
+  const summary = ls as Record<string, unknown>;
+  const potential = summary.potential as Record<string, unknown> | null | undefined;
+  const realised = summary.realised_ops as Record<string, unknown> | null | undefined;
+  const opp = summary.opportunity_cost as Record<string, unknown> | null | undefined;
+  const out: ReturnType<typeof ledgerSummaryFromRaw> = {};
+  const potInr = firstNumber(potential?.potential_inr);
+  if (potInr !== undefined) out.potentialInr = potInr;
+  const realInr = firstNumber(realised?.realised_inr);
+  if (realInr !== undefined) {
+    out.realisedInr = realInr;
+    out.verificationStatus = "ops_confirmed";
+  } else if (potential) {
+    out.verificationStatus = "pending";
+  }
+  const delayDays = firstNumber(opp?.delay_days);
+  const modeledInr = firstNumber(opp?.realised_inr);
+  if (delayDays !== undefined && modeledInr !== undefined) {
+    out.opportunityCost = {
+      delayDays,
+      modeledInr,
+      verificationStatus: "modeled",
+    };
+  }
+  return out;
+}
+
 /** Map an L5 wire prescription (loosely typed upstream) → product shape. */
 export function mapL5PrescriptionToProduct(
   raw: Record<string, unknown>,
@@ -120,6 +184,19 @@ export function mapL5PrescriptionToProduct(
   const plantId = firstString(raw.plant_id, raw.plantId);
   if (!plantId) throw new Error("L5 prescription missing plant_id");
   const impact = impactObject(raw);
+  const money = ledgerSummaryFromRaw(raw);
+  const isMd =
+    raw.is_md_demand === true ||
+    raw.isMdDemand === true ||
+    ["md_overlap", "md_exceedance_risk", "cmd_oversized", "1"].includes(
+      String(firstString(raw.category) ?? ""),
+    );
+
+  const opsLabel = firstString(raw.ops_label, raw.opsLabel);
+  let verificationStatus = money.verificationStatus;
+  if (!verificationStatus && opsLabel === "ops_confirmed") {
+    verificationStatus = "ops_confirmed";
+  }
 
   return ProductPrescriptionSchema.parse({
     id,
@@ -148,6 +225,22 @@ export function mapL5PrescriptionToProduct(
     valueDomain: valueDomainFromRaw(raw),
     wasteCategory: firstNumber(raw.waste_category, raw.wasteCategory),
     evidenceRefs: evidenceRefsFromRaw(raw),
+    firstRecommendedAt: firstString(raw.first_recommended_at, raw.firstRecommendedAt) ?? null,
+    acceptedAt: firstString(raw.accepted_at, raw.acceptedAt) ?? null,
+    implementedAt: firstString(raw.implemented_at, raw.implementedAt) ?? null,
+    verifiedAt: firstString(raw.verified_at, raw.verifiedAt) ?? null,
+    opsLabel: opsLabel,
+    billLabel: firstString(raw.bill_label, raw.billLabel),
+    verificationStatus,
+    realisedInr: money.realisedInr,
+    potentialInr: money.potentialInr,
+    opportunityCost: money.opportunityCost,
+    isMdDemand: isMd,
+    mdEpisodeId: firstString(raw.md_episode_id, raw.mdEpisodeId),
+    mdEpisode:
+      raw.md_episode && typeof raw.md_episode === "object" && !Array.isArray(raw.md_episode)
+        ? (raw.md_episode as Record<string, unknown>)
+        : undefined,
   });
 }
 

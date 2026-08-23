@@ -105,13 +105,24 @@ export function PrescriptionQueue({
   const needsCount = filterInbox(rows, "needs_attention", facet).length;
   const ackCount = filterInbox(rows, "acknowledged", facet, { includeDone }).length;
 
-  const openInr = rows
-    .filter((r) => r.lane === "needs_review" || r.lane === "active")
-    .reduce((s, r) => s + r.impactInrPerMonth, 0);
+  const openRows = rows.filter((r) => r.lane === "needs_review" || r.lane === "active");
+  const openNonMd = openRows.filter((r) => !r.isMdDemand);
+  const openMd = openRows.filter((r) => r.isMdDemand);
+  const nonMdInr = openNonMd.reduce((s, r) => s + r.impactInrPerMonth, 0);
+  // Interim MD honesty: one exposure figure — max per episode id (or max overall)
+  const mdByEpisode = new Map<string, number>();
+  for (const r of openMd) {
+    const key = r.mdEpisodeId ?? `solo:${r.id}`;
+    const cap =
+      typeof r.mdEpisode?.episode_inr_cap === "number"
+        ? r.mdEpisode.episode_inr_cap
+        : r.impactInrPerMonth;
+    mdByEpisode.set(key, Math.max(mdByEpisode.get(key) ?? 0, cap));
+  }
+  const mdExposureInr = [...mdByEpisode.values()].reduce((s, n) => s + n, 0);
+  const openInr = nonMdInr + mdExposureInr;
 
-  const openCount = rows.filter(
-    (r) => r.lane === "needs_review" || r.lane === "active",
-  ).length;
+  const openCount = openRows.length;
 
   function run(id: string, action: RxAction) {
     if (requiresReason(action)) {
@@ -177,8 +188,14 @@ export function PrescriptionQueue({
       <Panel className="rx-queue__hero">
         <div className="rx-queue__hero-grid">
           <div className="rx-queue__hero-summary">
-            <p className="forge-eyebrow">Addressable open queue</p>
+            <p className="forge-eyebrow">Addressable (modeled)</p>
             <p className="rx-queue__summary-value tabular">{formatInr(openInr)}/mo</p>
+            {openMd.length > 0 ? (
+              <p className="rx-queue__summary-hint" style={{ fontSize: 12, marginTop: 4 }}>
+                Includes MD exposure {formatInr(mdExposureInr)}/mo (non-additive across{" "}
+                {openMd.length} MD card{openMd.length === 1 ? "" : "s"})
+              </p>
+            ) : null}
             <p className="rx-queue__summary-sub">
               {openCount} open · {needsCount} need attention
             </p>

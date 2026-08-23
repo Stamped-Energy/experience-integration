@@ -59,10 +59,34 @@ export interface Prescription {
   dueAt: string;
   verificationStatus?: VerificationStatus;
   realisedInr?: number;
+  potentialInr?: number;
   opportunityCost?: {
     delayDays: number;
     modeledInr: number;
     verificationStatus: "modeled";
+  };
+  /** Issued — first_recommended_at */
+  firstRecommendedAt?: string | null;
+  acceptedAt?: string | null;
+  /** Actually done — implemented_at on DONE */
+  implementedAt?: string | null;
+  /** Ops clearance held — verified_at; not bill-verified */
+  verifiedAt?: string | null;
+  opsLabel?: string;
+  billLabel?: string;
+  /** Demand-charge / MD — non-additive in queue rollups */
+  isMdDemand?: boolean;
+  mdEpisodeId?: string;
+  mdEpisode?: {
+    md_episode_id?: string;
+    peak_kva?: number;
+    cmd_kva?: number;
+    episode_inr_cap?: number;
+    period_start?: string;
+    period_end?: string;
+    md_rate_inr_per_kva?: number;
+    clearance_status?: string;
+    [key: string]: unknown;
   };
   /** Compact card category, e.g. Load Management. */
   category?: string;
