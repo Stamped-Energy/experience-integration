@@ -9,8 +9,11 @@ import {
   relatedLinksFromReply,
   suggestionPrompts,
   visibleContextChips,
+  type AnalystCitation,
   type AnalystMessage,
 } from "@/lib/analyst-context";
+
+import { fetchAnalystLive, sendAnalystMessageStream } from "@/lib/analyst-live";
 
 import { IconBadge } from "@/components/ui/indicators";
 
@@ -118,7 +121,7 @@ export function ContextualAnalyst({
     returnFocusRef?.current?.focus();
   }, [open, returnFocusRef]);
 
-  function send(question: string) {
+  async function send(question: string) {
     const q = question.trim();
     if (!q || streaming) return;
     setStreaming(true);
@@ -127,10 +130,84 @@ export function ContextualAnalyst({
       role: "user",
       content: q,
     };
-    const reply = fixtureAnalystReply(liveEnvelope, q);
-    const assistantMsg: AnalystMessage = { ...reply, id: `a_${Date.now()}`, stream: true };
-    setMessages((prev) => [...prev, userMsg, assistantMsg]);
+    const assistantId = `a_${Date.now()}`;
     setDraft("");
+
+    const live = await fetchAnalystLive();
+    if (!live) {
+      const reply = fixtureAnalystReply(liveEnvelope, q);
+      const assistantMsg: AnalystMessage = { ...reply, id: assistantId, stream: true };
+      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+      return;
+    }
+
+    const assistantMsg: AnalystMessage = {
+      id: assistantId,
+      role: "assistant",
+      content: "",
+      citations: [],
+      stream: false,
+    };
+    setMessages((prev) => [...prev, userMsg, assistantMsg]);
+
+    const citations: AnalystCitation[] = [];
+    try {
+      await sendAnalystMessageStream(liveEnvelope, q, {
+        onToken: (text) => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId ? { ...m, content: m.content + text } : m,
+            ),
+          );
+        },
+        onCitation: (cite) => {
+          if (citations.some((c) => c.id === cite.id)) return;
+          citations.push(cite);
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId ? { ...m, citations: [...citations] } : m,
+            ),
+          );
+        },
+        onDone: (payload) => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId
+                ? {
+                    ...m,
+                    content: payload.content?.trim() ? payload.content : m.content,
+                    citations: citations.length ? citations : m.citations,
+                  }
+                : m,
+            ),
+          );
+          setStreaming(false);
+        },
+        onError: (message) => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId
+                ? {
+                    ...m,
+                    content: m.content || `Analyst error: ${message}`,
+                  }
+                : m,
+            ),
+          );
+          setStreaming(false);
+        },
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "stream failed";
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantId
+            ? { ...m, content: `Analyst unavailable: ${message}` }
+            : m,
+        ),
+      );
+      setStreaming(false);
+    }
   }
 
   function onStreamComplete(messageId: string) {

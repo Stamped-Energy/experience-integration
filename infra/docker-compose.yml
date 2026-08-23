@@ -26,6 +26,12 @@ services:
       DATABASE_URL: postgres://stamped:stamped@postgres:5432/stamped_l6
       REQUIRE_DATABASE: "true"
       LOG_LEVEL: info
+      # Ask Analyst → host L4 (OpenRouter OX). Override as needed.
+      L4_BASE_URL: http://host.docker.internal:8000
+      L4_LIVE: "false"
+      L4_TIMEOUT_MS: "120000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "3001:3001"
     volumes:

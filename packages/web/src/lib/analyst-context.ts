@@ -10,7 +10,7 @@ export type AnalystCitation = {
   id: string;
   title: string;
   snippet?: string;
-  path?: "H" | "W";
+  path?: "H" | "W" | "G" | "D" | "B";
 };
 
 export type AnalystMessage = {

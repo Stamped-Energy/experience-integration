@@ -151,8 +151,20 @@ export function claimBadgeLabel(
   }
 }
 
-export function citationPathLabel(path?: "H" | "W"): string {
-  return path === "W" ? "Data" : "Rule";
+export function citationPathLabel(path?: "H" | "W" | "G" | "D" | "B"): string {
+  switch (path) {
+    case "W":
+      return "Web";
+    case "G":
+      return "Graph";
+    case "D":
+      return "Delta";
+    case "B":
+      return "Live";
+    case "H":
+    default:
+      return "Playbook";
+  }
 }
 
 export function formatRuleLabel(ruleId?: string): string {

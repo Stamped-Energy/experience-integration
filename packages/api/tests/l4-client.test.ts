@@ -34,26 +34,42 @@ function createMockL4() {
         ? (JSON.parse(Buffer.concat(chunks).toString("utf8")) as Record<string, unknown>)
         : {};
 
-      if (req.method === "POST" && url.pathname === "/v1/sessions") {
+      if (req.method === "POST" && url.pathname === "/v1/chat/sessions") {
         return send(201, {
-          session_id: "sess_live_1",
+          id: "sess_live_1",
           org_id: body.org_id,
           plant_id: body.plant_id,
-          created_at: "2026-07-22T10:00:00Z",
+          user_id: body.user_id,
+          title: null,
         });
       }
 
-      const msg = url.pathname.match(/^\/v1\/sessions\/([^/]+)\/messages$/);
+      const msg = url.pathname.match(/^\/v1\/chat\/sessions\/([^/]+)\/messages$/);
       if (req.method === "POST" && msg) {
         const ctx = body.context as { plant_id?: string; visible_chips?: unknown[] };
         return send(200, {
           message_id: "msg_live_1",
-          session_id: msg[1],
-          role: "assistant",
+          status: "OK",
           content: `Live reply for ${ctx.plant_id}`,
-          citations: [{ id: "c1", title: "Source", snippet: "…" }],
-          created_at: "2026-07-22T10:00:01Z",
+          citations: [{ id: "c1", title: "Source", snippet: "…", path: "G" }],
         });
+      }
+
+      const stream = url.pathname.match(
+        /^\/v1\/chat\/sessions\/([^/]+)\/messages\/stream$/,
+      );
+      if (req.method === "POST" && stream) {
+        res.writeHead(200, { "content-type": "text/event-stream" });
+        res.write(`event: token\ndata: ${JSON.stringify({ text: "Live " })}\n\n`);
+        res.write(`event: token\ndata: ${JSON.stringify({ text: "stream" })}\n\n`);
+        res.write(
+          `event: done\ndata: ${JSON.stringify({
+            message_id: "msg_stream_1",
+            content: "Live stream",
+            status: "OK",
+          })}\n\n`,
+        );
+        return res.end();
       }
 
       send(404, { code: "NOT_FOUND" });
@@ -136,6 +152,28 @@ describe("L4AnalystClient", () => {
       envelope,
     });
     assert.match(msg.content, /Live reply/);
+  });
+
+  it("opens live SSE stream path", async () => {
+    const client = new L4AnalystClient({
+      baseUrl,
+      timeoutMs: 2_000,
+      live: true,
+    });
+    const session = await client.createSession({
+      orgId: envelope.orgId,
+      plantId: envelope.plantId,
+      userId: envelope.userId,
+    });
+    const res = await client.openMessageStream({
+      sessionId: session.session_id,
+      content: "stream please",
+      envelope,
+    });
+    assert.equal(res.status, 200);
+    const text = await res.text();
+    assert.match(text, /event: done/);
+    assert.match(text, /Live stream/);
   });
 
   it("rejects cross-tenant focus entities", async () => {

@@ -8,6 +8,7 @@ import {
   L5WorkflowClient,
   defaultL5FeaturesFromEnv,
 } from "./upstream/l5/client.js";
+import { L4AnalystClient } from "./upstream/l4/client.js";
 
 const env = loadEnv();
 
@@ -37,6 +38,14 @@ const l5 = l5Live
     })
   : null;
 
+const l4Live = !env.USE_FIXTURES && env.L4_LIVE;
+const l4 = new L4AnalystClient({
+  baseUrl: env.L4_BASE_URL,
+  timeoutMs: Math.max(env.L4_TIMEOUT_MS, l4Live ? 120_000 : env.L4_TIMEOUT_MS),
+  authToken: env.L4_AUTH_TOKEN,
+  live: l4Live,
+});
+
 const app = await startServer({
   env,
   auth,
@@ -44,6 +53,7 @@ const app = await startServer({
   db,
   pool,
   l5,
+  l4,
   checkReady: () => pingDatabase(pool),
 });
 
@@ -60,6 +70,8 @@ if (l5) {
 } else {
   app.log.info("l5 live gate off — fixture-only mode");
 }
+
+app.log.info({ l4Live, baseUrl: env.L4_BASE_URL }, "l4 analyst client ready");
 
 async function shutdown(signal: string) {
   app.log.info({ signal }, "shutting down");

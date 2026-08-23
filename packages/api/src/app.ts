@@ -25,6 +25,8 @@ import { registerPublicApiRoutes } from "./public/routes.js";
 import { registerReportRoutes } from "./reports/routes.js";
 import { registerTelemetryRoutes } from "./telemetry/routes.js";
 import type { L5WorkflowClient } from "./upstream/l5/client.js";
+import type { L4AnalystClient } from "./upstream/l4/client.js";
+import { registerAnalystRoutes } from "./analyst/routes.js";
 import type pg from "pg";
 
 export type AppDeps = {
@@ -35,6 +37,7 @@ export type AppDeps = {
   db?: Db;
   pool?: pg.Pool;
   l5?: L5WorkflowClient | null;
+  l4?: L4AnalystClient | null;
   alarmFixture?: AlarmStore;
   prescriptionFixture?: PrescriptionStore;
   enqueueReportGenerate?: (reportJobId: string) => Promise<string | null>;
@@ -174,6 +177,13 @@ export async function buildApp(
       enqueueGenerate: opts.enqueueReportGenerate,
     });
     await registerIntegrationRoutes(app, { auth: opts.auth, db: opts.db });
+  }
+  if (opts.auth && opts.l4) {
+    await registerAnalystRoutes(app, {
+      auth: opts.auth,
+      l4: opts.l4,
+      live: Boolean(env.L4_LIVE && !env.USE_FIXTURES),
+    });
   }
   if (opts.auth && opts.db && opts.pool) {
     await registerEventRoutes(app, opts.auth, opts.db, opts.pool);

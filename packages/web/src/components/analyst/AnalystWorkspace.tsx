@@ -15,8 +15,11 @@ import {
 import {
   fixtureAnalystReply,
   relatedLinksFromReply,
+  type AnalystCitation,
   type AnalystMessage,
 } from "@/lib/analyst-context";
+
+import { fetchAnalystLive, sendAnalystMessageStream } from "@/lib/analyst-live";
 
 import { analystPlantSnapshot } from "@/lib/analyst-fixtures";
 
@@ -243,17 +246,16 @@ export function AnalystWorkspace() {
     setStreaming(false);
   }
 
-  function send(text?: string) {
+  async function send(text?: string) {
     const q = (text ?? draft).trim();
     if (!q || streaming) return;
     setStreaming(true);
 
     const userMsg: AnalystMessage = { id: `u_${Date.now()}`, role: "user", content: q };
-    const reply = fixtureAnalystReply(envelope, q);
-    const assistantMsg: AnalystMessage = { ...reply, id: `a_${Date.now()}`, stream: true };
+    const assistantId = `a_${Date.now()}`;
+    setDraft("");
 
-    setMessages((prev) => {
-      const next = [...prev, userMsg, assistantMsg];
+    const persist = (next: AnalystMessage[]) => {
       setSessions((ss) =>
         ss.map((s) =>
           s.id === activeSessionId
@@ -267,10 +269,90 @@ export function AnalystWorkspace() {
             : s,
         ),
       );
+    };
+
+    const live = await fetchAnalystLive();
+    if (!live) {
+      const reply = fixtureAnalystReply(envelope, q);
+      const assistantMsg: AnalystMessage = { ...reply, id: assistantId, stream: true };
+      setMessages((prev) => {
+        const next = [...prev, userMsg, assistantMsg];
+        persist(next);
+        return next;
+      });
+      requestAnimationFrame(scrollToBottom);
+      return;
+    }
+
+    const assistantMsg: AnalystMessage = {
+      id: assistantId,
+      role: "assistant",
+      content: "",
+      citations: [],
+      stream: false,
+    };
+    setMessages((prev) => {
+      const next = [...prev, userMsg, assistantMsg];
+      persist(next);
       return next;
     });
-    setDraft("");
     requestAnimationFrame(scrollToBottom);
+
+    const citations: AnalystCitation[] = [];
+    const patchAssistant = (patch: Partial<AnalystMessage>) => {
+      setMessages((prev) => {
+        const next = prev.map((m) => (m.id === assistantId ? { ...m, ...patch } : m));
+        persist(next);
+        return next;
+      });
+    };
+
+    try {
+      await sendAnalystMessageStream(envelope, q, {
+        onToken: (tok) => {
+          setMessages((prev) => {
+            const next = prev.map((m) =>
+              m.id === assistantId ? { ...m, content: m.content + tok } : m,
+            );
+            persist(next);
+            return next;
+          });
+          requestAnimationFrame(scrollToBottom);
+        },
+        onCitation: (cite) => {
+          if (citations.some((c) => c.id === cite.id)) return;
+          citations.push(cite);
+          patchAssistant({ citations: [...citations] });
+        },
+        onDone: (payload) => {
+          setMessages((prev) => {
+            const next = prev.map((m) => {
+              if (m.id !== assistantId) return m;
+              return {
+                ...m,
+                content: payload.content?.trim() ? payload.content : m.content,
+                citations: citations.length ? citations : m.citations,
+              };
+            });
+            persist(next);
+            return next;
+          });
+          setStreaming(false);
+        },
+        onError: (message) => {
+          patchAssistant({
+            content: `Analyst error: ${message}`,
+          });
+          setStreaming(false);
+        },
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "stream failed";
+      patchAssistant({
+        content: `Analyst unavailable: ${message}`,
+      });
+      setStreaming(false);
+    }
   }
 
   return (
