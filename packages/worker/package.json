@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "pg-boss": "catalog:",
+    "pino": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

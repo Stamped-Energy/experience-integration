@@ -30,6 +30,7 @@ export function WebVitalsReporter({
             : "web_vital_cls";
       void fetch(endpoint, {
         method: "POST",
+        credentials: "include",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           event_name,

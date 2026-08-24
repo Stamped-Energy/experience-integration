@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Alarm } from "@/lib/types";
-import { assetsFixture, alarmsFixture, prescriptionsFixture, DEMO_PLANT } from "@/fixtures/demo";
+import { assetsFixture, prescriptionsFixture } from "@/fixtures/demo";
 import { resolveEvidenceIdForAlarm } from "@/fixtures/evidence-samples";
 import { buildEvidencePack, resolveEvidenceScope } from "@/lib/evidence";
+import { usePlant } from "@/lib/plant-context";
 import {
   ForgeButton,
   ForgeButtonGroup,
@@ -40,9 +41,15 @@ const ACTION_LABEL: Record<Exclude<AlarmAction, "evidence">, string> = {
 };
 
 export function AlarmConsole({ initial }: { initial: Alarm[] }) {
+  const { activePlant } = usePlant();
   const [alarms, setAlarms] = useState(initial);
   const [selected, setSelected] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    setAlarms(initial);
+    setSelected(0);
+  }, [initial]);
 
   const open = useMemo(
     () => sortAlarms(alarms.filter((a) => a.state !== "cleared")),
@@ -55,9 +62,9 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
     if (!current) return [];
     const asset = assetsFixture.find((a) => a.id === current.assetId);
     const scope = resolveEvidenceScope({
-      plantId: DEMO_PLANT.plantId,
+      plantId: current.plantId || activePlant.plantId,
       alarmId: current.id,
-      alarms: alarmsFixture,
+      alarms,
       prescriptions: prescriptionsFixture,
     });
     const pack = buildEvidencePack(scope, { baselineAvailable: true });
@@ -81,7 +88,7 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
         note: formatIstDateTime(current.raisedAt),
       },
     ];
-  }, [current]);
+  }, [current, alarms, activePlant.plantId]);
 
   function runAction(action: AlarmAction) {
     if (!current) return;

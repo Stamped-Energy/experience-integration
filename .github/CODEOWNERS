@@ -1,0 +1,11 @@
+# CODEOWNERS — L6 Experience Integration
+# Default reviewers for the Mumbai pilot. Adjust GitHub team slugs as orgs evolve.
+
+* @stamped-energy/l6-maintainers
+
+/.github/ @stamped-energy/l6-maintainers
+/packages/api/ @stamped-energy/l6-maintainers
+/packages/web/ @stamped-energy/l6-maintainers
+/packages/worker/ @stamped-energy/l6-maintainers
+/infra/ @stamped-energy/l6-maintainers
+/docs/ @stamped-energy/l6-maintainers

@@ -1,12 +1,14 @@
+"use client";
+
 import { AppShell } from "@/components/shell/AppShell";
 import { PageHead, Panel, StatusChip } from "@/components/ui/primitives";
 import {
   DEMO_SHELL_ROLE,
-  DEMO_PLANT,
   apiKeysFixture,
   connectionFixture,
   webhooksFixture,
 } from "@/fixtures/demo";
+import { usePlant } from "@/lib/plant-context";
 
 const SCOPE_LABELS: Record<string, string> = {
   "ledger:read": "Read savings data",
@@ -22,14 +24,19 @@ const WEBHOOK_STATUS_LABELS: Record<string, string> = {
 };
 
 export default function IntegrationsSettingsPage() {
+  const { activePlant, plants, setActivePlantId } = usePlant();
+
   return (
     <AppShell
       active="integrations"
-      plantName={DEMO_PLANT.plantName}
+      plantName={activePlant.plantName}
+      plantId={activePlant.plantId}
+      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
+      onPlantChange={setActivePlantId}
       role={DEMO_SHELL_ROLE}
       connection={connectionFixture}
       screenTitle="Integrations"
-      contextSummary={["Connections & exports", DEMO_PLANT.plantName]}
+      contextSummary={["Connections & exports", activePlant.plantName]}
       criticalAlarmCount={0}
     >
       <PageHead eyebrow="Admin" title="Integrations" />

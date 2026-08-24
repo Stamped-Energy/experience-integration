@@ -1,4 +1,9 @@
-/** Shared upstream HTTP helper — timeout, JSON, problem+json surfacing. */
+/** Shared upstream HTTP helper — keep-alive agent, timeout, JSON, GET-only retries. */
+
+import http from "node:http";
+import https from "node:https";
+import { URL } from "node:url";
+import { currentRequestId } from "./correlation.js";
 
 export class UpstreamError extends Error {
   constructor(
@@ -22,9 +27,86 @@ export type UpstreamRequest = {
   timeoutMs: number;
   /** Required for mutating alarm lifecycle calls. */
   idempotencyKey?: string;
+  /** Override retry count for idempotent GETs (default 2). Mutations never retry. */
+  maxRetries?: number;
 };
 
+/** Shared keep-alive agents for upstream L2/L4/L5 (Phase J / B8). */
+export const httpAgent = new http.Agent({
+  keepAlive: true,
+  maxSockets: 16,
+  maxFreeSockets: 8,
+  timeout: 60_000,
+});
+
+export const httpsAgent = new https.Agent({
+  keepAlive: true,
+  maxSockets: 16,
+  maxFreeSockets: 8,
+  timeout: 60_000,
+});
+
+const RETRYABLE_STATUS = new Set([502, 503, 504]);
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+type RawResponse = { status: number; body: string };
+
+function nodeRequest(
+  url: URL,
+  opts: {
+    method: string;
+    headers: Record<string, string>;
+    body?: string;
+    timeoutMs: number;
+  },
+): Promise<RawResponse> {
+  const isHttps = url.protocol === "https:";
+  const lib = isHttps ? https : http;
+  const agent = isHttps ? httpsAgent : httpAgent;
+
+  return new Promise((resolve, reject) => {
+    const req = lib.request(
+      {
+        protocol: url.protocol,
+        hostname: url.hostname,
+        port: url.port || (isHttps ? 443 : 80),
+        path: `${url.pathname}${url.search}`,
+        method: opts.method,
+        headers: opts.headers,
+        agent,
+        timeout: opts.timeoutMs,
+      },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on("data", (c) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
+        res.on("end", () => {
+          resolve({
+            status: res.statusCode ?? 0,
+            body: Buffer.concat(chunks).toString("utf8"),
+          });
+        });
+      },
+    );
+    req.on("timeout", () => {
+      req.destroy();
+      const err = new Error("AbortError");
+      err.name = "AbortError";
+      reject(err);
+    });
+    req.on("error", reject);
+    if (opts.body !== undefined) req.write(opts.body);
+    req.end();
+  });
+}
+
 export async function upstreamFetch<T>(req: UpstreamRequest): Promise<T> {
+  const method = req.method ?? "GET";
+  const idempotentGet = method === "GET";
+  const maxRetries = idempotentGet ? (req.maxRetries ?? 2) : 0;
+
   const url = new URL(req.path, req.baseUrl.endsWith("/") ? req.baseUrl : `${req.baseUrl}/`);
   if (req.query) {
     for (const [k, v] of Object.entries(req.query)) {
@@ -36,42 +118,64 @@ export async function upstreamFetch<T>(req: UpstreamRequest): Promise<T> {
     accept: "application/json",
     ...req.headers,
   };
-  if (req.body !== undefined) headers["content-type"] = "application/json";
+  const corr = currentRequestId();
+  if (corr && !headers["x-request-id"]) {
+    headers["x-request-id"] = corr;
+  }
+  const bodyStr = req.body !== undefined ? JSON.stringify(req.body) : undefined;
+  if (bodyStr !== undefined) {
+    headers["content-type"] = "application/json";
+    headers["content-length"] = String(Buffer.byteLength(bodyStr));
+  }
   if (req.idempotencyKey) headers["idempotency-key"] = req.idempotencyKey;
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), req.timeoutMs);
-  try {
-    const res = await fetch(url, {
-      method: req.method ?? "GET",
-      headers,
-      body: req.body !== undefined ? JSON.stringify(req.body) : undefined,
-      signal: controller.signal,
-    });
-    const text = await res.text();
-    const payload = text ? safeJson(text) : null;
-    if (!res.ok) {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const res = await nodeRequest(url, {
+        method,
+        headers,
+        body: bodyStr,
+        timeoutMs: req.timeoutMs,
+      });
+      const payload = res.body ? safeJson(res.body) : null;
+      if (res.status < 200 || res.status >= 300) {
+        if (idempotentGet && RETRYABLE_STATUS.has(res.status) && attempt < maxRetries) {
+          await sleep(50 * 2 ** attempt);
+          continue;
+        }
+        throw new UpstreamError(
+          problemCode(payload) ?? `UPSTREAM_${res.status}`,
+          problemDetail(payload) ?? `Upstream ${res.status} for ${req.path}`,
+          res.status,
+          payload,
+        );
+      }
+      return payload as T;
+    } catch (err) {
+      lastErr = err;
+      if (err instanceof UpstreamError) throw err;
+      if (err instanceof Error && err.name === "AbortError") {
+        if (idempotentGet && attempt < maxRetries) {
+          await sleep(50 * 2 ** attempt);
+          continue;
+        }
+        throw new UpstreamError("UPSTREAM_TIMEOUT", `Timed out calling ${req.path}`, 504);
+      }
+      if (idempotentGet && attempt < maxRetries) {
+        await sleep(50 * 2 ** attempt);
+        continue;
+      }
       throw new UpstreamError(
-        problemCode(payload) ?? `UPSTREAM_${res.status}`,
-        problemDetail(payload) ?? `Upstream ${res.status} for ${req.path}`,
-        res.status,
-        payload,
+        "UPSTREAM_NETWORK",
+        err instanceof Error ? err.message : "Upstream network failure",
+        502,
       );
     }
-    return payload as T;
-  } catch (err) {
-    if (err instanceof UpstreamError) throw err;
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new UpstreamError("UPSTREAM_TIMEOUT", `Timed out calling ${req.path}`, 504);
-    }
-    throw new UpstreamError(
-      "UPSTREAM_NETWORK",
-      err instanceof Error ? err.message : "Upstream network failure",
-      502,
-    );
-  } finally {
-    clearTimeout(timer);
   }
+  throw lastErr instanceof UpstreamError
+    ? lastErr
+    : new UpstreamError("UPSTREAM_NETWORK", "Upstream retries exhausted", 502);
 }
 
 function safeJson(text: string): unknown {

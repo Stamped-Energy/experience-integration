@@ -15,3 +15,8 @@ packages/web/test-results/
 packages/web/playwright-report/
 infra/cdk.out/
 infra/dist/
+
+# Python
+__pycache__/
+*.py[cod]
+

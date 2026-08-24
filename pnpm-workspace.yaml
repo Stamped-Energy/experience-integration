@@ -2,6 +2,26 @@ packages:
   - "packages/*"
   - "infra"
 
+# Transitive security pins for blocking `pnpm audit --prod --audit-level=high`
+overrides:
+  "fast-uri@^3": "3.1.5"
+  "fast-uri@^4": "4.1.2"
+  "nanoid@^3": "3.3.18"
+  "postcss@^8": "8.5.18"
+  deepmerge-ts: "8.0.0"
+  # Pin below 9.7: find-my-way@9.7.0 makes public /v1 rate-limit tests return 403 instead of 429
+  find-my-way: "9.6.0"
+  effect: "3.20.0"
+  "@playwright/test": "1.55.1"
+  playwright: "1.55.1"
+  playwright-core: "1.55.1"
+  sharp: "0.35.0"
+
+# find-my-way HTTP/2 DoS — wait for fastify to bump; this BFF is not HTTP/2-facing on /v1
+auditConfig:
+  ignoreGhsas:
+    - GHSA-c96f-x56v-gq3h
+
 allowBuilds:
   esbuild: true
   sharp: true
@@ -20,6 +40,7 @@ catalog:
   better-auth: 1.6.23
   "@fastify/cookie": 11.0.2
   "@fastify/cors": 11.2.0
+  "@fastify/helmet": 13.0.2
   "@fastify/rate-limit": 11.1.0
   "@fastify/sensible": 6.0.4
   pino: 10.3.1

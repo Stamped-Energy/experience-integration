@@ -29,16 +29,17 @@ export async function createBoss(env: WorkerEnv): Promise<PgBoss> {
 export async function startWorker(env: WorkerEnv): Promise<PgBoss> {
   const boss = await createBoss(env);
   await boss.start();
-  await boss.createQueue(QUEUES.fixturePing);
-  await boss.createQueue(QUEUES.reportsGenerate);
-  await boss.createQueue(QUEUES.webhooksDeliver);
+  await boss.createQueue(QUEUES.fixturePing, { notify: true });
+  await boss.createQueue(QUEUES.reportsGenerate, { notify: true });
+  await boss.createQueue(QUEUES.webhooksDeliver, { notify: true });
 
   const seenPings = new Set<string>();
   const seenReports = new Set<string>();
+  const pollMs = env.NODE_ENV === "test" ? 0.5 : 2;
 
   await boss.work<FixturePingJob>(
     QUEUES.fixturePing,
-    { batchSize: 1 },
+    { batchSize: 1, pollingIntervalSeconds: pollMs },
     async (jobs) => {
       for (const job of jobs) {
         const pingId = job.data.pingId;
@@ -51,7 +52,7 @@ export async function startWorker(env: WorkerEnv): Promise<PgBoss> {
 
   await boss.work<ReportGenerateJob>(
     QUEUES.reportsGenerate,
-    { batchSize: 1 },
+    { batchSize: 1, pollingIntervalSeconds: pollMs },
     async (jobs) => {
       for (const job of jobs) {
         const id = job.data.reportJobId;

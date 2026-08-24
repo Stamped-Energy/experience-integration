@@ -1,4 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import rateLimit from "@fastify/rate-limit";
 import { and, eq, gt, isNull } from "drizzle-orm";
 import type { Db } from "../db/client.js";
 import { apiKeys, l5Events, organizations, plants } from "../db/schema.js";
@@ -11,7 +12,11 @@ import {
 } from "./keys.js";
 import { publicOpenApi } from "./openapi.js";
 
-export type PublicApiDeps = { db: Db };
+export type PublicApiDeps = {
+  db: Db;
+  /** Override public /v1 rate limit max (tests use a low ceiling). */
+  publicRateLimitMax?: number;
+};
 
 type AuthedKey = {
   id: string;
@@ -97,9 +102,19 @@ export async function registerPublicApiRoutes(
   app: FastifyInstance,
   deps: PublicApiDeps,
 ): Promise<void> {
-  // Stricter rate limit for public surface
+  // Stricter rate limit for public surface (below global BFF ceiling)
+  const publicMax =
+    deps.publicRateLimitMax ??
+    (process.env.NODE_ENV === "test" ? 20 : 60);
   await app.register(
     async (v1) => {
+      await v1.register(rateLimit, {
+        max: publicMax,
+        timeWindow: "1 minute",
+        // omit ban — ban:0 means "403 immediately on exceed" in @fastify/rate-limit
+        hook: "onRequest",
+      });
+
       v1.get("/openapi.json", async () => publicOpenApi);
 
       v1.get("/alarms", async (request, reply) => {

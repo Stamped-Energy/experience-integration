@@ -36,8 +36,22 @@ export const VINAYAK_PLANT = {
   demoAsOf: "2026-07-21T10:15:00+05:30",
 };
 
-/** Live-path plant switcher list - Vinayak first (default), Jaipur for offline switch. */
-export const PLANTS = [VINAYAK_PLANT, DEMO_PLANT];
+/** LNM Factory 1 Faridabad — Phase B L2 persona / CNC demo plant. */
+export const LNM_PLANT = {
+  orgId: "org_acme",
+  orgName: "Acme",
+  plantId: "plant_lnm_faridabad_1",
+  plantName: "LNM Factory 1",
+  timezone: "Asia/Kolkata",
+  tariff: "DHBVN HT industrial TOD",
+  cmdKva: 2500,
+  contractDemandNote: "CMD 2,500 kVA · Faridabad Sector 59",
+  shift: "A · 06:00–14:00 IST",
+  demoAsOf: "2026-08-25T10:15:00+05:30",
+};
+
+/** Plant switcher — LNM first for CNC demo, then Vinayak, then Jaipur offline. */
+export const PLANTS = [LNM_PLANT, VINAYAK_PLANT, DEMO_PLANT];
 
 /** Single demo role so sidebar nav is identical on every screen. */
 export const DEMO_SHELL_ROLE: Role = "admin";

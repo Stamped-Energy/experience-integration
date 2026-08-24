@@ -1,0 +1,96 @@
+# Draft — build & push stamped-cloud (Phase H commit 45 scaffold)
+# Does NOT auto-apply Terraform. Deploy to host is manual/SSM until approved.
+name: deploy-stamped-cloud
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag (default: git sha)"
+        required: false
+        default: ""
+      push:
+        description: "Push to ECR"
+        type: boolean
+        default: true
+  push:
+    branches: [main, "feat/cnc-intelligence"]
+    paths:
+      - "deploy/stamped-cloud/**"
+      - ".github/workflows/deploy-stamped-cloud.yml"
+
+concurrency:
+  group: deploy-stamped-cloud-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ap-south-1
+  IMAGE_NAME: stamped-cloud
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set image tag
+        id: meta
+        run: |
+          TAG="${{ inputs.image_tag }}"
+          if [ -z "$TAG" ]; then TAG="${GITHUB_SHA::12}"; fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Building ${IMAGE_NAME}:$TAG (linux/arm64)"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Configure OIDC → AWS before ECR login when secrets are present.
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+      #     aws-region: ${{ env.AWS_REGION }}
+      #
+      # - name: Login to ECR
+      #   id: ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build ARM64 image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/stamped-cloud/Dockerfile
+          platforms: linux/arm64
+          push: false
+          load: false
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}
+            ${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # When ECR is wired:
+          # push: ${{ inputs.push != false }}
+          # tags: ${{ steps.ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}
+
+      - name: Record rollback instructions
+        run: |
+          cat <<'EOF'
+          After a successful host pull, the deploy script must:
+            1. Write prior CURRENT_IMAGE_TAG → PREVIOUS_IMAGE_TAG
+            2. Write new tag → CURRENT_IMAGE_TAG
+            3. systemctl restart stamped-cloud
+          Rollback: sudo /opt/stamped/bin/rollback-cloud.sh
+          (pulls PREVIOUS_IMAGE_TAG and restarts — time this once on staging)
+          EOF
+
+  # Optional later: SSM Run Command to pull+restart on the pilot host.
+  # Never add terraform apply here.

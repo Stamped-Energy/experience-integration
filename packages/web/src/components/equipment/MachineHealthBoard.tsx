@@ -70,15 +70,56 @@ function ChartHost({ option, height = 200 }: { option: EChartsCoreOption; height
   return <div ref={ref} style={{ width: "100%", height }} role="img" />;
 }
 
-export function MachineHealthBoard() {
-  const [sel, setSel] = useState(HEALTH_ASSETS[0]!.name);
-  const asset = HEALTH_ASSETS.find((a) => a.name === sel) ?? HEALTH_ASSETS[0]!;
+export function MachineHealthBoard({
+  mode = "preview",
+  liveAssets,
+}: {
+  /** `live` when backed by L2 assets; `preview` when fixture (must be labelled). */
+  mode?: "live" | "preview";
+  liveAssets?: HealthAsset[];
+}) {
+  const assets = liveAssets?.length ? liveAssets : HEALTH_ASSETS;
+  const [sel, setSel] = useState(assets[0]!.name);
+  const asset = assets.find((a) => a.name === sel) ?? assets[0]!;
+  const isPreview = mode === "preview";
 
   return (
-    <div data-machine-health style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div data-machine-health data-mode={mode} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {isPreview ? (
+        <div
+          role="status"
+          style={{
+            padding: "10px 14px",
+            borderRadius: 8,
+            border: "1px solid color-mix(in srgb, var(--forge-warning) 45%, transparent)",
+            background: "color-mix(in srgb, var(--forge-warning) 12%, transparent)",
+            fontSize: 13,
+            fontWeight: 600,
+            color: "var(--forge-warning)",
+          }}
+        >
+          Preview · fixture condition monitoring — not your plant&apos;s live CNC data
+        </div>
+      ) : (
+        <div
+          role="status"
+          style={{
+            padding: "10px 14px",
+            borderRadius: 8,
+            border: "1px solid color-mix(in srgb, var(--forge-tertiary) 45%, transparent)",
+            background: "color-mix(in srgb, var(--forge-tertiary) 10%, transparent)",
+            fontSize: 13,
+            fontWeight: 600,
+            color: "var(--forge-tertiary)",
+          }}
+        >
+          Live from L2 · asset graph overlay (vibration / thermal trends remain illustrative until CNC series are wired)
+        </div>
+      )}
+
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         <MiniKpi label="Fleet Health Index" value={HEALTH_KPIS.fleetHealth} unit="/100" delta={HEALTH_KPIS.fleetHealthDelta} good icon={KPI_ICONS.health} />
-        <MiniKpi label="Assets At Risk" value={HEALTH_KPIS.atRisk} delta={HEALTH_KPIS.atRiskDelta} good icon={KPI_ICONS.risk} />
+        <MiniKpi label="Assets At Risk" value={isPreview ? HEALTH_KPIS.atRisk : assets.filter((a) => a.status === "CRITICAL" || a.status === "WARNING").length} delta={HEALTH_KPIS.atRiskDelta} good icon={KPI_ICONS.risk} />
         <MiniKpi label="Predictive Alerts" value={HEALTH_KPIS.predictiveAlerts} delta={HEALTH_KPIS.predictiveDelta} good={false} icon={KPI_ICONS.alerts} />
         <MiniKpi label="Avg MTBF" value={HEALTH_KPIS.avgMtbf} unit="d" delta={HEALTH_KPIS.mtbfDelta} good icon={KPI_ICONS.mtbf} />
         <MiniKpi label="Maint. Compliance" value={HEALTH_KPIS.maintCompliance} unit="%" delta={HEALTH_KPIS.maintDelta} good icon={KPI_ICONS.compliance} />
@@ -89,12 +130,16 @@ export function MachineHealthBoard() {
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
           <div>
             <p className="forge-eyebrow">Live Instrumentation</p>
-            <h3 className="forge-card-title">Asset Load Dials - Full Fleet</h3>
+            <h3 className="forge-card-title">
+              {isPreview ? "Asset Load Dials - Full Fleet (preview)" : "Asset Load Dials - L2 fleet"}
+            </h3>
           </div>
-          <span style={{ fontSize: 11, color: "var(--forge-on-surface-variant)" }}>Modbus / OPC-UA · 1s poll</span>
+          <span style={{ fontSize: 11, color: "var(--forge-on-surface-variant)" }}>
+            {isPreview ? "Preview · fixture" : "L2 asset graph"}
+          </span>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10, marginTop: 14 }}>
-          {HEALTH_ASSETS.map((a) => (
+          {assets.map((a) => (
             <button
               key={a.name}
               type="button"

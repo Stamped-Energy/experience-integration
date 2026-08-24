@@ -1,14 +1,6 @@
 import { redirect } from "next/navigation";
-import { AppShell } from "@/components/shell/AppShell";
-import { PageHead } from "@/components/ui/primitives";
-import { EvidenceIndex } from "@/components/evidence/EvidenceIndex";
-import {
-  DEMO_SHELL_ROLE,
-  DEMO_PLANT,
-  alarmsFixture,
-  connectionFixture,
-  demoCriticalAlarmCount,
-} from "@/fixtures/demo";
+import { EvidenceIndexClient } from "@/components/evidence/EvidenceIndexClient";
+import { alarmsFixture } from "@/fixtures/demo";
 import {
   evidenceSamplesFixture,
   resolvePrimaryEvidenceId,
@@ -44,18 +36,5 @@ export default async function EvidencePage({
     if (rxEvidenceId) redirect(`/evidence/${rxEvidenceId}`);
   }
 
-  return (
-    <AppShell
-      active="evidence"
-      plantName={DEMO_PLANT.plantName}
-      role={DEMO_SHELL_ROLE}
-      connection={connectionFixture}
-      screenTitle="Evidence"
-      contextSummary={[`${evidenceSamplesFixture.length} evidence packs`]}
-      criticalAlarmCount={demoCriticalAlarmCount()}
-    >
-      <PageHead eyebrow="Proof" title="Evidence index" />
-      <EvidenceIndex samples={evidenceSamplesFixture} />
-    </AppShell>
-  );
+  return <EvidenceIndexClient samples={evidenceSamplesFixture} />;
 }

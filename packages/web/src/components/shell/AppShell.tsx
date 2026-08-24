@@ -15,7 +15,7 @@ import { ContextualAnalyst } from "@/components/analyst/ContextualAnalyst";
 import { WebVitalsReporter } from "@/components/telemetry/WebVitalsReporter";
 import { SidebarNav } from "@/components/shell/SidebarNav";
 import { AppTopbar } from "@/components/shell/AppTopbar";
-import { DEMO_PLANT, PLANTS } from "@/fixtures/demo";
+import { DEMO_PLANT, LNM_PLANT, PLANTS } from "@/fixtures/demo";
 import { usePlant } from "@/lib/plant-context";
 
 function sseMeta(connection: ConnectionStatus): {
@@ -45,7 +45,7 @@ function sseMeta(connection: ConnectionStatus): {
 export function AppShell({
   active,
   plantName,
-  plantId = DEMO_PLANT.plantId,
+  plantId = LNM_PLANT.plantId,
   plants,
   onPlantChange,
   role,
@@ -203,7 +203,9 @@ export function AppShell({
               {sse.banner}
             </div>
           ) : null}
-          <div className="forge-shell__content">{children}</div>
+          <div className="forge-shell__content" key={shellPlantId}>
+            {children}
+          </div>
         </main>
       </div>
 

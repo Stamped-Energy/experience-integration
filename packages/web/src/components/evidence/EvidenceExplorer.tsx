@@ -11,10 +11,11 @@ import {
 } from "@/components/ui/primitives";
 import type { EvidencePack } from "@/lib/evidence";
 import { evidenceRouteState } from "@/lib/evidence";
-import { DEMO_PLANT } from "@/fixtures/demo";
 import { formatBaselineLabel } from "@/lib/format";
+import { usePlant } from "@/lib/plant-context";
 
 export function EvidenceExplorer({ pack }: { pack: EvidencePack }) {
+  const { activePlant } = usePlant();
   const state = evidenceRouteState(pack);
   const { scope, lineage, anomaly } = pack;
 
@@ -44,7 +45,8 @@ export function EvidenceExplorer({ pack }: { pack: EvidencePack }) {
             {scope.assetLabel} · {scope.metric.replaceAll("_", " ")}
           </h2>
           <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-            Window {scope.from.slice(0, 10)} → {scope.to.slice(0, 10)} · {DEMO_PLANT.plantName}
+            Window {scope.from.slice(0, 10)} → {scope.to.slice(0, 10)} ·{" "}
+            {activePlant.plantName}
           </p>
           <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
             {scope.alarmId ? (

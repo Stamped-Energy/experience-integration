@@ -3,6 +3,7 @@ import Fastify, {
   type FastifyServerOptions,
 } from "fastify";
 import cors from "@fastify/cors";
+import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import sensible from "@fastify/sensible";
 import { registerAdminRoutes } from "./admin/routes.js";
@@ -24,9 +25,12 @@ import { problemHandler } from "./problems.js";
 import { registerPublicApiRoutes } from "./public/routes.js";
 import { registerReportRoutes } from "./reports/routes.js";
 import { registerTelemetryRoutes } from "./telemetry/routes.js";
+import { correlationStore } from "./upstream/correlation.js";
 import type { L5WorkflowClient } from "./upstream/l5/client.js";
 import type { L4AnalystClient } from "./upstream/l4/client.js";
+import type { L2QueryClient } from "./upstream/l2/client.js";
 import { registerAnalystRoutes } from "./analyst/routes.js";
+import { registerL2Routes } from "./l2/routes.js";
 import type pg from "pg";
 
 export type AppDeps = {
@@ -38,6 +42,9 @@ export type AppDeps = {
   pool?: pg.Pool;
   l5?: L5WorkflowClient | null;
   l4?: L4AnalystClient | null;
+  l2?: L2QueryClient | null;
+  createL2Client?: (orgId: string) => L2QueryClient | null;
+  publicRateLimitMax?: number;
   alarmFixture?: AlarmStore;
   prescriptionFixture?: PrescriptionStore;
   enqueueReportGenerate?: (reportJobId: string) => Promise<string | null>;
@@ -73,6 +80,25 @@ export async function buildApp(
   });
 
   await app.register(sensible);
+  await app.register(helmet, {
+    // Report-only CSP first (Phase K) — tighten to enforce after pilot reports are clean.
+    contentSecurityPolicy: {
+      reportOnly: true,
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "blob:"],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  });
   await app.register(cors, {
     origin: env.WEB_ORIGIN,
     credentials: true,
@@ -90,7 +116,7 @@ export async function buildApp(
     global: true,
     max: env.NODE_ENV === "test" ? 10_000 : 300,
     timeWindow: "1 minute",
-    ban: 0,
+    // omit ban — ban:0 means "403 immediately on exceed" in @fastify/rate-limit
   });
 
   app.setErrorHandler(problemHandler);
@@ -108,6 +134,12 @@ export async function buildApp(
       });
   });
 
+  app.addHook("onRequest", (request, _reply, done) => {
+    // enterWith so outbound upstreamFetch sees the same id for the request lifetime.
+    correlationStore.enterWith({ requestId: request.id });
+    done();
+  });
+
   app.addHook("onSend", async (request, reply, payload) => {
     reply.header("x-request-id", request.id);
     return payload;
@@ -118,7 +150,12 @@ export async function buildApp(
     service: "l6-api",
   }));
 
-  app.get("/ready", async (_request, reply) => {
+  app.get("/ready", async () => ({
+    status: "ready",
+    service: "l6-api",
+  }));
+
+  app.get("/health/deep", async (_request, reply) => {
     if (env.REQUIRE_DATABASE && opts.checkReady) {
       const ready = await opts.checkReady();
       if (!ready) {
@@ -131,7 +168,7 @@ export async function buildApp(
         });
       }
     }
-    return { status: "ready", service: "l6-api" };
+    return { status: "ok", service: "l6-api", db: "connected" };
   });
 
   app.get("/api/meta", async () => ({
@@ -141,10 +178,13 @@ export async function buildApp(
     auth: Boolean(opts.auth),
   }));
 
-  await registerTelemetryRoutes(app, { db: opts.db });
+  await registerTelemetryRoutes(app, { db: opts.db, auth: opts.auth });
 
   if (opts.db) {
-    await registerPublicApiRoutes(app, { db: opts.db });
+    await registerPublicApiRoutes(app, {
+      db: opts.db,
+      publicRateLimitMax: opts.publicRateLimitMax,
+    });
   }
 
   if (opts.auth && opts.mailer) {
@@ -177,12 +217,22 @@ export async function buildApp(
       enqueueGenerate: opts.enqueueReportGenerate,
     });
     await registerIntegrationRoutes(app, { auth: opts.auth, db: opts.db });
+    await registerL2Routes(app, {
+      auth: opts.auth,
+      db: opts.db,
+      l2: opts.l2,
+      createL2Client: opts.createL2Client,
+    });
   }
   if (opts.auth && opts.l4) {
     await registerAnalystRoutes(app, {
       auth: opts.auth,
       l4: opts.l4,
       live: Boolean(env.L4_LIVE && !env.USE_FIXTURES),
+      allowAnonymous:
+        Boolean(env.L4_LIVE && !env.USE_FIXTURES) &&
+        (env.NODE_ENV === "development" ||
+          process.env.L4_ANALYST_ALLOW_ANON === "true"),
     });
   }
   if (opts.auth && opts.db && opts.pool) {

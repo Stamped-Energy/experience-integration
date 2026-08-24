@@ -24,6 +24,8 @@ export type AnalystRouteDeps = {
   auth: Auth;
   l4: L4AnalystClient;
   live: boolean;
+  /** Local OX / demo: allow envelope user when no Better Auth cookie. */
+  allowAnonymous: boolean;
 };
 
 function unauthorized(reply: {
@@ -42,21 +44,32 @@ export async function registerAnalystRoutes(
   app: FastifyInstance,
   deps: AnalystRouteDeps,
 ): Promise<void> {
-  const { auth, l4, live } = deps;
+  const { auth, l4, live, allowAnonymous } = deps;
 
   app.get("/api/analyst/meta", async () => ({
     live,
     surface: "ask_analyst",
+    allow_anonymous: allowAnonymous,
   }));
 
   app.post("/api/analyst/sessions", async (request, reply) => {
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(request.headers),
     });
-    if (!session) return unauthorized(reply, request.id);
-
     const body = CreateSessionBody.parse(request.body);
-    const userId = body.userId || session.user.id;
+    const userId = session?.user.id || body.userId;
+    if (!userId) {
+      if (!allowAnonymous) return unauthorized(reply, request.id);
+      return reply.status(400).send({
+        type: "https://httpstatuses.com/400",
+        title: "Bad Request",
+        status: 400,
+        detail: "userId required when anonymous analyst is enabled",
+        request_id: request.id,
+      });
+    }
+    if (!session && !allowAnonymous) return unauthorized(reply, request.id);
+
     try {
       const created = await l4.createSession({
         orgId: body.orgId,
@@ -69,6 +82,7 @@ export async function registerAnalystRoutes(
         plantId: created.plant_id,
         createdAt: created.created_at,
         live,
+        anonymous: !session,
       };
     } catch (err) {
       if (err instanceof UpstreamError) {
@@ -88,15 +102,23 @@ export async function registerAnalystRoutes(
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(request.headers),
     });
-    if (!session) return unauthorized(reply, request.id);
-
     const sessionId = String((request.params as { sessionId: string }).sessionId);
     const body = StreamMessageBody.parse(request.body);
-    // Prefer authenticated user id on the envelope for tenancy headers.
+    if (!session && !allowAnonymous) return unauthorized(reply, request.id);
+
     const envelope = {
       ...body.envelope,
-      userId: body.envelope.userId || session.user.id,
+      userId: session?.user.id || body.envelope.userId,
     };
+    if (!envelope.userId) {
+      return reply.status(400).send({
+        type: "https://httpstatuses.com/400",
+        title: "Bad Request",
+        status: 400,
+        detail: "envelope.userId required when anonymous",
+        request_id: request.id,
+      });
+    }
 
     try {
       const upstream = await l4.openMessageStream({
@@ -118,7 +140,6 @@ export async function registerAnalystRoutes(
         reply.raw.end();
         return;
       }
-      const decoder = new TextDecoder();
       for (;;) {
         const { done, value } = await reader.read();
         if (done) break;

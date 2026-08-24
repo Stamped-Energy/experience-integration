@@ -1,0 +1,9 @@
+# aws_region = "ap-south-1"
+# environment = "pilot"
+# create_rds = true
+# ec2_instance_type = "t4g.small"
+# rds_instance_class = "db.t4g.micro"
+#
+# Tighten before customer traffic:
+# allowed_https_cidrs = ["x.x.x.x/32"]
+# allowed_mqtts_cidrs = ["plant.egress.ip/32"]

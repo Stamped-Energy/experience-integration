@@ -13,7 +13,9 @@ import {
   type AnalystMessage,
 } from "@/lib/analyst-context";
 
-import { fetchAnalystLive, sendAnalystMessageStream } from "@/lib/analyst-live";
+import { fetchAnalystLive, resetAnalystLiveSession, sendAnalystMessageStream } from "@/lib/analyst-live";
+
+import { plantForId } from "@/fixtures/demo";
 
 import { IconBadge } from "@/components/ui/indicators";
 
@@ -98,6 +100,7 @@ export function ContextualAnalyst({
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<AnalystMessage[]>([]);
   const [streaming, setStreaming] = useState(false);
+  const [liveMode, setLiveMode] = useState<boolean | null>(null);
 
   const liveEnvelope = useMemo(
     () => ({ ...envelope, excludeKeys: excluded }),
@@ -105,6 +108,20 @@ export function ContextualAnalyst({
   );
   const chips = useMemo(() => visibleContextChips(liveEnvelope), [liveEnvelope]);
   const suggestions = useMemo(() => suggestionPrompts(envelope), [envelope]);
+  const plantLabel = plantForId(envelope.plantId).plantName;
+
+  useEffect(() => {
+    resetAnalystLiveSession();
+    setMessages([]);
+    setExcluded([]);
+    setDraft("");
+    setStreaming(false);
+  }, [envelope.plantId]);
+
+  useEffect(() => {
+    if (!open) return;
+    void fetchAnalystLive().then(setLiveMode);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -134,6 +151,7 @@ export function ContextualAnalyst({
     setDraft("");
 
     const live = await fetchAnalystLive();
+    setLiveMode(live);
     if (!live) {
       const reply = fixtureAnalystReply(liveEnvelope, q);
       const assistantMsg: AnalystMessage = { ...reply, id: assistantId, stream: true };
@@ -238,11 +256,16 @@ export function ContextualAnalyst({
                 Stamped Analyst
               </h2>
               <p className="analyst-panel__subtitle">
-                {envelope.screenTitle} · Cited answers from this screen
+                {plantLabel} · {envelope.screenTitle} · Cited answers from this screen
               </p>
             </div>
           </div>
           <div className="analyst-panel__header-actions">
+            {liveMode === true ? (
+              <StatusChip tone="good">Live AI</StatusChip>
+            ) : liveMode === false ? (
+              <StatusChip tone="neutral">Demo fixture</StatusChip>
+            ) : null}
             {streaming ? <StatusChip tone="info">Analyzing…</StatusChip> : null}
             <button
               ref={closeRef}

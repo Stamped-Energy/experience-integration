@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { PLANTS, VINAYAK_PLANT } from "@/fixtures/demo";
+import { LNM_PLANT, PLANTS } from "@/fixtures/demo";
 
 const STORAGE_KEY = "l6.activePlantId";
 
@@ -19,10 +19,15 @@ export type PlantOption = {
   plantId: string;
   plantName: string;
   timezone: string;
+  tariff: string;
+  cmdKva: number;
+  contractDemandNote: string;
+  shift: string;
+  demoAsOf: string;
 };
 
 export type PlantContextValue = {
-  /** Vinayak (live path, default) first, then Jaipur (offline switch). */
+  /** LNM (CNC demo) first, then Vinayak, then Jaipur offline. */
   plants: PlantOption[];
   activePlantId: string;
   activePlant: PlantOption;
@@ -32,17 +37,16 @@ export type PlantContextValue = {
 const PlantContext = createContext<PlantContextValue | null>(null);
 
 function resolvePlant(plantId: string): PlantOption {
-  return PLANTS.find((p) => p.plantId === plantId) ?? VINAYAK_PLANT;
+  return PLANTS.find((p) => p.plantId === plantId) ?? LNM_PLANT;
 }
 
 /**
- * Active-plant provider for the live path - defaults to Vinayak Plant and
- * persists the operator's selection (including offline Jaipur) across
- * sessions via localStorage.
+ * Active-plant provider — defaults to LNM Factory 1 for the CNC demo path
+ * and persists selection across sessions via localStorage.
  */
 export function PlantProvider({ children }: { children: ReactNode }) {
   const [activePlantId, setActivePlantIdState] = useState<string>(
-    VINAYAK_PLANT.plantId,
+    LNM_PLANT.plantId,
   );
 
   useEffect(() => {
@@ -81,14 +85,14 @@ export function PlantProvider({ children }: { children: ReactNode }) {
   return <PlantContext.Provider value={value}>{children}</PlantContext.Provider>;
 }
 
-/** Reads the active plant; falls back to Vinayak default outside a provider. */
+/** Reads the active plant; falls back to LNM default outside a provider. */
 export function usePlant(): PlantContextValue {
   const ctx = useContext(PlantContext);
   if (ctx) return ctx;
   return {
     plants: PLANTS,
-    activePlantId: VINAYAK_PLANT.plantId,
-    activePlant: VINAYAK_PLANT,
+    activePlantId: LNM_PLANT.plantId,
+    activePlant: LNM_PLANT,
     setActivePlantId: () => {
       /* no-op outside PlantProvider */
     },

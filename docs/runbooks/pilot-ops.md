@@ -14,12 +14,13 @@ credentials and upstream contracts are available.
 
 ## Smoke
 
-1. `GET /health` and `GET /ready` on API
-2. Sign-in + plant switch
-3. Today loads; alarms list; prescription defer/done (fixture or live)
-4. Evidence opens from alarm; ledger shows ops-confirmed ≠ bill-verified
-5. SSE reconnects after pause; `Last-Event-ID` resumes
-6. Export Centre: generate → approve → download HTML; CSV formula-safe
+1. `GET /health` and `GET /ready` on API (local serving)
+2. `GET /health/deep` when DB is required
+3. Sign-in + plant switch
+4. Today loads; alarms list; prescription defer/done (fixture or live)
+5. Evidence opens from alarm; ledger shows ops-confirmed ≠ bill-verified
+6. SSE reconnects after pause; `Last-Event-ID` resumes
+7. Export Centre: generate → approve → download HTML; CSV formula-safe
 
 ## Rollback
 
