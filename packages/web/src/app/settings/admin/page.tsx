@@ -1,32 +1,37 @@
+"use client";
+
 import { AppShell } from "@/components/shell/AppShell";
 import { PageHead, Panel, StatusChip } from "@/components/ui/primitives";
 import {
   DEMO_SHELL_ROLE,
-  DEMO_PLANT,
   auditEventsFixture,
   connectionFixture,
   membersFixture,
 } from "@/fixtures/demo";
 import { formatIstDateTime } from "@/lib/format";
+import { usePlant } from "@/lib/plant-context";
+
 export default function AdminSettingsPage() {
+  const { activePlant, plants, setActivePlantId } = usePlant();
+
   return (
     <AppShell
       active="admin"
-      plantName={DEMO_PLANT.plantName}
+      plantName={activePlant.plantName}
+      plantId={activePlant.plantId}
+      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
+      onPlantChange={setActivePlantId}
       role={DEMO_SHELL_ROLE}
       connection={connectionFixture}
       screenTitle="Admin"
-      contextSummary={[
-        `${membersFixture.length} members`,
-        DEMO_PLANT.orgName,
-      ]}
+      contextSummary={[`${membersFixture.length} members`, activePlant.orgName]}
       criticalAlarmCount={0}
     >
       <PageHead eyebrow="Admin" title="Organization admin" />
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <Panel>
           <h2 style={{ margin: "0 0 12px", fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
-            Memberships · {DEMO_PLANT.plantName}
+            Memberships · {activePlant.plantName}
           </h2>
           <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 10 }}>
             {membersFixture.map((m) => (

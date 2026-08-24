@@ -23,6 +23,11 @@ const LIVE_CACHE_MS = 5_000;
 let liveSessionId: string | null = null;
 let liveSessionKey: string | null = null;
 
+export function resetAnalystLiveSession(): void {
+  liveSessionId = null;
+  liveSessionKey = null;
+}
+
 export async function fetchAnalystLive(): Promise<boolean> {
   if (typeof window === "undefined") return false;
   if (process.env.NEXT_PUBLIC_ANALYST_LIVE === "false") return false;

@@ -2,10 +2,10 @@
 
 import { Panel, StatusChip } from "@/components/ui/primitives";
 import {
-  DEMO_PLANT,
   energyKpisFixture,
   intensityDemoInput,
 } from "@/fixtures/demo";
+import { usePlant } from "@/lib/plant-context";
 import {
   intensitySnapshot,
   mdHeadroomPct,
@@ -60,6 +60,7 @@ function EmissionsSplit({ gridPct, renewablePct }: { gridPct: number; renewableP
 }
 
 export function SustainabilityDashboard() {
+  const { activePlant } = usePlant();
   const snap = intensitySnapshot(intensityDemoInput);
   const headroom = mdHeadroomPct(energyKpisFixture.peakMdKva, energyKpisFixture.cmdKva);
   const consumers = topConsumersFixture().slice(0, 5);
@@ -84,7 +85,9 @@ export function SustainabilityDashboard() {
   return (
     <div className="sust-dash" data-sustainability-dashboard>
       <Panel className="sust-dash__hero">
-        <p className="forge-eyebrow">Jaipur Works · {DEMO_PLANT.tariff}</p>
+        <p className="forge-eyebrow">
+          {activePlant.plantName} · {activePlant.tariff}
+        </p>
         <h2 className="sust-dash__hero-title">Sustainability & intensity snapshot</h2>
         <p className="sust-dash__hero-lead">
           SEC, emissions, renewable mix, and demand metrics for this billing window.

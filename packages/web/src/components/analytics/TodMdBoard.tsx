@@ -1,11 +1,13 @@
 "use client";
 
 import { Panel, StatusChip } from "@/components/ui/primitives";
-import { DEMO_PLANT, energyKpisFixture } from "@/fixtures/demo";
+import { energyKpisFixture } from "@/fixtures/demo";
 import { TOD_BANDS_RJ, mdHeadroomPct } from "@/lib/analytics";
 import { formatIndianNum } from "@/lib/format";
+import { usePlant } from "@/lib/plant-context";
 
 export function TodMdBoard() {
+  const { activePlant } = usePlant();
   const cmd = energyKpisFixture.cmdKva;
   const peak = energyKpisFixture.peakMdKva;
   const headroom = mdHeadroomPct(peak, cmd);
@@ -29,7 +31,7 @@ export function TodMdBoard() {
             {formatIndianNum(cmd)} kVA
           </p>
           <p style={{ margin: "4px 0 0", fontSize: 11, color: "var(--forge-on-surface-variant)" }}>
-            {DEMO_PLANT.tariff}
+            {activePlant.tariff}
           </p>
         </div>
         <div>

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { AppShell } from "@/components/shell/AppShell";
 import { PageHead, Panel } from "@/components/ui/primitives";
@@ -11,10 +13,11 @@ import {
 } from "@/components/ui/icons";
 import {
   DEMO_SHELL_ROLE,
-  DEMO_PLANT,
+  alarmsForPlant,
   connectionFixture,
-  demoCriticalAlarmCount,
 } from "@/fixtures/demo";
+import { usePlant } from "@/lib/plant-context";
+
 const TOOLS = [
   {
     href: "/energy",
@@ -55,18 +58,33 @@ const TOOLS = [
 ] as const;
 
 export default function ToolsPage() {
+  const { activePlant, plants, setActivePlantId } = usePlant();
+  const critical = alarmsForPlant(activePlant.plantId).filter(
+    (a) => a.severity === "critical" && a.state !== "cleared",
+  ).length;
+
   return (
     <AppShell
       active="tools"
-      plantName={DEMO_PLANT.plantName}
+      plantName={activePlant.plantName}
+      plantId={activePlant.plantId}
+      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
+      onPlantChange={setActivePlantId}
       role={DEMO_SHELL_ROLE}
       connection={connectionFixture}
       screenTitle="Tools"
-      contextSummary={["Specialized plant tools", DEMO_PLANT.plantName]}
-      criticalAlarmCount={demoCriticalAlarmCount()}
+      contextSummary={["Specialized plant tools", activePlant.plantName]}
+      criticalAlarmCount={critical}
     >
       <PageHead eyebrow="Operations" title="Tools" />
-      <p style={{ margin: 0, fontSize: 14, color: "var(--forge-on-surface-variant)", maxWidth: 640 }}>
+      <p
+        style={{
+          margin: 0,
+          fontSize: 14,
+          color: "var(--forge-on-surface-variant)",
+          maxWidth: 640,
+        }}
+      >
         Open a specialized screen. Alarms and prescriptions stay in primary navigation.
       </p>
       <div
@@ -83,7 +101,13 @@ export default function ToolsPage() {
               <h2 className="forge-card-title" style={{ marginTop: 12, fontSize: 17 }}>
                 {title}
               </h2>
-              <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
+              <p
+                style={{
+                  margin: "8px 0 0",
+                  fontSize: 13,
+                  color: "var(--forge-on-surface-variant)",
+                }}
+              >
                 {blurb}
               </p>
             </Panel>

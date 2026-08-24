@@ -1,50 +1,62 @@
+"use client";
+
 import { AppShell } from "@/components/shell/AppShell";
 import { OverviewBoard } from "@/components/today/OverviewBoard";
 import { PageHead } from "@/components/ui/primitives";
 import {
-  DEMO_PLANT,
   DEMO_SHELL_ROLE,
-  alarmsFixture,
+  alarmsForPlant,
   assetsFixture,
   connectionFixture,
-  demoClosurePct,
-  demoCriticalAlarmCount,
-  demoNeedsReviewInr,
-  prescriptionsFixture,
+  prescriptionsForPlant,
   todaySignalsFixture,
 } from "@/fixtures/demo";
 import { formatInr } from "@/lib/format";
+import { usePlant } from "@/lib/plant-context";
 import { selectTodaySignals } from "@/lib/today-signals";
 
 const ROLE = "plant_head" as const;
 
 export default function OverviewPage() {
+  const { activePlant, plants, setActivePlantId } = usePlant();
   const signals = selectTodaySignals(ROLE, todaySignalsFixture);
-  const critical = demoCriticalAlarmCount();
+  const alarms = alarmsForPlant(activePlant.plantId);
+  const prescriptions = prescriptionsForPlant(activePlant.plantId);
+  const critical = alarms.filter(
+    (a) => a.severity === "critical" && a.state !== "cleared",
+  ).length;
+  const needsReview = prescriptions.filter((p) => p.lane === "needs_review");
+  const needsReviewInr = needsReview.reduce((s, p) => s + p.impactInrPerMonth, 0);
+  const closed = prescriptions.filter((p) => p.lane === "closed").length;
+  const closurePct =
+    prescriptions.length === 0 ? 0 : Math.round((closed / prescriptions.length) * 100);
 
   return (
     <AppShell
       active="today"
-      plantName={DEMO_PLANT.plantName}
+      plantName={activePlant.plantName}
+      plantId={activePlant.plantId}
+      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
+      onPlantChange={setActivePlantId}
       role={DEMO_SHELL_ROLE}
       connection={connectionFixture}
       screenTitle="Overview"
       contextSummary={[
         `${critical} critical alarms`,
-        `${formatInr(demoNeedsReviewInr())} open prescriptions`,
-        DEMO_PLANT.shift,
+        `${formatInr(needsReviewInr)} open prescriptions`,
+        activePlant.shift,
       ]}
       criticalAlarmCount={critical}
     >
-      <PageHead eyebrow={DEMO_PLANT.plantName} title="Overview" />
+      <PageHead eyebrow={activePlant.plantName} title="Overview" />
       <p className="forge-page-lede">
-        {DEMO_PLANT.contractDemandNote} · As of {DEMO_PLANT.demoAsOf} · {DEMO_PLANT.tariff}
+        {activePlant.contractDemandNote} · As of {activePlant.demoAsOf} · {activePlant.tariff}
       </p>
       <OverviewBoard
         signals={signals}
-        closurePct={demoClosurePct()}
-        alarms={alarmsFixture}
-        prescriptions={prescriptionsFixture}
+        closurePct={closurePct}
+        alarms={alarms}
+        prescriptions={prescriptions}
         assets={assetsFixture}
       />
     </AppShell>

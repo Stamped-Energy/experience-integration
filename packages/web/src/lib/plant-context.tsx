@@ -19,6 +19,11 @@ export type PlantOption = {
   plantId: string;
   plantName: string;
   timezone: string;
+  tariff: string;
+  cmdKva: number;
+  contractDemandNote: string;
+  shift: string;
+  demoAsOf: string;
 };
 
 export type PlantContextValue = {

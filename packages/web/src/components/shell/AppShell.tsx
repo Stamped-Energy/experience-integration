@@ -203,7 +203,9 @@ export function AppShell({
               {sse.banner}
             </div>
           ) : null}
-          <div className="forge-shell__content">{children}</div>
+          <div className="forge-shell__content" key={shellPlantId}>
+            {children}
+          </div>
         </main>
       </div>
 

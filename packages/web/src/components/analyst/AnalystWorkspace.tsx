@@ -1,13 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { AnalystContextEnvelope } from "@/lib/types";
 
-import { DEMO_PLANT } from "@/fixtures/demo";
-
 import {
-  analystChatHistoryFixture,
   formatChatDate,
   type AnalystChatSession,
 } from "@/fixtures/analyst-chat-history";
@@ -19,9 +16,15 @@ import {
   type AnalystMessage,
 } from "@/lib/analyst-context";
 
-import { fetchAnalystLive, sendAnalystMessageStream } from "@/lib/analyst-live";
+import {
+  fetchAnalystLive,
+  resetAnalystLiveSession,
+  sendAnalystMessageStream,
+} from "@/lib/analyst-live";
 
 import { analystPlantSnapshot } from "@/lib/analyst-fixtures";
+
+import { usePlant } from "@/lib/plant-context";
 
 import { formatInr } from "@/lib/format";
 
@@ -58,17 +61,6 @@ import {
 import type { StatusTone } from "@/components/ui/primitives";
 
 import "./analyst-workspace.css";
-
-const BASE_ENVELOPE: AnalystContextEnvelope = {
-  orgId: DEMO_PLANT.orgId,
-  plantId: DEMO_PLANT.plantId,
-  userId: "user_demo",
-  role: "energy_manager",
-  routeId: "analyst",
-  screenTitle: "Ask Analyst",
-  visibleSummary: [DEMO_PLANT.plantName, "Cited answers from plant data"],
-  focusEntity: { type: "alarm", id: "alm_1001" },
-};
 
 const QUICK = [
   {
@@ -190,20 +182,61 @@ function QuickPromptButton({
 
 /** Mode B - full-page analyst workspace with streaming replies. */
 export function AnalystWorkspace() {
-  const [sessions, setSessions] = useState<AnalystChatSession[]>(analystChatHistoryFixture);
-  const [activeSessionId, setActiveSessionId] = useState(analystChatHistoryFixture[0]!.id);
-  const [messages, setMessages] = useState<AnalystMessage[]>(
-    analystChatHistoryFixture[0]!.messages,
+  const { activePlant } = usePlant();
+  const [sessions, setSessions] = useState<AnalystChatSession[]>(() => [
+    {
+      id: `chat_${activePlant.plantId}_new`,
+      title: "New conversation",
+      preview: `Ask about ${activePlant.plantName}…`,
+      updatedAt: new Date().toISOString(),
+      messages: [],
+    },
+  ]);
+  const [activeSessionId, setActiveSessionId] = useState(
+    () => `chat_${activePlant.plantId}_new`,
   );
+  const [messages, setMessages] = useState<AnalystMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [streaming, setStreaming] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const snapshot = analystPlantSnapshot();
+  const snapshot = useMemo(
+    () => analystPlantSnapshot(activePlant.plantId),
+    [activePlant.plantId],
+  );
   const activeSession = sessions.find((s) => s.id === activeSessionId);
   const isEmpty = messages.length === 0;
 
-  const envelope = useMemo(() => BASE_ENVELOPE, []);
+  const envelope = useMemo<AnalystContextEnvelope>(
+    () => ({
+      orgId: activePlant.orgId,
+      plantId: activePlant.plantId,
+      userId: "user_demo",
+      role: "energy_manager",
+      routeId: "analyst",
+      screenTitle: "Ask Analyst",
+      visibleSummary: [activePlant.plantName, "Cited answers from plant data"],
+    }),
+    [activePlant],
+  );
+
+  useEffect(() => {
+    resetAnalystLiveSession();
+    const id = `chat_${activePlant.plantId}_${Date.now()}`;
+    setSessions([
+      {
+        id,
+        title: "New conversation",
+        preview: `Ask about ${activePlant.plantName}…`,
+        updatedAt: new Date().toISOString(),
+        messages: [],
+      },
+    ]);
+    setActiveSessionId(id);
+    setMessages([]);
+    setDraft("");
+    setStreaming(false);
+  }, [activePlant.plantId, activePlant.plantName]);
 
   const scrollToBottom = useCallback(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -361,7 +394,7 @@ export function AnalystWorkspace() {
         <div className="analyst-hero__head">
           <div>
             <p className="forge-eyebrow">Plant context for answers</p>
-            <p className="analyst-hero__title">{DEMO_PLANT.plantName}</p>
+            <p className="analyst-hero__title">{snapshot.plantName}</p>
           </div>
           <div className="analyst-hero__badges">
             <StatusChip tone="good">Source citations</StatusChip>
@@ -414,7 +447,7 @@ export function AnalystWorkspace() {
                   {activeSession?.title ?? "Ask Analyst"}
                 </h2>
                 <p className="analyst-chat-header__sub">
-                  {DEMO_PLANT.plantName} · Linked to alarms & prescriptions
+                  {snapshot.plantName} · Linked to alarms & prescriptions
                 </p>
               </div>
             </div>
@@ -426,7 +459,7 @@ export function AnalystWorkspace() {
               <div className="analyst-empty">
                 <EmptyState
                   icon={Sparkles}
-                  title={`How can I help with ${DEMO_PLANT.plantName}?`}
+                  title={`How can I help with ${snapshot.plantName}?`}
                   description="Ask about alarms, prescriptions, peak demand, or savings closure. Every answer cites plant data and links to the relevant alarm or prescription when applicable."
                   action={
                     <div className="analyst-quick">

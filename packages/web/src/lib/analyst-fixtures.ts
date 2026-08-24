@@ -1,19 +1,20 @@
 import {
-  alarmsFixture,
   DEMO_PLANT,
-  demoClosurePct,
-  demoCriticalAlarmCount,
-  demoNeedsReviewCount,
-  demoNeedsReviewInr,
   energyKpisFixture,
   findPrescription,
-  prescriptionsFixture,
+  plantForId,
+  alarmsForPlant,
+  prescriptionsForPlant,
 } from "@/fixtures/demo";
 import type { AnalystContextEnvelope } from "@/lib/types";
 import type { AnalystCitation } from "./analyst-context";
 
-function openAlarms() {
-  return alarmsFixture.filter((a) => a.state !== "cleared");
+function plantNameOf(envelope: AnalystContextEnvelope): string {
+  return plantForId(envelope.plantId).plantName;
+}
+
+function openAlarms(plantId: string) {
+  return alarmsForPlant(plantId).filter((a) => a.state !== "cleared");
 }
 
 function fmtInr(n: number): string {
@@ -36,7 +37,7 @@ function matchQuestion(q: string): string | null {
 }
 
 function alarmSummaryReply(envelope: AnalystContextEnvelope): string {
-  const open = openAlarms();
+  const open = openAlarms(envelope.plantId);
   const critical = open.filter((a) => a.severity === "critical");
   const warning = open.filter((a) => a.severity === "warning");
   const lines = open
@@ -50,28 +51,33 @@ function alarmSummaryReply(envelope: AnalystContextEnvelope): string {
   const focus = envelope.focusEntity;
   const focusNote =
     focus?.type === "alarm"
-      ? `\n\n**Priority focus:** Kiln 1 is linked to stagger co-start (${fmtInr(84000)}/mo). Ack before shift handoff.`
+      ? `\n\n**Priority focus:** review the focused alarm and linked prescription before shift handoff.`
       : "";
 
   return [
-    `**${DEMO_PLANT.plantName} - ${open.length} open alarms** (${critical.length} critical, ${warning.length} warning, ${open.length - critical.length - warning.length} info).`,
+    `**${plantNameOf(envelope)} - ${open.length} open alarms** (${critical.length} critical, ${warning.length} warning, ${open.length - critical.length - warning.length} info).`,
     "",
     lines,
     focusNote,
     "",
     "**Recommended next steps:**",
-    "1. Ack Kiln 1 MD coincidence and review incomer headroom.",
-    "2. Assign APFC health check on Cement Mill 1.",
+    "1. Ack critical MD / coincidence alarms and review incomer headroom.",
+    "2. Assign follow-ups for warning PF / idle findings.",
     "3. Open evidence for any alarm before closing - cite sources in your notes.",
   ]
     .filter(Boolean)
     .join("\n");
 }
 
-function prescriptionReply(): string {
-  const top = prescriptionsFixture
+function prescriptionReply(envelope: AnalystContextEnvelope): string {
+  const catalog = prescriptionsForPlant(envelope.plantId);
+  const top = catalog
     .filter((p) => p.lane === "needs_review" || p.lane === "active")
-    .sort((a, b) => b.impactInrPerMonth * b.confidence - a.impactInrPerMonth * a.confidence)[0]!;
+    .sort((a, b) => b.impactInrPerMonth * b.confidence - a.impactInrPerMonth * a.confidence)[0];
+
+  if (!top) {
+    return `No open high-impact prescriptions for **${plantNameOf(envelope)}** in the fixture catalog.`;
+  }
 
   return [
     `**Highest-impact open prescription: ${top.title}**`,
@@ -89,44 +95,46 @@ function prescriptionReply(): string {
   ].join("\n");
 }
 
-function demandReply(): string {
+function demandReply(envelope: AnalystContextEnvelope): string {
   const headroom =
     ((energyKpisFixture.cmdKva - energyKpisFixture.peakMdKva) /
       energyKpisFixture.cmdKva) *
     100;
   return [
-    `**Peak demand last 7 days - ${DEMO_PLANT.plantName}**`,
+    `**Peak demand last 7 days - ${plantNameOf(envelope)}**`,
     "",
     `• **Rolling peak MD:** ${energyKpisFixture.peakMdKva.toLocaleString("en-IN")} kVA vs **CMD ${energyKpisFixture.cmdKva.toLocaleString("en-IN")} kVA** (${headroom.toFixed(1)}% headroom)`,
-    `• **Primary driver:** Kiln 1 + Raw Mill 2 co-start into **10–11 TOD peak** (Jul 21 09:40 IST)`,
-    `• **Vs baseline (7d):** +${energyKpisFixture.vsBaselinePct}% grid kWh - pyro + grinding overlap`,
+    `• **Primary driver:** large-load co-start into TOD peak`,
+    `• **Vs baseline (7d):** +${energyKpisFixture.vsBaselinePct}% grid kWh`,
     `• **Peak TOD share:** ${energyKpisFixture.todPeakSharePct}% of MTD energy cost`,
     "",
-    "**What to do:** Stagger large-load starts by 10 min to recover ~₹84k/mo MD risk. Monitor incomer rolling MD - alert at <5% headroom.",
+    "**What to do:** Stagger large-load starts to recover MD risk. Monitor incomer rolling MD - alert at <5% headroom.",
   ].join("\n");
 }
 
-function closureReply(): string {
-  const closed = prescriptionsFixture.filter((p) => p.lane === "closed").length;
-  const verifying = prescriptionsFixture.filter((p) => p.lane === "verifying").length;
-  const needsReview = demoNeedsReviewCount();
-  const closure = demoClosurePct();
+function closureReply(envelope: AnalystContextEnvelope): string {
+  const catalog = prescriptionsForPlant(envelope.plantId);
+  const closed = catalog.filter((p) => p.lane === "closed").length;
+  const verifying = catalog.filter((p) => p.lane === "verifying").length;
+  const needsReview = catalog.filter((p) => p.lane === "needs_review");
+  const needsReviewInr = needsReview.reduce((s, p) => s + p.impactInrPerMonth, 0);
+  const closure =
+    catalog.length === 0 ? 0 : Math.round((closed / catalog.length) * 100);
 
   return [
-    `**Prescription closure - Jul 2026 billing window**`,
+    `**Prescription closure - ${plantNameOf(envelope)}**`,
     "",
-    `• **Closure rate (30d):** ${closure}% (${closed}/${prescriptionsFixture.length} closed)`,
-    `• **Needs review:** ${needsReview} prescriptions · **${fmtInr(demoNeedsReviewInr())}/mo** addressable`,
+    `• **Closure rate (30d):** ${closure}% (${closed}/${catalog.length} closed)`,
+    `• **Needs review:** ${needsReview.length} prescriptions · **${fmtInr(needsReviewInr)}/mo** addressable`,
     `• **Verifying:** ${verifying} prescriptions awaiting savings verification`,
-    `• **Confirmed savings (MTD):** HVAC setback + APFC stage swap`,
     "",
-    "**Bottleneck:** Kiln MD and compressor sequencing prescriptions still in needs review - assign owners this week to protect the billing cycle.",
+    "**Bottleneck:** keep owners assigned on needs-review items before the billing cycle closes.",
   ].join("\n");
 }
 
 function whyCriticalReply(envelope: AnalystContextEnvelope): string {
-  const id = envelope.focusEntity?.id ?? "alm_1001";
-  const alarm = alarmsFixture.find((a) => a.id === id);
+  const id = envelope.focusEntity?.id ?? "";
+  const alarm = alarmsForPlant(envelope.plantId).find((a) => a.id === id);
   if (!alarm) {
     return `Focus alarm not found - open the alarm console for live state. Cross-check evidence before ack.`;
   }
@@ -136,10 +144,10 @@ function whyCriticalReply(envelope: AnalystContextEnvelope): string {
     alarm.summary,
     "",
     alarm.relatedPrescriptionId
-      ? `Linked prescription **Stagger co-start** - highest-confidence ops action on this screen.`
+      ? `Linked prescription available - highest-confidence ops action on this screen.`
       : "No linked prescription yet - review similar assets for patterns.",
     "",
-    "Open **Evidence** for the Jul 21 signal window before acknowledging.",
+    "Open **Evidence** for the signal window before acknowledging.",
   ].join("\n");
 }
 
@@ -168,7 +176,7 @@ function defaultReply(envelope: AnalystContextEnvelope, question: string): strin
     ? `Current focus: **${envelope.focusEntity.type.replaceAll("_", " ")}**.`
     : "";
   return [
-    `Analyzing **${DEMO_PLANT.plantName}**.`,
+    `Analyzing **${plantNameOf(envelope)}**.`,
     focus,
     "",
     `You asked: “${question.trim()}”`,
@@ -191,13 +199,13 @@ export function fixtureAnalystReplyRich(
       content = alarmSummaryReply(envelope);
       break;
     case "rx":
-      content = prescriptionReply();
+      content = prescriptionReply(envelope);
       break;
     case "demand":
-      content = demandReply();
+      content = demandReply(envelope);
       break;
     case "closure":
-      content = closureReply();
+      content = closureReply(envelope);
       break;
     case "why_critical":
       content = whyCriticalReply(envelope);
@@ -210,10 +218,11 @@ export function fixtureAnalystReplyRich(
   }
 
   const focus = envelope.focusEntity;
+  const plantAlarms = alarmsForPlant(envelope.plantId);
   const citations: AnalystCitation[] = [
     {
       id: "cite_plant",
-      title: `${DEMO_PLANT.plantName} · plant context`,
+      title: `${plantNameOf(envelope)} · plant context`,
       snippet: envelope.screenTitle,
       path: "H",
     },
@@ -228,8 +237,8 @@ export function fixtureAnalystReplyRich(
   if (focus?.type === "alarm") {
     citations.push({
       id: `cite_${focus.id}`,
-      title: `Alarm · ${alarmsFixture.find((a) => a.id === focus.id)?.assetLabel ?? "Active alarm"}`,
-      snippet: alarmsFixture.find((a) => a.id === focus.id)?.summary,
+      title: `Alarm · ${plantAlarms.find((a) => a.id === focus.id)?.assetLabel ?? "Active alarm"}`,
+      snippet: plantAlarms.find((a) => a.id === focus.id)?.summary,
       path: "H",
     });
   }
@@ -252,19 +261,27 @@ export function fixtureAnalystReplyRich(
 }
 
 /** Plant snapshot stats for the analyst sidebar. */
-export function analystPlantSnapshot() {
+export function analystPlantSnapshot(plantId: string = DEMO_PLANT.plantId) {
+  const plant = plantForId(plantId);
+  const open = openAlarms(plantId);
+  const catalog = prescriptionsForPlant(plantId);
+  const needsReview = catalog.filter((p) => p.lane === "needs_review");
+  const closed = catalog.filter((p) => p.lane === "closed").length;
+  const closurePct =
+    catalog.length === 0 ? 0 : Math.round((closed / catalog.length) * 100);
+
   return {
-    plantName: DEMO_PLANT.plantName,
-    criticalAlarms: demoCriticalAlarmCount(),
-    openAlarms: openAlarms().length,
-    needsReview: demoNeedsReviewCount(),
-    needsReviewInr: demoNeedsReviewInr(),
+    plantName: plant.plantName,
+    criticalAlarms: open.filter((a) => a.severity === "critical").length,
+    openAlarms: open.length,
+    needsReview: needsReview.length,
+    needsReviewInr: needsReview.reduce((s, p) => s + p.impactInrPerMonth, 0),
     peakMdKva: energyKpisFixture.peakMdKva,
     cmdKva: energyKpisFixture.cmdKva,
     headroomPct:
       ((energyKpisFixture.cmdKva - energyKpisFixture.peakMdKva) /
         energyKpisFixture.cmdKva) *
       100,
-    closurePct: demoClosurePct(),
+    closurePct,
   };
 }
