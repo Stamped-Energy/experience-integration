@@ -20,6 +20,7 @@ services:
     working_dir: /app
     command: bash -lc "corepack enable && pnpm install --frozen-lockfile && pnpm --filter @stamped/l6-api db:migrate && pnpm --filter @stamped/l6-api dev"
     environment:
+      CI: "true"
       NODE_ENV: development
       HOST: 0.0.0.0
       PORT: 3001
@@ -28,14 +29,21 @@ services:
       LOG_LEVEL: info
       # Ask Analyst → host L4 (OpenRouter OX). Override as needed.
       L4_BASE_URL: http://host.docker.internal:8000
-      L4_LIVE: "false"
+      L4_LIVE: "true"
       L4_TIMEOUT_MS: "120000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
       - "3001:3001"
     volumes:
-      - .:/app
+      - ..:/app
+      # Keep Linux deps off the Windows host tree (avoids corrupting local node_modules).
+      - l6_nm:/app/node_modules
+      - l6_nm_api:/app/packages/api/node_modules
+      - l6_nm_web:/app/packages/web/node_modules
+      - l6_nm_worker:/app/packages/worker/node_modules
+      - l6_nm_contracts:/app/packages/contracts/node_modules
+      - l6_nm_infra:/app/packages/infra/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -45,11 +53,18 @@ services:
     working_dir: /app
     command: bash -lc "corepack enable && pnpm install --frozen-lockfile && pnpm --filter @stamped/l6-worker start"
     environment:
+      CI: "true"
       NODE_ENV: development
       DATABASE_URL: postgres://stamped:stamped@postgres:5432/stamped_l6
       LOG_LEVEL: info
     volumes:
-      - .:/app
+      - ..:/app
+      - l6_nm:/app/node_modules
+      - l6_nm_api:/app/packages/api/node_modules
+      - l6_nm_web:/app/packages/web/node_modules
+      - l6_nm_worker:/app/packages/worker/node_modules
+      - l6_nm_contracts:/app/packages/contracts/node_modules
+      - l6_nm_infra:/app/packages/infra/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -61,12 +76,19 @@ services:
     working_dir: /app
     command: bash -lc "corepack enable && pnpm install --frozen-lockfile && pnpm --filter @stamped/l6-web dev -- --hostname 0.0.0.0 --port 3000"
     environment:
+      CI: "true"
       NODE_ENV: development
       NEXT_PUBLIC_BFF_URL: http://localhost:3001
     ports:
       - "3000:3000"
     volumes:
-      - .:/app
+      - ..:/app
+      - l6_nm:/app/node_modules
+      - l6_nm_api:/app/packages/api/node_modules
+      - l6_nm_web:/app/packages/web/node_modules
+      - l6_nm_worker:/app/packages/worker/node_modules
+      - l6_nm_contracts:/app/packages/contracts/node_modules
+      - l6_nm_infra:/app/packages/infra/node_modules
     depends_on:
       - api
 
@@ -79,3 +101,9 @@ services:
 
 volumes:
   stamped_l6_pg:
+  l6_nm:
+  l6_nm_api:
+  l6_nm_web:
+  l6_nm_worker:
+  l6_nm_contracts:
+  l6_nm_infra:
