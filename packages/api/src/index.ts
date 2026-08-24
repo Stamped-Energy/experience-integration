@@ -9,6 +9,8 @@ import {
   defaultL5FeaturesFromEnv,
 } from "./upstream/l5/client.js";
 import { L4AnalystClient } from "./upstream/l4/client.js";
+import { defaultL2FeaturesFromEnv } from "./upstream/l2/client.js";
+import { createL2ClientFromOptions } from "./l2/routes.js";
 
 const env = loadEnv();
 
@@ -46,6 +48,16 @@ const l4 = new L4AnalystClient({
   live: l4Live,
 });
 
+const l2Live = !env.USE_FIXTURES && env.L2_LIVE;
+const l2Opts = {
+  baseUrl: env.L2_BASE_URL,
+  timeoutMs: env.L2_TIMEOUT_MS,
+  serviceKey: env.L2_SERVICE_KEY,
+  live: l2Live,
+  features: defaultL2FeaturesFromEnv(process.env),
+};
+const createL2Client = (orgId: string) => createL2ClientFromOptions(l2Opts, orgId);
+
 const app = await startServer({
   env,
   auth,
@@ -54,6 +66,7 @@ const app = await startServer({
   pool,
   l5,
   l4,
+  createL2Client,
   checkReady: () => pingDatabase(pool),
 });
 
@@ -72,6 +85,16 @@ if (l5) {
 }
 
 app.log.info({ l4Live, baseUrl: env.L4_BASE_URL }, "l4 analyst client ready");
+app.log.info(
+  {
+    l2Live,
+    baseUrl: env.L2_BASE_URL,
+    hasServiceKey: Boolean(env.L2_SERVICE_KEY?.trim()),
+  },
+  l2Live && env.L2_SERVICE_KEY?.trim()
+    ? "l2 live — BFF /api/l2 routes enabled"
+    : "l2 live gate off — fixture-only L2 path",
+);
 
 async function shutdown(signal: string) {
   app.log.info({ signal }, "shutting down");

@@ -77,7 +77,16 @@ const EnvSchema = z.object({
     z.string().url().default("http://127.0.0.1:8091"),
   ),
   L2_TIMEOUT_MS: z.coerce.number().int().positive().default(5_000),
+  /**
+   * L2 service key — required for live L2 BFF routes. No inventable default
+   * (Phase S). Absent key forces fixture-only L2 path.
+   */
   L2_SERVICE_KEY: z.string().optional(),
+  /** Live-wire gate for L2 query API at boot (Phase E). */
+  L2_LIVE: z
+    .enum(["true", "false"])
+    .default("true")
+    .transform((v) => v === "true"),
   L2_FEATURE_LEDGER: z
     .enum(["true", "false"])
     .default("false")

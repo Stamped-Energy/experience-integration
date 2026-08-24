@@ -13,6 +13,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate-cli.ts",
     "seed:vinayak": "tsx scripts/seed_vinayak_plant.ts",
+    "seed:lnm-demo": "tsx scripts/seed_lnm_demo.ts",
     "prisma:generate": "prisma generate --schema prisma/schema.prisma",
     "prisma:pull": "prisma db pull --schema prisma/schema.prisma",
     "prisma:studio": "prisma studio --schema prisma/schema.prisma",

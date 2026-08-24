@@ -307,6 +307,118 @@ export async function seedVinayakPlant(
   return { org, plant: vinayakPlant, membership };
 }
 
+/** Canonical LNM Factory 1 external plant id (Phase B L2 persona). */
+export const LNM_EXTERNAL_PLANT_ID = "plant_lnm_faridabad_1";
+
+/**
+ * Seed/attach LNM Factory 1 (Faridabad) — CNC demo plant on org_acme
+ * (or an existing org). Extends admin membership like seedVinayakPlant.
+ */
+export async function seedLnmFactoryPlant(
+  db: Db,
+  input: { adminUserId: string; orgId?: string },
+) {
+  let org: { id: string; slug: string; name: string };
+  if (input.orgId) {
+    const [existingOrg] = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.id, input.orgId));
+    if (!existingOrg) {
+      throw new Error(`Organization ${input.orgId} not found`);
+    }
+    org = existingOrg;
+  } else {
+    const existingAcme = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.slug, "acme"))
+      .then((rows) => rows[0]);
+    org =
+      existingAcme ??
+      (await createOrganization(db, { slug: "acme", name: "Acme" }));
+  }
+
+  const existingLnm = await db
+    .select()
+    .from(plants)
+    .where(
+      and(
+        eq(plants.orgId, org.id),
+        eq(plants.externalPlantId, LNM_EXTERNAL_PLANT_ID),
+      ),
+    )
+    .then((rows) => rows[0]);
+  const lnmPlant =
+    existingLnm ??
+    (await createPlant(db, {
+      orgId: org.id,
+      externalPlantId: LNM_EXTERNAL_PLANT_ID,
+      name: "LNM Factory 1",
+      timezone: "Asia/Kolkata",
+    }));
+
+  const existingMembership = await db
+    .select()
+    .from(memberships)
+    .where(
+      and(
+        eq(memberships.userId, input.adminUserId),
+        eq(memberships.orgId, org.id),
+      ),
+    )
+    .then((rows) => rows[0]);
+
+  let membership: MembershipRecord;
+  if (existingMembership) {
+    const existingPlantRows = await db
+      .select()
+      .from(plantMemberships)
+      .where(eq(plantMemberships.membershipId, existingMembership.id));
+    const plantIds = Array.from(
+      new Set([...existingPlantRows.map((p) => p.plantId), lnmPlant.id]),
+    );
+    membership = await updateMembershipRoleAndPlants(db, {
+      membershipId: existingMembership.id,
+      role: RoleSchema.parse(existingMembership.role),
+      plantIds,
+    });
+  } else {
+    membership = await addMembership(db, {
+      userId: input.adminUserId,
+      orgId: org.id,
+      role: "admin",
+      plantIds: [lnmPlant.id],
+    });
+  }
+
+  const existingPref = await db
+    .select()
+    .from(userPreferences)
+    .where(
+      and(
+        eq(userPreferences.userId, input.adminUserId),
+        eq(userPreferences.orgId, org.id),
+      ),
+    )
+    .then((rows) => rows[0]);
+  if (existingPref) {
+    await db
+      .update(userPreferences)
+      .set({ activePlantId: lnmPlant.id, updatedAt: new Date() })
+      .where(eq(userPreferences.id, existingPref.id));
+  } else {
+    await db.insert(userPreferences).values({
+      userId: input.adminUserId,
+      orgId: org.id,
+      activePlantId: lnmPlant.id,
+      prefs: {},
+    });
+  }
+
+  return { org, plant: lnmPlant, membership };
+}
+
 export async function listOrgMemberships(
   db: Db,
   orgId: string,

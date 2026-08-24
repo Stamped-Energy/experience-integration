@@ -26,7 +26,9 @@ import { registerReportRoutes } from "./reports/routes.js";
 import { registerTelemetryRoutes } from "./telemetry/routes.js";
 import type { L5WorkflowClient } from "./upstream/l5/client.js";
 import type { L4AnalystClient } from "./upstream/l4/client.js";
+import type { L2QueryClient } from "./upstream/l2/client.js";
 import { registerAnalystRoutes } from "./analyst/routes.js";
+import { registerL2Routes } from "./l2/routes.js";
 import type pg from "pg";
 
 export type AppDeps = {
@@ -38,6 +40,9 @@ export type AppDeps = {
   pool?: pg.Pool;
   l5?: L5WorkflowClient | null;
   l4?: L4AnalystClient | null;
+  l2?: L2QueryClient | null;
+  createL2Client?: (orgId: string) => L2QueryClient | null;
+  publicRateLimitMax?: number;
   alarmFixture?: AlarmStore;
   prescriptionFixture?: PrescriptionStore;
   enqueueReportGenerate?: (reportJobId: string) => Promise<string | null>;
@@ -144,7 +149,10 @@ export async function buildApp(
   await registerTelemetryRoutes(app, { db: opts.db });
 
   if (opts.db) {
-    await registerPublicApiRoutes(app, { db: opts.db });
+    await registerPublicApiRoutes(app, {
+      db: opts.db,
+      publicRateLimitMax: opts.publicRateLimitMax,
+    });
   }
 
   if (opts.auth && opts.mailer) {
@@ -177,6 +185,12 @@ export async function buildApp(
       enqueueGenerate: opts.enqueueReportGenerate,
     });
     await registerIntegrationRoutes(app, { auth: opts.auth, db: opts.db });
+    await registerL2Routes(app, {
+      auth: opts.auth,
+      db: opts.db,
+      l2: opts.l2,
+      createL2Client: opts.createL2Client,
+    });
   }
   if (opts.auth && opts.l4) {
     await registerAnalystRoutes(app, {

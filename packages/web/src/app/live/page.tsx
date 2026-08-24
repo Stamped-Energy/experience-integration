@@ -1,13 +1,17 @@
 "use client";
 
+import { useMemo } from "react";
 import { LiveBoard } from "@/components/live/LiveBoard";
 import { AppShell } from "@/components/shell/AppShell";
+import { SourceIndicator } from "@/components/ui/SourceIndicator";
 import { PageHead } from "@/components/ui/primitives";
 import {
   DEMO_SHELL_ROLE,
   alarmsForPlant,
   connectionFixture,
 } from "@/fixtures/demo";
+import { useL2Assets, useL2Measurements } from "@/hooks/useL2Data";
+import { fixtureAssetsAsL2, liveSnapshotFromL2Assets } from "@/lib/l2-live";
 import { usePlant } from "@/lib/plant-context";
 
 export default function LivePage() {
@@ -15,6 +19,56 @@ export default function LivePage() {
   const critical = alarmsForPlant(activePlant.plantId).filter(
     (a) => a.severity === "critical" && a.state !== "cleared",
   ).length;
+
+  const getFixture = useMemo(() => fixtureAssetsAsL2, []);
+  const {
+    assets,
+    source: assetSource,
+    loading: assetsLoading,
+    loadError: assetsError,
+  } = useL2Assets(activePlant.plantId, getFixture);
+
+  const windowTo = useMemo(() => new Date(), [activePlant.plantId]);
+  const windowFrom = useMemo(() => {
+    const d = new Date(windowTo);
+    d.setHours(d.getHours() - 6);
+    return d;
+  }, [windowTo]);
+
+  const incomerId =
+    assets.find((a) => a.asset_class === "incomer")?.asset_id ?? "incomer_1";
+
+  const {
+    points,
+    source: measSource,
+    loading: measLoading,
+    loadError: measError,
+  } = useL2Measurements({
+    plantId: activePlant.plantId,
+    assetId: incomerId,
+    metric: "active_power_kw",
+    from: windowFrom.toISOString(),
+    to: windowTo.toISOString(),
+    enabled: assetSource === "l2" || activePlant.plantId === "plant_lnm_faridabad_1",
+  });
+
+  const source =
+    assetSource === "l2" || measSource === "l2" ? "l2" : "fixture";
+  const loading = assetsLoading || measLoading;
+  const loadError = assetsError ?? measError;
+
+  const overlay = useMemo(() => {
+    if (source !== "l2") return null;
+    return liveSnapshotFromL2Assets(assets, {
+      measurementPoints: points,
+    });
+  }, [source, assets, points]);
+
+  const contextLine = loading
+    ? "Loading live telemetry…"
+    : source === "l2"
+      ? `${assets.length} assets from L2`
+      : "Demo fixture telemetry";
 
   return (
     <AppShell
@@ -27,18 +81,28 @@ export default function LivePage() {
       connection={connectionFixture}
       screenTitle="Live"
       contextSummary={[
-        "Modbus / OPC-UA · 1s poll",
-        "115 assets instrumented",
-        "Real-time load dials & alert feed",
+        source === "l2" ? "L2 measurements · plant-scoped" : "Modbus / OPC-UA · demo poll",
+        contextLine,
+        activePlant.shift,
       ]}
       criticalAlarmCount={critical}
     >
       <PageHead eyebrow="Operations" title="Live" />
+      <SourceIndicator
+        source={source}
+        loading={loading}
+        detail={loadError}
+      />
       <p className="forge-page-lede">
         Real-time plant instrumentation · load dials, health map, demand profile, and anomaly feed ·{" "}
         {activePlant.shift}
       </p>
-      <LiveBoard connection={connectionFixture} />
+      <LiveBoard
+        key={`${activePlant.plantId}:${source}`}
+        connection={connectionFixture}
+        overlay={overlay}
+        jitter={source !== "l2"}
+      />
     </AppShell>
   );
 }

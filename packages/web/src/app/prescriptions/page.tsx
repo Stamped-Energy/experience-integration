@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { PrescriptionQueue } from "@/components/prescriptions/PrescriptionQueue";
 import { AppShell } from "@/components/shell/AppShell";
+import { SourceIndicator } from "@/components/ui/SourceIndicator";
 import { PageHead } from "@/components/ui/primitives";
 import {
   DEMO_SHELL_ROLE,
@@ -10,14 +11,10 @@ import {
   connectionFixture,
   prescriptionsForPlant,
 } from "@/fixtures/demo";
+import { bffUrl } from "@/lib/bff";
 import { formatInr } from "@/lib/format";
 import { usePlant } from "@/lib/plant-context";
 import type { Prescription } from "@/lib/types";
-
-function bffUrl(path: string): string {
-  const base = process.env.NEXT_PUBLIC_BFF_URL;
-  return base ? `${base}${path}` : path;
-}
 
 export default function PrescriptionsPage() {
   const { activePlant, plants, setActivePlantId } = usePlant();
@@ -114,6 +111,11 @@ export default function PrescriptionsPage() {
       criticalAlarmCount={criticalAlarmCount}
     >
       <PageHead eyebrow="Plant inbox" title="Prescriptions" />
+      <SourceIndicator
+        source={source}
+        loading={loading}
+        detail={loadError}
+      />
       <PrescriptionQueue
         key={`${activePlant.plantId}:${source}:${loading}`}
         initial={rows}

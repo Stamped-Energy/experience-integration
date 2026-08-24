@@ -1,6 +1,7 @@
-/** Browser → BFF URL helper (cookie session). */
+/** Shared BFF URL helper — empty NEXT_PUBLIC_BFF_URL uses same-origin proxy. */
 export function bffUrl(path: string): string {
   const base = process.env.NEXT_PUBLIC_BFF_URL;
-  if (!base) return path;
-  return `${base.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
+  return base ? `${base}${path}` : path;
 }
+
+export type DataSource = "fixture" | "l2" | "l5" | "preview";

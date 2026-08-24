@@ -123,12 +123,14 @@ export function projectPrescriptionLane(status: WorkflowStatus): PrescriptionLan
 }
 
 /**
- * L5 external org id for a given external plant id. Vinayak Plant (C-L6a
- * live path) is scoped to org_acme; Jaipur (offline fixture baseline)
- * stays on org_demo. Unknown plants default to org_acme (the live org).
+ * L5/L2 external org id for a given external plant id.
+ * - Vinayak + LNM Factory 1 (live CNC path) → org_acme
+ * - Jaipur (offline fixture baseline) → org_demo
+ * Unknown plants default to org_acme (the live org).
  */
 export function orgIdForExternalPlantId(externalPlantId: string): string {
   if (externalPlantId === "plant_vinayak_1") return "org_acme";
+  if (externalPlantId === "plant_lnm_faridabad_1") return "org_acme";
   if (externalPlantId === "plant_jaipur_01") return "org_demo";
   return "org_acme";
 }
