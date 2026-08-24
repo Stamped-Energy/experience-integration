@@ -116,7 +116,7 @@ export async function buildApp(
     global: true,
     max: env.NODE_ENV === "test" ? 10_000 : 300,
     timeWindow: "1 minute",
-    ban: 0,
+    // omit ban — ban:0 means "403 immediately on exceed" in @fastify/rate-limit
   });
 
   app.setErrorHandler(problemHandler);

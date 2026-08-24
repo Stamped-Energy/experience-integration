@@ -111,7 +111,7 @@ export async function registerPublicApiRoutes(
       await v1.register(rateLimit, {
         max: publicMax,
         timeWindow: "1 minute",
-        ban: 0,
+        // omit ban — ban:0 means "403 immediately on exceed" in @fastify/rate-limit
         hook: "onRequest",
       });
 

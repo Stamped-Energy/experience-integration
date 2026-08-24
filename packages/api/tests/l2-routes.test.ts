@@ -305,12 +305,16 @@ describe("public /v1 rate limit", () => {
     });
 
     // Unauthenticated hits still count against the public limiter
-    let lastStatus = 0;
+    const statuses: number[] = [];
     for (let i = 0; i < 5; i++) {
       const res = await app.inject({ method: "GET", url: "/v1/openapi.json" });
-      lastStatus = res.statusCode;
+      statuses.push(res.statusCode);
     }
-    assert.equal(lastStatus, 429);
+    assert.equal(
+      statuses.at(-1),
+      429,
+      `expected final 429 from public limiter, got ${statuses.join(",")}`,
+    );
 
     await app.close();
     await pool.end();

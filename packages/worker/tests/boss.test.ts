@@ -29,17 +29,20 @@ describe("pg-boss worker", () => {
     // Re-send same logical ping — handler must remain idempotent.
     await boss.send(QUEUES.fixturePing, { pingId, note: "retry" });
 
-    // Wait briefly for workers to process.
+    // Wait for workers to process (pg-boss polls; allow slow CI).
     let attempts = 0;
-    while (attempts < 40) {
-      const completed = await boss.getJobById(QUEUES.fixturePing, jobId);
-      if (completed?.state === "completed") break;
-      await sleep(50);
+    let completed = await boss.getJobById(QUEUES.fixturePing, jobId);
+    while (attempts < 80 && completed?.state !== "completed") {
+      await sleep(100);
+      completed = await boss.getJobById(QUEUES.fixturePing, jobId);
       attempts += 1;
     }
 
-    const completed = await boss.getJobById(QUEUES.fixturePing, jobId);
-    assert.equal(completed?.state, "completed");
+    assert.equal(
+      completed?.state,
+      "completed",
+      `fixture ping still ${completed?.state ?? "missing"} after ${attempts} polls`,
+    );
 
     await stopWorker(boss);
 

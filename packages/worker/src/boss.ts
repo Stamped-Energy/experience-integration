@@ -22,6 +22,8 @@ export async function createBoss(env: WorkerEnv): Promise<PgBoss> {
     connectionString: env.DATABASE_URL,
     // ponytail: single schema for local/CI; split schemas if multi-tenant isolation needs it
     schema: "pgboss",
+    // Faster polls in tests; production default is fine for backlog latency.
+    pollingIntervalSeconds: env.NODE_ENV === "test" ? 0.5 : 2,
   });
   return boss;
 }
@@ -29,9 +31,9 @@ export async function createBoss(env: WorkerEnv): Promise<PgBoss> {
 export async function startWorker(env: WorkerEnv): Promise<PgBoss> {
   const boss = await createBoss(env);
   await boss.start();
-  await boss.createQueue(QUEUES.fixturePing);
-  await boss.createQueue(QUEUES.reportsGenerate);
-  await boss.createQueue(QUEUES.webhooksDeliver);
+  await boss.createQueue(QUEUES.fixturePing, { notify: true });
+  await boss.createQueue(QUEUES.reportsGenerate, { notify: true });
+  await boss.createQueue(QUEUES.webhooksDeliver, { notify: true });
 
   const seenPings = new Set<string>();
   const seenReports = new Set<string>();
