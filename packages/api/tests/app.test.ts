@@ -5,20 +5,39 @@ import { loadEnv } from "../src/config.js";
 
 describe("config", () => {
   it("loads defaults", () => {
-    const env = loadEnv({ NODE_ENV: "test" });
+    const env = loadEnv({
+      NODE_ENV: "test",
+      BETTER_AUTH_SECRET: "test-secret-stamped-l6-auth-32chars!",
+    });
     assert.equal(env.PORT, 3001);
     assert.equal(env.REQUIRE_DATABASE, false);
   });
 
   it("rejects invalid PORT", () => {
-    assert.throws(() => loadEnv({ NODE_ENV: "test", PORT: "nope" }));
+    assert.throws(() =>
+      loadEnv({
+        NODE_ENV: "test",
+        BETTER_AUTH_SECRET: "test-secret-stamped-l6-auth-32chars!",
+        PORT: "nope",
+      }),
+    );
+  });
+
+  it("requires BETTER_AUTH_SECRET", () => {
+    assert.throws(() => loadEnv({ NODE_ENV: "test" }));
   });
 });
 
 describe("Fastify BFF inject", () => {
+  const testEnv = {
+    NODE_ENV: "test" as const,
+    LOG_LEVEL: "silent" as const,
+    BETTER_AUTH_SECRET: "test-secret-stamped-l6-auth-32chars!",
+  };
+
   it("serves /health", async () => {
     const app = await buildApp({
-      env: loadEnv({ NODE_ENV: "test", LOG_LEVEL: "silent" }),
+      env: loadEnv(testEnv),
     });
     const res = await app.inject({ method: "GET", url: "/health" });
     assert.equal(res.statusCode, 200);
@@ -28,7 +47,7 @@ describe("Fastify BFF inject", () => {
 
   it("echoes x-request-id", async () => {
     const app = await buildApp({
-      env: loadEnv({ NODE_ENV: "test", LOG_LEVEL: "silent" }),
+      env: loadEnv(testEnv),
     });
     const res = await app.inject({
       method: "GET",
@@ -41,7 +60,7 @@ describe("Fastify BFF inject", () => {
 
   it("returns RFC 9457 problem+json for unknown routes", async () => {
     const app = await buildApp({
-      env: loadEnv({ NODE_ENV: "test", LOG_LEVEL: "silent" }),
+      env: loadEnv(testEnv),
     });
     const res = await app.inject({ method: "GET", url: "/missing" });
     assert.equal(res.statusCode, 404);
@@ -55,8 +74,7 @@ describe("Fastify BFF inject", () => {
   it("readiness fails closed when DB required and unhealthy", async () => {
     const app = await buildApp({
       env: loadEnv({
-        NODE_ENV: "test",
-        LOG_LEVEL: "silent",
+        ...testEnv,
         REQUIRE_DATABASE: "true",
       }),
       checkReady: () => false,
@@ -68,7 +86,7 @@ describe("Fastify BFF inject", () => {
 
   it("exposes product meta, not public API", async () => {
     const app = await buildApp({
-      env: loadEnv({ NODE_ENV: "test", LOG_LEVEL: "silent" }),
+      env: loadEnv(testEnv),
     });
     const res = await app.inject({ method: "GET", url: "/api/meta" });
     assert.equal(res.statusCode, 200);
