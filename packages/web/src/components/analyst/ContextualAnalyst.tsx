@@ -98,6 +98,7 @@ export function ContextualAnalyst({
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<AnalystMessage[]>([]);
   const [streaming, setStreaming] = useState(false);
+  const [liveMode, setLiveMode] = useState<boolean | null>(null);
 
   const liveEnvelope = useMemo(
     () => ({ ...envelope, excludeKeys: excluded }),
@@ -105,6 +106,11 @@ export function ContextualAnalyst({
   );
   const chips = useMemo(() => visibleContextChips(liveEnvelope), [liveEnvelope]);
   const suggestions = useMemo(() => suggestionPrompts(envelope), [envelope]);
+
+  useEffect(() => {
+    if (!open) return;
+    void fetchAnalystLive().then(setLiveMode);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -134,6 +140,7 @@ export function ContextualAnalyst({
     setDraft("");
 
     const live = await fetchAnalystLive();
+    setLiveMode(live);
     if (!live) {
       const reply = fixtureAnalystReply(liveEnvelope, q);
       const assistantMsg: AnalystMessage = { ...reply, id: assistantId, stream: true };
@@ -243,6 +250,11 @@ export function ContextualAnalyst({
             </div>
           </div>
           <div className="analyst-panel__header-actions">
+            {liveMode === true ? (
+              <StatusChip tone="good">Live AI</StatusChip>
+            ) : liveMode === false ? (
+              <StatusChip tone="neutral">Demo fixture</StatusChip>
+            ) : null}
             {streaming ? <StatusChip tone="info">Analyzing…</StatusChip> : null}
             <button
               ref={closeRef}

@@ -183,6 +183,10 @@ export async function buildApp(
       auth: opts.auth,
       l4: opts.l4,
       live: Boolean(env.L4_LIVE && !env.USE_FIXTURES),
+      allowAnonymous:
+        Boolean(env.L4_LIVE && !env.USE_FIXTURES) &&
+        (env.NODE_ENV === "development" ||
+          process.env.L4_ANALYST_ALLOW_ANON === "true"),
     });
   }
   if (opts.auth && opts.db && opts.pool) {
