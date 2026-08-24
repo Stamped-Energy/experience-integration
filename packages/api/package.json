@@ -35,7 +35,6 @@
     "fastify": "catalog:",
     "pg": "catalog:",
     "pino": "catalog:",
-    "undici": "^7.8.0",
     "zod": "catalog:"
   },
   "devDependencies": {

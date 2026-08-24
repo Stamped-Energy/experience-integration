@@ -3,6 +3,7 @@
 import http from "node:http";
 import https from "node:https";
 import { URL } from "node:url";
+import { currentRequestId } from "./correlation.js";
 
 export class UpstreamError extends Error {
   constructor(
@@ -117,6 +118,10 @@ export async function upstreamFetch<T>(req: UpstreamRequest): Promise<T> {
     accept: "application/json",
     ...req.headers,
   };
+  const corr = currentRequestId();
+  if (corr && !headers["x-request-id"]) {
+    headers["x-request-id"] = corr;
+  }
   const bodyStr = req.body !== undefined ? JSON.stringify(req.body) : undefined;
   if (bodyStr !== undefined) {
     headers["content-type"] = "application/json";

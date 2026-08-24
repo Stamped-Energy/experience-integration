@@ -4,6 +4,11 @@ import { z } from "zod";
 import type { Auth } from "../auth/index.js";
 import { AuthzError, requirePermission } from "../authz/index.js";
 import type { Db } from "../db/client.js";
+import {
+  cacheHeadersForHistorical,
+  ifNoneMatchMatches,
+  isClosedHistoricalWindow,
+} from "../http/cache.js";
 import { resolveActivePlant } from "../tenancy/service.js";
 import { UpstreamError } from "../upstream/http.js";
 import {
@@ -214,7 +219,19 @@ export async function registerL2Routes(
         to: parsed.data.to,
         granularity: parsed.data.granularity,
       });
-      return { ...data, source: "l2" as const };
+      const body = { ...data, source: "l2" as const };
+      // Cache only closed historical windows — never live open-ended ranges.
+      if (isClosedHistoricalWindow(parsed.data.to)) {
+        const { etag, cacheControl } = cacheHeadersForHistorical(body);
+        reply.header("etag", etag);
+        reply.header("cache-control", cacheControl);
+        if (ifNoneMatchMatches(request.headers["if-none-match"], etag)) {
+          return reply.status(304).send();
+        }
+      } else {
+        reply.header("cache-control", "no-store");
+      }
+      return body;
     } catch (err) {
       if (err instanceof UpstreamError) {
         return problem(
