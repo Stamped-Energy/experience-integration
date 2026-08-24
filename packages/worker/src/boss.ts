@@ -22,8 +22,6 @@ export async function createBoss(env: WorkerEnv): Promise<PgBoss> {
     connectionString: env.DATABASE_URL,
     // ponytail: single schema for local/CI; split schemas if multi-tenant isolation needs it
     schema: "pgboss",
-    // Faster polls in tests; production default is fine for backlog latency.
-    pollingIntervalSeconds: env.NODE_ENV === "test" ? 0.5 : 2,
   });
   return boss;
 }
@@ -37,10 +35,11 @@ export async function startWorker(env: WorkerEnv): Promise<PgBoss> {
 
   const seenPings = new Set<string>();
   const seenReports = new Set<string>();
+  const pollMs = env.NODE_ENV === "test" ? 0.5 : 2;
 
   await boss.work<FixturePingJob>(
     QUEUES.fixturePing,
-    { batchSize: 1 },
+    { batchSize: 1, pollingIntervalSeconds: pollMs },
     async (jobs) => {
       for (const job of jobs) {
         const pingId = job.data.pingId;
@@ -53,7 +52,7 @@ export async function startWorker(env: WorkerEnv): Promise<PgBoss> {
 
   await boss.work<ReportGenerateJob>(
     QUEUES.reportsGenerate,
-    { batchSize: 1 },
+    { batchSize: 1, pollingIntervalSeconds: pollMs },
     async (jobs) => {
       for (const job of jobs) {
         const id = job.data.reportJobId;
