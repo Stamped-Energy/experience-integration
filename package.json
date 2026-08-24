@@ -19,5 +19,20 @@
     "smoke:bff": "pnpm --filter @stamped/l6-api exec tsx ../../scripts/smoke-bff.ts",
     "compose:smoke": "bash ./scripts/compose-smoke.sh",
     "seed:vinayak": "tsx packages/api/scripts/seed_vinayak_plant.ts"
+  },
+  "pnpm": {
+    "overrides": {
+      "fast-uri@^3": "3.1.5",
+      "fast-uri@^4": "4.1.2",
+      "nanoid@^3": "3.3.18",
+      "postcss@^8": "8.5.18",
+      "deepmerge-ts": "8.0.0",
+      "find-my-way": "9.7.0",
+      "effect": "3.20.0",
+      "@playwright/test": "1.55.1",
+      "playwright": "1.55.1",
+      "playwright-core": "1.55.1",
+      "sharp": "0.35.0"
+    }
   }
 }
