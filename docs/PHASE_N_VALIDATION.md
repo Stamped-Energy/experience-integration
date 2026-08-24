@@ -37,7 +37,13 @@ Per-repo `scripts/validate.sh` remains optional (`-Full` / `VALIDATE_FULL=1`). O
 
 ## S4 / S5
 
-Security-review (L3 core) and Bugbot (L6) spawned as Phase N commit 72. Dispositions recorded below when complete; accepted exceptions keep owner + expiry in [PRODUCTION_READINESS_RECORD.md](./PRODUCTION_READINESS_RECORD.md).
+| ID | Severity | Disposition |
+|---|---|---|
+| S4-1 live smoke inventable keys | Medium | **fixed** 2026-08-25 — require L2/L5 keys in live mode |
+| S5-1 public Cache-Control on `/api/l2` | High | **fixed** 2026-08-25 — `private` |
+| S5-2 Live badge on hybrid fixture+meas | Medium | **fixed** 2026-08-25 — assets must be L2 for full live |
+
+Reviews: Security Review on L3 core · Bugbot on L6 (see agent transcripts / REMAINING_WORK §6).
 
 ## Decision (unchanged)
 

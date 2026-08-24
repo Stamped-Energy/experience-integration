@@ -22,11 +22,15 @@ export type CacheHeaders = {
   cacheControl: string;
 };
 
-/** Safe to cache: closed measurement windows only — never live open-ended state. */
+/**
+ * Safe to cache in the *browser* for closed measurement windows only —
+ * never live open-ended state. Must stay `private`: `/api/l2/*` is session-
+ * authenticated; `public` would let shared caches replay one tenant's body.
+ */
 export function cacheHeadersForHistorical(body: unknown): CacheHeaders {
   return {
     etag: weakEtag(body),
-    cacheControl: "public, max-age=60, stale-while-revalidate=300",
+    cacheControl: "private, max-age=60, stale-while-revalidate=300",
   };
 }
 

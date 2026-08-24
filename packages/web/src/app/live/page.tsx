@@ -11,7 +11,7 @@ import {
   connectionFixture,
 } from "@/fixtures/demo";
 import { useL2Assets, useL2Measurements } from "@/hooks/useL2Data";
-import { fixtureAssetsAsL2, liveSnapshotFromL2Assets } from "@/lib/l2-live";
+import { fixtureAssetsAsL2, liveSnapshotFromL2Assets, resolveLivePageSource } from "@/lib/l2-live";
 import { usePlant } from "@/lib/plant-context";
 
 export default function LivePage() {
@@ -52,23 +52,25 @@ export default function LivePage() {
     enabled: assetSource === "l2" || activePlant.plantId === "plant_lnm_faridabad_1",
   });
 
-  const source =
-    assetSource === "l2" || measSource === "l2" ? "l2" : "fixture";
+  const source = resolveLivePageSource(assetSource, measSource);
   const loading = assetsLoading || measLoading;
   const loadError = assetsError ?? measError;
 
   const overlay = useMemo(() => {
-    if (source !== "l2") return null;
+    // Overlay only when assets are live — never paint fixture machines as L2 live.
+    if (assetSource !== "l2") return null;
     return liveSnapshotFromL2Assets(assets, {
-      measurementPoints: points,
+      measurementPoints: measSource === "l2" ? points : undefined,
     });
-  }, [source, assets, points]);
+  }, [assetSource, measSource, assets, points]);
 
   const contextLine = loading
     ? "Loading live telemetry…"
     : source === "l2"
       ? `${assets.length} assets from L2`
-      : "Demo fixture telemetry";
+      : source === "preview"
+        ? "Measurements from L2 · assets still fixture"
+        : "Demo fixture telemetry";
 
   return (
     <AppShell
@@ -81,7 +83,11 @@ export default function LivePage() {
       connection={connectionFixture}
       screenTitle="Live"
       contextSummary={[
-        source === "l2" ? "L2 measurements · plant-scoped" : "Modbus / OPC-UA · demo poll",
+        source === "l2"
+          ? "L2 measurements · plant-scoped"
+          : source === "preview"
+            ? "Hybrid · measurements live"
+            : "Modbus / OPC-UA · demo poll",
         contextLine,
         activePlant.shift,
       ]}

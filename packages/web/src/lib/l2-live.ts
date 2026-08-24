@@ -1,5 +1,6 @@
 import type { OverviewMachine } from "@/fixtures/overview-demo";
 import type { L2Asset, L2MeasurementPoint } from "@/hooks/useL2Data";
+import type { DataSource } from "@/lib/bff";
 import type { LiveDial, LiveTelemetrySnapshot } from "@/lib/live-telemetry";
 import { createLiveTelemetryBaseline } from "@/lib/live-telemetry";
 
@@ -143,4 +144,18 @@ export function fixtureAssetsAsL2(plantId: string): L2Asset[] {
       asset_class: "process",
     },
   ];
+}
+
+/**
+ * Honest live-vs-fixture badge for the Live screen.
+ * "Live from L2" only when the asset graph is from L2 — fixture assets + live
+ * measurements must not claim a fully live plant (Bugbot / Phase N).
+ */
+export function resolveLivePageSource(
+  assetSource: DataSource,
+  measSource: DataSource,
+): DataSource {
+  if (assetSource === "l2") return "l2";
+  if (measSource === "l2") return "preview";
+  return "fixture";
 }

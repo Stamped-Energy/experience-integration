@@ -26,4 +26,10 @@ describe("cache helpers", () => {
     assert.equal(ifNoneMatchMatches(etag, etag), true);
     assert.equal(ifNoneMatchMatches("W/\"other\"", etag), false);
   });
+
+  it("uses private Cache-Control for authenticated historical L2 bodies", () => {
+    const { cacheControl } = cacheHeadersForHistorical({ points: [] });
+    assert.match(cacheControl, /\bprivate\b/);
+    assert.doesNotMatch(cacheControl, /\bpublic\b/);
+  });
 });
