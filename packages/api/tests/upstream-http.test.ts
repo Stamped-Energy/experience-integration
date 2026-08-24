@@ -62,7 +62,9 @@ describe("upstreamFetch correlation", () => {
 
 describe("upstreamFetch keep-alive + retries", () => {
   it("exports a keep-alive http agent", () => {
-    assert.equal(httpAgent.keepAlive, true);
+    assert.ok(httpAgent instanceof http.Agent);
+    const opts = (httpAgent as unknown as { options: { keepAlive: boolean } }).options;
+    assert.equal(opts.keepAlive, true);
   });
 
   it("retries idempotent GET on 503 then succeeds", async () => {
