@@ -25,6 +25,7 @@
   "dependencies": {
     "@fastify/cookie": "11.0.2",
     "@fastify/cors": "11.2.0",
+    "@fastify/helmet": "13.0.2",
     "@fastify/rate-limit": "catalog:",
     "@fastify/sensible": "catalog:",
     "@prisma/client": "^6.19.2",
@@ -34,6 +35,7 @@
     "fastify": "catalog:",
     "pg": "catalog:",
     "pino": "catalog:",
+    "undici": "^7.8.0",
     "zod": "catalog:"
   },
   "devDependencies": {

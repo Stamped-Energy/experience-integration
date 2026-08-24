@@ -71,7 +71,7 @@ describe("Fastify BFF inject", () => {
     await app.close();
   });
 
-  it("readiness fails closed when DB required and unhealthy", async () => {
+  it("readiness stays green when DB is down (local serving only)", async () => {
     const app = await buildApp({
       env: loadEnv({
         ...testEnv,
@@ -79,8 +79,40 @@ describe("Fastify BFF inject", () => {
       }),
       checkReady: () => false,
     });
-    const res = await app.inject({ method: "GET", url: "/ready" });
-    assert.equal(res.statusCode, 503);
+    const ready = await app.inject({ method: "GET", url: "/ready" });
+    assert.equal(ready.statusCode, 200);
+    assert.equal(ready.json().status, "ready");
+    const deep = await app.inject({ method: "GET", url: "/health/deep" });
+    assert.equal(deep.statusCode, 503);
+    await app.close();
+  });
+
+  it("sets security headers via helmet", async () => {
+    const app = await buildApp({
+      env: loadEnv(testEnv),
+    });
+    const res = await app.inject({ method: "GET", url: "/health" });
+    assert.ok(res.headers["x-content-type-options"]);
+    await app.close();
+  });
+
+  it("rejects unauthenticated telemetry when auth is wired", async () => {
+    const auth = {
+      api: {
+        getSession: async () => null,
+      },
+    };
+    const app = await buildApp({
+      env: loadEnv(testEnv),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      auth: auth as any,
+    });
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/telemetry",
+      payload: { event_name: "alarm_ack", properties: { route: "alarms" } },
+    });
+    assert.equal(res.statusCode, 401);
     await app.close();
   });
 

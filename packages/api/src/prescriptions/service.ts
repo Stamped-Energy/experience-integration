@@ -55,7 +55,7 @@ export const ProductPrescriptionSchema = z.object({
     .optional(),
   isMdDemand: z.boolean().optional(),
   mdEpisodeId: z.string().optional(),
-  mdEpisode: z.record(z.unknown()).optional(),
+  mdEpisode: z.record(z.string(), z.unknown()).optional(),
 });
 export type ProductPrescription = z.infer<typeof ProductPrescriptionSchema>;
 

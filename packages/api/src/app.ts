@@ -3,6 +3,7 @@ import Fastify, {
   type FastifyServerOptions,
 } from "fastify";
 import cors from "@fastify/cors";
+import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import sensible from "@fastify/sensible";
 import { registerAdminRoutes } from "./admin/routes.js";
@@ -24,6 +25,7 @@ import { problemHandler } from "./problems.js";
 import { registerPublicApiRoutes } from "./public/routes.js";
 import { registerReportRoutes } from "./reports/routes.js";
 import { registerTelemetryRoutes } from "./telemetry/routes.js";
+import { correlationStore } from "./upstream/correlation.js";
 import type { L5WorkflowClient } from "./upstream/l5/client.js";
 import type { L4AnalystClient } from "./upstream/l4/client.js";
 import type { L2QueryClient } from "./upstream/l2/client.js";
@@ -78,6 +80,25 @@ export async function buildApp(
   });
 
   await app.register(sensible);
+  await app.register(helmet, {
+    // Report-only CSP first (Phase K) — tighten to enforce after pilot reports are clean.
+    contentSecurityPolicy: {
+      reportOnly: true,
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "blob:"],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  });
   await app.register(cors, {
     origin: env.WEB_ORIGIN,
     credentials: true,
@@ -113,6 +134,12 @@ export async function buildApp(
       });
   });
 
+  app.addHook("onRequest", (request, _reply, done) => {
+    // enterWith so outbound upstreamFetch sees the same id for the request lifetime.
+    correlationStore.enterWith({ requestId: request.id });
+    done();
+  });
+
   app.addHook("onSend", async (request, reply, payload) => {
     reply.header("x-request-id", request.id);
     return payload;
@@ -123,7 +150,12 @@ export async function buildApp(
     service: "l6-api",
   }));
 
-  app.get("/ready", async (_request, reply) => {
+  app.get("/ready", async () => ({
+    status: "ready",
+    service: "l6-api",
+  }));
+
+  app.get("/health/deep", async (_request, reply) => {
     if (env.REQUIRE_DATABASE && opts.checkReady) {
       const ready = await opts.checkReady();
       if (!ready) {
@@ -136,7 +168,7 @@ export async function buildApp(
         });
       }
     }
-    return { status: "ready", service: "l6-api" };
+    return { status: "ok", service: "l6-api", db: "connected" };
   });
 
   app.get("/api/meta", async () => ({
@@ -146,7 +178,7 @@ export async function buildApp(
     auth: Boolean(opts.auth),
   }));
 
-  await registerTelemetryRoutes(app, { db: opts.db });
+  await registerTelemetryRoutes(app, { db: opts.db, auth: opts.auth });
 
   if (opts.db) {
     await registerPublicApiRoutes(app, {
