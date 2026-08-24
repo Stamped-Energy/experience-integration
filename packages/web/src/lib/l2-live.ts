@@ -66,7 +66,7 @@ export function liveSnapshotFromL2Assets(
       {
         id: "l2_live",
         time: "Now",
-        severity: "info",
+        severity: "INFO",
         machine: "L2",
         message: `${equipment.length} assets from L2 plant graph`,
         action: "Review equipment",
