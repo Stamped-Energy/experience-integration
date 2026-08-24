@@ -9,7 +9,8 @@ overrides:
   "nanoid@^3": "3.3.18"
   "postcss@^8": "8.5.18"
   deepmerge-ts: "8.0.0"
-  # find-my-way left to fastify's pin — forcing 9.7.0 broke public /v1 rate-limit tests (403 vs 429)
+  # Pin below 9.7: find-my-way@9.7.0 makes public /v1 rate-limit tests return 403 instead of 429
+  find-my-way: "9.6.0"
   effect: "3.20.0"
   "@playwright/test": "1.55.1"
   playwright: "1.55.1"
