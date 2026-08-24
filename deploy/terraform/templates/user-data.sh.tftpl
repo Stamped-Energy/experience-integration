@@ -1,0 +1,18 @@
+#!/bin/bash
+# Pilot host bootstrap — Mosquitto as host process; stamped-cloud via Docker.
+set -euxo pipefail
+
+dnf update -y || yum update -y
+dnf install -y docker amazon-ssm-agent || yum install -y docker amazon-ssm-agent
+systemctl enable --now docker amazon-ssm-agent
+
+# Mosquitto installed on host (not a third container). TLS certs mounted later.
+dnf install -y mosquitto || true
+
+mkdir -p /opt/stamped/{bin,state,logs}
+cat >/opt/stamped/state/PREVIOUS_IMAGE_TAG <<'EOF'
+# Populated by deploy workflow after each successful pull.
+# Format: <ecr-uri>/stamped-cloud:<sha>
+EOF
+
+echo "bootstrap complete for ${name_prefix} (${environment})"

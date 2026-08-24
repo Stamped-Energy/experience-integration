@@ -1,0 +1,34 @@
+[Unit]
+Description=Stamped cloud container (L1–L5 + L6 BFF)
+Documentation=https://github.com/stamped-energy/experience-integration/tree/main/deploy
+After=docker.service network-online.target
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+# Overall cgroup budget for the container — leave headroom for Mosquitto + OS.
+MemoryMax=1400M
+MemoryHigh=1200M
+TasksMax=4096
+EnvironmentFile=-/etc/stamped/cloud.env
+Environment=PREVIOUS_IMAGE_FILE=/opt/stamped/state/PREVIOUS_IMAGE_TAG
+Environment=CURRENT_IMAGE_FILE=/opt/stamped/state/CURRENT_IMAGE_TAG
+ExecStartPre=-/usr/bin/docker kill stamped-cloud
+ExecStartPre=-/usr/bin/docker rm stamped-cloud
+ExecStart=/usr/bin/docker run --name stamped-cloud --rm \
+  --network host \
+  --env-file /etc/stamped/cloud.env \
+  --memory=1200m \
+  --memory-swap=1200m \
+  --pids-limit=2048 \
+  ${STAMPED_CLOUD_IMAGE}
+ExecStop=/usr/bin/docker stop -t 45 stamped-cloud
+TimeoutStopSec=60
+WatchdogSec=120
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target
