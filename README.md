@@ -1,24 +1,21 @@
-# experience-integration — Stamped L6 Experience & Integration
+# experience-integration — Stamped L6 Forge (customer experience)
 
-> Full internals (every package, file map, how the repo runs): [Extensive README](docs/EXTENSIVE.md)
+> Full internals (wiring, routes, freshness, package maps): [Extensive README](docs/EXTENSIVE.md)
 
-> Customer-facing ops control room for plant energy teams. It is not L3 detection, L5 workflow truth, L4 RAG, or a DISCOM bill verifier. Primary interface: Next.js Forge app (`packages/web` on `:3000`) talking only to the Fastify BFF (`packages/api` on `:3001`). The browser never holds upstream secrets.
+> Layer 6 is the customer plant experience: Next.js Forge UI + Fastify BFF. The browser never holds upstream keys. It is not L2 SQL, not L5’s internal console, and not a free-form LLM surface. Primary interface: web `:3000` → BFF `:3001`.
 
-**Runtime:** Node ≥22.14 (`pnpm@11.15.1`) · Next.js · Fastify · PostgreSQL · pg-boss worker.  
-**Platform pin:** `external/` → stamped-external **v2026.08.05.1** · contracts **0.11.2**
+**Platform pin:** `external/` → stamped-external **2026.08.21** (`external/VERSION`) · Node ≥22.14 · pnpm 11
 
 ---
 
 ## TL;DR
 
-- BFF is the **trust boundary**: L2 / L4 / L5 keys stay on the server.
-- Customer “verified” in Auto ops means **`ops_confirmed`** (telemetry). Bill-verified requires bill line refs (`sanitizeClaimStatus`).
-- **Fixture Auto** keeps demos and CI green when upstream gates are off or siblings are down.
-- **Redis is forbidden** through this delivery; jobs use pg-boss on Postgres.
-- **`L2_DATABASE_URL` is forbidden.** L2 is HTTP only.
-- Validate with `pnpm validate` (wraps `scripts/validate.sh`).
-
----
+- **Browser → BFF only.** Upstream `L2_SERVICE_KEY` / `L5_AUTH_TOKEN` / `L4_AUTH_TOKEN` stay server-side.
+- Screens seed from fixtures, then overlay live L2/L4/L5 when gates allow — badges must stay honest.
+- **Live badge honesty:** full “Live from L2” only when assets are L2; hybrid → Preview (`resolveLivePageSource`).
+- Fixture Auto vs live: `USE_FIXTURES` / `L2_LIVE` / `L5_LIVE` / `L4_LIVE` gates.
+- Dual claim labels: **ops-confirmed ≠ bill-verified** (`sanitizeClaimStatus`, `claimBadgeLabel`).
+- Shows: Overview, Live plant, Equipment/CNC health, Alarms, Prescriptions, Ask Analyst, evidence/reports (fixtures).
 
 ## Table of contents
 
@@ -34,171 +31,137 @@
 
 ### What it is
 
-Stamped **Layer 6**. Operators, supervisors, plant heads, energy managers, sustainability, CFO, and admins triage alarms and prescriptions, read claim-safe savings, investigate energy, and export packs. L5 owns workflow truth; L4 owns analyst runtime; L2 owns telemetry and ledger series. L6 **adapts** those HTTP APIs into Forge screens and a scoped public `/v1`.
+Forge is the **customer-facing plant cockpit**: alarms and prescriptions from L5, live topology/telemetry from L2, Ask Analyst from L4, plus fixture-backed energy/reports when upstream is dark. Auth is session cookies to the BFF (Better Auth); public `/v1` uses hashed `stk_` API keys.
 
 ### What it is not
 
-| Out of scope | Why |
-|--------------|-----|
-| L3 rulepacks / detectors | Sibling L3 repos |
-| L5 SoT for alarms/Rx | L5; L6 projects dual labels |
-| L4 LangGraph / Path H | L4; L6 is the shell |
-| Direct Timescale / OT writes | Never `L2_DATABASE_URL`; never SCADA |
-| Redis job bus | pg-boss on Postgres only |
-| Invented bill-verified savings | `sanitizeClaimStatus` strips forged `verified` |
+| Out of scope | Owner |
+|--------------|--------|
+| L5 internal stamped-gate console | `closure-verification` `:8095` |
+| Direct Timescale / `L2_DATABASE_URL` | forbidden |
+| Finding detectors / Rx compile | L3 / L4 |
+| OT write / plant control | never |
 
 ## 2. Ideas worth understanding
 
-### 2.1 BFF as trust boundary
+### 2.1 Browser → BFF → L2 / L4 / L5
 
-**The problem.** If the browser called L5 with `stk_dev_bootstrap_key`, every operator laptop would hold plant-control credentials. XSS would become an upstream incident.
+**The problem.** Putting service keys in `NEXT_PUBLIC_*` leaks the plant.
 
-**How it works.** `packages/web` sends cookie sessions to `NEXT_PUBLIC_BFF_URL` (`packages/web/src/lib/bff.ts`). Only `packages/api` holds `L5_AUTH_TOKEN`, `L2_SERVICE_KEY`, and L4 tokens (`packages/api/src/config.ts`). Upstream clients live under `packages/api/src/upstream/`. Public `/v1` uses hashed `stk_` keys, not browser cookies.
+**How it works.** Web uses `NEXT_PUBLIC_BFF_URL` + `credentials: "include"` (`packages/web/src/lib/bff.ts`). BFF (`packages/api`) holds upstream tokens (`config.ts`). Empty BFF URL → same-origin / Vercel lean fixtures.
 
-**Like.** A hotel front desk: guests never get the master key to the plant wing; the desk clerk opens the right door.
+| Screen | Primary data | BFF | Upstream |
+|--------|--------------|-----|----------|
+| `/live` | L2 overlay + fixtures | `/api/l2/assets`, `/api/l2/measurements` | L2 |
+| `/equipment` | L2 assets or preview | `/api/l2/assets` | L2 |
+| `/alarms`, `/prescriptions` | Fixtures → L5 | `/api/alarms`, `/api/prescriptions` | L5 |
+| `/analyst` | Live stream when enabled | `/api/analyst/*` | L4 |
+| `/`, energy, reports, evidence | Fixtures | — | — |
 
-**Limits.** The BFF is still a high-value target — session cookies, CORS `WEB_ORIGIN`, and rate limits matter. Fixture Auto can make screens look live without L5; that is intentional, not a leak of OT.
+**Like.** A bank teller window — the vault key stays behind the glass.
 
-**Read next.** This boundary is local to `packages/api/src/config.ts` and ADR-022 in `external/`. No extra public essay; the code is the source.
+### 2.2 Freshness and Live badge honesty
 
-### 2.2 Ops-confirmed vs bill-verified
+**The problem.** Mixing fixture assets with one live series looks “live” and misleads operators.
 
-**The problem.** A green “verified” chip next to rupees will be read as “the utility bill agrees.” Telemetry clearance is not that.
+**How it works.** `DataSource`: `fixture` | `l2` | `l5` | `preview` (`SourceIndicator.tsx`). `resolveLivePageSource()` (`lib/l2-live.ts`): full “Live from L2” only when **assets** are L2; fixture assets + live measurements → **Preview · not live plant data**. `jitter` off only for true L2. Cache-Control: closed historical L2 windows get `private, max-age=60, stale-while-revalidate=300` + ETag; open windows `no-store` (`packages/api/src/http/cache.ts`).
 
-**How it works.** `sanitizeClaimStatus` in `packages/web/src/lib/ledger.ts` demotes `verificationStatus === "verified"` to `ops_confirmed` unless `billLineRefs` is non-empty. Contracts enums and `claimBadgeLabel` in `packages/contracts/src/mappings.ts` keep the same vocabulary. L5 already sends `ops_label` / `bill_label`; L6 must not collapse them.
+**Like.** A “LIVE” bug on TV that only lights when the truck is actually on site.
 
-**Like.** Two different stamps: shop-floor sign-off vs accounts matching the invoice. Forging the second stamp from the first is the bug this function exists to stop.
+### 2.3 Fixture Auto vs live
 
-**Limits.** Until a live bill path fills `billLineRefs`, Auto ops never shows bill-verified. Do not “helpfully” relabel ops as verified in UI copy.
+**The problem.** Demos and CI must run without L2/L5; plants must not silently stay on demo forever without a badge.
 
-**Read next.** Claim wording is local to `ledger.ts` + `packages/contracts`. Platform intent lives in ADR-020 under `external/`. [IPMVP](https://www.ipmvp.org/) is the formal M&V discipline L6 refuses to fake.
+**How it works.** Boot gates (`config.ts`): L5 live when `!USE_FIXTURES && L5_LIVE && L6_L5_LIVE`; L4 when `!USE_FIXTURES && L4_LIVE`; L2 when `!USE_FIXTURES && L2_LIVE` + service key. Per-request: alarms/Rx try L5 then fall back to in-memory fixture stores. Mutating alarm features default **off** (`L5_FEATURE_ALARM_ACK`, …). Root `vercel.json` sets `USE_FIXTURES=true` for lean deploy.
 
-### 2.3 Fixture Auto
+Demo plants in `fixtures/demo.ts`: Jaipur, Vinayak, LNM CNC (`plant_lnm_faridabad_1`).
 
-**The problem.** CI and design review cannot depend on L2/L4/L5 being up. Blocking the UI on siblings would freeze the whole program.
+### 2.4 What the UI shows
 
-**How it works.** Feature gates (`L5_FEATURE_ALARM_*`, `L4_LIVE`, `L2_FEATURE_*`) default off for several mutating paths. `USE_FIXTURES` or failed upstream HTTP falls back to in-memory stores (`createFixtureAlarmStore`, prescription fixture in `packages/api/src/alarms/service.ts` and `packages/api/src/prescriptions/service.ts`). The web Jaipur Works demo in `packages/web/src/fixtures/demo.ts` can render every Forge screen with `pnpm --filter @stamped/l6-web dev` and no API.
+| Surface | Content |
+|---------|---------|
+| **Alarms** | Severity, state, summary, related Rx — triage console |
+| **Prescriptions** | Lanes needs_review / active / closed; impact ₹/mo; Discuss/negotiation panel |
+| **Live** | Load dials, machine map, demand profile, anomaly feed |
+| **Equipment** | CNC-centric health tiles from L2 graph or fixture preview |
+| **Ask Analyst** | Saved investigations + L4 streaming when enabled |
+| **Evidence / reports / energy** | Fixture-backed for demos |
 
-**Like.** A flight simulator: the cockpit looks real so you can practice the checklist; it is not connected to a live aircraft until you flip the gates.
+### 2.5 Dual claim labels
 
-**Limits.** Fixture data is not plant truth. Live gates must be flipped independently. Do not screenshot Auto and call it M&V.
+**The problem.** Showing “verified” without bill line refs invents M&V.
 
-**Read next.** Fixture stores are local unpublished. Webhook *idea*: [Webhook (Wikipedia)](https://en.wikipedia.org/wiki/Webhook) — L6 also *receives* L5 callbacks on the BFF, separate from UI fixtures.
+**How it works.** `sanitizeClaimStatus()` demotes bare `verified` → `ops_confirmed` unless `billLineRefs` non-empty (`lib/ledger.ts`). Badges: “Ops-confirmed”, “Modeled — not bill-verified”, reserved “Bill-verified” (`packages/contracts` `claimBadgeLabel`). Public `/v1/ledger` returns ops_confirmed + note. Aligns with ADR-020.
 
-### 2.4 RBAC matrix
+**Like.** Two stamps on a packing slip — warehouse vs accounts.
 
-**The problem.** Better Auth `user.role` is not plant membership. A CFO must not ack alarms; an operator must not mint API keys.
+### 2.6 Public `/v1`, rate limits, pg-boss
 
-**How it works.** `packages/api/src/authz/matrix.ts` maps seven roles (`operator`, `supervisor`, `plant_head`, `energy_manager`, `sustainability`, `cfo`, `admin`) to route and action permissions. Unknown role/permission **fail closed**. Web nav in `packages/web/src/lib/navigation.ts` mirrors route permissions. Plant membership is separate from the auth user row.
-
-**Like.** A factory badge that opens some doors and not others — the badge printer (Better Auth) is not the door list (matrix).
-
-**Limits.** Entra SSO, when enabled, is identity only; L6 membership remains authorization truth (`packages/api/src/auth/entra.ts`). Matrix drift between web and API is a real risk — change both.
-
-**Read next.** The matrix is local to `packages/api/src/authz/matrix.ts`. No external write-up yet.
+Public routes: Bearer `stk_` keys, scopes in `public/keys.ts`. **Note:** `/v1/alarms` and `/v1/ledger` are **fixture** lists today (not live L5). Rate limits: global BFF 300/min; `/v1/*` 60/min. Worker queues: `l6.fixture.ping`, `l6.reports.generate`; `l6.webhooks.deliver` queue exists **without** a `work` handler yet (Postgres `pgboss`, no Redis).
 
 ## 3. How it works
 
 ```mermaid
 flowchart LR
-  Browser[Next_web_:3000] --> BFF[Fastify_api_:3001]
-  BFF --> L5[L5_HTTP]
-  BFF --> L4[L4_HTTP]
-  BFF --> L2[L2_HTTP]
-  BFF --> Pg[(L6_Postgres)]
-  Worker[pg-boss_worker] --> Pg
+  Browser --> BFF[Fastify BFF :3001]
+  BFF --> L2[L2 query-api]
+  BFF --> L4[L4 analyst]
+  BFF --> L5[L5 API]
+  BFF --> PG[(Postgres auth/events)]
+  Browser --> Web[Next.js :3000]
 ```
 
-Browser → BFF (cookie). BFF checks the matrix, then live upstream or Fixture Auto. Postgres holds L6 identity, membership, audit, events, jobs, integrations — not a replica of L5 domain. Worker runs pg-boss queues on the same database.
+Hide L5 `pending_stamped_review` / `withheld` from customer lanes (L6 responsibility per L5 contract).
 
 ## 4. Quickstart
 
-### Prerequisites
-
-- Node.js **≥ 22.14** (see `.nvmrc`)
-- Corepack / pnpm **11.15.1** (`packageManager` in root `package.json`)
-- Git submodules; optional Docker
-
-### Install and validate
-
 ```bash
-git submodule update --init --recursive
-corepack enable
+git clone --recurse-submodules https://github.com/Stamped-Energy/experience-integration.git
+cd experience-integration
 pnpm install
-cp .env.example .env
 pnpm validate
-```
-
-### Run
-
-**UI-only (Jaipur fixtures, no API):**
-
-```bash
+# UI-only fixtures (no API):
 pnpm --filter @stamped/l6-web dev
-# http://localhost:3000
-```
-
-**Full stack:**
-
-```bash
+# Full local stack:
 docker compose -f infra/docker-compose.yml up
-# web :3000 · api :3001 · postgres :5432 · mailpit UI :8025
 ```
-
-Without Docker: set `DATABASE_URL`, then `pnpm --filter @stamped/l6-api db:migrate`, `pnpm --filter @stamped/l6-api dev`, `pnpm --filter @stamped/l6-web dev`.
 
 ## 5. Configuration
 
-Copy [`.env.example`](.env.example) → `.env`. Never commit secrets. **Never set `L2_DATABASE_URL`.**
+| Variable | Role |
+|----------|------|
+| `NEXT_PUBLIC_BFF_URL` | Browser → BFF (omit for same-origin / lean Vercel) |
+| `USE_FIXTURES` | Fixture-first boot |
+| `L2_LIVE` / `L2_SERVICE_KEY` / `L2_BASE_URL` | Live L2 via BFF |
+| `L5_LIVE` / `L6_L5_LIVE` / `L5_AUTH_TOKEN` | Live alarms/Rx |
+| `L4_LIVE` / `L4_AUTH_TOKEN` | Ask Analyst |
+| Better Auth secrets | Session |
 
-| Variable | Newcomer default | Meaning |
-|----------|------------------|---------|
-| `NEXT_PUBLIC_BFF_URL` | `http://localhost:3001` | Browser → BFF (the only public origin the web needs) |
-| `PORT` | `3001` | BFF listen |
-| `DATABASE_URL` | local Postgres | L6 DB only |
-| `WEB_ORIGIN` | `http://localhost:3000` | CORS |
-| `L5_BASE_URL` | `http://127.0.0.1:8080` | L5 HTTP (server-side) |
-| `L5_LIVE` / `L6_L5_LIVE` | `true` | Either `false` forces fixture-only BFF |
-| `L4_LIVE` | `false` | Live analyst vs fixture |
-| `L2_FEATURE_LEDGER` | `false` | Live ledger vs fixture CSV |
-
-Full list: [Extensive README](docs/EXTENSIVE.md#4-configuration).
+**Forbidden:** `L2_DATABASE_URL`. Full table: [docs/EXTENSIVE.md](docs/EXTENSIVE.md).
 
 ## 6. Further reading
 
-| Idea | Link | What you will learn |
-|------|------|---------------------|
-| Claim honesty | [IPMVP](https://www.ipmvp.org/) | Why L6 must not fake bill M&V |
-| L5 → L6 events | [Webhook](https://en.wikipedia.org/wiki/Webhook) | Callbacks L6 must verify |
-| BFF / matrix / sanitize | local | `packages/api/src/config.ts`, `authz/matrix.ts`, `packages/web/src/lib/ledger.ts` |
-| Platform | `external/` | L6 layer spec + handoffs |
+| Doc | Why |
+|-----|-----|
+| [`docs/EXTENSIVE.md`](docs/EXTENSIVE.md) | Route map, deploy, file maps |
+| [`docs/deploy/vercel-fixtures.md`](docs/deploy/vercel-fixtures.md) | H0 lean |
+| [`deploy/README.md`](deploy/README.md) | Phase H AWS |
+| `external/technical/layers/l4-l6/L6-experience-and-integration.md` | Platform spec |
 
 ## 7. Future advancements
 
-### 7.1 Mumbai CDK pilot
+### 7.1 Mumbai CDK beyond stub
 
-**Why now.** `@stamped/l6-infra` defines `StampedL6PilotMumbai` in `ap-south-1` (`infra/src/bin/app.ts`) but must not auto-apply.  
-**What would land.** Human-approved `cdk diff` → deploy per [`docs/runbooks/pilot-ops.md`](docs/runbooks/pilot-ops.md); replace placeholder images with ECR.  
-**Done when.** A staging URL serves the BFF + web against RDS without Redis.
+**Why now.** `infra` CDK is a pilot stub — do not auto-apply. **Done when.** Documented apply path with rollback matches `deploy/README.md`.
 
-### 7.2 Entra / Power BI live
+### 7.2 Live public `/v1` alarms/ledger
 
-**Why now.** `.env.example` leaves `ENTRA_*` / `POWERBI_*` commented. Identity and push are stubs.  
-**What would land.** Live Entra app + Power BI workspace; L6 membership still owns authorization.  
-**Done when.** A real tenant signs in and a checkpointed PBI push runs without putting secrets in the browser.
+**Why now.** Public routes are fixtures. **Done when.** Scoped live L5 projection without leaking internal statuses.
 
-### 7.3 Replace OpenAPI placeholders
+### 7.3 Webhook worker handler
 
-**Why now.** `packages/api/src/public/openapi.ts` is a minimal 3.1 document (alarms / events / ledger summaries) — placeholders, not a generated contract.  
-**What would land.** Operation schemas aligned with real `/v1` handlers and `contracts/upstream/` snapshots.  
-**Done when.** Partner clients can generate types from `/v1/openapi.json` without guessing fields.
+**Why now.** `l6.webhooks.deliver` queue has no `work` handler. **Done when.** Signed delivery jobs process end-to-end.
 
-### 7.4 Webhook worker completion
+### 7.4 OpenAPI beyond placeholder
 
-**Why now.** pg-boss creates `l6.webhooks.deliver` in `packages/worker/src/boss.ts` but does not register a `work` handler; startup logs only ping + reports queues.  
-**What would land.** Idempotent delivery worker with SSRF guards already sketched in `packages/api/src/webhooks/`.  
-**Done when.** `POST /api/integrations/webhooks/:id/test` is processed by the worker, not only queued, and CI proves signature + retry.
-
----
-
-Platform contracts live in `external/`. Do not fork them. Redis and `L2_DATABASE_URL` stay out of this repo.
+**Why now.** `/v1/openapi.json` is minimal. **Done when.** Published paths match implemented public routes.
