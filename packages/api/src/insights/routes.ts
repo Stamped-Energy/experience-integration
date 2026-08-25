@@ -7,6 +7,7 @@ import { resolveActivePlant } from "../tenancy/service.js";
 import type { L2QueryClient } from "../upstream/l2/client.js";
 import { orgIdForExternalPlantId } from "../upstream/mappings.js";
 import { buildEnergyBoard } from "./energy-board.js";
+import { buildEquipmentBoard } from "./equipment.js";
 import { buildPlantMap } from "./plant-map.js";
 import { buildSustainability } from "./sustainability.js";
 
@@ -155,6 +156,42 @@ export async function registerInsightsRoutes(
     const orgId = orgIdForExternalPlantId(plant.externalPlantId);
     const l2 = deps.createL2Client?.(orgId) ?? null;
     return buildSustainability({
+      plantId: plant.externalPlantId,
+      l2,
+    });
+  });
+
+  app.get("/api/insights/equipment", async (request, reply) => {
+    const session = await deps.auth.api.getSession({
+      headers: fromNodeHeaders(request.headers),
+    });
+    if (!session) {
+      return problem(reply, 401, "Session required", request.id);
+    }
+
+    const q = request.query as { plantId?: string; orgId?: string };
+    const plant = await resolvePlant(
+      deps,
+      session.user.id,
+      q.orgId,
+      q.plantId,
+    );
+    if (!plant) {
+      return problem(reply, 403, "No plant membership", request.id);
+    }
+
+    try {
+      requirePermission(plant.role, "alarm:read");
+    } catch (err) {
+      if (err instanceof AuthzError) {
+        return problem(reply, 403, err.message, request.id);
+      }
+      throw err;
+    }
+
+    const orgId = orgIdForExternalPlantId(plant.externalPlantId);
+    const l2 = deps.createL2Client?.(orgId) ?? null;
+    return buildEquipmentBoard({
       plantId: plant.externalPlantId,
       l2,
     });
