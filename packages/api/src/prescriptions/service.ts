@@ -56,6 +56,9 @@ export const ProductPrescriptionSchema = z.object({
   isMdDemand: z.boolean().optional(),
   mdEpisodeId: z.string().optional(),
   mdEpisode: z.record(z.string(), z.unknown()).optional(),
+  actions: z.array(z.string()).optional(),
+  risks: z.array(z.string()).optional(),
+  evidenceBundleId: z.string().optional(),
 });
 export type ProductPrescription = z.infer<typeof ProductPrescriptionSchema>;
 
@@ -219,12 +222,17 @@ export function mapL5PrescriptionToProduct(
     billLine: firstString(raw.bill_line, raw.billLine),
     effort: firstString(raw.effort),
     ruleId: firstString(raw.rule_id, raw.ruleId, raw.template_id),
-    relatedAlarmId: firstString(raw.related_alarm_id, raw.relatedAlarmId),
+    relatedAlarmId:
+      firstString(raw.related_alarm_id, raw.relatedAlarmId) ??
+      (typeof (raw.alarm as { alarm_id?: string } | undefined)?.alarm_id === "string"
+        ? (raw.alarm as { alarm_id: string }).alarm_id
+        : undefined),
     dueLabel: firstString(raw.when, raw.due_label, raw.dueLabel),
     whoLabel: firstString(raw.who_label, raw.whoLabel, raw.who),
     valueDomain: valueDomainFromRaw(raw),
     wasteCategory: firstNumber(raw.waste_category, raw.wasteCategory),
     evidenceRefs: evidenceRefsFromRaw(raw),
+    evidenceBundleId: firstString(raw.evidence_bundle_id, raw.evidenceBundleId),
     firstRecommendedAt: firstString(raw.first_recommended_at, raw.firstRecommendedAt) ?? null,
     acceptedAt: firstString(raw.accepted_at, raw.acceptedAt) ?? null,
     implementedAt: firstString(raw.implemented_at, raw.implementedAt) ?? null,

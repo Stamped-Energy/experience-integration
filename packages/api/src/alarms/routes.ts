@@ -143,6 +143,48 @@ export async function registerAlarmRoutes(
     };
   });
 
+  app.get("/api/alarms/:alarmId", async (request, reply) => {
+    const session = await deps.auth.api.getSession({
+      headers: fromNodeHeaders(request.headers),
+    });
+    if (!session) {
+      return problem(reply, 401, "Session required", request.id);
+    }
+    const q = request.query as { orgId?: string; plantId?: string };
+    const resolved = await resolveActivePlant(deps.db, {
+      userId: session.user.id,
+      orgId: q.orgId,
+    });
+    const plant =
+      resolved.authorized.find((p) => p.externalPlantId === q.plantId) ??
+      resolved.activePlant ??
+      resolved.authorized[0];
+    if (!plant) {
+      return problem(reply, 403, "No plant membership", request.id);
+    }
+    try {
+      requirePermission(plant.role, "alarm:read");
+    } catch (err) {
+      if (err instanceof AuthzError) {
+        return problem(reply, 403, err.message, request.id);
+      }
+      throw err;
+    }
+    const alarmId = (request.params as { alarmId: string }).alarmId;
+    const result = await listAlarmsForPlant({
+      l5: deps.l5,
+      fixture,
+      orgId: orgIdForExternalPlantId(plant.externalPlantId),
+      plantId: plant.externalPlantId,
+      strictLive: deps.strictLive,
+    });
+    const alarm = result.items.find((a) => a.id === alarmId);
+    if (!alarm) {
+      return problem(reply, 404, "Alarm not found", request.id, "Not Found");
+    }
+    return { item: alarm, source: result.source };
+  });
+
   app.post("/api/alarms/:alarmId/actions", async (request, reply) => {
     const session = await deps.auth.api.getSession({
       headers: fromNodeHeaders(request.headers),

@@ -24,6 +24,7 @@ export const ProductAlarmSchema = z.object({
   raisedAt: z.string(),
   relatedPrescriptionId: z.string().optional(),
   findingId: z.string().optional(),
+  ownerRole: z.string().optional(),
 });
 export type ProductAlarm = z.infer<typeof ProductAlarmSchema>;
 

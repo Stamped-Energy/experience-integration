@@ -30,6 +30,7 @@ import type { L5WorkflowClient } from "./upstream/l5/client.js";
 import type { L4AnalystClient } from "./upstream/l4/client.js";
 import type { L2QueryClient } from "./upstream/l2/client.js";
 import { registerAnalystRoutes } from "./analyst/routes.js";
+import { registerCaseRoutes } from "./cases/routes.js";
 import { registerL2Routes } from "./l2/routes.js";
 import { registerOverviewRoutes } from "./overview/routes.js";
 import { probeUpstreams } from "./meta/upstreams.js";
@@ -274,6 +275,12 @@ export async function buildApp(
       alarmFixture: opts.alarmFixture,
       prescriptionFixture: opts.prescriptionFixture,
       strictLive: env.L6_STRICT_LIVE,
+    });
+    await registerCaseRoutes(app, {
+      auth: opts.auth,
+      db: opts.db,
+      l5: opts.l5,
+      createL2Client: opts.createL2Client,
     });
   }
   if (opts.auth && opts.l4) {
