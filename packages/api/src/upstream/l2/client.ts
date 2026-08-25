@@ -201,6 +201,14 @@ export class L2QueryClient {
   }
 
   async getBaseline(baselineId: string) {
+    if (!this.opts.features.baselines) {
+      throw new UpstreamError(
+        "UPSTREAM_FEATURE_UNAVAILABLE",
+        "L2 baselines are not published yet — feature-gated in L6",
+        501,
+        { x_stamped_status: "upstream_missing" },
+      );
+    }
     const raw = await upstreamFetch<unknown>({
       baseUrl: this.opts.baseUrl,
       path: `v1/baselines/${encodeURIComponent(baselineId)}`,
@@ -215,6 +223,14 @@ export class L2QueryClient {
     assetId?: string;
     category?: string;
   }) {
+    if (!this.opts.features.baselines) {
+      throw new UpstreamError(
+        "UPSTREAM_FEATURE_UNAVAILABLE",
+        "L2 baselines are not published yet — feature-gated in L6",
+        501,
+        { x_stamped_status: "upstream_missing" },
+      );
+    }
     const raw = await upstreamFetch<unknown>({
       baseUrl: this.opts.baseUrl,
       path: `v1/plants/${encodeURIComponent(input.plantId)}/baselines`,
