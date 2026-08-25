@@ -15,11 +15,11 @@
 | `PlantSectionMap.tsx` | `@/fixtures/plant-sections` | remounted |
 | `MachineHealthBoard.tsx` | `@/fixtures/machine-health` | remounted |
 | `PlantHealthMap.tsx` | `@/fixtures/overview-demo` | remounted (props-only) |
-| `DialBank.tsx` | `@/fixtures/overview-demo` | purge pending |
-| `DemandProfilePanel.tsx` | `@/fixtures/overview-demo` | purge pending |
-| `AlertFeedPanel.tsx` | `@/fixtures/overview-demo` | purge pending |
-| `PrescriptionsOverviewPanel.tsx` | `@/fixtures/demo` (needs-review fallback) | purge pending |
-| `live-telemetry.ts` | `@/fixtures/overview-demo` | purge pending |
+| `DialBank.tsx` | `@/fixtures/overview-demo` | purged |
+| `DemandProfilePanel.tsx` | `@/fixtures/overview-demo` | purged |
+| `AlertFeedPanel.tsx` | `@/fixtures/overview-demo` | purged |
+| `PrescriptionsOverviewPanel.tsx` | `@/fixtures/demo` (needs-review fallback) | purged |
+| `live-telemetry.ts` | `@/fixtures/overview-demo` | purged (empty baseline) |
 | `ExportCentre.tsx` | local stub (no `@/fixtures`) | wire BFF pending |
 
 ### Pages today (Vinayak)
@@ -31,11 +31,11 @@
 | `/intensity` | SustainabilityDashboard live | done |
 | `/equipment` | MachineHealthBoard + PlantHealthMap live | energy-derived; CM empty |
 | `/reports` | overview KPIs only | ExportCentre not mounted |
-| `/`, `/live` | partial L2; subpanels still fixture-backed | purge pending |
+| `/`, `/live` | L2 overlay; no overview-demo defaults | done |
 
 ### Next
 
-Overview/Live fixture purge · Reports · Vinayak smoke · Hardening.
+Reports (`ExportCentre` + ledger) · Vinayak smoke · Hardening.
 
 ### Done this session
 
@@ -43,3 +43,4 @@ Overview/Live fixture purge · Reports · Vinayak smoke · Hardening.
 - [x] `GET /api/insights/energy` + EnergyBoard props remount on `/energy`
 - [x] Plant-map + sustainability remounts
 - [x] `GET /api/insights/equipment` + MachineHealthBoard / PlantHealthMap remount
+- [x] Overview/Live overview-demo purge

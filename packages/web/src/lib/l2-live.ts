@@ -1,8 +1,11 @@
 import type { OverviewMachine } from "@/lib/overview-machines";
 import type { L2Asset, L2MeasurementPoint } from "@/hooks/useL2Data";
 import type { DataSource } from "@/lib/bff";
-import type { LiveDial, LiveTelemetrySnapshot } from "@/lib/live-telemetry";
-import { createLiveTelemetryBaseline } from "@/lib/live-telemetry";
+import type {
+  LiveDemandPoint,
+  LiveDial,
+  LiveTelemetrySnapshot,
+} from "@/lib/live-telemetry";
 
 function statusFromClass(
   assetClass: string | undefined,
@@ -13,7 +16,58 @@ function statusFromClass(
   return "GOOD";
 }
 
-/** Map L2 assets into Live board machines / dials — honest overlay, no invented kW. */
+function todForHour(hour: number): LiveDemandPoint["tod"] {
+  if (hour >= 18 && hour < 22) return "peak";
+  if ((hour >= 6 && hour < 9) || (hour >= 12 && hour < 15)) return "shoulder";
+  return "off";
+}
+
+/** Build 24h MW profile from incomer active_power_kw points (kW → MW). */
+export function demandProfileFromPowerPoints(
+  points: L2MeasurementPoint[],
+): {
+  profile: LiveDemandPoint[];
+  plantMw: number;
+  peakMw: number;
+  peakHour: string;
+} {
+  const byHour = new Map<number, number[]>();
+  for (const p of points) {
+    const h = new Date(p.ts).getHours();
+    if (!Number.isFinite(h) || !Number.isFinite(p.value)) continue;
+    const asMw = p.value > 50 ? p.value / 1000 : p.value;
+    const list = byHour.get(h) ?? [];
+    list.push(asMw);
+    byHour.set(h, list);
+  }
+
+  const profile: LiveDemandPoint[] = [];
+  let peakMw = 0;
+  let peakHour = "00:00";
+  for (let h = 0; h < 24; h++) {
+    const vals = byHour.get(h) ?? [];
+    const mw =
+      vals.length > 0
+        ? Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 10) / 10
+        : 0;
+    const hour = `${String(h).padStart(2, "0")}:00`;
+    profile.push({ hour, mw, tod: todForHour(h) });
+    if (mw > peakMw) {
+      peakMw = mw;
+      peakHour = hour;
+    }
+  }
+
+  const last = points.at(-1);
+  const plantMw =
+    last && Number.isFinite(last.value)
+      ? Math.round((last.value > 50 ? last.value / 1000 : last.value) * 10) / 10
+      : peakMw;
+
+  return { profile, plantMw, peakMw, peakHour };
+}
+
+/** Map L2 assets into Live board — no fixture baseline. */
 export function liveSnapshotFromL2Assets(
   assets: L2Asset[],
   opts?: {
@@ -21,14 +75,23 @@ export function liveSnapshotFromL2Assets(
     plantMwFallback?: number;
   },
 ): LiveTelemetrySnapshot {
-  const baseline = createLiveTelemetryBaseline();
   const equipment = assets.filter(
     (a) =>
       a.level === "equipment" ||
       a.asset_class === "cnc_machine" ||
       a.asset_class === "furnace" ||
       a.asset_class === "induction" ||
-      a.asset_class === "compressor",
+      a.asset_class === "compressor" ||
+      a.asset_class === "feeder" ||
+      [
+        "feeder_a",
+        "feeder_b",
+        "compressor_1",
+        "furnace_1",
+        "hvac_1",
+        "line_1",
+        "pump_cw_12",
+      ].includes(a.asset_id),
   );
 
   const machines: OverviewMachine[] = equipment.slice(0, 16).map((a) => ({
@@ -38,7 +101,7 @@ export function liveSnapshotFromL2Assets(
     kwh: null,
     reason:
       a.asset_class === "cnc_machine"
-        ? "CNC asset from L2 — load awaits measurement overlay."
+        ? "CNC asset from L2 — load awaits per-asset power overlay."
         : `L2 asset (${a.asset_class ?? a.level ?? "unknown"}).`,
   }));
 
@@ -48,20 +111,31 @@ export function liveSnapshotFromL2Assets(
     sub: a.asset_class ?? "asset",
   }));
 
-  const last = opts?.measurementPoints?.at(-1);
-  const plantMw =
-    last && Number.isFinite(last.value)
-      ? last.value > 200
-        ? last.value / 1000
-        : last.value
-      : (opts?.plantMwFallback ?? baseline.plantMw);
+  const demand = opts?.measurementPoints?.length
+    ? demandProfileFromPowerPoints(opts.measurementPoints)
+    : {
+        profile: [] as LiveDemandPoint[],
+        plantMw: opts?.plantMwFallback ?? 0,
+        peakMw: 0,
+        peakHour: "—",
+      };
 
   return {
-    ...baseline,
-    dials: dials.length ? dials : baseline.dials,
-    machines: machines.length ? machines : baseline.machines,
-    plantMw,
+    tick: 0,
     syncAgeSec: 0,
+    dials,
+    machines,
+    plantMw: demand.plantMw,
+    peakMw: demand.peakMw,
+    peakHour: demand.peakHour,
+    demandProfile: demand.profile,
+    anomalies: {
+      total: 0,
+      critical: 0,
+      warning: 0,
+      info: 0,
+      lastTriggered: "—",
+    },
     alerts: [
       {
         id: "l2_live",
@@ -76,7 +150,6 @@ export function liveSnapshotFromL2Assets(
   };
 }
 
-/** Demo fixture assets shaped like L2 for offline fallback. */
 export function fixtureAssetsAsL2(plantId: string): L2Asset[] {
   if (plantId === "plant_lnm_faridabad_1") {
     return [
@@ -92,65 +165,18 @@ export function fixtureAssetsAsL2(plantId: string): L2Asset[] {
         level: "equipment",
         asset_class: "cnc_machine",
       },
-      {
-        asset_id: "cnc_vtl_02",
-        name: "VTL-02",
-        level: "equipment",
-        asset_class: "cnc_machine",
-      },
-      {
-        asset_id: "cnc_hmc_01",
-        name: "HMC-01",
-        level: "equipment",
-        asset_class: "cnc_machine",
-      },
-      {
-        asset_id: "cnc_hmc_02",
-        name: "HMC-02",
-        level: "equipment",
-        asset_class: "cnc_machine",
-      },
-      {
-        asset_id: "cnc_lathe_01",
-        name: "CNC Lathe-01",
-        level: "equipment",
-        asset_class: "cnc_machine",
-      },
-      {
-        asset_id: "furnace_normalize",
-        name: "Normalize Furnace",
-        level: "equipment",
-        asset_class: "furnace",
-      },
-      {
-        asset_id: "compressor_1",
-        name: "Air Compressor 1",
-        level: "equipment",
-        asset_class: "compressor",
-      },
     ];
   }
   return [
     {
-      asset_id: "kiln_1",
-      name: "Kiln 1",
+      asset_id: "compressor_1",
+      name: "Compressor 1",
       level: "equipment",
-      asset_class: "process",
-    },
-    {
-      asset_id: "cm_1",
-      name: "Cement Mill 1",
-      level: "equipment",
-      asset_class: "process",
+      asset_class: "compressor",
     },
   ];
 }
 
-/**
- * Honest live-vs-fixture badge for the Live screen.
- * "Live from L2" only when the asset graph is from L2 — fixture assets + live
- * measurements must not claim a fully live plant (Bugbot / Phase N).
- */
 export function resolveLivePageSource(
   assetSource: DataSource,
   measSource: DataSource,

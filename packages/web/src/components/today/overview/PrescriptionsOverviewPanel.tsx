@@ -6,7 +6,6 @@ import type { Prescription } from "@/lib/types";
 import { Panel } from "@/components/ui/primitives";
 import { IconBadge, StatusBadgeByStatus } from "@/components/ui/indicators";
 import { AlertTriangle, Sparkles, Zap } from "@/components/ui/icons";
-import { demoNeedsReviewCount, demoNeedsReviewInr } from "@/fixtures/demo";
 import { formatInr } from "@/lib/format";
 
 const LANE_ICON = {
@@ -17,11 +16,8 @@ const LANE_ICON = {
 
 export function PrescriptionsOverviewPanel({
   prescriptions,
-  liveMode = false,
 }: {
   prescriptions: Prescription[];
-  /** When true, never pull demoNeedsReview* fixtures. */
-  liveMode?: boolean;
 }) {
   const [done, setDone] = useState<Record<string, boolean>>({});
   const top = prescriptions
@@ -29,12 +25,8 @@ export function PrescriptionsOverviewPanel({
     .slice(0, 3);
 
   const needsReview = prescriptions.filter((p) => p.lane === "needs_review");
-  const pending = liveMode
-    ? Math.max(0, needsReview.length - Object.keys(done).length)
-    : demoNeedsReviewCount() - Object.keys(done).length;
-  const totalImpact = liveMode
-    ? needsReview.reduce((s, p) => s + p.impactInrPerMonth, 0)
-    : demoNeedsReviewInr();
+  const pending = Math.max(0, needsReview.length - Object.keys(done).length);
+  const totalImpact = needsReview.reduce((s, p) => s + p.impactInrPerMonth, 0);
 
   return (
     <Panel style={{ display: "flex", flexDirection: "column", overflow: "hidden", padding: 0 }}>
@@ -87,7 +79,7 @@ export function PrescriptionsOverviewPanel({
               padding: 12,
             }}
           >
-            {liveMode ? "No prescriptions from L5 yet" : "No prescriptions"}
+            No prescriptions from L5 yet
           </div>
         ) : null}
         {top.map((rx) => {

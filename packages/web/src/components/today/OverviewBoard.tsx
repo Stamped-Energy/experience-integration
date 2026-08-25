@@ -164,7 +164,7 @@ export function OverviewBoard({
         <EnergyTrendPanel rows={energyTrend30d} />
 
         <div className="forge-grid-38-62">
-          <PrescriptionsOverviewPanel prescriptions={prescriptions} liveMode />
+          <PrescriptionsOverviewPanel prescriptions={prescriptions} />
           <div
             style={{
               display: "flex",
