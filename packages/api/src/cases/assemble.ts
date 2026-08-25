@@ -46,7 +46,10 @@ export async function assemblePrescriptionCase(input: {
     prescriptionId: input.prescriptionId,
   })) as Record<string, unknown>;
 
-  const prescription = mapL5PrescriptionToProduct(raw, input.plantId);
+  const prescription = mapL5PrescriptionToProduct({
+    ...raw,
+    plant_id: raw.plant_id ?? raw.plantId ?? input.plantId,
+  });
   const enrichment = (raw.case_enrichment as CaseEnrichment | null | undefined) ?? null;
   const refs = stringArray(raw.evidence_refs ?? prescription.evidenceRefs);
   const findingWindow =
@@ -56,9 +59,7 @@ export async function assemblePrescriptionCase(input: {
   const scope = scopeFromRaw(refs, findingWindow);
   const missing: string[] = [];
 
-  let series = undefined as ReturnType<typeof fetchL2Series> extends Promise<infer R>
-    ? R["series"]
-    : never;
+  let series: Awaited<ReturnType<typeof fetchL2Series>>["series"];
   let loadDialPct: Record<string, number> = {};
 
   if (input.l2) {

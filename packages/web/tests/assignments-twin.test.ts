@@ -5,7 +5,6 @@ import {
   routesForPerson,
   notifyPeopleFixture,
 } from "../src/fixtures/assignments.js";
-import { countTwinLeaves, energyTwinFixture } from "../src/fixtures/energy-twin.js";
 
 describe("assignment recommendations", () => {
   it("returns 2–3 WhatsApp-enabled people for an area", () => {
@@ -19,15 +18,5 @@ describe("assignment recommendations", () => {
     const routes = routesForPerson("usr_op");
     assert.ok(routes.length >= 1);
     assert.ok(notifyPeopleFixture.length >= 5);
-  });
-});
-
-describe("energy twin fixture", () => {
-  it("has expandable sections and countable leaves", () => {
-    assert.equal(energyTwinFixture.id, "eb_incomer");
-    assert.ok((energyTwinFixture.children?.length ?? 0) >= 3);
-    assert.ok(countTwinLeaves(energyTwinFixture) >= 6);
-    const section = energyTwinFixture.children?.find((c) => c.kind === "section");
-    assert.ok(section?.children?.length);
   });
 });

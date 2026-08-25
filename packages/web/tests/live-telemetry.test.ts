@@ -2,14 +2,20 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createLiveTelemetryBaseline, tickLiveTelemetry } from "../src/lib/live-telemetry.js";
 
-describe("live telemetry demo tick", () => {
-  it("jitters loads and sync age on each poll", () => {
+describe("live telemetry tick", () => {
+  it("starts empty with no invented dials", () => {
+    const base = createLiveTelemetryBaseline();
+    assert.equal(base.tick, 0);
+    assert.deepEqual(base.dials, []);
+    assert.deepEqual(base.alerts, []);
+  });
+
+  it("ages sync without inventing fixture dial jitter", () => {
     const base = createLiveTelemetryBaseline();
     const next = tickLiveTelemetry(base);
     assert.equal(next.tick, 1);
     assert.equal(next.syncAgeSec, 1);
-    assert.notDeepEqual(next.dials, base.dials);
-    assert.ok(next.dials.some((d, i) => d.load !== base.dials[i]?.load));
+    assert.deepEqual(next.dials, []);
   });
 
   it("resets sync age after 15 seconds like stamped topbar", () => {
