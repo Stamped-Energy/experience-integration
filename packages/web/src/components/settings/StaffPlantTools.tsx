@@ -5,10 +5,17 @@ import { useRouter } from "next/navigation";
 import { Panel } from "@/components/ui/primitives";
 import { useDataSource } from "@/lib/data-source-context";
 import { usePlant } from "@/lib/plant-context";
+import {
+  STAFF_IDLE_LOCK_MS,
+  STAFF_PLANT_PASSWORD,
+  STAFF_UNLOCK_AT_KEY,
+  isStaffUnlocked,
+  lockStaffTools,
+  touchStaffUnlock,
+  unlockStaffTools,
+} from "@/lib/staff-unlock";
 
-/** Staff-only gate for multi-plant demos. Clients stay on a single plant. */
-export const STAFF_PLANT_PASSWORD = "Stamped123";
-const UNLOCK_KEY = "l6.staffToolsUnlocked";
+export { STAFF_PLANT_PASSWORD };
 
 export function StaffPlantTools() {
   const router = useRouter();
@@ -18,28 +25,54 @@ export function StaffPlantTools() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [switching, setSwitching] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+
+  const syncUnlocked = useCallback(() => {
+    const ok = isStaffUnlocked();
+    setUnlocked(ok);
+    if (!ok) setSecondsLeft(null);
+    return ok;
+  }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      setUnlocked(window.sessionStorage.getItem(UNLOCK_KEY) === "1");
-    } catch {
-      /* ignore */
-    }
-  }, []);
+    syncUnlocked();
+  }, [syncUnlocked]);
+
+  // 30s idle auto-lock while unlocked on this page
+  useEffect(() => {
+    if (!unlocked) return;
+    touchStaffUnlock();
+    const tick = window.setInterval(() => {
+      if (!isStaffUnlocked()) {
+        setUnlocked(false);
+        setSecondsLeft(null);
+        return;
+      }
+      try {
+        const at = Number(window.sessionStorage.getItem(STAFF_UNLOCK_AT_KEY) ?? "0");
+        const left = Math.max(0, Math.ceil((STAFF_IDLE_LOCK_MS - (Date.now() - at)) / 1000));
+        setSecondsLeft(left);
+        if (left <= 0) {
+          lockStaffTools();
+          setUnlocked(false);
+          setSecondsLeft(null);
+        }
+      } catch {
+        /* ignore */
+      }
+    }, 500);
+    return () => window.clearInterval(tick);
+  }, [unlocked]);
 
   const unlock = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
       if (password.trim() === STAFF_PLANT_PASSWORD) {
+        unlockStaffTools();
         setUnlocked(true);
         setError(null);
         setPassword("");
-        try {
-          window.sessionStorage.setItem(UNLOCK_KEY, "1");
-        } catch {
-          /* ignore */
-        }
+        setSecondsLeft(Math.ceil(STAFF_IDLE_LOCK_MS / 1000));
       } else {
         setError("Incorrect password");
       }
@@ -48,20 +81,17 @@ export function StaffPlantTools() {
   );
 
   const lock = useCallback(() => {
+    lockStaffTools();
     setUnlocked(false);
-    try {
-      window.sessionStorage.removeItem(UNLOCK_KEY);
-    } catch {
-      /* ignore */
-    }
+    setSecondsLeft(null);
   }, []);
 
   const onPlantChange = useCallback(
     (nextId: string) => {
       if (nextId === activePlantId) return;
+      touchStaffUnlock();
       setSwitching(true);
       setActivePlantId(nextId);
-      // Drop cached route data and re-probe L2/L5 for the new plant.
       refreshUpstreams();
       router.refresh();
       window.setTimeout(() => setSwitching(false), 400);
@@ -88,8 +118,8 @@ export function StaffPlantTools() {
               lineHeight: 1.45,
             }}
           >
-            Client product is single-plant. Staff can unlock to switch demo plants (LNM, Vinayak,
-            Jaipur). Multi-plant for customers comes later.
+            Client product is single-plant. Staff can unlock to switch demo plants. Leaving this
+            page or waiting 30 seconds locks again.
           </p>
         </div>
         {unlocked ? (
@@ -168,6 +198,11 @@ export function StaffPlantTools() {
             Active: <strong>{activePlant.plantName}</strong>
             <span style={{ color: "var(--forge-on-surface-variant)" }}> · {activePlant.plantId}</span>
           </p>
+          {secondsLeft != null ? (
+            <p style={{ margin: 0, fontSize: 12, color: "var(--forge-warning)" }}>
+              Auto-locks in {secondsLeft}s · also locks when you leave Administration
+            </p>
+          ) : null}
           <label style={{ fontSize: 12, fontWeight: 600 }}>
             Switch plant
             <select
@@ -176,6 +211,7 @@ export function StaffPlantTools() {
               value={activePlantId}
               disabled={switching}
               onChange={(e) => onPlantChange(e.target.value)}
+              onFocus={() => touchStaffUnlock()}
               style={{
                 display: "block",
                 width: "100%",
@@ -201,8 +237,7 @@ export function StaffPlantTools() {
             </p>
           ) : (
             <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
-              Changing plant remounts the app shell and refetches Overview / Live / Alarms /
-              Prescriptions from L2/L5 for the selected plant.
+              Changing plant remounts the app shell and refetches from L2/L5 for the selected plant.
             </p>
           )}
         </div>

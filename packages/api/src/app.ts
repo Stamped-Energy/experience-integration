@@ -103,7 +103,23 @@ export async function buildApp(
     crossOriginEmbedderPolicy: false,
   });
   await app.register(cors, {
-    origin: env.WEB_ORIGIN,
+    // Local web may be opened as localhost or 127.0.0.1 — both must work with credentials.
+    origin: (origin, cb) => {
+      const allowed = new Set([
+        env.WEB_ORIGIN,
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+      ]);
+      if (!origin || allowed.has(origin)) {
+        cb(null, true);
+        return;
+      }
+      if (env.NODE_ENV !== "production" && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
+        cb(null, true);
+        return;
+      }
+      cb(null, false);
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
