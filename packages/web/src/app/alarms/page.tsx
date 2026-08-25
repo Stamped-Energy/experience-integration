@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AlarmConsole } from "@/components/alarms/AlarmConsole";
 import { AppShell } from "@/components/shell/AppShell";
 import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
+import { AlarmListSkeleton } from "@/components/ui/PageSkeletons";
 import { PageHead } from "@/components/ui/primitives";
 import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
@@ -98,7 +99,9 @@ export default function AlarmsPage() {
     >
       <PageHead eyebrow="Operations" title="Alarm console" />
       <SourceIndicator source={source} loading={loading} detail={detail} />
-      {source === "l5" ? (
+      {loading ? (
+        <AlarmListSkeleton />
+      ) : source === "l5" ? (
         alarms.length > 0 ? (
           <AlarmConsole key={`${activePlant.plantId}:${source}`} initial={alarms} />
         ) : (

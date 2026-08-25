@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { LiveBoard } from "@/components/live/LiveBoard";
 import { AppShell } from "@/components/shell/AppShell";
 import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
+import { LiveBoardSkeleton } from "@/components/ui/PageSkeletons";
 import { PageHead } from "@/components/ui/primitives";
 import {
   DEMO_SHELL_ROLE,
@@ -89,7 +90,9 @@ export default function LivePage() {
       <p className="forge-page-lede">
         Real-time plant instrumentation from L2 · {activePlant.shift}
       </p>
-      {source === "l2" && overlay ? (
+      {loading ? (
+        <LiveBoardSkeleton />
+      ) : source === "l2" && overlay ? (
         <LiveBoard
           key={`${activePlant.plantId}:${source}`}
           connection={connectionFixture}

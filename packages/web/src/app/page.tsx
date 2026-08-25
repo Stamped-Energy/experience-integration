@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AppShell } from "@/components/shell/AppShell";
 import { OverviewBoard } from "@/components/today/OverviewBoard";
 import { SourceIndicator } from "@/components/ui/SourceIndicator";
+import { OverviewBoardSkeleton } from "@/components/ui/PageSkeletons";
 import { PageHead } from "@/components/ui/primitives";
 import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
@@ -163,15 +164,19 @@ export default function OverviewPage() {
           ([data?.detail.l2, data?.detail.l5].filter(Boolean).join(" · ") || null)
         }
       />
-      <OverviewBoard
-        liveKpis={source === "unavailable" ? null : liveKpis}
-        energyTrend30d={source === "unavailable" ? null : data?.energyTrend30d}
-        topConsumers={source === "unavailable" ? null : data?.topConsumers}
-        sectionShare={source === "unavailable" ? null : data?.sectionShare}
-        energyInrPerKwh={data?.energyInrPerKwh ?? null}
-        closurePct={data?.closureRate30d ?? null}
-        prescriptions={(data?.prescriptions ?? []) as never}
-      />
+      {loading ? (
+        <OverviewBoardSkeleton />
+      ) : (
+        <OverviewBoard
+          liveKpis={source === "unavailable" ? null : liveKpis}
+          energyTrend30d={source === "unavailable" ? null : data?.energyTrend30d}
+          topConsumers={source === "unavailable" ? null : data?.topConsumers}
+          sectionShare={source === "unavailable" ? null : data?.sectionShare}
+          energyInrPerKwh={data?.energyInrPerKwh ?? null}
+          closurePct={data?.closureRate30d ?? null}
+          prescriptions={(data?.prescriptions ?? []) as never}
+        />
+      )}
     </AppShell>
   );
 }

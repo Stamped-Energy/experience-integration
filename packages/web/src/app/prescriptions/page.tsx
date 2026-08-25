@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { PrescriptionQueue } from "@/components/prescriptions/PrescriptionQueue";
 import { AppShell } from "@/components/shell/AppShell";
 import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
+import { PrescriptionQueueSkeleton } from "@/components/ui/PageSkeletons";
 import { PageHead } from "@/components/ui/primitives";
 import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
@@ -108,7 +109,9 @@ export default function PrescriptionsPage() {
     >
       <PageHead eyebrow="Plant inbox" title="Prescriptions" />
       <SourceIndicator source={source} loading={loading} detail={loadError} />
-      {source === "l5" ? (
+      {loading ? (
+        <PrescriptionQueueSkeleton />
+      ) : source === "l5" ? (
         rows.length > 0 ? (
           <PrescriptionQueue
             key={`${activePlant.plantId}:${source}:${loading}`}
