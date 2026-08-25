@@ -29,6 +29,28 @@ type OverviewResponse = {
   stampedSavingsMonthInr: number | null;
   aiScore: number | null;
   co2Tco2e: number | null;
+  energyTrend30d: Array<{
+    day: number;
+    date: string;
+    actualKwh: number;
+    baselineKwh: number;
+    savedKwh: number;
+    costActualInr: number;
+    costBaselineInr: number;
+    co2Actual: number;
+    co2Baseline: number;
+  }> | null;
+  topConsumers: Array<{
+    rank: number;
+    name: string;
+    section: string;
+    avgLoadKw: number;
+    monthlyKwh: number;
+    monthlyCostInr: number;
+    vsBenchmarkPct: number | null;
+  }> | null;
+  sectionShare: Array<{ name: string; kwh: number }> | null;
+  energyInrPerKwh: number | null;
   prescriptions: Array<{
     id: string;
     plantId: string;
@@ -139,10 +161,12 @@ export default function OverviewPage() {
       />
       <OverviewBoard
         liveKpis={source === "unavailable" ? null : liveKpis}
+        energyTrend30d={source === "unavailable" ? null : data?.energyTrend30d}
+        topConsumers={source === "unavailable" ? null : data?.topConsumers}
+        sectionShare={source === "unavailable" ? null : data?.sectionShare}
+        energyInrPerKwh={data?.energyInrPerKwh ?? null}
         closurePct={data?.closureRate30d ?? null}
-        alarms={[]}
         prescriptions={(data?.prescriptions ?? []) as never}
-        assets={[]}
       />
     </AppShell>
   );

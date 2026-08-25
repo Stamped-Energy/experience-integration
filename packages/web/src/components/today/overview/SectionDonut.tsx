@@ -3,22 +3,33 @@
 import { useEffect, useRef } from "react";
 import type { ECharts } from "echarts/core";
 import { Panel } from "@/components/ui/primitives";
-import { OVERVIEW_SECTION_BREAKDOWN, OVERVIEW_TARIFF } from "@/fixtures/overview-demo";
 import { formatIndianNum, formatInr } from "@/lib/format";
 import { FORGE_ECHARTS_THEME, FORGE_ECHARTS_THEME_NAME } from "@/components/charts/forgeTheme";
 
-const total = OVERVIEW_SECTION_BREAKDOWN.reduce((s, d) => s + d.kwh, 0);
+export type LiveSectionRow = {
+  name: string;
+  kwh: number;
+};
 
-export function SectionDonut() {
+export function SectionDonut({
+  rows,
+  tariffInrPerKwh = 6.32,
+}: {
+  rows?: LiveSectionRow[] | null;
+  tariffInrPerKwh?: number | null;
+}) {
   const hostRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<ECharts | null>(null);
+  const data = rows && rows.length > 0 ? rows : null;
+  const rate = tariffInrPerKwh ?? 6.32;
 
   useEffect(() => {
+    if (!data) return;
     let disposed = false;
     let ro: ResizeObserver | null = null;
 
     async function mount() {
-      if (!hostRef.current) return;
+      if (!hostRef.current || !data) return;
       const echarts = await import("echarts/core");
       const { PieChart } = await import("echarts/charts");
       const { TooltipComponent } = await import("echarts/components");
@@ -28,7 +39,9 @@ export function SectionDonut() {
 
       if (disposed || !hostRef.current) return;
       if (!chartRef.current) {
-        chartRef.current = echarts.init(hostRef.current, FORGE_ECHARTS_THEME_NAME, { renderer: "canvas" });
+        chartRef.current = echarts.init(hostRef.current, FORGE_ECHARTS_THEME_NAME, {
+          renderer: "canvas",
+        });
         ro = new ResizeObserver(() => chartRef.current?.resize());
         ro.observe(hostRef.current);
       }
@@ -40,12 +53,12 @@ export function SectionDonut() {
           borderColor: "transparent",
           textStyle: { color: "#fff", fontSize: 12 },
           formatter: (p: { name: string; value: number; percent: number }) => {
-            const d = OVERVIEW_SECTION_BREAKDOWN.find((x) => x.name === p.name);
+            const d = data.find((x) => x.name === p.name);
             if (!d) return p.name;
             return [
               `<strong>${d.name}</strong>`,
               `Energy: ${formatIndianNum(d.kwh)} kWh`,
-              `Cost: ${formatInr(d.kwh * OVERVIEW_TARIFF)}`,
+              `Cost: ${formatInr(Math.round(d.kwh * rate))}`,
               `Share: ${p.percent.toFixed(1)}%`,
             ].join("<br/>");
           },
@@ -56,11 +69,7 @@ export function SectionDonut() {
             radius: ["48%", "72%"],
             padAngle: 2,
             label: { show: false },
-            data: OVERVIEW_SECTION_BREAKDOWN.map((d) => ({
-              name: d.name,
-              value: d.kwh,
-              itemStyle: { color: d.color },
-            })),
+            data: data.map((d) => ({ name: d.name, value: d.kwh })),
           },
         ],
       });
@@ -73,46 +82,31 @@ export function SectionDonut() {
       chartRef.current?.dispose();
       chartRef.current = null;
     };
-  }, []);
+  }, [data, rate]);
 
   return (
-    <Panel style={{ padding: 20, display: "flex", flexDirection: "column" }}>
-      <p className="forge-eyebrow">Load Distribution</p>
-      <h3 className="forge-card-title">Energy by Plant Section</h3>
-
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, flex: 1, flexWrap: "wrap" }}>
-        <div style={{ width: 150, height: 170, position: "relative" }}>
-          <div ref={hostRef} style={{ width: "100%", height: "100%" }} aria-hidden />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              pointerEvents: "none",
-            }}
-          >
-            <span className="tabular" style={{ fontFamily: "var(--forge-font-display)", fontWeight: 800, fontSize: 18 }}>
-              {(total / 1000).toFixed(0)}k
-            </span>
-            <span style={{ fontSize: 9.5, color: "var(--forge-on-surface-variant)" }}>kWh total</span>
-          </div>
-        </div>
-
-        <div style={{ flex: 1, minWidth: 120, display: "flex", flexDirection: "column", gap: 7 }}>
-          {OVERVIEW_SECTION_BREAKDOWN.map((d) => (
-            <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
-              <span style={{ width: 9, height: 9, borderRadius: 2, background: d.color, flexShrink: 0 }} />
-              <span style={{ flex: 1 }}>{d.name}</span>
-              <span className="tabular" style={{ fontWeight: 600, color: "var(--forge-on-surface-variant)" }}>
-                {((d.kwh / total) * 100).toFixed(0)}%
-              </span>
-            </div>
-          ))}
-        </div>
+    <Panel style={{ display: "flex", flexDirection: "column", overflow: "hidden", padding: 0 }}>
+      <div style={{ padding: "20px 20px 12px" }}>
+        <p className="forge-eyebrow">Section share</p>
+        <h3 className="forge-card-title">Energy by section</h3>
       </div>
+      {!data ? (
+        <div
+          style={{
+            minHeight: 200,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "var(--forge-on-surface-variant)",
+            fontSize: 13,
+            padding: 16,
+          }}
+        >
+          No section breakdown from L2 yet
+        </div>
+      ) : (
+        <div ref={hostRef} style={{ height: 220, width: "100%" }} role="img" aria-label="Section energy share" />
+      )}
     </Panel>
   );
 }

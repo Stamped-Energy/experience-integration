@@ -6,8 +6,10 @@ import { RouteStateView } from "@/components/states/RouteStateView";
 import type { RouteStateModel } from "@/lib/route-state";
 import { KpiHeroStrip, type OverviewLiveKpis } from "@/components/today/overview/KpiHeroStrip";
 import { PrescriptionsOverviewPanel } from "@/components/today/overview/PrescriptionsOverviewPanel";
+import { EnergyTrendPanel, type LiveTrendDay } from "@/components/today/overview/EnergyTrendPanel";
+import { TopConsumersTable, type LiveConsumerRow } from "@/components/today/overview/TopConsumersTable";
+import { SectionDonut, type LiveSectionRow } from "@/components/today/overview/SectionDonut";
 import { SignalCard } from "@/components/today/SignalCard";
-import { Panel } from "@/components/ui/primitives";
 import { formatInr } from "@/lib/format";
 
 /** Always show the decision-strip cards; fill from live KPIs or leave blank. */
@@ -86,7 +88,7 @@ const SIGNAL_SLOTS: Array<{
       live?.vsBaseline7dPct != null
         ? {
             value: `${live.vsBaseline7dPct > 0 ? "+" : ""}${live.vsBaseline7dPct}%`,
-            hint: "From L2 baselines",
+            hint: "From L2 energy vs implied baseline",
           }
         : null,
   },
@@ -105,53 +107,25 @@ const SIGNAL_SLOTS: Array<{
   },
 ];
 
-function EmptyPanel({
-  eyebrow,
-  title,
-  minHeight = 180,
-  children,
-}: {
-  eyebrow: string;
-  title: string;
-  minHeight?: number;
-  children?: React.ReactNode;
-}) {
-  return (
-    <Panel style={{ display: "flex", flexDirection: "column", overflow: "hidden", padding: 0 }}>
-      <div style={{ padding: "20px 20px 12px" }}>
-        <p className="forge-eyebrow">{eyebrow}</p>
-        <h3 className="forge-card-title">{title}</h3>
-      </div>
-      <div
-        style={{
-          minHeight,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "16px 20px 24px",
-          color: "var(--forge-on-surface-variant)",
-          fontSize: 13,
-        }}
-      >
-        {children ?? "—"}
-      </div>
-    </Panel>
-  );
-}
-
 export function OverviewBoard({
   liveKpis,
-  alarms: _alarms,
+  energyTrend30d,
+  topConsumers,
+  sectionShare,
+  energyInrPerKwh,
   prescriptions,
-  assets: _assets,
   state = { kind: "default" },
   onRetry,
 }: {
   liveKpis?: OverviewLiveKpis | null;
+  energyTrend30d?: LiveTrendDay[] | null;
+  topConsumers?: LiveConsumerRow[] | null;
+  sectionShare?: LiveSectionRow[] | null;
+  energyInrPerKwh?: number | null;
   closurePct?: number | null;
-  alarms: Alarm[];
+  alarms?: Alarm[];
   prescriptions: Prescription[];
-  assets: unknown[];
+  assets?: unknown[];
   state?: RouteStateModel;
   onRetry?: () => void;
 }) {
@@ -187,9 +161,7 @@ export function OverviewBoard({
 
         <KpiHeroStrip live={liveKpis} />
 
-        <EmptyPanel eyebrow="Energy trend" title="30-day consumption" minHeight={280}>
-          Chart empty until L2 measurements are available
-        </EmptyPanel>
+        <EnergyTrendPanel rows={energyTrend30d} />
 
         <div className="forge-grid-38-62">
           <PrescriptionsOverviewPanel prescriptions={prescriptions} liveMode />
@@ -202,12 +174,8 @@ export function OverviewBoard({
               maxWidth: "100%",
             }}
           >
-            <EmptyPanel eyebrow="Consumption breakdown" title="Top energy consumers" minHeight={200}>
-              No consumer ranking from L2 yet
-            </EmptyPanel>
-            <EmptyPanel eyebrow="Section share" title="Energy by section" minHeight={200}>
-              No section breakdown from L2 yet
-            </EmptyPanel>
+            <TopConsumersTable rows={topConsumers} />
+            <SectionDonut rows={sectionShare} tariffInrPerKwh={energyInrPerKwh} />
           </div>
         </div>
       </div>

@@ -4,17 +4,23 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ECharts, EChartsCoreOption } from "echarts/core";
 import { Panel } from "@/components/ui/primitives";
 import { ChartLegend, ChartStatRow } from "@/components/charts/ChartLegend";
-import {
-  OVERVIEW_CHART_ANNOTATIONS,
-  OVERVIEW_TODAY_DAY,
-  OVERVIEW_TREND_30D,
-  OVERVIEW_TREND_STATS,
-} from "@/fixtures/overview-demo";
 import { formatInr, formatIndianNum } from "@/lib/format";
 import {
   FORGE_ECHARTS_THEME,
   FORGE_ECHARTS_THEME_NAME,
 } from "@/components/charts/forgeTheme";
+
+export type LiveTrendDay = {
+  day: number;
+  date: string;
+  actualKwh: number;
+  baselineKwh: number;
+  savedKwh: number;
+  costActualInr: number;
+  costBaselineInr: number;
+  co2Actual: number;
+  co2Baseline: number;
+};
 
 type TabId = "kwh" | "cost" | "co2";
 
@@ -24,36 +30,26 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "co2", label: "CO₂" },
 ];
 
-const CONFIG: Record<
-  TabId,
-  { actual: keyof (typeof OVERVIEW_TREND_30D)[0]; saved: keyof (typeof OVERVIEW_TREND_30D)[0]; baseline: keyof (typeof OVERVIEW_TREND_30D)[0]; unit: string; fmt: (v: number) => string }
-> = {
-  kwh: {
-    actual: "actual",
-    saved: "savedKwh",
-    baseline: "baseline",
-    unit: "kWh",
-    fmt: (v) => `${formatIndianNum(v)} kWh`,
-  },
-  cost: {
-    actual: "costActual",
-    saved: "savings",
-    baseline: "costBaseline",
-    unit: "₹",
-    fmt: (v) => formatInr(v),
-  },
-  co2: {
-    actual: "co2Actual",
-    saved: "savedKwh",
-    baseline: "co2Baseline",
-    unit: "tCO₂e",
-    fmt: (v) => `${v.toFixed(1)} t`,
-  },
-};
-
-function toOption(tab: TabId): EChartsCoreOption {
-  const cfg = CONFIG[tab];
-  const days = OVERVIEW_TREND_30D.map((d) => `Jul ${d.day}`);
+function toOption(tab: TabId, rows: LiveTrendDay[]): EChartsCoreOption {
+  const labels = rows.map((d) => d.date.slice(5)); // MM-DD
+  const actual =
+    tab === "kwh"
+      ? rows.map((d) => d.actualKwh)
+      : tab === "cost"
+        ? rows.map((d) => d.costActualInr)
+        : rows.map((d) => d.co2Actual);
+  const baseline =
+    tab === "kwh"
+      ? rows.map((d) => d.baselineKwh)
+      : tab === "cost"
+        ? rows.map((d) => d.costBaselineInr)
+        : rows.map((d) => d.co2Baseline);
+  const saved =
+    tab === "co2"
+      ? rows.map((d) => d.co2Baseline - d.co2Actual)
+      : tab === "cost"
+        ? rows.map((d) => d.costBaselineInr - d.costActualInr)
+        : rows.map((d) => d.savedKwh);
 
   return {
     animation: true,
@@ -63,27 +59,14 @@ function toOption(tab: TabId): EChartsCoreOption {
       backgroundColor: "#051f13",
       borderColor: "transparent",
       textStyle: { color: "#fff", fontSize: 12 },
-      formatter: (params: unknown) => {
-        const rows = Array.isArray(params) ? params : [params];
-        const idx = (rows[0] as { dataIndex?: number })?.dataIndex ?? 0;
-        const d = OVERVIEW_TREND_30D[idx];
-        if (!d) return "";
-        const saved = tab === "co2" ? d.co2Baseline - d.co2Actual : Number(d[cfg.saved as keyof typeof d]);
-        return [
-          `<strong>${d.date}</strong>`,
-          `Actual: ${cfg.fmt(Number(d[cfg.actual]))}`,
-          `Baseline: ${cfg.fmt(Number(d[cfg.baseline]))}`,
-          `<span style="color:#7fe3a3">Saved: ${tab === "cost" ? formatInr(Number(saved)) : cfg.fmt(Number(saved))}</span>`,
-        ].join("<br/>");
-      },
     },
     xAxis: {
       type: "category",
-      data: days,
+      data: labels,
       axisLabel: {
         fontSize: 11,
         color: "var(--forge-on-surface-variant)",
-        formatter: (_: string, i: number) => (OVERVIEW_TREND_30D[i]?.day ?? 0) % 3 === 1 ? `Jul ${OVERVIEW_TREND_30D[i]?.day}` : "",
+        formatter: (_: string, i: number) => (i % 3 === 0 ? labels[i] : ""),
       },
       axisLine: { lineStyle: { color: "var(--forge-outline-variant)" } },
       axisTick: { show: false },
@@ -94,7 +77,11 @@ function toOption(tab: TabId): EChartsCoreOption {
         fontSize: 11,
         color: "var(--forge-on-surface-variant)",
         formatter: (v: number) =>
-          tab === "cost" ? `₹${Math.round(v / 1000)}k` : tab === "kwh" ? `${Math.round(v / 1000)}k` : v.toFixed(1),
+          tab === "cost"
+            ? `₹${Math.round(v / 1000)}k`
+            : tab === "kwh"
+              ? `${Math.round(v / 1000)}k`
+              : v.toFixed(1),
       },
       splitLine: { lineStyle: { color: "var(--forge-outline-variant)", opacity: 0.4 } },
     },
@@ -119,7 +106,7 @@ function toOption(tab: TabId): EChartsCoreOption {
             ],
           },
         },
-        data: OVERVIEW_TREND_30D.map((d) => Number(d[cfg.actual])),
+        data: actual,
       },
       {
         name: "Saved",
@@ -141,9 +128,7 @@ function toOption(tab: TabId): EChartsCoreOption {
             ],
           },
         },
-        data: OVERVIEW_TREND_30D.map((d) =>
-          tab === "co2" ? d.co2Baseline - d.co2Actual : Number(d[cfg.saved as keyof typeof d]),
-        ),
+        data: saved,
       },
       {
         name: "Baseline",
@@ -151,45 +136,41 @@ function toOption(tab: TabId): EChartsCoreOption {
         smooth: true,
         symbol: "none",
         lineStyle: { color: "var(--forge-outline)", width: 1.6, type: "dashed" },
-        data: OVERVIEW_TREND_30D.map((d) => Number(d[cfg.baseline])),
+        data: baseline,
       },
     ],
-    markLine: {
-      silent: true,
-      symbol: "none",
-      data: [
-        { xAxis: OVERVIEW_TODAY_DAY - 1, lineStyle: { color: "#f75440", width: 2 }, label: { formatter: "NOW", color: "#f75440", fontSize: 10 } },
-        ...OVERVIEW_CHART_ANNOTATIONS.map((a) => ({
-          xAxis: a.day - 1,
-          lineStyle: { color: "#f75440", type: "dashed" as const, opacity: 0.6 },
-        })),
-      ],
-    },
   };
 }
 
-export function EnergyTrendPanel() {
+export function EnergyTrendPanel({ rows }: { rows?: LiveTrendDay[] | null }) {
   const [tab, setTab] = useState<TabId>("kwh");
   const hostRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<ECharts | null>(null);
-  const option = useMemo(() => toOption(tab), [tab]);
+  const data = rows && rows.length > 0 ? rows : null;
+  const option = useMemo(
+    () => (data ? toOption(tab, data) : null),
+    [tab, data],
+  );
 
   useEffect(() => {
+    if (!option) return;
     let disposed = false;
     let ro: ResizeObserver | null = null;
 
     async function mount() {
-      if (!hostRef.current) return;
+      if (!hostRef.current || !option) return;
       const echarts = await import("echarts/core");
       const { LineChart } = await import("echarts/charts");
-      const { GridComponent, TooltipComponent, MarkLineComponent } = await import("echarts/components");
+      const { GridComponent, TooltipComponent } = await import("echarts/components");
       const { CanvasRenderer } = await import("echarts/renderers");
-      echarts.use([LineChart, GridComponent, TooltipComponent, MarkLineComponent, CanvasRenderer]);
+      echarts.use([LineChart, GridComponent, TooltipComponent, CanvasRenderer]);
       echarts.registerTheme(FORGE_ECHARTS_THEME_NAME, FORGE_ECHARTS_THEME);
 
       if (disposed || !hostRef.current) return;
       if (!chartRef.current) {
-        chartRef.current = echarts.init(hostRef.current, FORGE_ECHARTS_THEME_NAME, { renderer: "canvas" });
+        chartRef.current = echarts.init(hostRef.current, FORGE_ECHARTS_THEME_NAME, {
+          renderer: "canvas",
+        });
         ro = new ResizeObserver(() => chartRef.current?.resize());
         ro.observe(hostRef.current);
       }
@@ -205,59 +186,89 @@ export function EnergyTrendPanel() {
     };
   }, [option]);
 
+  const avgSaving =
+    data && data.length > 0
+      ? formatInr(
+          Math.round(data.reduce((s, d) => s + (d.costBaselineInr - d.costActualInr), 0) / data.length),
+        )
+      : "—";
+
   return (
     <Panel style={{ padding: 20, display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+          gap: 12,
+        }}
+      >
         <div>
           <p className="forge-eyebrow">30-Day Trend</p>
           <h3 className="forge-card-title">Energy Consumption vs Stamped Baseline</h3>
         </div>
-        <div className="forge-tabs" role="tablist" aria-label="Trend metric">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              className="forge-tabs__btn"
-              aria-selected={tab === t.id}
-              onClick={() => setTab(t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
+        {data ? (
+          <div className="forge-tabs" role="tablist" aria-label="Trend metric">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                className="forge-tabs__btn"
+                aria-selected={tab === t.id}
+                onClick={() => setTab(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </div>
+
+      {!data ? (
+        <div
+          style={{
+            minHeight: 280,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "var(--forge-on-surface-variant)",
+            fontSize: 13,
+          }}
+        >
+          Chart empty until L2 measurements are available
         </div>
-      </div>
-
-      <ChartLegend
-        items={[
-          { label: "Without Stamped Baseline", variant: "dashed", color: "var(--forge-outline)" },
-          { label: "Actual Consumption", variant: "line", color: "var(--forge-primary)" },
-          { label: "Savings Zone", variant: "area", color: "rgba(0,102,107,0.18)" },
-        ]}
-      />
-
-      <div
-        ref={hostRef}
-        role="img"
-        aria-label="Area chart comparing actual energy consumption against Stamped baseline over 30 days"
-        style={{ height: 300, marginTop: 12, width: "100%" }}
-      />
-
-      <div style={{ display: "flex", gap: 16, fontSize: 10.5, color: "var(--forge-on-surface-variant)", marginTop: 4, flexWrap: "wrap" }}>
-        {OVERVIEW_CHART_ANNOTATIONS.map((a) => (
-          <span key={a.day}>
-            <span style={{ color: "var(--forge-primary)" }}>Jul {a.day}</span> · {a.label}
-          </span>
-        ))}
-      </div>
-
-      <ChartStatRow
-        items={[
-          { label: "Avg daily saving", value: OVERVIEW_TREND_STATS.avgDailySaving },
-          { label: "Peak excess", value: OVERVIEW_TREND_STATS.peakExcess },
-          { label: "Best day", value: OVERVIEW_TREND_STATS.bestDay },
-        ]}
-      />
+      ) : (
+        <>
+          <ChartLegend
+            items={[
+              { label: "Without Stamped Baseline", variant: "dashed", color: "var(--forge-outline)" },
+              { label: "Actual Consumption", variant: "line", color: "var(--forge-primary)" },
+              { label: "Savings Zone", variant: "area", color: "rgba(0,102,107,0.18)" },
+            ]}
+          />
+          <div
+            ref={hostRef}
+            role="img"
+            aria-label="Area chart comparing actual energy consumption against Stamped baseline"
+            style={{ height: 300, marginTop: 12, width: "100%" }}
+          />
+          <ChartStatRow
+            items={[
+              { label: "Avg daily saving", value: avgSaving },
+              {
+                label: "Days",
+                value: String(data.length),
+              },
+              {
+                label: "Latest day",
+                value: `${formatIndianNum(data[data.length - 1]!.actualKwh)} kWh`,
+              },
+            ]}
+          />
+        </>
+      )}
     </Panel>
   );
 }
