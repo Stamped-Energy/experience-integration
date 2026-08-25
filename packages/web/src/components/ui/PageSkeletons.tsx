@@ -72,7 +72,7 @@ export function OverviewBoardSkeleton() {
   );
 }
 
-/** Prescription queue flip-card placeholders. */
+/** Prescription queue decision-card placeholders. */
 export function PrescriptionQueueSkeleton({ count = 4 }: { count?: number }) {
   return (
     <div

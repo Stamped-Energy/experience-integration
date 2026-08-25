@@ -23,8 +23,8 @@ const queueSrc = readFileSync(
   join(root, "../src/components/prescriptions/PrescriptionQueue.tsx"),
   "utf8",
 );
-const flipSrc = readFileSync(
-  join(root, "../src/components/prescriptions/PrescriptionFlipCard.tsx"),
+const decisionSrc = readFileSync(
+  join(root, "../src/components/prescriptions/PrescriptionDecisionCard.tsx"),
   "utf8",
 );
 
@@ -32,15 +32,16 @@ describe("prescription triage", () => {
   it("offers Evidence deep-link from expand via rxId query", () => {
     assert.match(queueSrc, />\s*Evidence\s*</);
     assert.match(queueSrc, /\/evidence\?rxId=\$\{rx\.id\}/);
+    assert.doesNotMatch(queueSrc, /PrescriptionFlipCard|Flip for evidence/);
   });
 
-  it("renders practical flip cards with What/Why/Who/Effort/Impact/When", () => {
-    assert.match(flipSrc, /Flip for evidence/);
-    assert.match(flipSrc, /<dt>Why</);
-    assert.match(flipSrc, /<dt>Who</);
-    assert.match(flipSrc, /<dt>Effort</);
-    assert.match(flipSrc, /<dt>Impact</);
-    assert.match(flipSrc, /<dt>When</);
+  it("renders static decision cards with What/Why/Who/Effort/Impact/When", () => {
+    assert.doesNotMatch(decisionSrc, /Flip for evidence|is-flipped|rotateY/);
+    assert.match(decisionSrc, /<dt>Why</);
+    assert.match(decisionSrc, /<dt>Who</);
+    assert.match(decisionSrc, /<dt>Effort</);
+    assert.match(decisionSrc, /<dt>Impact</);
+    assert.match(decisionSrc, /<dt>When</);
   });
 
   it("builds pillar badges from value domain and waste category", () => {

@@ -546,7 +546,7 @@
   color: var(--forge-error);
 }
 
-/* ── Practical Rx flip card (Wave A) ── */
+/* ── Practical Rx decision card (queue) ── */
 .rx-queue__card-body {
   display: flex;
   flex-direction: column;
@@ -554,61 +554,18 @@
   padding: 12px 14px 14px;
 }
 
-.rx-flip {
-  position: relative;
-  min-height: 280px;
-  border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-  text-align: left;
-  color: inherit;
-  font: inherit;
+.rx-decision {
   width: 100%;
-  perspective: 1400px;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.rx-flip:focus-visible {
-  outline: 2px solid var(--forge-primary);
-  outline-offset: 3px;
-  border-radius: var(--forge-radius-lg);
-}
-
-.rx-flip__inner {
-  display: grid;
-  width: 100%;
-  min-height: 280px;
-  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-  transform-style: preserve-3d;
-}
-
-.rx-flip.is-flipped .rx-flip__inner {
-  transform: rotateY(180deg);
-}
-
-.rx-face {
-  grid-area: 1 / 1;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
   border: 1px solid color-mix(in srgb, var(--forge-primary) 22%, var(--forge-outline-variant));
   border-radius: var(--forge-radius-lg);
   background: var(--forge-surface-container-lowest);
   display: flex;
   flex-direction: column;
-  min-height: 100%;
   min-width: 0;
   overflow: hidden;
-  position: relative;
 }
 
-.rx-face--back {
-  transform: rotateY(180deg);
-  border-color: color-mix(in srgb, var(--forge-tertiary) 30%, var(--forge-outline-variant));
-  background: var(--forge-surface-container-low);
-}
-
-.rx-flip__head {
+.rx-decision__head {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -619,62 +576,65 @@
   background: var(--forge-surface-container-low);
 }
 
-.rx-flip__badges {
+.rx-decision__badges {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
 
-.rx-flip__badge {
+.rx-decision__badge {
+  font-family: var(--forge-font-mono);
   font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--forge-on-surface-variant);
   border: 1px solid var(--forge-outline-variant);
   background: var(--forge-surface-container-lowest);
   padding: 0.2rem 0.45rem;
-  border-radius: 6px;
+  border-radius: var(--forge-radius-sm);
 }
 
-.rx-flip__priority {
+.rx-decision__priority {
+  font-family: var(--forge-font-mono);
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--forge-on-primary);
   background: var(--forge-primary);
   padding: 0.2rem 0.45rem;
-  border-radius: 6px;
+  border-radius: var(--forge-radius-sm);
   white-space: nowrap;
 }
 
-.rx-flip__priority--med {
+.rx-decision__priority--med {
   background: var(--forge-tertiary);
 }
 
-.rx-flip__body {
+.rx-decision__body {
   padding: 14px 16px 12px;
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: 0;
   min-width: 0;
 }
 
-.rx-flip__what {
-  font-weight: 750;
+.rx-decision__what {
+  font-family: var(--forge-font-display);
+  font-weight: 700;
   font-size: 1.05rem;
+  letter-spacing: -0.02em;
   line-height: 1.4;
   margin: 0 0 12px;
 }
 
-.rx-flip__fields {
+.rx-decision__fields {
   display: grid;
   gap: 8px;
-  flex: 1;
   margin: 0;
 }
 
-.rx-flip__field {
+.rx-decision__field {
   display: grid;
   grid-template-columns: 72px 1fr;
   gap: 8px;
@@ -683,75 +643,29 @@
   min-width: 0;
 }
 
-.rx-flip__field dt {
-  font-weight: 650;
+.rx-decision__field dt {
+  font-family: var(--forge-font-mono);
+  font-weight: 500;
   color: var(--forge-on-surface-variant);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   padding-top: 0.1rem;
 }
 
-.rx-flip__field dd {
+.rx-decision__field dd {
   margin: 0;
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
-.rx-flip__cue {
-  margin: 10px 0 0;
-  padding-top: 8px;
-  border-top: 1px dashed var(--forge-outline-variant);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--forge-primary);
-}
-
-.rx-flip__ev-table-wrap {
-  width: 100%;
-  overflow-x: auto;
-  margin-bottom: 8px;
-}
-
-.rx-flip__ev-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.82rem;
-}
-
-.rx-flip__ev-table th,
-.rx-flip__ev-table td {
-  border: 1px solid var(--forge-outline-variant);
-  padding: 6px 8px;
-  text-align: left;
-}
-
-.rx-flip__ev-table th {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background: var(--forge-surface-container);
-}
-
-.rx-flip__ev-empty {
-  font-size: 0.9rem;
-  line-height: 1.45;
-  color: var(--forge-on-surface-variant);
-  margin: 0 0 8px;
-}
-
-.rx-flip__cite {
+.rx-decision__cite {
   font-size: 0.82rem;
   line-height: 1.4;
-  margin: 0 0 4px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .rx-flip__inner {
-    transition: none;
-  }
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--forge-outline-variant);
+  color: var(--forge-on-surface-variant);
 }
 
 /* ── Shared emphasis (matches full case) ── */

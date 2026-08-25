@@ -5,7 +5,6 @@ import type { Prescription, PrescriptionFeedback } from "@/lib/types";
 import { hydrateRxFeedback, saveRxFeedback } from "@/lib/rx-feedback-store";
 import { claimBadgeLabel, formatInr } from "@/lib/format";
 import { assetsFixture } from "@/fixtures/demo";
-import { resolveEvidenceIdForRx } from "@/fixtures/evidence-samples";
 import type { NotifyPerson } from "@/fixtures/assignments";
 import { AssignAssigneeSheet } from "@/components/assignments/AssignAssigneeSheet";
 import { CheckCircle, FileText, MessageSquare, Users } from "@/components/ui/icons";
@@ -19,7 +18,7 @@ import {
 import {
   emphasizeLead,
 } from "@/components/prescriptions/prescription-formatting";
-import { PrescriptionFlipCard } from "@/components/prescriptions/PrescriptionFlipCard";
+import { PrescriptionDecisionCard } from "@/components/prescriptions/PrescriptionDecisionCard";
 import { prescriptionDetailHref } from "@/lib/prescription-nav";
 import {
   type ClassFacet,
@@ -266,9 +265,7 @@ export function PrescriptionQueue({
         <ul className="rx-queue__list" aria-label={sectionLabel[section]}>
           {sorted.map((rx) => {
             const badge = claimBadgeLabel(rx.verificationStatus);
-            const evidenceHref = resolveEvidenceIdForRx(rx.id)
-              ? `/evidence?rxId=${rx.id}`
-              : null;
+            const evidenceHref = `/evidence?rxId=${rx.id}`;
             const detailHref = prescriptionDetailHref(rx.id, section, facet);
             const klass = classLabel(rx);
             const isNeeds = rx.lane === "needs_review";
@@ -293,7 +290,7 @@ export function PrescriptionQueue({
                       ) : null}
                     </div>
 
-                    <PrescriptionFlipCard rx={rx} />
+                    <PrescriptionDecisionCard rx={rx} />
 
                     {rx.feedback ? (
                       <p className="rx-queue__feedback-preview">
@@ -324,15 +321,13 @@ export function PrescriptionQueue({
                             Alarm
                           </ForgeButton>
                         ) : null}
-                        {evidenceHref ? (
-                          <ForgeButton
-                            variant="secondary"
-                            icon={<FileText size={16} />}
-                            href={evidenceHref}
-                          >
-                            Evidence
-                          </ForgeButton>
-                        ) : null}
+                        <ForgeButton
+                          variant="secondary"
+                          icon={<FileText size={16} />}
+                          href={evidenceHref}
+                        >
+                          Evidence
+                        </ForgeButton>
                         <ForgeButton variant="ghost" href={detailHref}>
                           Full case
                         </ForgeButton>

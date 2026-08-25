@@ -156,7 +156,7 @@ export function pillarBadges(rx: Prescription): string[] {
   return badges;
 }
 
-/** Parse wire evidence refs into flip-back table rows. */
+/** Parse wire evidence refs into evidence table rows. */
 export function evidenceRowsFromRefs(
   refs: readonly string[] | undefined,
 ): Array<{ tag: string; value: string; window: string }> {
