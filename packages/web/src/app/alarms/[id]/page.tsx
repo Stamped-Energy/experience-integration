@@ -13,7 +13,7 @@ import { bffUrl, type DataSource } from "@/lib/bff";
 import { usePlant } from "@/lib/plant-context";
 import type { Alarm } from "@/lib/types";
 import type { EvidencePack } from "@/lib/evidence";
-import type { EvidenceSample } from "@/fixtures/evidence-samples";
+import type { EvidenceSample } from "@/lib/evidence";
 
 type CasePayload = {
   source?: string;

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AppShell } from "@/components/shell/AppShell";
 import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
 import { PageHead } from "@/components/ui/primitives";
+import { EnergyBoard, type EnergyBoardData } from "@/components/analytics/EnergyBoard";
 import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
 import { usePlant } from "@/lib/plant-context";
@@ -12,47 +13,40 @@ export default function EnergyPage() {
   const { activePlant, plants, setActivePlantId } = usePlant();
   const [source, setSource] = useState<DataSource>("unavailable");
   const [loading, setLoading] = useState(true);
-  const [bills, setBills] = useState<unknown[]>([]);
-  const [tariff, setTariff] = useState<Record<string, unknown> | null>(null);
+  const [board, setBoard] = useState<EnergyBoardData | null>(null);
   const [detail, setDetail] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    setBills([]);
-    setTariff(null);
+    setBoard(null);
     setSource("unavailable");
     setDetail(null);
     const plantId = encodeURIComponent(activePlant.plantId);
-    Promise.all([
-      fetch(bffUrl(`/api/l2/bills?plantId=${plantId}`), { credentials: "include", cache: "no-store" }),
-      fetch(bffUrl(`/api/l2/tariff?plantId=${plantId}`), { credentials: "include", cache: "no-store" }),
-    ])
-      .then(async ([billsRes, tariffRes]) => {
+    fetch(bffUrl(`/api/insights/energy?plantId=${plantId}`), {
+      credentials: "include",
+      cache: "no-store",
+    })
+      .then(async (res) => {
         if (cancelled) return;
-        let ok = false;
-        if (billsRes.ok) {
-          const body = (await billsRes.json()) as {
-            data?: { bills?: unknown[] };
-            source?: string;
-          };
-          if (body.source === "l2") {
-            setBills(body.data?.bills ?? []);
-            ok = true;
-          }
+        if (!res.ok) {
+          setDetail(`insights/energy ${res.status}`);
+          setLoading(false);
+          return;
         }
-        if (tariffRes.ok) {
-          const body = (await tariffRes.json()) as {
-            data?: Record<string, unknown>;
-            source?: string;
-          };
-          if (body.source === "l2") {
-            setTariff(body.data ?? null);
-            ok = true;
-          }
+        const body = (await res.json()) as EnergyBoardData & {
+          source?: string;
+          detail?: string | null;
+          cmdKva?: number | null;
+        };
+        if (body.source === "l2") {
+          setBoard(body);
+          setSource("l2");
+          setDetail(body.detail ?? null);
+        } else {
+          setDetail(body.detail ?? "L2 energy board unavailable");
+          setSource("unavailable");
         }
-        setSource(ok ? "l2" : "unavailable");
-        if (!ok) setDetail("L2 bills/tariff unavailable");
         setLoading(false);
       })
       .catch(() => {
@@ -78,33 +72,24 @@ export default function EnergyPage() {
       connection={connectionFixture}
       screenTitle="Energy Analytics"
       contextSummary={[
-        source === "l2" ? `${bills.length} bills from L2` : "No L2 bills",
-        tariff ? "Tariff loaded" : "No tariff",
+        source === "l2" ? "Live energy board from L2" : "No L2 energy board",
         activePlant.plantName,
       ]}
       criticalAlarmCount={0}
     >
       <PageHead eyebrow="Analytics" title="Energy Analytics" />
       <SourceIndicator source={source} loading={loading} detail={detail} />
-      {source === "l2" ? (
+      {source === "l2" && board ? (
         <div className="forge-page-stack">
           <p className="forge-page-lede">
-            {bills.length} bill(s) from L2
-            {tariff?.cmd_kva != null ? ` · CMD ${String(tariff.cmd_kva)} kVA` : ""}
+            Charts and KPIs from L2 bills, tariff, and measurements for {activePlant.plantName}.
           </p>
-          <EmptyUpstreamState
-            title="Source mix / renewable share"
-            detail="No generation or source-mix table in L2 — chart stays empty."
-          />
-          <EmptyUpstreamState
-            title="Full analytics charts"
-            detail="PF trend, heatmap, and feeder charts will render from L2 measurements once series widgets are wired. Fixture EnergyBoard datasets have been removed."
-          />
+          <EnergyBoard data={board} />
         </div>
       ) : (
         <EmptyUpstreamState
           title="No energy analytics data"
-          detail="L2 bills and tariff are required. Fixture EnergyBoard has been removed."
+          detail="L2 bills, tariff, or measurement series are required. Fixture EnergyBoard datasets are not used."
         />
       )}
     </AppShell>

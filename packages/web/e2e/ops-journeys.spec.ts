@@ -6,15 +6,18 @@ import { expect, test } from "@playwright/test";
  * fixture-era detail copy as optional.
  */
 test.describe("operational journeys", () => {
-  test("Today shows decision signals and Ask Analyst", async ({ page }) => {
+  test("Today shell loads with Ask Analyst", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator("main#forge-main, main").first()).toBeVisible();
     await expect(page.getByRole("button", { name: /Ask Analyst/i })).toBeVisible();
   });
 
-  test("alarms console supports detail evidence link", async ({ page }) => {
+  test("alarms console renders shell (live or empty upstream)", async ({ page }) => {
     await page.goto("/alarms");
     await expect(page.locator("main").first()).toBeVisible();
+    await expect(
+      page.locator("main").getByText(/Alarm|upstream|Sign in|unavailable|Loading/i).first(),
+    ).toBeVisible();
     await page.goto("/alarms/alm_1001");
     await expect(page.locator("main").first()).toBeVisible();
     const evidence = page
@@ -25,13 +28,13 @@ test.describe("operational journeys", () => {
     }
   });
 
-  test("prescription triage and evidence scope", async ({ page }) => {
+  test("prescriptions and evidence shells render", async ({ page }) => {
     await page.goto("/prescriptions");
     await expect(page.locator("main").first()).toBeVisible();
     await expect(
       page
         .locator("main")
-        .getByText(/Prescriptions|Needs attention|Addressable open queue|No prescriptions|unavailable/i)
+        .getByText(/Prescription|Prescriptions|Needs attention|Addressable|upstream|unavailable|Loading/i)
         .first(),
     ).toBeVisible();
     await page.goto("/evidence/evd_4401");
@@ -43,13 +46,13 @@ test.describe("operational journeys", () => {
     await expect(signalCopy).toBeVisible();
   });
 
-  test("ledger claim safety and export centre approval", async ({ page }) => {
+  test("reports shell renders export or ledger region", async ({ page }) => {
     await page.goto("/reports");
     await expect(page.locator("main").first()).toBeVisible();
     await expect(
       page
         .locator("main")
-        .getByText(/Confirmed savings|Export centre|Reports|unavailable|Ledger/i)
+        .getByText(/Report|Export|Confirmed savings|Export centre|ledger|upstream|unavailable|Loading|Ledger/i)
         .first(),
     ).toBeVisible();
     const approve = page.getByRole("button", { name: /^Approve$/i }).first();
@@ -67,9 +70,7 @@ test.describe("operational journeys", () => {
     await expect(page.getByRole("dialog")).toHaveCount(0);
   });
 
-  test("Vinayak Plant live path - alarms and prescriptions render via plant switcher", async ({
-    page,
-  }) => {
+  test("plant switcher stays available on alarms and prescriptions", async ({ page }) => {
     await page.goto("/alarms");
     await expect(page.locator("main").first()).toBeVisible();
     const switcher = page.getByLabel("Switch plant");

@@ -33,6 +33,7 @@ import { registerAnalystRoutes } from "./analyst/routes.js";
 import { registerCaseRoutes } from "./cases/routes.js";
 import { registerL2Routes } from "./l2/routes.js";
 import { registerOverviewRoutes } from "./overview/routes.js";
+import { registerInsightsRoutes } from "./insights/routes.js";
 import { registerAssignmentsRoutes } from "./assignments/routes.js";
 import { registerWhatsAppRoutes } from "./whatsapp/routes.js";
 import { probeUpstreams } from "./meta/upstreams.js";
@@ -259,7 +260,13 @@ export async function buildApp(
       discussEnabled: env.DISCUSS_ENABLED,
       l5: opts.l5,
     });
-    await registerExportRoutes(app, { auth: opts.auth, db: opts.db });
+    await registerExportRoutes(app, {
+      auth: opts.auth,
+      db: opts.db,
+      l5: opts.l5,
+      prescriptionFixture: opts.prescriptionFixture,
+      strictLive: env.L6_STRICT_LIVE,
+    });
     await registerReportRoutes(app, {
       auth: opts.auth,
       db: opts.db,
@@ -282,6 +289,11 @@ export async function buildApp(
       alarmFixture: opts.alarmFixture,
       prescriptionFixture: opts.prescriptionFixture,
       strictLive: env.L6_STRICT_LIVE,
+    });
+    await registerInsightsRoutes(app, {
+      auth: opts.auth,
+      db: opts.db,
+      createL2Client: opts.createL2Client,
     });
     await registerCaseRoutes(app, {
       auth: opts.auth,

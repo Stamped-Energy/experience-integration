@@ -1,71 +1,117 @@
 "use client";
 
-import { MachineHealthBoard } from "@/components/equipment/MachineHealthBoard";
+import { useEffect, useState } from "react";
+import {
+  MachineHealthBoard,
+  type MachineHealthBoardData,
+} from "@/components/equipment/MachineHealthBoard";
+import { PlantHealthMap } from "@/components/today/overview/PlantHealthMap";
 import { AppShell } from "@/components/shell/AppShell";
 import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
 import { PageHead } from "@/components/ui/primitives";
-import {
-  DEMO_SHELL_ROLE,
-  connectionFixture,
-} from "@/lib/plant-catalog";
-import { useL2Assets } from "@/hooks/useL2Data";
+import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
+import { bffUrl, type DataSource } from "@/lib/bff";
 import { usePlant } from "@/lib/plant-context";
 
-type HealthAsset = {
-  name: string;
-  type: string;
-  section: string;
-  health: number;
-  load: number;
-  vib: number;
-  temp: number;
-  rpm: number;
-  current: number;
-  runtime: number;
-  mtbf: number;
-  status: "GOOD" | "WARNING" | "CRITICAL";
-  next: string;
-};
-
-function l2AssetsToHealth(
-  assets: Array<{
-    asset_id: string;
+type EquipmentApi = MachineHealthBoardData & {
+  source?: string;
+  detail?: string | null;
+  mapMachines?: Array<{
     name: string;
-    level?: string;
-    asset_class?: string;
-  }>,
-): HealthAsset[] {
-  const equipment = assets.filter(
-    (a) => a.level === "equipment" || a.asset_class === "cnc_machine",
-  );
-  return equipment.map((a) => {
-    const isCnc = a.asset_class === "cnc_machine";
-    return {
-      name: a.name,
-      type: isCnc ? "CNC Machine" : (a.asset_class ?? "Equipment"),
-      section: isCnc ? "Machining" : (a.level ?? "Plant"),
-      health: 0,
-      load: 0,
-      vib: 0,
-      temp: 0,
-      rpm: 0,
-      current: 0,
-      runtime: 0,
-      mtbf: 0,
-      status: "GOOD" as const,
-      next: "—",
-    };
-  });
-}
+    status: "CRITICAL" | "WARNING" | "GOOD" | "OPTIMIZED" | "OFFLINE" | "INFO";
+    load: number;
+    kwh: number | null;
+    reason: string;
+  }>;
+  assets?: Array<{
+    name: string;
+    type: string;
+    section: string;
+    health: number | null;
+    load: number | null;
+    kwh30d: number | null;
+    vib: null;
+    temp: null;
+    rpm: null;
+    current: null;
+    runtime: null;
+    mtbf: null;
+    status: MachineHealthBoardData["assets"][number]["status"];
+    next: null;
+  }>;
+};
 
 export default function EquipmentPage() {
   const { activePlant, plants, setActivePlantId } = usePlant();
-  const { assets, source, loading, loadError } = useL2Assets(activePlant.plantId);
+  const [source, setSource] = useState<DataSource>("unavailable");
+  const [loading, setLoading] = useState(true);
+  const [board, setBoard] = useState<MachineHealthBoardData | null>(null);
+  const [mapMachines, setMapMachines] = useState<
+    NonNullable<EquipmentApi["mapMachines"]>
+  >([]);
+  const [detail, setDetail] = useState<string | null>(null);
 
-  const liveHealthAssets =
-    source === "l2" ? l2AssetsToHealth(assets) : undefined;
-
-  const indicatorSource = source === "l2" ? "l2" : "unavailable";
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setBoard(null);
+    setMapMachines([]);
+    setSource("unavailable");
+    setDetail(null);
+    void fetch(
+      bffUrl(
+        `/api/insights/equipment?plantId=${encodeURIComponent(activePlant.plantId)}`,
+      ),
+      { credentials: "include", cache: "no-store" },
+    )
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`insights/equipment ${res.status}`);
+        return (await res.json()) as EquipmentApi;
+      })
+      .then((body) => {
+        if (cancelled) return;
+        if (body.source === "l2" && body.assets?.length) {
+          setBoard({
+            assets: body.assets.map((a) => ({
+              name: a.name,
+              type: a.type,
+              section: a.section,
+              health: a.health,
+              load: a.load,
+              kwh30d: a.kwh30d,
+              vib: a.vib,
+              temp: a.temp,
+              rpm: a.rpm,
+              current: a.current,
+              runtime: a.runtime,
+              mtbf: a.mtbf,
+              status: a.status,
+              next: a.next,
+            })),
+            kpis: body.kpis,
+            healthDistribution: body.healthDistribution,
+            derivedNotes: body.derivedNotes,
+          });
+          setMapMachines(body.mapMachines ?? []);
+          setSource("l2");
+          setDetail(body.detail ?? null);
+        } else {
+          setDetail(body.detail ?? "Equipment board unavailable");
+          setSource("unavailable");
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setSource("unavailable");
+          setDetail(err instanceof Error ? err.message : "Equipment unavailable");
+          setLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activePlant.plantId]);
 
   return (
     <AppShell
@@ -78,41 +124,28 @@ export default function EquipmentPage() {
       connection={connectionFixture}
       screenTitle="Machine Health"
       contextSummary={[
-        source === "l2" ? `${assets.length} assets from L2` : "No L2 assets",
-        "Vibration/FFT not available without L1 sensing",
+        source === "l2" ? "Live energy-derived health from L2" : "No equipment data",
+        "Vibration/FFT Class D empty",
         activePlant.plantName,
       ]}
       criticalAlarmCount={0}
     >
       <PageHead eyebrow="Operations" title="Machine Health" />
-      <SourceIndicator
-        source={indicatorSource}
-        loading={loading}
-        detail={loadError}
-      />
-      <p style={{ margin: "0 0 8px", fontSize: 14, color: "var(--forge-on-surface-variant)" }}>
-        {source === "l2"
-          ? `Live L2 asset graph · ${assets.length} assets · ${activePlant.plantName}`
-          : "L2 unreachable — no fixture fleet shown"}
-      </p>
-      {source === "l2" && liveHealthAssets ? (
-        <>
+      <SourceIndicator source={source} loading={loading} detail={detail} />
+      {source === "l2" && board ? (
+        <div className="forge-page-stack">
+          {mapMachines.length > 0 ? (
+            <PlantHealthMap machines={mapMachines} />
+          ) : null}
           <MachineHealthBoard
-            key={`${activePlant.plantId}:${source}`}
-            mode="live"
-            liveAssets={liveHealthAssets}
+            key={`${activePlant.plantId}:equipment`}
+            data={board}
           />
-          <div style={{ marginTop: 16 }}>
-            <EmptyUpstreamState
-              title="Vibration / FFT / thermal charts"
-              detail="LNM CNC telemetry has machine_state and spindle load — not vibration or bearing temperature. These panels stay empty until L1 sensing exists."
-            />
-          </div>
-        </>
+        </div>
       ) : (
         <EmptyUpstreamState
           title="No equipment data"
-          detail="Connect L2 to load the plant asset graph. Fixture health fleets have been removed."
+          detail="Connect L2 to load the plant asset graph and power series. Fixture health fleets are not used."
         />
       )}
     </AppShell>

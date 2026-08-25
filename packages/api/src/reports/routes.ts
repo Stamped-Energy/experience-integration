@@ -40,7 +40,24 @@ const CreateBody = z.object({
   kind: z.string().min(1).default("sustainability_monthly"),
   periodStart: z.string().min(1),
   periodEnd: z.string().min(1),
+  plantId: z.string().optional(),
+  orgId: z.string().optional(),
 });
+
+async function resolvePlant(
+  deps: ReportRouteDeps,
+  userId: string,
+  orgId: string | undefined,
+  plantId: string | undefined,
+) {
+  const resolved = await resolveActivePlant(deps.db, { userId, orgId });
+  return (
+    resolved.authorized.find((p) => p.externalPlantId === plantId) ??
+    resolved.activePlant ??
+    resolved.authorized[0] ??
+    null
+  );
+}
 
 export async function registerReportRoutes(
   app: FastifyInstance,
@@ -52,10 +69,13 @@ export async function registerReportRoutes(
     });
     if (!session) return problem(reply, 401, "Session required", request.id);
 
-    const resolved = await resolveActivePlant(deps.db, {
-      userId: session.user.id,
-    });
-    const plant = resolved.activePlant ?? resolved.authorized[0];
+    const q = request.query as { plantId?: string; orgId?: string };
+    const plant = await resolvePlant(
+      deps,
+      session.user.id,
+      q.orgId,
+      q.plantId,
+    );
     if (!plant) return problem(reply, 403, "No plant membership", request.id);
 
     try {
@@ -90,10 +110,17 @@ export async function registerReportRoutes(
     });
     if (!session) return problem(reply, 401, "Session required", request.id);
 
-    const resolved = await resolveActivePlant(deps.db, {
-      userId: session.user.id,
-    });
-    const plant = resolved.activePlant ?? resolved.authorized[0];
+    const parsed = CreateBody.safeParse(request.body ?? {});
+    if (!parsed.success) {
+      return problem(reply, 400, parsed.error.message, request.id);
+    }
+
+    const plant = await resolvePlant(
+      deps,
+      session.user.id,
+      parsed.data.orgId,
+      parsed.data.plantId,
+    );
     if (!plant) return problem(reply, 403, "No plant membership", request.id);
 
     try {
@@ -103,11 +130,6 @@ export async function registerReportRoutes(
         return problem(reply, 403, err.message, request.id);
       }
       throw err;
-    }
-
-    const parsed = CreateBody.safeParse(request.body ?? {});
-    if (!parsed.success) {
-      return problem(reply, 400, parsed.error.message, request.id);
     }
 
     const { job, created } = await createReportJob(deps.db, {
@@ -132,8 +154,11 @@ export async function registerReportRoutes(
           current = updated ?? job;
         }
       } else {
-        // ponytail: Auto inline complete when worker not wired
-        current = await completeReportJob(deps.db, job.id);
+        current = await completeReportJob(deps.db, job.id, {
+          plantName: plant.name,
+          plantId: plant.externalPlantId,
+          timezone: plant.timezone,
+        });
       }
     }
 
@@ -151,10 +176,13 @@ export async function registerReportRoutes(
     });
     if (!session) return problem(reply, 401, "Session required", request.id);
 
-    const resolved = await resolveActivePlant(deps.db, {
-      userId: session.user.id,
-    });
-    const plant = resolved.activePlant ?? resolved.authorized[0];
+    const q = request.query as { plantId?: string; orgId?: string };
+    const plant = await resolvePlant(
+      deps,
+      session.user.id,
+      q.orgId,
+      q.plantId,
+    );
     if (!plant) return problem(reply, 403, "No plant membership", request.id);
 
     try {
@@ -190,10 +218,13 @@ export async function registerReportRoutes(
     });
     if (!session) return problem(reply, 401, "Session required", request.id);
 
-    const resolved = await resolveActivePlant(deps.db, {
-      userId: session.user.id,
-    });
-    const plant = resolved.activePlant ?? resolved.authorized[0];
+    const q = request.query as { plantId?: string; orgId?: string };
+    const plant = await resolvePlant(
+      deps,
+      session.user.id,
+      q.orgId,
+      q.plantId,
+    );
     if (!plant) return problem(reply, 403, "No plant membership", request.id);
 
     try {

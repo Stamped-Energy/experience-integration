@@ -8,21 +8,21 @@ import { formatIndianNum } from "@/lib/format";
 import {
   PLANT_CARD_H,
   PLANT_CARD_W,
-  PLANT_ROOT_LEVEL,
-  findSectionNode,
+  findNodeInLevels,
   flowLabelPoint,
   flowPathBetween,
-  levelForNode,
   nodeById,
   viewBoxMetrics,
   type PlantSectionLevel,
   type PlantSectionNode,
-} from "@/fixtures/plant-sections";
+} from "@/lib/plant-map-layout";
 
 const ZOOM_MIN = 0.75;
 const ZOOM_MAX = 2.5;
 const ZOOM_STEP = 0.25;
 const DEFAULT_MAP_PAD = 38;
+
+export type PlantMapLevels = Record<string, PlantSectionLevel>;
 
 function clampZoom(z: number) {
   return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(z * 100) / 100));
@@ -98,24 +98,25 @@ function FlowLabel({
   const label = `${formatIndianNum(kw)} kW`;
 
   return (
-    <g className="forge-flow-label" pointerEvents="none" opacity={active ? 1 : 0.88}>
+    <g opacity={active ? 1 : 0.85}>
       <rect
-        x={x - 40}
+        x={x - 36}
         y={y - 12}
-        width={80}
-        height={24}
-        rx={12}
-        fill="rgba(255,255,255,0.96)"
+        width={72}
+        height={22}
+        rx={11}
+        fill="#fff"
         stroke={accent}
-        strokeWidth={1}
+        strokeWidth={1.25}
+        opacity={0.95}
       />
       <text
         x={x}
-        y={y + 5}
+        y={y + 3}
         textAnchor="middle"
         fill={accent}
         fontSize={11}
-        fontWeight={750}
+        fontWeight={700}
         fontFamily="var(--forge-font-body)"
       >
         {label}
@@ -129,54 +130,31 @@ function SectionCard({
   selected,
   onSelect,
   onDrill,
+  drillable,
 }: {
   node: PlantSectionNode;
   selected: boolean;
-  onSelect: (node: PlantSectionNode) => void;
-  onDrill: (node: PlantSectionNode) => void;
+  onSelect: (n: PlantSectionNode) => void;
+  onDrill: (n: PlantSectionNode) => void;
+  drillable: boolean;
 }) {
-  const drillable = Boolean(node.children?.length || levelForNode(node.id));
   const w = PLANT_CARD_W;
   const h = PLANT_CARD_H;
 
   return (
     <g
-      className={`forge-plant-node${selected ? " forge-plant-node--selected" : ""}`}
       transform={`translate(${node.x}, ${node.y})`}
-      role="button"
-      tabIndex={0}
-      aria-label={`${node.name}, ${node.kw} kilowatts${drillable ? ", click to select, explore to drill in" : ""}`}
-      aria-pressed={selected}
+      className={selected ? "forge-plant-node forge-plant-node--selected" : "forge-plant-node"}
       style={{ cursor: "pointer" }}
       onClick={() => onSelect(node)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onSelect(node);
-        }
-      }}
     >
-      {selected ? (
-        <rect
-          x={-5}
-          y={-2}
-          width={w + 10}
-          height={h + 6}
-          rx={19}
-          fill="none"
-          stroke={node.accent}
-          strokeWidth={2}
-          opacity={0.28}
-        />
-      ) : null}
       <rect
-        y={3}
         width={w}
-        height={h - 3}
+        height={h}
         rx={16}
         fill={node.surface}
-        stroke={`${node.accent}55`}
-        strokeWidth={1.25}
+        stroke={selected ? node.accent : "rgba(40,36,32,0.12)"}
+        strokeWidth={selected ? 2.5 : 1.25}
         filter="url(#plant-card-shadow)"
       />
       <rect y={3} width={w} height={7} rx={3} fill={node.accent} />
@@ -187,14 +165,34 @@ function SectionCard({
       ) : (
         <circle cx={w - 22} cy={34} r={5.5} fill="var(--forge-tertiary)" />
       )}
-      <text x={18} y={42} fill="var(--forge-on-surface)" fontSize={18} fontWeight={750} fontFamily="var(--forge-font-display)">
+      <text
+        x={18}
+        y={42}
+        fill="var(--forge-on-surface)"
+        fontSize={18}
+        fontWeight={750}
+        fontFamily="var(--forge-font-display)"
+      >
         {node.name}
       </text>
-      <text x={18} y={62} fill="var(--forge-on-surface-variant)" fontSize={12} fontFamily="var(--forge-font-body)">
+      <text
+        x={18}
+        y={62}
+        fill="var(--forge-on-surface-variant)"
+        fontSize={12}
+        fontFamily="var(--forge-font-body)"
+      >
         {node.area}
       </text>
       <line x1={18} y1={76} x2={w - 18} y2={76} stroke="rgba(40,36,32,0.09)" />
-      <text x={18} y={98} fill="var(--forge-on-surface-variant)" fontSize={10} fontWeight={700} letterSpacing={0.5}>
+      <text
+        x={18}
+        y={98}
+        fill="var(--forge-on-surface-variant)"
+        fontSize={10}
+        fontWeight={700}
+        letterSpacing={0.5}
+      >
         LOAD
       </text>
       <text
@@ -208,7 +206,14 @@ function SectionCard({
       >
         {node.loadPct}%
       </text>
-      <text x={18} y={124} fill={node.accent} fontSize={14} fontWeight={700} fontFamily="var(--forge-font-body)">
+      <text
+        x={18}
+        y={124}
+        fill={node.accent}
+        fontSize={14}
+        fontWeight={700}
+        fontFamily="var(--forge-font-body)"
+      >
         {formatIndianNum(node.kw)} kW
       </text>
       {drillable ? (
@@ -221,8 +226,25 @@ function SectionCard({
             onDrill(node);
           }}
         >
-          <rect x={w - 92} y={112} width={74} height={24} rx={12} fill={selected ? node.accent : "#fff"} stroke={node.accent} strokeWidth={1.25} />
-          <text x={w - 55} y={128} textAnchor="middle" fill={selected ? "#fff" : node.accent} fontSize={10.5} fontWeight={750} fontFamily="var(--forge-font-body)">
+          <rect
+            x={w - 92}
+            y={112}
+            width={74}
+            height={24}
+            rx={12}
+            fill={selected ? node.accent : "#fff"}
+            stroke={node.accent}
+            strokeWidth={1.25}
+          />
+          <text
+            x={w - 55}
+            y={128}
+            textAnchor="middle"
+            fill={selected ? "#fff" : node.accent}
+            fontSize={10.5}
+            fontWeight={750}
+            fontFamily="var(--forge-font-body)"
+          >
             Explore →
           </text>
         </g>
@@ -231,7 +253,13 @@ function SectionCard({
   );
 }
 
-function FlowStrip({ level, selectedId }: { level: PlantSectionLevel; selectedId: string | null }) {
+function FlowStrip({
+  level,
+  selectedId,
+}: {
+  level: PlantSectionLevel;
+  selectedId: string | null;
+}) {
   if (level.edges.length === 0) return null;
 
   return (
@@ -253,7 +281,9 @@ function FlowStrip({ level, selectedId }: { level: PlantSectionLevel; selectedId
             <span className="plant-map-flowstrip__from">{from?.name}</span>
             <span className="plant-map-flowstrip__arrow">→</span>
             <span className="plant-map-flowstrip__to">{to?.name}</span>
-            <span className="plant-map-flowstrip__kw tabular">{formatIndianNum(edge.kw)} kW</span>
+            <span className="plant-map-flowstrip__kw tabular">
+              {formatIndianNum(edge.kw)} kW
+            </span>
           </span>
         );
       })}
@@ -278,11 +308,16 @@ function DetailRows({ node }: { node: PlantSectionNode }) {
       </div>
       <div className="forge-detail-row">
         <span className="forge-detail-row__label">Section load</span>
-        <span className="forge-detail-row__value tabular">{formatIndianNum(node.kw)} kW</span>
+        <span className="forge-detail-row__value tabular">
+          {formatIndianNum(node.kw)} kW
+        </span>
       </div>
       <div className="forge-detail-row">
         <span className="forge-detail-row__label">Load index</span>
-        <span className="forge-detail-row__value tabular" style={{ color: node.loadPct > 100 ? "var(--forge-error)" : undefined }}>
+        <span
+          className="forge-detail-row__value tabular"
+          style={{ color: node.loadPct > 100 ? "var(--forge-error)" : undefined }}
+        >
           {node.loadPct}%
         </span>
       </div>
@@ -294,14 +329,31 @@ function DetailRows({ node }: { node: PlantSectionNode }) {
   );
 }
 
-export function PlantSectionMap() {
-  const [drillStack, setDrillStack] = useState<string[]>(["root"]);
+/** Demo-parity plant section map — levels from live DTO only (no fixtures). */
+export function PlantSectionMap({
+  levels,
+  rootLevelId = "root",
+  notes,
+}: {
+  levels: PlantMapLevels;
+  rootLevelId?: string;
+  notes?: string[];
+}) {
+  const [drillStack, setDrillStack] = useState<string[]>([rootLevelId]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [animKey, setAnimKey] = useState("root");
+  const [animKey, setAnimKey] = useState(rootLevelId);
+  const [zoom, setZoom] = useState(1);
 
-  const currentId = drillStack[drillStack.length - 1] ?? "root";
-  const level = levelForNode(currentId) ?? PLANT_ROOT_LEVEL;
+  useEffect(() => {
+    setDrillStack([rootLevelId]);
+    setSelectedId(null);
+    setZoom(1);
+    setAnimKey(rootLevelId);
+  }, [rootLevelId, levels]);
+
+  const currentId = drillStack[drillStack.length - 1] ?? rootLevelId;
+  const level = levels[currentId] ?? levels[rootLevelId];
   const canGoBack = drillStack.length > 1;
 
   useEffect(() => {
@@ -312,22 +364,39 @@ export function PlantSectionMap() {
     return () => mq.removeEventListener("change", fn);
   }, []);
 
-  const [zoom, setZoom] = useState(1);
-
   useEffect(() => {
+    if (!level) return;
     setAnimKey(level.id);
     setSelectedId(null);
     setZoom(1);
-  }, [level.id]);
+  }, [level?.id]);
 
-  const nodeMap = useMemo(() => Object.fromEntries(level.nodes.map((n) => [n.id, n])), [level.nodes]);
-  const baseVb = useMemo(() => viewBoxMetrics(level, DEFAULT_MAP_PAD), [level]);
+  const nodeMap = useMemo(
+    () => Object.fromEntries((level?.nodes ?? []).map((n) => [n.id, n])),
+    [level?.nodes],
+  );
+  const baseVb = useMemo(
+    () =>
+      level
+        ? viewBoxMetrics(level, DEFAULT_MAP_PAD)
+        : { viewBox: "0 0 400 300", aspectRatio: 4 / 3 },
+    [level],
+  );
   const vb = useMemo(() => zoomedViewBox(baseVb, zoom), [baseVb, zoom]);
 
-  const focusNode = selectedId ? nodeById(level, selectedId) ?? findSectionNode(selectedId) : null;
+  const focusNode = selectedId
+    ? (level ? nodeById(level, selectedId) : undefined) ??
+      findNodeInLevels(levels, selectedId)
+    : null;
+
+  if (!level) {
+    return (
+      <p className="forge-page-lede">No map levels available for this plant.</p>
+    );
+  }
 
   function drillInto(node: PlantSectionNode) {
-    if (levelForNode(node.id)) {
+    if (levels[node.id]) {
       setDrillStack((stack) => [...stack, node.id]);
     }
   }
@@ -350,26 +419,57 @@ export function PlantSectionMap() {
 
   return (
     <div data-plant-section-map className="forge-page-stack">
+      {notes?.length ? (
+        <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
+          {notes.join(" · ")}
+        </p>
+      ) : null}
       <Panel style={{ padding: 0, overflow: "hidden" }}>
         <div className="forge-panel-header forge-panel-header--inset">
           <div className="forge-panel-header__toolbar">
             {canGoBack ? (
-              <button type="button" className="forge-plant-map-back" onClick={goUp} style={{ marginBottom: 0 }}>
+              <button
+                type="button"
+                className="forge-plant-map-back"
+                onClick={goUp}
+                style={{ marginBottom: 0 }}
+              >
                 <ChevronLeft size={16} strokeWidth={2.5} />
                 Back
               </button>
             ) : null}
-            <nav aria-label="Plant map breadcrumb" style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", fontSize: 13 }}>
+            <nav
+              aria-label="Plant map breadcrumb"
+              style={{
+                display: "flex",
+                gap: 6,
+                flexWrap: "wrap",
+                alignItems: "center",
+                fontSize: 13,
+              }}
+            >
               {drillStack.map((id, i) => {
-                const label = id === "root" ? "Plant" : findSectionNode(id)?.name ?? id;
+                const label =
+                  id === rootLevelId
+                    ? levels[rootLevelId]?.title ?? "Plant"
+                    : findNodeInLevels(levels, id)?.name ?? id;
                 const isLast = i === drillStack.length - 1;
                 return (
-                  <span key={`${id}-${i}`} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    {i > 0 ? <span style={{ color: "var(--forge-on-surface-variant)" }}>/</span> : null}
+                  <span
+                    key={`${id}-${i}`}
+                    style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+                  >
+                    {i > 0 ? (
+                      <span style={{ color: "var(--forge-on-surface-variant)" }}>/</span>
+                    ) : null}
                     {isLast ? (
                       <strong>{label}</strong>
                     ) : (
-                      <button type="button" onClick={() => goBack(id)} className="forge-breadcrumb-link">
+                      <button
+                        type="button"
+                        onClick={() => goBack(id)}
+                        className="forge-breadcrumb-link"
+                      >
                         {label}
                       </button>
                     )}
@@ -423,9 +523,23 @@ export function PlantSectionMap() {
           >
             <defs>
               <filter id="plant-card-shadow" x="-20%" y="-20%" width="140%" height="150%">
-                <feDropShadow dx="0" dy="4" stdDeviation="5" floodColor="#473b35" floodOpacity="0.11" />
+                <feDropShadow
+                  dx="0"
+                  dy="4"
+                  stdDeviation="5"
+                  floodColor="#473b35"
+                  floodOpacity="0.11"
+                />
               </filter>
-              <marker id="forge-section-arrow" viewBox="0 0 10 10" refX={8} refY={5} markerWidth={4} markerHeight={4} orient="auto">
+              <marker
+                id="forge-section-arrow"
+                viewBox="0 0 10 10"
+                refX={8}
+                refY={5}
+                markerWidth={4}
+                markerHeight={4}
+                orient="auto"
+              >
                 <path d="M 0 1 L 9 5 L 0 9 Z" fill="currentColor" />
               </marker>
             </defs>
@@ -457,6 +571,7 @@ export function PlantSectionMap() {
                 selected={selectedId === node.id}
                 onSelect={(n) => setSelectedId(n.id)}
                 onDrill={drillInto}
+                drillable={Boolean(levels[node.id])}
               />
             ))}
 
@@ -487,7 +602,8 @@ export function PlantSectionMap() {
             <DetailRows node={focusNode} />
           ) : (
             <p className="forge-page-lede" style={{ marginTop: 12 }}>
-              Select a section to preview load and health. Click <strong>Explore →</strong> to drill into equipment and sub-flows.
+              Select a section to preview load and health. Click <strong>Explore →</strong> to
+              drill into equipment and sub-flows.
             </p>
           )}
         </Panel>
@@ -505,13 +621,18 @@ export function PlantSectionMap() {
                 const b = nodeById(level, e.to);
                 return (
                   <li key={`${e.from}-${e.to}`} className="forge-flow-list__item">
-                    <span className="forge-flow-list__dot" style={{ background: a?.accent ?? "var(--forge-tertiary)" }} />
+                    <span
+                      className="forge-flow-list__dot"
+                      style={{ background: a?.accent ?? "var(--forge-tertiary)" }}
+                    />
                     <span className="forge-flow-list__path">
                       <span>{a?.name}</span>
                       <span style={{ color: "var(--forge-on-surface-variant)" }}>→</span>
                       <span>{b?.name}</span>
                     </span>
-                    <span className="forge-flow-list__kw tabular">{formatIndianNum(e.kw)} kW</span>
+                    <span className="forge-flow-list__kw tabular">
+                      {formatIndianNum(e.kw)} kW
+                    </span>
                   </li>
                 );
               })}

@@ -18,6 +18,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          # depth=1 breaks private submodule SHA checkout ("not our ref")
+          fetch-depth: 0
           token: ${{ secrets.SUBMODULE_TOKEN }}
 
       - name: Setup Node.js
@@ -113,6 +115,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          # depth=1 breaks private submodule SHA checkout ("not our ref")
+          fetch-depth: 0
           token: ${{ secrets.SUBMODULE_TOKEN }}
 
       - name: Setup Node.js
@@ -146,6 +150,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          # depth=1 breaks private submodule SHA checkout ("not our ref")
+          fetch-depth: 0
           token: ${{ secrets.SUBMODULE_TOKEN }}
 
       - name: Setup Node.js
@@ -167,6 +173,7 @@ jobs:
       - name: Build web
         run: pnpm --filter @stamped/l6-web build
         env:
+          # Offline Playwright shell — no Better Auth BFF in this job.
           NEXT_PUBLIC_E2E_BYPASS_AUTH: "true"
 
       - name: Install Playwright Chromium

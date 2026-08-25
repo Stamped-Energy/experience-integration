@@ -1,21 +1,32 @@
 "use client";
 
 import { Panel, StatusChip } from "@/components/ui/primitives";
-import {
-  energyKpisFixture,
-  intensityDemoInput,
-} from "@/fixtures/demo";
-import { usePlant } from "@/lib/plant-context";
-import {
-  intensitySnapshot,
-  mdHeadroomPct,
-  topConsumersFixture,
-  TOD_BANDS_RJ,
-} from "@/lib/analytics";
-import {
-  formatEmissionFactorRef,
-  formatIndianNum,
-} from "@/lib/format";
+import { EmptyUpstreamState } from "@/components/ui/SourceIndicator";
+import { TOD_BANDS_RJ } from "@/lib/analytics";
+import { formatEmissionFactorRef, formatIndianNum } from "@/lib/format";
+
+export type SustainabilityBoardData = {
+  plantName?: string | null;
+  tariffLabel?: string | null;
+  derivedNotes?: string[];
+  secKwhPerUnit: number | null;
+  scope2Tco2e: number | null;
+  renewablePct: number | null;
+  mdHeadroomPct: number | null;
+  cmdKva: number | null;
+  peakMdKva: number | null;
+  gridKwh30d: number | null;
+  productionUnits: number | null;
+  emissionFactorRef: string;
+  secTrend: Array<{ label: string; value: number }> | null;
+  emissionsTrend: Array<{ label: string; value: number }> | null;
+  topConsumers: Array<{
+    label: string;
+    sharePct: number;
+    health: "calm" | "watch" | "hot";
+  }> | null;
+  todPeakSharePct: number | null;
+};
 
 function MiniBarChart({
   items,
@@ -37,14 +48,22 @@ function MiniBarChart({
               }}
             />
           </div>
-          <span className="sust-chart__bar-value tabular">{formatIndianNum(item.value, 1)}</span>
+          <span className="sust-chart__bar-value tabular">
+            {formatIndianNum(item.value, 1)}
+          </span>
         </div>
       ))}
     </div>
   );
 }
 
-function EmissionsSplit({ gridPct, renewablePct }: { gridPct: number; renewablePct: number }) {
+function EmissionsSplit({
+  gridPct,
+  renewablePct,
+}: {
+  gridPct: number;
+  renewablePct: number;
+}) {
   return (
     <div className="sust-split" role="img" aria-label="Energy mix">
       <div className="sust-split__track">
@@ -52,67 +71,73 @@ function EmissionsSplit({ gridPct, renewablePct }: { gridPct: number; renewableP
         <div className="sust-split__grid" style={{ width: `${100 - renewablePct}%` }} />
       </div>
       <div className="sust-split__legend">
-        <span><i className="sust-split__dot sust-split__dot--renewable" /> Renewable {renewablePct.toFixed(1)}%</span>
-        <span><i className="sust-split__dot sust-split__dot--grid" /> Grid {gridPct.toFixed(1)}%</span>
+        <span>
+          <i className="sust-split__dot sust-split__dot--renewable" /> Renewable{" "}
+          {renewablePct.toFixed(1)}%
+        </span>
+        <span>
+          <i className="sust-split__dot sust-split__dot--grid" /> Grid {gridPct.toFixed(1)}%
+        </span>
       </div>
     </div>
   );
 }
 
-export function SustainabilityDashboard() {
-  const { activePlant } = usePlant();
-  const snap = intensitySnapshot(intensityDemoInput);
-  const headroom = mdHeadroomPct(energyKpisFixture.peakMdKva, energyKpisFixture.cmdKva);
-  const consumers = topConsumersFixture().slice(0, 5);
-  const totalKwh = (intensityDemoInput.gridKwh ?? 0) + (intensityDemoInput.renewableKwh ?? 0);
-  const renewablePct = snap.renewablePct ?? 0;
-  const gridPct = 100 - renewablePct;
-
-  const secTrend = [
-    { label: "Apr", value: 98.2 },
-    { label: "May", value: 96.8 },
-    { label: "Jun", value: 95.1 },
-    { label: "Jul MTD", value: snap.secKwhPerUnit ?? 94.3 },
-  ];
-
-  const emissionsTrend = [
-    { label: "Apr", value: 4120 },
-    { label: "May", value: 3980 },
-    { label: "Jun", value: 3810 },
-    { label: "Jul MTD", value: snap.scope2Tco2e ?? 3650 },
-  ];
+/** Props-only sustainability board — no fixture imports. */
+export function SustainabilityDashboard({ data }: { data: SustainabilityBoardData }) {
+  const renewablePct = data.renewablePct;
+  const headroom = data.mdHeadroomPct;
+  const gridKwh = data.gridKwh30d ?? 0;
 
   return (
     <div className="sust-dash" data-sustainability-dashboard>
       <Panel className="sust-dash__hero">
         <p className="forge-eyebrow">
-          {activePlant.plantName} · {activePlant.tariff}
+          {data.plantName ?? "Plant"}
+          {data.tariffLabel ? ` · ${data.tariffLabel}` : ""}
         </p>
         <h2 className="sust-dash__hero-title">Sustainability & intensity snapshot</h2>
         <p className="sust-dash__hero-lead">
-          SEC, emissions, renewable mix, and demand metrics for this billing window.
+          SEC, emissions, and demand metrics from L2 for this window.
         </p>
+        {data.derivedNotes?.length ? (
+          <p className="sust-dash__hint">{data.derivedNotes.join(" · ")}</p>
+        ) : null}
         <div className="sust-dash__hero-stats">
           <div className="sust-stat">
             <span className="sust-stat__label">SEC</span>
             <span className="sust-stat__value tabular">
-              {snap.secKwhPerUnit != null ? `${formatIndianNum(snap.secKwhPerUnit, 2)} kWh/u` : "-"}
+              {data.secKwhPerUnit != null
+                ? `${formatIndianNum(data.secKwhPerUnit, 2)} kWh/u`
+                : "—"}
             </span>
           </div>
           <div className="sust-stat">
             <span className="sust-stat__label">Scope 2</span>
             <span className="sust-stat__value tabular">
-              {snap.scope2Tco2e != null ? `${formatIndianNum(snap.scope2Tco2e, 1)} tCO₂e` : "-"}
+              {data.scope2Tco2e != null
+                ? `${formatIndianNum(data.scope2Tco2e, 1)} tCO₂e`
+                : "—"}
             </span>
           </div>
           <div className="sust-stat">
             <span className="sust-stat__label">Renewable</span>
-            <span className="sust-stat__value tabular">{formatIndianNum(renewablePct, 1)}%</span>
+            <span className="sust-stat__value tabular">
+              {renewablePct != null ? `${formatIndianNum(renewablePct, 1)}%` : "—"}
+            </span>
           </div>
           <div className="sust-stat">
             <span className="sust-stat__label">MD headroom</span>
-            <span className="sust-stat__value tabular" style={{ color: headroom < 10 ? "var(--forge-warning)" : "var(--forge-good)" }}>
-              {headroom}%
+            <span
+              className="sust-stat__value tabular"
+              style={{
+                color:
+                  headroom != null && headroom < 10
+                    ? "var(--forge-warning)"
+                    : "var(--forge-good)",
+              }}
+            >
+              {headroom != null ? `${headroom}%` : "—"}
             </span>
           </div>
         </div>
@@ -121,60 +146,117 @@ export function SustainabilityDashboard() {
       <div className="sust-dash__grid">
         <Panel className="sust-dash__panel">
           <h3 className="sust-dash__block-title">SEC trend (kWh per unit)</h3>
-          <MiniBarChart items={secTrend.map((p) => ({ ...p, color: "var(--forge-tertiary)" }))} />
-          <p className="sust-dash__hint">
-            {intensityDemoInput.productionUnits != null
-              ? `${formatIndianNum(intensityDemoInput.productionUnits)} production units MTD`
-              : "Production units required for SEC"}
-          </p>
+          {data.secTrend?.length ? (
+            <>
+              <MiniBarChart
+                items={data.secTrend.map((p) => ({
+                  ...p,
+                  color: "var(--forge-tertiary)",
+                }))}
+              />
+              <p className="sust-dash__hint">
+                {data.productionUnits != null
+                  ? `${formatIndianNum(data.productionUnits)} production units in window`
+                  : "SEC from L2 features window"}
+              </p>
+            </>
+          ) : (
+            <EmptyUpstreamState title="SEC trend" detail="No L2 SEC feature points." />
+          )}
         </Panel>
 
         <Panel className="sust-dash__panel">
-          <h3 className="sust-dash__block-title">Scope 2 emissions trend (tCO₂e)</h3>
-          <MiniBarChart items={emissionsTrend.map((p) => ({ ...p, color: "var(--forge-good)" }))} />
-          {formatEmissionFactorRef(snap.emissionFactorRef ?? undefined) ? (
-            <p className="sust-dash__hint">
-              {formatEmissionFactorRef(snap.emissionFactorRef ?? undefined)}
-            </p>
-          ) : null}
+          <h3 className="sust-dash__block-title">Scope 2 emissions (tCO₂e)</h3>
+          {data.emissionsTrend?.length ? (
+            <>
+              <MiniBarChart
+                items={data.emissionsTrend.map((p) => ({
+                  ...p,
+                  color: "var(--forge-good)",
+                }))}
+              />
+              {formatEmissionFactorRef(data.emissionFactorRef) ? (
+                <p className="sust-dash__hint">
+                  {formatEmissionFactorRef(data.emissionFactorRef)}
+                </p>
+              ) : null}
+            </>
+          ) : (
+            <EmptyUpstreamState
+              title="Emissions trend"
+              detail="Needs incomer energy series to derive Scope 2."
+            />
+          )}
         </Panel>
 
         <Panel className="sust-dash__panel">
           <h3 className="sust-dash__block-title">Energy mix</h3>
-          <EmissionsSplit gridPct={gridPct} renewablePct={renewablePct} />
-          <p className="sust-dash__hint tabular">
-            {formatIndianNum(totalKwh / 1000, 1)} MWh total · Grid{" "}
-            {formatIndianNum((intensityDemoInput.gridKwh ?? 0) / 1000, 1)} MWh
-          </p>
+          {renewablePct != null ? (
+            <>
+              <EmissionsSplit gridPct={100 - renewablePct} renewablePct={renewablePct} />
+              <p className="sust-dash__hint tabular">
+                {formatIndianNum(gridKwh / 1000, 1)} MWh grid (30d)
+              </p>
+            </>
+          ) : (
+            <EmptyUpstreamState
+              title="Energy source mix"
+              detail="No generation / renewable table in L2 — mix stays empty."
+            />
+          )}
         </Panel>
 
         <Panel className="sust-dash__panel">
-          <h3 className="sust-dash__block-title">Top consumers (MTD share)</h3>
-          <MiniBarChart
-            items={consumers.map((c) => ({
-              label: c.label,
-              value: c.sharePct,
-              color: c.health === "hot" ? "var(--forge-error)" : c.health === "watch" ? "var(--forge-warning)" : "var(--forge-tertiary)",
-            }))}
-          />
+          <h3 className="sust-dash__block-title">Top consumers (30d share)</h3>
+          {data.topConsumers?.length ? (
+            <MiniBarChart
+              items={data.topConsumers.map((c) => ({
+                label: c.label,
+                value: c.sharePct,
+                color:
+                  c.health === "hot"
+                    ? "var(--forge-error)"
+                    : c.health === "watch"
+                      ? "var(--forge-warning)"
+                      : "var(--forge-tertiary)",
+              }))}
+            />
+          ) : (
+            <EmptyUpstreamState
+              title="Top consumers"
+              detail="No feeder/equipment energy series for share."
+            />
+          )}
         </Panel>
 
         <Panel className="sust-dash__panel sust-dash__panel--wide">
-          <h3 className="sust-dash__block-title">TOD exposure</h3>
+          <h3 className="sust-dash__block-title">TOD tariff bands (reference)</h3>
           <div className="sust-tod-grid">
             {TOD_BANDS_RJ.map((b) => (
               <div key={b.id} className="sust-tod-card">
-                <StatusChip tone={b.label.includes("Peak") ? "warning" : "neutral"}>{b.label}</StatusChip>
+                <StatusChip tone={b.label.includes("Peak") ? "warning" : "neutral"}>
+                  {b.label}
+                </StatusChip>
                 <p className="sust-tod-card__time tabular">
-                  {String(b.fromHour).padStart(2, "0")}:00 – {String(b.toHour).padStart(2, "0")}:00
+                  {String(b.fromHour).padStart(2, "0")}:00 –{" "}
+                  {String(b.toHour).padStart(2, "0")}:00
                 </p>
-                <p className="sust-tod-card__rate tabular">₹{formatIndianNum(b.rateInrPerKwh, 1)}/kWh</p>
+                <p className="sust-tod-card__rate tabular">
+                  ₹{formatIndianNum(b.rateInrPerKwh, 1)}/kWh
+                </p>
               </div>
             ))}
           </div>
           <p className="sust-dash__hint">
-            Peak share MTD: {energyKpisFixture.todPeakSharePct}% · CMD{" "}
-            {formatIndianNum(energyKpisFixture.cmdKva)} kVA
+            {data.todPeakSharePct != null
+              ? `Peak share: ${data.todPeakSharePct}%`
+              : "Peak share not computed from L2 yet"}
+            {data.cmdKva != null
+              ? ` · CMD ${formatIndianNum(data.cmdKva)} kVA`
+              : ""}
+            {data.peakMdKva != null
+              ? ` · Peak ${formatIndianNum(Math.round(data.peakMdKva))} kVA`
+              : ""}
           </p>
         </Panel>
       </div>

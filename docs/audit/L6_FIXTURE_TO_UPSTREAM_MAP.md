@@ -2,9 +2,10 @@
 
 Checklist for de-fixturing L6. Every UI tile maps to an upstream, a class, and a status.
 
-**Plant under test:** `plant_lnm_faridabad_1` / org `org_acme`  
+**Plant under test:** `plant_lnm_faridabad_1` / org `org_acme` (historical)  
+**Showcase plant (Insights remount):** `plant_vinayak_1` — see [Vinayak insights remount](#vinayak-insights-remount-2026-08-26)  
 **Policy for Class D:** honest empty state (“No upstream data”), never invent numbers.  
-**Last updated:** 2026-08-25
+**Last updated:** 2026-08-26
 
 ## Classes
 
@@ -128,3 +129,25 @@ Checklist for de-fixturing L6. Every UI tile maps to an upstream, a class, and a
 - Seed LNM L5 Rx: `python experience-integration/scripts/seed_lnm_l5_prescriptions.py`
 - Re-seed L2 LNM (bills/SEC/score): `python -m seed --persona lnm-factory-1`
 - Env: `L6_STRICT_LIVE=true` (default), `USE_FIXTURES=false`, live L2/L5 keys as before
+
+---
+
+## Vinayak insights remount (2026-08-26)
+
+Follow-on to P1–P4: BFF Class-B routes exist, but insight pages still show raw JSON / empty shells while demo boards remain orphaned and fixture-coupled.
+
+| Route | Demo visual to remount | Upstream | Class | Status |
+|-------|------------------------|----------|-------|--------|
+| `/energy` | `EnergyBoard` (Forge ECharts) | bills + tariff + measurements + SEC → `/api/insights/energy` | B | live |
+| `/plant-map` | `PlantSectionMap` (SVG graph) | department-graph + assets + power → `/api/insights/plant-map` | B | live |
+| `/intensity` | `SustainabilityDashboard` | SEC + derived CO₂ → `/api/insights/sustainability` | B | live |
+| `/equipment` | `MachineHealthBoard` | assets + energy series → `/api/insights/equipment` | B | live |
+| `/` `/live` | `PlantHealthMap`, dials, demand, alerts | overview + L2 + L5; **purge overview-demo** | A/B | live |
+| `/reports` | `ExportCentre`, `SavingsLedger` | `/api/reports` + L5 Rx ledger | A/B | live |
+| `/energy` | Source mix donut | No generation table | D | empty |
+| `/equipment` | Vibration / FFT / thermal | No L1 CM sensing on Vinayak | D | empty |
+| `/plant-map` | True CAD x/y | No geometry in L2 | D | empty (auto-layout instead) |
+
+**Orphan fixture imports (must clear on remount):** see `docs/PROGRESS_INSIGHTS_LIVE.md` Phase 0 inventory.
+
+**Plan:** `docs/IMPLEMENTATION_PLAN_INSIGHTS_LIVE.md`
