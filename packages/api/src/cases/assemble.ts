@@ -19,6 +19,7 @@ import {
 import {
   L6CasePayloadSchema,
   type CaseEnrichment,
+  type EvidenceSeriesDto,
   type L6CasePayload,
 } from "./contract.js";
 

@@ -5,6 +5,8 @@ import { z } from "zod";
 import type { Auth } from "./index.js";
 import type { Mailer } from "../mail/mailer.js";
 import type { Env } from "../config.js";
+import type { Db } from "../db/client.js";
+import { resolveActivePlant } from "../tenancy/service.js";
 
 const InviteBody = z.object({
   email: z.string().email(),
@@ -26,6 +28,7 @@ export async function registerAuthRoutes(
   auth: Auth,
   mailer: Mailer,
   env: Env,
+  db?: Db,
 ): Promise<void> {
   app.route({
     method: ["GET", "POST"],
@@ -68,6 +71,22 @@ export async function registerAuthRoutes(
         request_id: request.id,
       });
     }
+
+    let orgId: string | null = null;
+    let plantId: string | null = null;
+    let membershipRole: string | null = null;
+    if (db) {
+      const resolved = await resolveActivePlant(db, {
+        userId: session.user.id,
+      });
+      const plant = resolved.activePlant ?? resolved.authorized[0] ?? null;
+      if (plant) {
+        orgId = plant.orgId;
+        plantId = plant.id;
+        membershipRole = plant.role;
+      }
+    }
+
     return {
       user: {
         id: session.user.id,
@@ -80,6 +99,10 @@ export async function registerAuthRoutes(
         id: session.session.id,
         expiresAt: session.session.expiresAt,
       },
+      orgId,
+      plantId,
+      /** L6 product RBAC role from memberships (prefer over DEMO_SHELL_ROLE). */
+      membershipRole,
     };
   });
 

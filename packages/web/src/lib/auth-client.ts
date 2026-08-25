@@ -11,6 +11,12 @@ export type AuthUser = {
 export type MeResponse = {
   user: AuthUser;
   session: { id: string; expiresAt: string };
+  /** Active org from plant membership; null if none. */
+  orgId?: string | null;
+  /** Active plant id; null if none. */
+  plantId?: string | null;
+  /** L6 product RBAC role (memberships.role). Prefer over DEMO_SHELL_ROLE. */
+  membershipRole?: string | null;
 };
 
 export async function fetchSession(): Promise<MeResponse | null> {

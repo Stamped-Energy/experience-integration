@@ -204,7 +204,7 @@ export class L2QueryClient {
     if (!this.opts.features.baselines) {
       throw new UpstreamError(
         "UPSTREAM_FEATURE_UNAVAILABLE",
-        "L2 baselines are not published yet — feature-gated in L6",
+        "L2 baseline reads are not published yet — feature-gated in L6",
         501,
         { x_stamped_status: "upstream_missing" },
       );

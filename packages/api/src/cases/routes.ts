@@ -1,5 +1,6 @@
 import type { IncomingHttpHeaders } from "node:http";
 import type { FastifyInstance } from "fastify";
+import type { IncomingHttpHeaders } from "node:http";
 import { fromNodeHeaders } from "better-auth/node";
 import type { Auth } from "../auth/index.js";
 import { AuthzError, requirePermission } from "../authz/index.js";

@@ -1,43 +1,112 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/shell/AppShell";
 import { StaffPlantTools } from "@/components/settings/StaffPlantTools";
-import { PageHead, Panel, StatusChip } from "@/components/ui/primitives";
-import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
+import { EmptyUpstreamState } from "@/components/ui/SourceIndicator";
+import { PageHead, Panel, PrimaryButton, StatusChip } from "@/components/ui/primitives";
+import {
+  addOrgMember,
+  inviteUser,
+  listAuditEvents,
+  listOrgMembers,
+  type AuditEvent,
+  type OrgMember,
+} from "@/lib/admin-api";
+import { useAuth } from "@/lib/auth-context";
+import { useDataSource } from "@/lib/data-source-context";
 import { formatIstDateTime } from "@/lib/format";
 import { usePlant } from "@/lib/plant-context";
-import { useAuth } from "@/lib/auth-context";
+import { connectionFromProbe, toShellRole } from "@/lib/shell-session";
+import type { Role } from "@/lib/types";
 
-type MemberRow = {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  status: string;
-  lastActive: string;
-};
-
-type AuditRow = {
-  id: string;
-  action: string;
-  actor: string;
-  detail: string;
-  at: string;
-};
-
-/** Empty until L6 members/audit APIs are wired — keep panel chrome. */
-const members: MemberRow[] = [];
-const auditEvents: AuditRow[] = [];
+const INVITE_ROLES: Role[] = [
+  "operator",
+  "supervisor",
+  "plant_head",
+  "energy_manager",
+  "admin",
+];
 
 export default function AdminSettingsPage() {
   const { activePlant } = usePlant();
-  const { user, signOut } = useAuth();
+  const { user, orgId, plantId, membershipRole, signOut } = useAuth();
+  const { probe } = useDataSource();
   const router = useRouter();
+
+  const [members, setMembers] = useState<OrgMember[]>([]);
+  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [inviteName, setInviteName] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<Role>("operator");
+  const [inviteBusy, setInviteBusy] = useState(false);
+  const [inviteMsg, setInviteMsg] = useState<string | null>(null);
+
+  const reload = useCallback(async () => {
+    if (!orgId) {
+      setMembers([]);
+      setAuditEvents([]);
+      setLoadError("No organization on this session.");
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const [m, a] = await Promise.all([
+        listOrgMembers(orgId),
+        listAuditEvents(orgId, 40),
+      ]);
+      setMembers(m);
+      setAuditEvents(a);
+    } catch (err) {
+      setMembers([]);
+      setAuditEvents([]);
+      setLoadError(err instanceof Error ? err.message : "Admin APIs unavailable");
+    } finally {
+      setLoading(false);
+    }
+  }, [orgId]);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
 
   const onSignOut = async () => {
     await signOut();
     router.replace("/login");
+  };
+
+  const onInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!orgId || !plantId) {
+      setInviteMsg("Need org and plant on session before inviting.");
+      return;
+    }
+    setInviteBusy(true);
+    setInviteMsg(null);
+    try {
+      const invited = await inviteUser({
+        email: inviteEmail.trim(),
+        name: inviteName.trim(),
+      });
+      await addOrgMember(orgId, {
+        userId: invited.user.id,
+        role: inviteRole,
+        plantIds: [plantId],
+      });
+      setInviteName("");
+      setInviteEmail("");
+      setInviteMsg(`Invited ${invited.user.email} as ${inviteRole.replaceAll("_", " ")}`);
+      await reload();
+    } catch (err) {
+      setInviteMsg(err instanceof Error ? err.message : "Invite failed");
+    } finally {
+      setInviteBusy(false);
+    }
   };
 
   return (
@@ -45,10 +114,13 @@ export default function AdminSettingsPage() {
       active="admin"
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
-      role={DEMO_SHELL_ROLE}
-      connection={connectionFixture}
+      role={toShellRole(membershipRole)}
+      connection={connectionFromProbe(probe)}
       screenTitle="Admin"
-      contextSummary={[`${members.length} members`, activePlant.orgName]}
+      contextSummary={[
+        loading ? "Loading…" : `${members.length} members`,
+        activePlant.orgName,
+      ]}
       criticalAlarmCount={0}
     >
       <PageHead eyebrow="Admin" title="Organization admin" />
@@ -83,6 +155,7 @@ export default function AdminSettingsPage() {
                 }}
               >
                 {user?.email}
+                {membershipRole ? ` · ${membershipRole.replaceAll("_", " ")}` : ""}
               </p>
             </div>
             <button
@@ -115,11 +188,87 @@ export default function AdminSettingsPage() {
               fontSize: 16,
             }}
           >
+            Invite member
+          </h2>
+          <form
+            onSubmit={(e) => void onInvite(e)}
+            style={{ display: "grid", gap: 10, maxWidth: 420 }}
+          >
+            <label style={{ display: "grid", gap: 4, fontSize: 13 }}>
+              Name
+              <input
+                required
+                value={inviteName}
+                onChange={(e) => setInviteName(e.target.value)}
+                style={{
+                  padding: "8px 10px",
+                  borderRadius: 8,
+                  border: "1px solid var(--forge-outline-variant)",
+                }}
+              />
+            </label>
+            <label style={{ display: "grid", gap: 4, fontSize: 13 }}>
+              Email
+              <input
+                required
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                style={{
+                  padding: "8px 10px",
+                  borderRadius: 8,
+                  border: "1px solid var(--forge-outline-variant)",
+                }}
+              />
+            </label>
+            <label style={{ display: "grid", gap: 4, fontSize: 13 }}>
+              Role
+              <select
+                value={inviteRole}
+                onChange={(e) => setInviteRole(e.target.value as Role)}
+                style={{
+                  padding: "8px 10px",
+                  borderRadius: 8,
+                  border: "1px solid var(--forge-outline-variant)",
+                }}
+              >
+                {INVITE_ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {r.replaceAll("_", " ")}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <PrimaryButton type="submit" disabled={inviteBusy || !orgId || !plantId}>
+              {inviteBusy ? "Sending…" : "Send invite & grant membership"}
+            </PrimaryButton>
+            {inviteMsg ? (
+              <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
+                {inviteMsg}
+              </p>
+            ) : null}
+          </form>
+        </Panel>
+
+        <Panel>
+          <h2
+            style={{
+              margin: "0 0 12px",
+              fontFamily: "var(--forge-font-display)",
+              fontSize: 16,
+            }}
+          >
             Memberships · {activePlant.plantName}
           </h2>
-          {members.length === 0 ? (
+          {loading ? (
             <p style={{ margin: 0, fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-              No membership rows from upstream yet.
+              Loading members…
+            </p>
+          ) : loadError ? (
+            <EmptyUpstreamState title="Members unavailable" detail={loadError} />
+          ) : members.length === 0 ? (
+            <p style={{ margin: 0, fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
+              No membership rows for this organization yet.
             </p>
           ) : (
             <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 10 }}>
@@ -137,15 +286,18 @@ export default function AdminSettingsPage() {
                   }}
                 >
                   <div>
-                    <p style={{ margin: 0, fontWeight: 700 }}>{m.name}</p>
+                    <p style={{ margin: 0, fontWeight: 700 }}>
+                      User {m.userId.slice(0, 8)}…
+                    </p>
                     <p
                       style={{
                         margin: "4px 0 0",
                         fontSize: 12,
                         color: "var(--forge-on-surface-variant)",
+                        fontFamily: "var(--forge-font-mono, monospace)",
                       }}
                     >
-                      {m.email}
+                      {m.userId}
                     </p>
                   </div>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -157,7 +309,7 @@ export default function AdminSettingsPage() {
                       className="tabular"
                       style={{ fontSize: 12, color: "var(--forge-on-surface-variant)" }}
                     >
-                      {formatIstDateTime(m.lastActive)}
+                      {m.plantIds.length} plant{m.plantIds.length === 1 ? "" : "s"}
                     </span>
                   </div>
                 </li>
@@ -176,9 +328,15 @@ export default function AdminSettingsPage() {
           >
             Recent audit events
           </h2>
-          {auditEvents.length === 0 ? (
+          {loading ? (
             <p style={{ margin: 0, fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-              No audit events from upstream yet.
+              Loading audit…
+            </p>
+          ) : loadError ? (
+            <EmptyUpstreamState title="Audit unavailable" detail={loadError} />
+          ) : auditEvents.length === 0 ? (
+            <p style={{ margin: 0, fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
+              No audit events for this organization yet.
             </p>
           ) : (
             <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 10 }}>
@@ -198,7 +356,14 @@ export default function AdminSettingsPage() {
                       color: "var(--forge-on-surface-variant)",
                     }}
                   >
-                    {ev.actor} · {ev.detail} · {formatIstDateTime(ev.at)}
+                    {ev.actorUserId ? `actor ${ev.actorUserId.slice(0, 8)}…` : "system"} ·{" "}
+                    {ev.resourceType}
+                    {ev.resourceId ? ` ${ev.resourceId.slice(0, 8)}…` : ""} ·{" "}
+                    {formatIstDateTime(
+                      typeof ev.createdAt === "string"
+                        ? ev.createdAt
+                        : new Date(ev.createdAt).toISOString(),
+                    )}
                   </p>
                 </li>
               ))}

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { sampleConsumers } from "./samples.js";
 import {
   TOD_BANDS_RJ,
   bandForHour,
@@ -12,7 +13,7 @@ import {
 
 describe("analytics fixtures and calculations", () => {
   it("ranks top consumers with shares totaling ~100%", () => {
-    const rows = topConsumersFixture();
+    const rows = topConsumersFixture(sampleConsumers);
     assert.ok(rows[0]!.kwh >= rows[1]!.kwh);
     const share = rows.reduce((s, r) => s + r.sharePct, 0);
     assert.ok(share > 99 && share < 101);

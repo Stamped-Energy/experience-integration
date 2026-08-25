@@ -341,3 +341,30 @@ consumer DEC-012 demoted it.
 
 Nav and ops screens updated in `packages/web`. Overview panel title left as-is
 per scope. DEC-012 “AI Prescriptions” chrome wording superseded for ops nav.
+
+## DEC-014 — L6 pilot WhatsApp sender until L5 relay
+
+**Status:** Accepted · **Date:** 2026-08-26
+
+### Context
+
+ADR-021 wants WhatsApp for issue / reminder / escalation. L5 does not yet expose
+a plant-facing notify relay. Assignments and Rx assign needed an honest send path
+with durable logs.
+
+### Decision
+
+- L6 BFF owns Meta Cloud API credentials and `whatsapp_notification_log`.
+- Modes: `dry_run` (default without creds) and `live` when `META_WA_*` are set.
+- Rx assign calls `POST /api/assignments/notify`; Integrations uses test-send.
+- UI reports `dry_run` / `accepted` / `failed` from the API — no fake “queued”.
+- When L5 relay ships, L6 should enqueue via L5 and keep the log as customer-facing audit.
+
+### Alternatives
+
+- Fixture-only toast (“WhatsApp queued”): rejected — dishonest for pilot.
+- Browser → Meta: rejected — secrets must stay server-side.
+
+### Consequences
+
+Runbook: `docs/runbooks/whatsapp-connect.md`. Env documented in `.env.example`.

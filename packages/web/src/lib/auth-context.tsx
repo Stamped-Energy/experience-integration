@@ -19,6 +19,12 @@ import {
 
 type AuthContextValue = {
   user: AuthUser | null;
+  /** Active org from plant membership; null if none. */
+  orgId: string | null;
+  /** Active plant UUID from BFF; null if none. */
+  plantId: string | null;
+  /** L6 product RBAC role (memberships.role). */
+  membershipRole: string | null;
   loading: boolean;
   refresh: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<{ ok: true } | { ok: false; message: string }>;
@@ -31,14 +37,23 @@ const PUBLIC_PATHS = new Set(["/login"]);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [orgId, setOrgId] = useState<string | null>(null);
+  const [plantId, setPlantId] = useState<string | null>(null);
+  const [membershipRole, setMembershipRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
     try {
       const me = await fetchSession();
       setUser(me?.user ?? null);
+      setOrgId(me?.orgId ?? null);
+      setPlantId(me?.plantId ?? null);
+      setMembershipRole(me?.membershipRole ?? null);
     } catch {
       setUser(null);
+      setOrgId(null);
+      setPlantId(null);
+      setMembershipRole(null);
     } finally {
       setLoading(false);
     }
@@ -63,11 +78,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     await apiSignOut();
     setUser(null);
+    setOrgId(null);
+    setPlantId(null);
+    setMembershipRole(null);
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, refresh, signIn, signOut }),
-    [user, loading, refresh, signIn, signOut],
+    () => ({
+      user,
+      orgId,
+      plantId,
+      membershipRole,
+      loading,
+      refresh,
+      signIn,
+      signOut,
+    }),
+    [user, orgId, plantId, membershipRole, loading, refresh, signIn, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -88,16 +115,15 @@ const E2E_BYPASS_AUTH =
 
 /**
  * Redirects unauthenticated users to /login. Login page is public.
+ * E2E may set NEXT_PUBLIC_E2E_BYPASS_AUTH=true (Playwright / CI only).
  */
 export function AuthGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const isPublic = pathname != null && PUBLIC_PATHS.has(pathname);
-
   useEffect(() => {
-    if (E2E_BYPASS_AUTH) return;
-    if (loading) return;
+    if (E2E_BYPASS_AUTH || loading) return;
     if (!user && !isPublic) {
       const next = pathname && pathname !== "/" ? `?next=${encodeURIComponent(pathname)}` : "";
       router.replace(`/login${next}`);

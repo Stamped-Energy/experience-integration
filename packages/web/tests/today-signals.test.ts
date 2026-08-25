@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, it } from "node:test";
 import { TodayBoard } from "../src/components/today/TodayBoard.js";
-import { todaySignalsFixture } from "../src/fixtures/demo.js";
+import { sampleTodaySignals } from "./samples.js";
 import { resolveRouteState } from "../src/lib/route-state.js";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -20,7 +20,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 describe("Today decision signals", () => {
   it("never exceeds seven signals for any role", () => {
     const bloated = [
-      ...todaySignalsFixture,
+      ...sampleTodaySignals,
       ...Array.from({ length: 10 }, (_, i) => ({
         id: `extra_${i}`,
         label: `Extra ${i}`,
@@ -45,9 +45,9 @@ describe("Today decision signals", () => {
   });
 
   it("prioritises ops-confirmed savings for plant_head and hides alarms from cfo", () => {
-    const head = selectTodaySignals("plant_head", todaySignalsFixture);
+    const head = selectTodaySignals("plant_head", sampleTodaySignals);
     assert.equal(head[0]?.id, "savings");
-    const cfo = selectTodaySignals("cfo", todaySignalsFixture);
+    const cfo = selectTodaySignals("cfo", sampleTodaySignals);
     assert.equal(
       cfo.some((s) => s.id === "alarms" || s.href.startsWith("/alarms")),
       false,
@@ -58,7 +58,7 @@ describe("Today decision signals", () => {
   it("renders loading and stale route states", () => {
     const loading = renderToStaticMarkup(
       createElement(TodayBoard, {
-        signals: todaySignalsFixture,
+        signals: sampleTodaySignals,
         closurePct: 64,
         state: resolveRouteState({ loading: true }),
       }),
@@ -68,7 +68,7 @@ describe("Today decision signals", () => {
 
     const stale = renderToStaticMarkup(
       createElement(TodayBoard, {
-        signals: selectTodaySignals("plant_head", todaySignalsFixture),
+        signals: selectTodaySignals("plant_head", sampleTodaySignals),
         closurePct: 64,
         state: resolveRouteState({ stale: true }),
       }),
@@ -81,7 +81,7 @@ describe("Today decision signals", () => {
   it("renders partial missing slices without inventing signals", () => {
     const html = renderToStaticMarkup(
       createElement(TodayBoard, {
-        signals: selectTodaySignals("operator", todaySignalsFixture),
+        signals: selectTodaySignals("operator", sampleTodaySignals),
         closurePct: 50,
         state: resolveRouteState({ missing: ["ledger"] }),
       }),
@@ -91,7 +91,7 @@ describe("Today decision signals", () => {
   });
 
   it("phone essentials keep only alarms, rx, and savings in role order", () => {
-    const head = selectTodaySignals("plant_head", todaySignalsFixture);
+    const head = selectTodaySignals("plant_head", sampleTodaySignals);
     const phone = filterMobileEssentialSignals(head);
     assert.deepEqual(
       phone.map((s) => s.id),

@@ -31,6 +31,14 @@ and GitHub Actions cover quality / postgres / browser / infra jobs.
 2. Replace CDK placeholder image with ECR; run smoke on Mumbai.
 3. Optional: axe Playwright project + self-hosted fonts.
 
+## Admin + WhatsApp wiring (2026-08-26)
+
+Branch `feat/admin-assignments-whatsapp`:
+
+- Administration pages load members / assignments / integrations from BFF (no fixtures).
+- Rx assign uses `notify_people` + `POST /api/assignments/notify`; WhatsApp log rows are dry_run/accepted/failed.
+- **DEC-014:** L6 remains the pilot WhatsApp sender until an L5 relay exists (`docs/runbooks/whatsapp-connect.md`).
+
 ## Demo fixtures (2026-07-22)
 
 Jaipur Works Auto demo is thorough across all Forge screens via
