@@ -40,7 +40,7 @@ const sampleRx: Prescription[] = [
     lane: "needs_review",
     ownerRole: "energy_manager",
     dueAt: "2026-08-01T10:00:00+05:30",
-    decisionClass: "mgmt_tod",
+    decisionClass: "mgmt_schedule",
     valueDomain: "energy_efficiency",
     wasteCategory: 1,
   },
@@ -54,7 +54,7 @@ const sampleRx: Prescription[] = [
     lane: "active",
     ownerRole: "operator",
     dueAt: "2026-08-02T10:00:00+05:30",
-    decisionClass: "maint_mech",
+    decisionClass: "maint",
   },
   {
     id: "rx_done",

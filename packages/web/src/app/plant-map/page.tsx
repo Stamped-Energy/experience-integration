@@ -58,7 +58,7 @@ export default function PlantMapPage() {
 
   return (
     <AppShell
-      active="plant-map"
+      active="plant_map"
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
       plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
