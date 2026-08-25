@@ -31,7 +31,7 @@ export default function PrescriptionsPage() {
           bffUrl(
             `/api/prescriptions?plantId=${encodeURIComponent(activePlant.plantId)}`,
           ),
-          { credentials: "include" },
+          { credentials: "include", cache: "no-store" },
         );
         if (!res.ok) {
           if (!cancelled) {

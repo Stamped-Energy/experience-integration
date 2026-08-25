@@ -23,7 +23,7 @@ export default function AlarmDetailPage({
     setLoading(true);
     void fetch(
       bffUrl(`/api/alarms?plantId=${encodeURIComponent(activePlant.plantId)}`),
-      { credentials: "include" },
+      { credentials: "include", cache: "no-store" },
     )
       .then(async (res) => {
         if (!res.ok) throw new Error(`alarms ${res.status}`);

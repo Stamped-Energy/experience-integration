@@ -28,7 +28,7 @@ export default function AlarmsPage() {
       try {
         const res = await fetch(
           bffUrl(`/api/alarms?plantId=${encodeURIComponent(activePlant.plantId)}`),
-          { credentials: "include" },
+          { credentials: "include", cache: "no-store" },
         );
         if (!res.ok) {
           if (!cancelled) {

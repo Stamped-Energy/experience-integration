@@ -27,7 +27,7 @@ const DataSourceContext = createContext<DataSourceContextValue | null>(null);
 const POLL_MS = 15_000;
 
 export function DataSourceProvider({ children }: { children: ReactNode }) {
-  const { activePlantId: plantId } = usePlant();
+  const { activePlantId: plantId, plantEpoch } = usePlant();
   const [probe, setProbe] = useState<UpstreamProbe | null>(null);
   const [loading, setLoading] = useState(true);
   const [bannerDismissed, setBannerDismissed] = useState(false);
@@ -36,7 +36,7 @@ export function DataSourceProvider({ children }: { children: ReactNode }) {
     const url = bffUrl(
       `/api/meta/upstreams?plantId=${encodeURIComponent(plantId)}`,
     );
-    void fetch(url, { credentials: "include" })
+    void fetch(url, { credentials: "include", cache: "no-store" })
       .then(async (res) => {
         if (!res.ok) throw new Error(`upstream probe ${res.status}`);
         return (await res.json()) as UpstreamProbe;
@@ -44,7 +44,6 @@ export function DataSourceProvider({ children }: { children: ReactNode }) {
       .then((data) => {
         setProbe(data);
         setLoading(false);
-        // Re-show banner when plant changes into demo mode
         if (data.demoMode) setBannerDismissed(false);
       })
       .catch(() => {
@@ -63,11 +62,14 @@ export function DataSourceProvider({ children }: { children: ReactNode }) {
   }, [plantId]);
 
   useEffect(() => {
+    // Drop prior plant's probe immediately so UI does not show stale live/demo state.
+    setProbe(null);
     setLoading(true);
+    setBannerDismissed(false);
     refresh();
     const id = window.setInterval(refresh, POLL_MS);
     return () => window.clearInterval(id);
-  }, [refresh]);
+  }, [refresh, plantEpoch]);
 
   const value = useMemo<DataSourceContextValue>(
     () => ({

@@ -18,11 +18,14 @@ export default function IntensityPage() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setSec(null);
+    setSource("unavailable");
+    setDetail(null);
     void fetch(
       bffUrl(
         `/api/l2/sec?plantId=${encodeURIComponent(activePlant.plantId)}&window=P30D`,
       ),
-      { credentials: "include" },
+      { credentials: "include", cache: "no-store" },
     )
       .then(async (res) => {
         if (!res.ok) throw new Error(`sec ${res.status}`);

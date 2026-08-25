@@ -26,7 +26,7 @@ export default function PrescriptionDetailPage({
       bffUrl(
         `/api/prescriptions/${encodeURIComponent(params.id)}?plantId=${encodeURIComponent(activePlant.plantId)}`,
       ),
-      { credentials: "include" },
+      { credentials: "include", cache: "no-store" },
     )
       .then(async (res) => {
         if (!res.ok) throw new Error(`prescription ${res.status}`);

@@ -98,6 +98,7 @@ export function AppShell({
   const shellPlantId = plants && plants.length > 0 ? plantId : plantCtx.activePlantId;
   const shellPlantName =
     plants && plants.length > 0 ? plantName : plantCtx.activePlant.plantName;
+  const contentKey = `${shellPlantId}:${plantCtx.plantEpoch}`;
 
   const dock = useMemo(() => mobileDock(role, pins), [role, pins]);
   const sse = useMemo(() => sseMeta(connection), [connection]);
@@ -221,7 +222,7 @@ export function AppShell({
               </button>
             </div>
           ) : null}
-          <div className="forge-shell__content" key={shellPlantId}>
+          <div className="forge-shell__content" key={contentKey}>
             {children}
           </div>
         </main>

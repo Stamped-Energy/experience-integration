@@ -31,6 +31,11 @@ export type PlantContextValue = {
   plants: PlantOption[];
   activePlantId: string;
   activePlant: PlantOption;
+  /**
+   * Increments on every successful plant change so shells/hooks can drop
+   * stale in-memory data and remount / refetch from upstream.
+   */
+  plantEpoch: number;
   setActivePlantId: (plantId: string) => void;
 };
 
@@ -48,6 +53,7 @@ export function PlantProvider({ children }: { children: ReactNode }) {
   const [activePlantId, setActivePlantIdState] = useState<string>(
     LNM_PLANT.plantId,
   );
+  const [plantEpoch, setPlantEpoch] = useState(0);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -62,7 +68,12 @@ export function PlantProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setActivePlantId = useCallback((plantId: string) => {
-    setActivePlantIdState(plantId);
+    setActivePlantIdState((prev) => {
+      if (prev === plantId) return prev;
+      // Remount shell + clear probe when the plant actually changes.
+      setPlantEpoch((n) => n + 1);
+      return plantId;
+    });
     if (typeof window !== "undefined") {
       try {
         window.localStorage.setItem(STORAGE_KEY, plantId);
@@ -77,9 +88,10 @@ export function PlantProvider({ children }: { children: ReactNode }) {
       plants: PLANTS,
       activePlantId,
       activePlant: resolvePlant(activePlantId),
+      plantEpoch,
       setActivePlantId,
     }),
-    [activePlantId, setActivePlantId],
+    [activePlantId, plantEpoch, setActivePlantId],
   );
 
   return <PlantContext.Provider value={value}>{children}</PlantContext.Provider>;
@@ -93,6 +105,7 @@ export function usePlant(): PlantContextValue {
     plants: PLANTS,
     activePlantId: LNM_PLANT.plantId,
     activePlant: LNM_PLANT,
+    plantEpoch: 0,
     setActivePlantId: () => {
       /* no-op outside PlantProvider */
     },

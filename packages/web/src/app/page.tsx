@@ -83,10 +83,11 @@ export default function OverviewPage() {
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setData(null);
     const url = bffUrl(
       `/api/overview?plantId=${encodeURIComponent(activePlant.plantId)}`,
     );
-    void fetch(url, { credentials: "include" })
+    void fetch(url, { credentials: "include", cache: "no-store" })
       .then(async (res) => {
         if (!res.ok) throw new Error(`overview ${res.status}`);
         return (await res.json()) as OverviewResponse;

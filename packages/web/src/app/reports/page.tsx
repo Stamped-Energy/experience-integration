@@ -25,9 +25,11 @@ export default function ReportsPage() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setOverview(null);
+    setSource("unavailable");
     void fetch(
       bffUrl(`/api/overview?plantId=${encodeURIComponent(activePlant.plantId)}`),
-      { credentials: "include" },
+      { credentials: "include", cache: "no-store" },
     )
       .then(async (res) => {
         if (!res.ok) throw new Error(`overview ${res.status}`);

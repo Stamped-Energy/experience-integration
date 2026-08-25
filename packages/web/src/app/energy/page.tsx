@@ -19,10 +19,14 @@ export default function EnergyPage() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setBills([]);
+    setTariff(null);
+    setSource("unavailable");
+    setDetail(null);
     const plantId = encodeURIComponent(activePlant.plantId);
     Promise.all([
-      fetch(bffUrl(`/api/l2/bills?plantId=${plantId}`), { credentials: "include" }),
-      fetch(bffUrl(`/api/l2/tariff?plantId=${plantId}`), { credentials: "include" }),
+      fetch(bffUrl(`/api/l2/bills?plantId=${plantId}`), { credentials: "include", cache: "no-store" }),
+      fetch(bffUrl(`/api/l2/tariff?plantId=${plantId}`), { credentials: "include", cache: "no-store" }),
     ])
       .then(async ([billsRes, tariffRes]) => {
         if (cancelled) return;

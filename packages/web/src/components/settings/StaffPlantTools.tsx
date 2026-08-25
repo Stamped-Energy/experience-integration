@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Panel } from "@/components/ui/primitives";
+import { useDataSource } from "@/lib/data-source-context";
 import { usePlant } from "@/lib/plant-context";
 
 /** Staff-only gate for multi-plant demos. Clients stay on a single plant. */
@@ -9,10 +11,13 @@ export const STAFF_PLANT_PASSWORD = "Stamped123";
 const UNLOCK_KEY = "l6.staffToolsUnlocked";
 
 export function StaffPlantTools() {
+  const router = useRouter();
   const { plants, activePlantId, activePlant, setActivePlantId } = usePlant();
+  const { refresh: refreshUpstreams } = useDataSource();
   const [unlocked, setUnlocked] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [switching, setSwitching] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -50,6 +55,19 @@ export function StaffPlantTools() {
       /* ignore */
     }
   }, []);
+
+  const onPlantChange = useCallback(
+    (nextId: string) => {
+      if (nextId === activePlantId) return;
+      setSwitching(true);
+      setActivePlantId(nextId);
+      // Drop cached route data and re-probe L2/L5 for the new plant.
+      refreshUpstreams();
+      router.refresh();
+      window.setTimeout(() => setSwitching(false), 400);
+    },
+    [activePlantId, setActivePlantId, refreshUpstreams, router],
+  );
 
   return (
     <Panel data-staff-plant-tools>
@@ -156,7 +174,8 @@ export function StaffPlantTools() {
               aria-label="Staff plant switcher"
               className="forge-shell__plant-select"
               value={activePlantId}
-              onChange={(e) => setActivePlantId(e.target.value)}
+              disabled={switching}
+              onChange={(e) => onPlantChange(e.target.value)}
               style={{
                 display: "block",
                 width: "100%",
@@ -176,6 +195,16 @@ export function StaffPlantTools() {
               ))}
             </select>
           </label>
+          {switching ? (
+            <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
+              Clearing and refetching plant data…
+            </p>
+          ) : (
+            <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
+              Changing plant remounts the app shell and refetches Overview / Live / Alarms /
+              Prescriptions from L2/L5 for the selected plant.
+            </p>
+          )}
         </div>
       )}
     </Panel>

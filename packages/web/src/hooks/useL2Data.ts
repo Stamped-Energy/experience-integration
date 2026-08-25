@@ -52,7 +52,7 @@ export function useL2Assets(
       try {
         const res = await fetch(
           bffUrl(`/api/l2/assets?plantId=${encodeURIComponent(plantId)}`),
-          { credentials: "include" },
+          { credentials: "include", cache: "no-store" },
         );
         if (!res.ok) {
           if (!cancelled) {
@@ -146,6 +146,7 @@ export function useL2Measurements(input: {
         });
         const res = await fetch(bffUrl(`/api/l2/measurements?${qs}`), {
           credentials: "include",
+          cache: "no-store",
         });
         if (!res.ok) {
           if (!cancelled) {
