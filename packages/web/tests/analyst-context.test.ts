@@ -8,6 +8,7 @@ import {
   visibleContextChips,
 } from "../src/lib/analyst-context.js";
 import type { AnalystContextEnvelope } from "../src/lib/types.js";
+import { sampleAlarms, samplePrescriptions } from "./samples.js";
 
 const base: AnalystContextEnvelope = {
   orgId: "org_demo",
@@ -19,6 +20,8 @@ const base: AnalystContextEnvelope = {
   visibleSummary: ["2 critical"],
   focusEntity: { type: "alarm", id: "alm_1001" },
 };
+
+const catalog = { alarms: sampleAlarms, prescriptions: samplePrescriptions };
 
 describe("analyst context Mode A/B helpers", () => {
   it("builds removable chips and strips excluded keys", () => {
@@ -38,14 +41,14 @@ describe("analyst context Mode A/B helpers", () => {
   it("returns focus-aware suggestions and cited fixture replies", () => {
     const tips = suggestionPrompts(base);
     assert.ok(tips.some((t) => /alarm/i.test(t)));
-    const reply = fixtureAnalystReply(base, "Why critical?");
+    const reply = fixtureAnalystReply(base, "Why critical?", catalog);
     assert.equal(reply.role, "assistant");
     assert.ok((reply.citations?.length ?? 0) >= 1);
     assert.match(reply.content, /Kiln 1/);
   });
 
   it("extracts related dashboard links and blocks injection-like replies", () => {
-    const ok = fixtureAnalystReply(base, "ack?");
+    const ok = fixtureAnalystReply(base, "ack?", catalog);
     const links = relatedLinksFromReply(ok);
     assert.ok(links.some((l) => l.kind === "alarm" && l.href.includes("alm_1001")));
 

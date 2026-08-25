@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import { parseEvidenceRefs } from "../src/cases/parse-refs.js";
 
 describe("parseEvidenceRefs", () => {
@@ -9,23 +10,23 @@ describe("parseEvidenceRefs", () => {
       "tariff:tariff-jvvnl-ht1-vinayak-2026/demand-line",
       "finding:f-vinayak-md-stagger-001",
     ]);
-    expect(scope.assetId).toBe("feeder_b");
-    expect(scope.metric).toBe("active_power_kw");
-    expect(scope.from).toBe("2026-08-25T10:00:00Z");
-    expect(scope.to).toBe("2026-08-25T16:00:00Z");
-    expect(scope.baselineId).toBe("bl-incomer-vinayak");
-    expect(scope.findingId).toBe("f-vinayak-md-stagger-001");
+    assert.equal(scope.assetId, "feeder_b");
+    assert.equal(scope.metric, "active_power_kw");
+    assert.equal(scope.from, "2026-08-25T10:00:00Z");
+    assert.equal(scope.to, "2026-08-25T16:00:00Z");
+    assert.equal(scope.baselineId, "bl-incomer-vinayak");
+    assert.equal(scope.findingId, "f-vinayak-md-stagger-001");
   });
 
   it("falls back to finding window then default hours", () => {
     const withFinding = parseEvidenceRefs(["tag:pump_cw_12/active_power_kw"], {
       findingWindow: "2026-08-01T00:00:00Z/2026-08-01T06:00:00Z",
     });
-    expect(withFinding.from).toBe("2026-08-01T00:00:00Z");
-    expect(withFinding.to).toBe("2026-08-01T06:00:00Z");
+    assert.equal(withFinding.from, "2026-08-01T00:00:00Z");
+    assert.equal(withFinding.to, "2026-08-01T06:00:00Z");
 
     const def = parseEvidenceRefs(["tag:incomer_1/apparent_power_kva"]);
-    expect(def.assetId).toBe("incomer_1");
-    expect(Date.parse(def.to)).toBeGreaterThan(Date.parse(def.from));
+    assert.equal(def.assetId, "incomer_1");
+    assert.ok(Date.parse(def.to) > Date.parse(def.from));
   });
 });

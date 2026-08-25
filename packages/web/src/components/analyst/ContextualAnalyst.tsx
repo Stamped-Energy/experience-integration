@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import type { AnalystContextEnvelope } from "@/lib/types";
@@ -14,6 +15,8 @@ import {
 } from "@/lib/analyst-context";
 
 import { fetchAnalystLive, resetAnalystLiveSession, sendAnalystMessageStream } from "@/lib/analyst-live";
+
+import { formatIstTime } from "@/lib/format";
 
 import { plantForId } from "@/fixtures/demo";
 
@@ -47,6 +50,7 @@ function PanelMessage({
 }) {
   const isUser = message.role === "user";
   const relatedLinks = !isUser && !message.stream ? relatedLinksFromReply(message) : [];
+  const timeLabel = message.createdAt ? formatIstTime(message.createdAt) : null;
 
   return (
     <article className={`analyst-msg ${isUser ? "analyst-msg--user" : "analyst-msg--assistant"}`}>
@@ -56,6 +60,11 @@ function PanelMessage({
       <div className="analyst-msg__content">
         <header className="analyst-msg__head">
           <span className="analyst-msg__role">{isUser ? "You" : "Stamped Analyst"}</span>
+          {timeLabel ? (
+            <time className="analyst-msg__time" dateTime={message.createdAt}>
+              {timeLabel}
+            </time>
+          ) : null}
           {!isUser && message.stream ? (
             <span className="analyst-msg__thinking">Analyzing…</span>
           ) : null}
@@ -142,10 +151,12 @@ export function ContextualAnalyst({
     const q = question.trim();
     if (!q || streaming) return;
     setStreaming(true);
+    const nowIso = new Date().toISOString();
     const userMsg: AnalystMessage = {
       id: `u_${Date.now()}`,
       role: "user",
       content: q,
+      createdAt: nowIso,
     };
     const assistantId = `a_${Date.now()}`;
     setDraft("");
@@ -154,7 +165,12 @@ export function ContextualAnalyst({
     setLiveMode(live);
     if (!live) {
       const reply = fixtureAnalystReply(liveEnvelope, q);
-      const assistantMsg: AnalystMessage = { ...reply, id: assistantId, stream: true };
+      const assistantMsg: AnalystMessage = {
+        ...reply,
+        id: assistantId,
+        stream: true,
+        createdAt: nowIso,
+      };
       setMessages((prev) => [...prev, userMsg, assistantMsg]);
       return;
     }
@@ -165,6 +181,7 @@ export function ContextualAnalyst({
       content: "",
       citations: [],
       stream: false,
+      createdAt: nowIso,
     };
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
 
@@ -362,7 +379,10 @@ export function ContextualAnalyst({
             </ForgeButton>
           </div>
           <p className="analyst-panel__disclaimer">
-            Verify cited sources before plant actions. Demo responses use fixture data for this screen.
+            Verify cited sources before plant actions.{" "}
+            <Link href="/analyst" className="analyst-panel__history-link" onClick={onClose}>
+              Open full history
+            </Link>
           </p>
         </footer>
       </aside>

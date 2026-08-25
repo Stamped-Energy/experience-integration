@@ -1,4 +1,4 @@
-"""L6CasePayload — unified envelope for FullCase / AlarmFullCase / EvidenceDetail."""
+/** L6CasePayload — unified envelope for FullCase / AlarmFullCase / EvidenceDetail. */
 
 import { z } from "zod";
 import { ProductAlarmSchema } from "../alarms/service.js";

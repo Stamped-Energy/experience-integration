@@ -33,6 +33,8 @@ import { registerAnalystRoutes } from "./analyst/routes.js";
 import { registerCaseRoutes } from "./cases/routes.js";
 import { registerL2Routes } from "./l2/routes.js";
 import { registerOverviewRoutes } from "./overview/routes.js";
+import { registerAssignmentsRoutes } from "./assignments/routes.js";
+import { registerWhatsAppRoutes } from "./whatsapp/routes.js";
 import { probeUpstreams } from "./meta/upstreams.js";
 import { orgIdForExternalPlantId } from "./upstream/mappings.js";
 import type pg from "pg";
@@ -102,6 +104,9 @@ export async function buildApp(
       },
     },
     crossOriginEmbedderPolicy: false,
+    // Browser web (localhost:3000) reads BFF (localhost:3001) with credentials;
+    // default same-origin CORP breaks credentialed cross-origin SSE/fetch.
+    crossOriginResourcePolicy: { policy: "cross-origin" },
   });
   await app.register(cors, {
     // Local web may be opened as localhost or 127.0.0.1 — both must work with credentials.
@@ -229,7 +234,7 @@ export async function buildApp(
   }
 
   if (opts.auth && opts.mailer) {
-    await registerAuthRoutes(app, opts.auth, opts.mailer, env);
+    await registerAuthRoutes(app, opts.auth, opts.mailer, env, opts.db);
   }
   if (opts.auth && opts.db) {
     await registerAdminRoutes(app, opts.auth, opts.db);
@@ -261,6 +266,8 @@ export async function buildApp(
       enqueueGenerate: opts.enqueueReportGenerate,
     });
     await registerIntegrationRoutes(app, { auth: opts.auth, db: opts.db });
+    await registerAssignmentsRoutes(app, { auth: opts.auth, db: opts.db });
+    await registerWhatsAppRoutes(app, { auth: opts.auth, db: opts.db });
     await registerL2Routes(app, {
       auth: opts.auth,
       db: opts.db,

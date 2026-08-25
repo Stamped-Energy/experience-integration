@@ -3,215 +3,140 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Panel } from "@/components/ui/primitives";
-import { useDataSource } from "@/lib/data-source-context";
-import { usePlant } from "@/lib/plant-context";
 import {
-  STAFF_IDLE_LOCK_MS,
-  STAFF_PLANT_PASSWORD,
-  STAFF_UNLOCK_AT_KEY,
-  isStaffUnlocked,
-  lockStaffTools,
-  touchStaffUnlock,
-  unlockStaffTools,
-} from "@/lib/staff-unlock";
+  listPlants,
+  setActivePlant as setActivePlantApi,
+  type AuthorizedPlantDto,
+} from "@/lib/admin-api";
+import { useAuth } from "@/lib/auth-context";
+import { useDataSource } from "@/lib/data-source-context";
+import { plantForId } from "@/lib/plant-catalog";
+import { usePlant } from "@/lib/plant-context";
 
-export { STAFF_PLANT_PASSWORD };
-
+/**
+ * Plant switcher backed by GET/POST `/api/plants` — no toy password.
+ * Syncs BFF active plant and local catalog selection via externalPlantId.
+ */
 export function StaffPlantTools() {
   const router = useRouter();
-  const { plants, activePlantId, activePlant, setActivePlantId } = usePlant();
+  const { setActivePlantId } = usePlant();
+  const { refresh: refreshSession } = useAuth();
   const { refresh: refreshUpstreams } = useDataSource();
-  const [unlocked, setUnlocked] = useState(false);
-  const [password, setPassword] = useState("");
+  const [plants, setPlants] = useState<AuthorizedPlantDto[]>([]);
+  const [activeId, setActiveId] = useState<string>("");
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [switching, setSwitching] = useState(false);
-  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
 
-  const syncUnlocked = useCallback(() => {
-    const ok = isStaffUnlocked();
-    setUnlocked(ok);
-    if (!ok) setSecondsLeft(null);
-    return ok;
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await listPlants();
+      setPlants(data.plants);
+      setActiveId(data.activePlant?.id ?? data.plants[0]?.id ?? "");
+    } catch (err) {
+      setPlants([]);
+      setActiveId("");
+      setError(err instanceof Error ? err.message : "Could not load plants");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    syncUnlocked();
-  }, [syncUnlocked]);
-
-  // 30s idle auto-lock while unlocked on this page
-  useEffect(() => {
-    if (!unlocked) return;
-    touchStaffUnlock();
-    const tick = window.setInterval(() => {
-      if (!isStaffUnlocked()) {
-        setUnlocked(false);
-        setSecondsLeft(null);
-        return;
-      }
-      try {
-        const at = Number(window.sessionStorage.getItem(STAFF_UNLOCK_AT_KEY) ?? "0");
-        const left = Math.max(0, Math.ceil((STAFF_IDLE_LOCK_MS - (Date.now() - at)) / 1000));
-        setSecondsLeft(left);
-        if (left <= 0) {
-          lockStaffTools();
-          setUnlocked(false);
-          setSecondsLeft(null);
-        }
-      } catch {
-        /* ignore */
-      }
-    }, 500);
-    return () => window.clearInterval(tick);
-  }, [unlocked]);
-
-  const unlock = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      if (password.trim() === STAFF_PLANT_PASSWORD) {
-        unlockStaffTools();
-        setUnlocked(true);
-        setError(null);
-        setPassword("");
-        setSecondsLeft(Math.ceil(STAFF_IDLE_LOCK_MS / 1000));
-      } else {
-        setError("Incorrect password");
-      }
-    },
-    [password],
-  );
-
-  const lock = useCallback(() => {
-    lockStaffTools();
-    setUnlocked(false);
-    setSecondsLeft(null);
-  }, []);
+    void load();
+  }, [load]);
 
   const onPlantChange = useCallback(
-    (nextId: string) => {
-      if (nextId === activePlantId) return;
-      touchStaffUnlock();
+    async (nextId: string) => {
+      if (!nextId || nextId === activeId) return;
+      const plant = plants.find((p) => p.id === nextId);
+      if (!plant) return;
       setSwitching(true);
-      setActivePlantId(nextId);
-      refreshUpstreams();
-      router.refresh();
-      window.setTimeout(() => setSwitching(false), 400);
+      setError(null);
+      try {
+        await setActivePlantApi({ orgId: plant.orgId, plantId: plant.id });
+        setActiveId(plant.id);
+        const catalog = plantForId(plant.externalPlantId);
+        if (catalog.plantId === plant.externalPlantId) {
+          setActivePlantId(plant.externalPlantId);
+        }
+        await refreshSession();
+        refreshUpstreams();
+        router.refresh();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Plant switch failed");
+      } finally {
+        setSwitching(false);
+      }
     },
-    [activePlantId, setActivePlantId, refreshUpstreams, router],
+    [
+      activeId,
+      plants,
+      setActivePlantId,
+      refreshSession,
+      refreshUpstreams,
+      router,
+    ],
   );
+
+  const active = plants.find((p) => p.id === activeId) ?? null;
 
   return (
     <Panel data-staff-plant-tools>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-        <div>
-          <p className="forge-eyebrow" style={{ margin: 0 }}>
-            Staff only
-          </p>
-          <h2 style={{ margin: "4px 0 0", fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
-            Plant context (demo)
-          </h2>
-          <p
-            style={{
-              margin: "8px 0 0",
-              fontSize: 13,
-              color: "var(--forge-on-surface-variant)",
-              maxWidth: 480,
-              lineHeight: 1.45,
-            }}
-          >
-            Client product is single-plant. Staff can unlock to switch demo plants. Leaving this
-            page or waiting 30 seconds locks again.
-          </p>
-        </div>
-        {unlocked ? (
-          <button
-            type="button"
-            onClick={lock}
-            style={{
-              alignSelf: "flex-start",
-              border: "1px solid var(--forge-outline-variant)",
-              background: "transparent",
-              borderRadius: 8,
-              padding: "6px 12px",
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: "pointer",
-              color: "var(--forge-on-surface-variant)",
-            }}
-          >
-            Lock
-          </button>
-        ) : null}
+      <div>
+        <p className="forge-eyebrow" style={{ margin: 0 }}>
+          Plant context
+        </p>
+        <h2 style={{ margin: "4px 0 0", fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
+          Authorized plants
+        </h2>
+        <p
+          style={{
+            margin: "8px 0 0",
+            fontSize: 13,
+            color: "var(--forge-on-surface-variant)",
+            maxWidth: 480,
+            lineHeight: 1.45,
+          }}
+        >
+          Switch the BFF active plant for your membership. Clients typically stay
+          on one plant; this list comes from `/api/plants`.
+        </p>
       </div>
 
-      {!unlocked ? (
-        <form
-          onSubmit={unlock}
-          style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10, maxWidth: 320 }}
-        >
-          <label style={{ fontSize: 12, fontWeight: 600 }}>
-            Staff password
-            <input
-              type="password"
-              autoComplete="off"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setError(null);
-              }}
-              style={{
-                display: "block",
-                width: "100%",
-                marginTop: 6,
-                padding: "8px 10px",
-                borderRadius: 8,
-                border: "1px solid var(--forge-outline-variant)",
-                background: "var(--forge-surface-container-lowest)",
-                fontSize: 14,
-              }}
-            />
-          </label>
-          {error ? (
-            <p role="alert" style={{ margin: 0, fontSize: 12, color: "var(--forge-error)" }}>
-              {error}
-            </p>
-          ) : null}
-          <button
-            type="submit"
-            style={{
-              alignSelf: "flex-start",
-              background: "var(--forge-primary)",
-              color: "#fff",
-              border: "none",
-              borderRadius: 8,
-              padding: "8px 14px",
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            Unlock staff tools
-          </button>
-        </form>
+      {loading ? (
+        <p style={{ margin: "16px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
+          Loading plants…
+        </p>
+      ) : error && plants.length === 0 ? (
+        <p role="alert" style={{ margin: "16px 0 0", fontSize: 13, color: "var(--forge-error)" }}>
+          {error}
+        </p>
+      ) : plants.length === 0 ? (
+        <p style={{ margin: "16px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
+          No authorized plants on this session.
+        </p>
       ) : (
         <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10, maxWidth: 400 }}>
-          <p style={{ margin: 0, fontSize: 13 }}>
-            Active: <strong>{activePlant.plantName}</strong>
-            <span style={{ color: "var(--forge-on-surface-variant)" }}> · {activePlant.plantId}</span>
-          </p>
-          {secondsLeft != null ? (
-            <p style={{ margin: 0, fontSize: 12, color: "var(--forge-warning)" }}>
-              Auto-locks in {secondsLeft}s · also locks when you leave Administration
+          {active ? (
+            <p style={{ margin: 0, fontSize: 13 }}>
+              Active: <strong>{active.name}</strong>
+              <span style={{ color: "var(--forge-on-surface-variant)" }}>
+                {" "}
+                · {active.externalPlantId}
+              </span>
             </p>
           ) : null}
           <label style={{ fontSize: 12, fontWeight: 600 }}>
             Switch plant
             <select
-              aria-label="Staff plant switcher"
+              aria-label="Plant switcher"
               className="forge-shell__plant-select"
-              value={activePlantId}
+              value={activeId}
               disabled={switching}
-              onChange={(e) => onPlantChange(e.target.value)}
-              onFocus={() => touchStaffUnlock()}
+              onChange={(e) => void onPlantChange(e.target.value)}
               style={{
                 display: "block",
                 width: "100%",
@@ -225,19 +150,24 @@ export function StaffPlantTools() {
               }}
             >
               {plants.map((p) => (
-                <option key={p.plantId} value={p.plantId}>
-                  {p.plantName}
+                <option key={p.id} value={p.id}>
+                  {p.name} ({p.role.replaceAll("_", " ")})
                 </option>
               ))}
             </select>
           </label>
+          {error ? (
+            <p role="alert" style={{ margin: 0, fontSize: 12, color: "var(--forge-error)" }}>
+              {error}
+            </p>
+          ) : null}
           {switching ? (
             <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
-              Clearing and refetching plant data…
+              Saving active plant…
             </p>
           ) : (
             <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
-              Changing plant remounts the app shell and refetches from L2/L5 for the selected plant.
+              Persists via POST `/api/plants/active` and refreshes session + upstream probe.
             </p>
           )}
         </div>

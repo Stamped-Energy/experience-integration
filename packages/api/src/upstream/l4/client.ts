@@ -45,7 +45,34 @@ const SessionSchema = z.object({
   org_id: z.string().min(1),
   plant_id: z.string().min(1),
   created_at: z.string().min(1),
+  title: z.string().nullable().optional(),
+  summary: z.string().optional(),
+  preview: z.string().optional(),
+  updated_at: z.string().optional(),
 });
+
+const HistorySessionSchema = z.object({
+  id: z.string().min(1),
+  orgId: z.string().min(1),
+  plantId: z.string().min(1),
+  userId: z.string().min(1),
+  title: z.string().nullable(),
+  summary: z.string(),
+  preview: z.string(),
+  createdAt: z.string().min(1),
+  updatedAt: z.string().min(1),
+});
+
+const HistoryMessageSchema = z.object({
+  id: z.string().min(1),
+  role: z.enum(["user", "assistant", "system"]).or(z.string()),
+  content: z.string(),
+  citations: z.array(CitationSchema).default([]),
+  createdAt: z.string().nullable(),
+});
+
+export type AnalystHistorySession = z.infer<typeof HistorySessionSchema>;
+export type AnalystHistoryMessage = z.infer<typeof HistoryMessageSchema>;
 
 const MessageResponseSchema = z.object({
   message_id: z.string().min(1),
@@ -197,6 +224,82 @@ export class L4AnalystClient {
       org_id: String(raw.org_id ?? input.orgId),
       plant_id: String(raw.plant_id ?? input.plantId),
       created_at: String(raw.created_at ?? new Date().toISOString()),
+      title: raw.title != null ? String(raw.title) : null,
+      summary: raw.summary != null ? String(raw.summary) : "",
+      preview: raw.preview != null ? String(raw.preview) : "",
+      updated_at: String(raw.updated_at ?? raw.created_at ?? new Date().toISOString()),
+    });
+  }
+
+  async listSessions(input: {
+    orgId: string;
+    plantId: string;
+    userId?: string;
+  }): Promise<AnalystHistorySession[]> {
+    if (!this.opts.live) {
+      return [];
+    }
+    const qs = new URLSearchParams({ plant_id: input.plantId });
+    if (input.userId) qs.set("user_id", input.userId);
+    const raw = await upstreamFetch<{ sessions?: unknown[] }>({
+      baseUrl: this.opts.baseUrl,
+      path: `v1/chat/sessions?${qs.toString()}`,
+      method: "GET",
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.tenantHeaders({
+        orgId: input.orgId,
+        plantId: input.plantId,
+        userId: input.userId ?? "anonymous",
+      }),
+    });
+    const rows = Array.isArray(raw.sessions) ? raw.sessions : [];
+    return rows.map((row) => {
+      const r = (row ?? {}) as Record<string, unknown>;
+      const created = String(r.created_at ?? new Date().toISOString());
+      return HistorySessionSchema.parse({
+        id: String(r.id),
+        orgId: String(r.org_id ?? input.orgId),
+        plantId: String(r.plant_id ?? input.plantId),
+        userId: String(r.user_id ?? input.userId ?? ""),
+        title: r.title != null ? String(r.title) : null,
+        summary: r.summary != null ? String(r.summary) : "",
+        preview: r.preview != null ? String(r.preview) : "",
+        createdAt: created,
+        updatedAt: String(r.updated_at ?? created),
+      });
+    });
+  }
+
+  async listMessages(input: {
+    orgId: string;
+    plantId: string;
+    userId: string;
+    sessionId: string;
+  }): Promise<AnalystHistoryMessage[]> {
+    if (!this.opts.live) {
+      return [];
+    }
+    const raw = await upstreamFetch<{ messages?: unknown[] }>({
+      baseUrl: this.opts.baseUrl,
+      path: `v1/chat/sessions/${encodeURIComponent(input.sessionId)}/messages`,
+      method: "GET",
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.tenantHeaders({
+        orgId: input.orgId,
+        plantId: input.plantId,
+        userId: input.userId,
+      }),
+    });
+    const rows = Array.isArray(raw.messages) ? raw.messages : [];
+    return rows.map((row) => {
+      const r = (row ?? {}) as Record<string, unknown>;
+      return HistoryMessageSchema.parse({
+        id: String(r.id),
+        role: String(r.role ?? "assistant"),
+        content: String(r.content ?? ""),
+        citations: normalizeCitations(r.citations),
+        createdAt: r.created_at != null ? String(r.created_at) : null,
+      });
     });
   }
 

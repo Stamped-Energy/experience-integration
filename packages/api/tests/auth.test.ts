@@ -7,11 +7,13 @@ import { createAuth } from "../src/auth/index.js";
 import { cookieHeader } from "../src/auth/routes.js";
 import { loadEnv } from "../src/config.js";
 import { createDb, createPool } from "../src/db/client.js";
+import { loadDotEnv } from "../src/db/load-dotenv.js";
 import { runMigrations } from "../src/db/migrate.js";
 import { account, user } from "../src/db/auth-schema.js";
 import { createMailer } from "../src/mail/mailer.js";
 import { resetDatabase } from "./helpers/db.js";
 
+loadDotEnv();
 const databaseUrl = process.env.DATABASE_URL;
 
 function originHeaders(cookie?: string): Record<string, string> {
@@ -332,6 +334,57 @@ describe("optional TOTP and session controls", () => {
       headers: { cookie: cookieA },
     });
     assert.equal(stillMe.statusCode, 200);
+
+    await app.close();
+    await pool.end();
+  });
+});
+
+describe("/api/me tenancy context", () => {
+  it("exposes orgId plantId and membershipRole from active plant", async (t) => {
+    if (!databaseUrl) {
+      t.skip("DATABASE_URL not set");
+      return;
+    }
+
+    await resetDatabase(databaseUrl);
+    await runMigrations(databaseUrl);
+    const pool = createPool(databaseUrl);
+    const db = createDb(pool);
+    const env = testEnv();
+    const mailer = createMailer({ from: env.SMTP_FROM });
+    const auth = createAuth(db, env, mailer);
+    const app = await buildApp({ env, auth, mailer, db });
+
+    const email = `me_ctx_${randomUUID().slice(0, 8)}@stamped.test`;
+    const password = "correct-horse-battery-staple";
+    const userId = await seedUser(db, { email, password, role: "user" });
+
+    const { seedDemoTenant } = await import("../src/tenancy/service.js");
+    const seeded = await seedDemoTenant(db, { adminUserId: userId });
+
+    const signedIn = await app.inject({
+      method: "POST",
+      url: "/api/auth/sign-in/email",
+      headers: { "content-type": "application/json" },
+      payload: { email, password },
+    });
+    assert.equal(signedIn.statusCode, 200, signedIn.body);
+
+    const me = await app.inject({
+      method: "GET",
+      url: "/api/me",
+      headers: { cookie: cookieHeader(signedIn.headers["set-cookie"]) },
+    });
+    assert.equal(me.statusCode, 200);
+    const body = me.json() as {
+      orgId: string | null;
+      plantId: string | null;
+      membershipRole: string | null;
+    };
+    assert.equal(body.orgId, seeded.org.id);
+    assert.equal(body.membershipRole, "admin");
+    assert.ok(body.plantId);
 
     await app.close();
     await pool.end();

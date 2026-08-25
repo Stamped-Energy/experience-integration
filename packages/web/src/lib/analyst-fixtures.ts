@@ -6,15 +6,41 @@ import {
   alarmsForPlant,
   prescriptionsForPlant,
 } from "@/fixtures/demo";
-import type { AnalystContextEnvelope } from "@/lib/types";
-import type { AnalystCitation } from "./analyst-context";
+import type { Alarm, AnalystContextEnvelope, Prescription } from "@/lib/types";
+import type { AnalystCitation, AnalystFixtureCatalog } from "./analyst-context";
 
 function plantNameOf(envelope: AnalystContextEnvelope): string {
   return plantForId(envelope.plantId).plantName;
 }
 
-function openAlarms(plantId: string) {
-  return alarmsForPlant(plantId).filter((a) => a.state !== "cleared");
+function resolveAlarms(
+  plantId: string,
+  catalog?: AnalystFixtureCatalog,
+): Alarm[] {
+  if (catalog?.alarms) return [...catalog.alarms];
+  return alarmsForPlant(plantId);
+}
+
+function resolvePrescriptions(
+  plantId: string,
+  catalog?: AnalystFixtureCatalog,
+): Prescription[] {
+  if (catalog?.prescriptions) return [...catalog.prescriptions];
+  return prescriptionsForPlant(plantId);
+}
+
+function resolvePrescription(
+  id: string,
+  catalog?: AnalystFixtureCatalog,
+): Prescription | undefined {
+  if (catalog?.prescriptions) {
+    return catalog.prescriptions.find((p) => p.id === id);
+  }
+  return findPrescription(id);
+}
+
+function openAlarms(plantId: string, catalog?: AnalystFixtureCatalog) {
+  return resolveAlarms(plantId, catalog).filter((a) => a.state !== "cleared");
 }
 
 function fmtInr(n: number): string {
@@ -36,8 +62,11 @@ function matchQuestion(q: string): string | null {
   return null;
 }
 
-function alarmSummaryReply(envelope: AnalystContextEnvelope): string {
-  const open = openAlarms(envelope.plantId);
+function alarmSummaryReply(
+  envelope: AnalystContextEnvelope,
+  catalog?: AnalystFixtureCatalog,
+): string {
+  const open = openAlarms(envelope.plantId, catalog);
   const critical = open.filter((a) => a.severity === "critical");
   const warning = open.filter((a) => a.severity === "warning");
   const lines = open
@@ -69,9 +98,12 @@ function alarmSummaryReply(envelope: AnalystContextEnvelope): string {
     .join("\n");
 }
 
-function prescriptionReply(envelope: AnalystContextEnvelope): string {
-  const catalog = prescriptionsForPlant(envelope.plantId);
-  const top = catalog
+function prescriptionReply(
+  envelope: AnalystContextEnvelope,
+  catalog?: AnalystFixtureCatalog,
+): string {
+  const catalogRx = resolvePrescriptions(envelope.plantId, catalog);
+  const top = catalogRx
     .filter((p) => p.lane === "needs_review" || p.lane === "active")
     .sort((a, b) => b.impactInrPerMonth * b.confidence - a.impactInrPerMonth * a.confidence)[0];
 
@@ -112,19 +144,22 @@ function demandReply(envelope: AnalystContextEnvelope): string {
   ].join("\n");
 }
 
-function closureReply(envelope: AnalystContextEnvelope): string {
-  const catalog = prescriptionsForPlant(envelope.plantId);
-  const closed = catalog.filter((p) => p.lane === "closed").length;
-  const verifying = catalog.filter((p) => p.lane === "verifying").length;
-  const needsReview = catalog.filter((p) => p.lane === "needs_review");
+function closureReply(
+  envelope: AnalystContextEnvelope,
+  catalog?: AnalystFixtureCatalog,
+): string {
+  const catalogRx = resolvePrescriptions(envelope.plantId, catalog);
+  const closed = catalogRx.filter((p) => p.lane === "closed").length;
+  const verifying = catalogRx.filter((p) => p.lane === "verifying").length;
+  const needsReview = catalogRx.filter((p) => p.lane === "needs_review");
   const needsReviewInr = needsReview.reduce((s, p) => s + p.impactInrPerMonth, 0);
   const closure =
-    catalog.length === 0 ? 0 : Math.round((closed / catalog.length) * 100);
+    catalogRx.length === 0 ? 0 : Math.round((closed / catalogRx.length) * 100);
 
   return [
     `**Prescription closure - ${plantNameOf(envelope)}**`,
     "",
-    `• **Closure rate (30d):** ${closure}% (${closed}/${catalog.length} closed)`,
+    `• **Closure rate (30d):** ${closure}% (${closed}/${catalogRx.length} closed)`,
     `• **Needs review:** ${needsReview.length} prescriptions · **${fmtInr(needsReviewInr)}/mo** addressable`,
     `• **Verifying:** ${verifying} prescriptions awaiting savings verification`,
     "",
@@ -132,9 +167,12 @@ function closureReply(envelope: AnalystContextEnvelope): string {
   ].join("\n");
 }
 
-function whyCriticalReply(envelope: AnalystContextEnvelope): string {
+function whyCriticalReply(
+  envelope: AnalystContextEnvelope,
+  catalog?: AnalystFixtureCatalog,
+): string {
   const id = envelope.focusEntity?.id ?? "";
-  const alarm = alarmsForPlant(envelope.plantId).find((a) => a.id === id);
+  const alarm = resolveAlarms(envelope.plantId, catalog).find((a) => a.id === id);
   if (!alarm) {
     return `Focus alarm not found - open the alarm console for live state. Cross-check evidence before ack.`;
   }
@@ -190,25 +228,26 @@ function defaultReply(envelope: AnalystContextEnvelope, question: string): strin
 export function fixtureAnalystReplyRich(
   envelope: AnalystContextEnvelope,
   question: string,
+  catalog?: AnalystFixtureCatalog,
 ): import("./analyst-context").AnalystMessage {
   const kind = matchQuestion(question);
   let content: string;
 
   switch (kind) {
     case "alarms":
-      content = alarmSummaryReply(envelope);
+      content = alarmSummaryReply(envelope, catalog);
       break;
     case "rx":
-      content = prescriptionReply(envelope);
+      content = prescriptionReply(envelope, catalog);
       break;
     case "demand":
       content = demandReply(envelope);
       break;
     case "closure":
-      content = closureReply(envelope);
+      content = closureReply(envelope, catalog);
       break;
     case "why_critical":
-      content = whyCriticalReply(envelope);
+      content = whyCriticalReply(envelope, catalog);
       break;
     case "evidence":
       content = evidenceReply(envelope);
@@ -218,7 +257,7 @@ export function fixtureAnalystReplyRich(
   }
 
   const focus = envelope.focusEntity;
-  const plantAlarms = alarmsForPlant(envelope.plantId);
+  const plantAlarms = resolveAlarms(envelope.plantId, catalog);
   const citations: AnalystCitation[] = [
     {
       id: "cite_plant",
@@ -243,7 +282,7 @@ export function fixtureAnalystReplyRich(
     });
   }
   if (focus?.type === "prescription") {
-    const rx = findPrescription(focus.id);
+    const rx = resolvePrescription(focus.id, catalog);
     citations.push({
       id: `cite_${focus.id}`,
       title: rx?.title ?? focus.id,
@@ -261,14 +300,17 @@ export function fixtureAnalystReplyRich(
 }
 
 /** Plant snapshot stats for the analyst sidebar. */
-export function analystPlantSnapshot(plantId: string = DEMO_PLANT.plantId) {
+export function analystPlantSnapshot(
+  plantId: string = DEMO_PLANT.plantId,
+  catalog?: AnalystFixtureCatalog,
+) {
   const plant = plantForId(plantId);
-  const open = openAlarms(plantId);
-  const catalog = prescriptionsForPlant(plantId);
-  const needsReview = catalog.filter((p) => p.lane === "needs_review");
-  const closed = catalog.filter((p) => p.lane === "closed").length;
+  const open = openAlarms(plantId, catalog);
+  const catalogRx = resolvePrescriptions(plantId, catalog);
+  const needsReview = catalogRx.filter((p) => p.lane === "needs_review");
+  const closed = catalogRx.filter((p) => p.lane === "closed").length;
   const closurePct =
-    catalog.length === 0 ? 0 : Math.round((closed / catalog.length) * 100);
+    catalogRx.length === 0 ? 0 : Math.round((closed / catalogRx.length) * 100);
 
   return {
     plantName: plant.plantName,

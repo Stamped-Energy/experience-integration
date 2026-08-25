@@ -1,6 +1,11 @@
-import type { AnalystContextEnvelope } from "./types";
+import type { Alarm, AnalystContextEnvelope, Prescription } from "./types";
 import { alarmsFixture, findPrescription } from "@/fixtures/demo";
 import { fixtureAnalystReplyRich } from "./analyst-fixtures";
+
+export type AnalystFixtureCatalog = {
+  alarms?: readonly Alarm[];
+  prescriptions?: readonly Prescription[];
+};
 export interface ContextChip {
   key: string;
   value: string;
@@ -20,6 +25,8 @@ export type AnalystMessage = {
   citations?: AnalystCitation[];
   /** When true, UI streams content letter-by-letter. */
   stream?: boolean;
+  /** ISO timestamp from L4 when persisted. */
+  createdAt?: string;
 };
 
 export type AnalystRelatedLink = {
@@ -112,8 +119,9 @@ export function suggestionPrompts(envelope: AnalystContextEnvelope): string[] {
 export function fixtureAnalystReply(
   envelope: AnalystContextEnvelope,
   question: string,
+  catalog?: AnalystFixtureCatalog,
 ): AnalystMessage {
-  return fixtureAnalystReplyRich(envelope, question);
+  return fixtureAnalystReplyRich(envelope, question, catalog);
 }
 
 const ALARM_ID_PATTERN = String.raw`\b(alm_\d+)\b`;

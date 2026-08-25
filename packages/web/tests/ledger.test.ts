@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { ledgerFixture } from "../src/fixtures/demo.js";
+import { sampleLedger } from "./samples.js";
 import {
   claimDisclosure,
   displayClaim,
@@ -14,7 +14,7 @@ import type { LedgerEntry } from "../src/lib/types.js";
 describe("claim-safe savings ledger", () => {
   it("never promotes ops_confirmed to bill-verified without bill refs", () => {
     const forged: LedgerEntry = {
-      ...ledgerFixture[0]!,
+      ...sampleLedger[0]!,
       verificationStatus: "verified",
       billLineRefs: undefined,
     };
@@ -25,7 +25,7 @@ describe("claim-safe savings ledger", () => {
 
   it("allows bill-verified only with bill line refs", () => {
     const billed: LedgerEntry = {
-      ...ledgerFixture[0]!,
+      ...sampleLedger[0]!,
       verificationStatus: "verified",
       billLineRefs: ["bill_2026_07_line_12"],
     };
@@ -34,15 +34,15 @@ describe("claim-safe savings ledger", () => {
   });
 
   it("sums ops-confirmed realised separately from potential", () => {
-    const ops = sumOpsConfirmedInr(ledgerFixture);
-    const potential = sumPotentialInr(ledgerFixture);
+    const ops = sumOpsConfirmedInr(sampleLedger);
+    const potential = sumPotentialInr(sampleLedger);
     assert.equal(ops, 41_600);
     assert.ok(potential >= 84_000);
     assert.notEqual(ops, potential);
   });
 
   it("keeps modeled emission factor refs explicit in data", () => {
-    const modeled = ledgerFixture.find((e) => e.verificationStatus === "modeled")!;
+    const modeled = sampleLedger.find((e) => e.verificationStatus === "modeled")!;
     assert.equal(emissionFactorLabel(modeled), "not_measured_by_stamped");
     assert.ok(claimDisclosure(modeled).length > 0);
   });

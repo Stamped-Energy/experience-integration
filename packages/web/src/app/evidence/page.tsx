@@ -43,11 +43,16 @@ function EvidenceIndexInner() {
           if (cancelled) return;
           const href =
             body.links?.evidenceHref ??
-            (body.evidence?.sample?.id
+            (rxId ? `/evidence/evd_${rxId}` : null) ??
+            (body.evidence?.sample?.id?.startsWith("evd_")
               ? `/evidence/${body.evidence.sample.id}`
               : null);
-          if (href) {
+          if (href && !href.includes("/eb-")) {
             window.location.replace(href);
+            return;
+          }
+          if (rxId) {
+            window.location.replace(`/evidence/evd_${rxId}`);
             return;
           }
           setDetail("No evidence sample for this prescription");

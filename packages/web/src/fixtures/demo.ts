@@ -58,14 +58,25 @@ export const ledgerFixture: LedgerEntry[] = [];
 /** @deprecated */
 export const todaySignalsFixture: TodaySignal[] = [];
 
-/** @deprecated */
+/** @deprecated Zero stubs — keep fields required by legacy analytics consumers. */
 export const energyKpisFixture = {
   mtdGridKwh: 0,
   peakMdKva: 0,
+  cmdKva: 0,
+  todPeakSharePct: 0,
+  vsBaselinePct: 0,
 };
 
-/** @deprecated */
-export const intensityDemoInput = {};
+/** @deprecated Zero stubs for intensitySnapshot. */
+export const intensityDemoInput = {
+  productionUnits: null as number | null,
+  gridKwh: null as number | null,
+  renewableKwh: null as number | null,
+  emissionFactorTPerMwh: null as number | null,
+  emissionFactorRef: null as string | null,
+  cmdKva: 0,
+  peakMdKva: 0,
+};
 
 /** @deprecated */
 export function demoNeedsReviewCount() {
@@ -111,7 +122,13 @@ export function assetById(_id: string): DemoAsset | undefined {
 }
 
 /** @deprecated */
-export function consumersFromAssets() {
+export function consumersFromAssets(): Array<{
+  assetId: string;
+  label: string;
+  kwh: number;
+  sharePct: number;
+  health: "calm" | "watch" | "hot";
+}> {
   return [];
 }
 

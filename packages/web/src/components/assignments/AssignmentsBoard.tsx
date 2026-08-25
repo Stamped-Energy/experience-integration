@@ -1,14 +1,24 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  alarmRouteRulesFixture,
-  notifyPeopleFixture,
-  type AlarmRouteRule,
-  type NotifyPerson,
-} from "@/fixtures/assignments";
+  createPerson,
+  createRoute,
+  listPeople,
+  listRoutes,
+  patchRoute,
+  type AlarmRouteDto,
+  type NotifyPersonDto,
+} from "@/lib/assignments-api";
 import type { Role } from "@/lib/types";
-import { GhostButton, Panel, PrimaryButton, StatusChip, ToastRegion } from "@/components/ui/primitives";
+import { EmptyUpstreamState } from "@/components/ui/SourceIndicator";
+import {
+  GhostButton,
+  Panel,
+  PrimaryButton,
+  StatusChip,
+  ToastRegion,
+} from "@/components/ui/primitives";
 
 const ROLES: Role[] = [
   "operator",
@@ -20,13 +30,20 @@ const ROLES: Role[] = [
   "admin",
 ];
 
+type LoadState = "loading" | "ready" | "unavailable";
+
 /** Admin screen: who owns which area/asset for alarm WhatsApp + Rx assign. */
 export function AssignmentsBoard() {
-  const [rules, setRules] = useState(alarmRouteRulesFixture);
-  const [people, setPeople] = useState(notifyPeopleFixture);
+  const [rules, setRules] = useState<AlarmRouteDto[]>([]);
+  const [people, setPeople] = useState<NotifyPersonDto[]>([]);
+  const [loadState, setLoadState] = useState<LoadState>("loading");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [toastTone, setToastTone] = useState<"good" | "critical">("good");
   const [editing, setEditing] = useState<string | null>(null);
   const [showAddPerson, setShowAddPerson] = useState(false);
+  const [showAddRoute, setShowAddRoute] = useState(false);
   const [newPerson, setNewPerson] = useState({
     name: "",
     role: "operator" as Role,
@@ -35,61 +52,163 @@ export function AssignmentsBoard() {
     skills: "",
     whatsappEnabled: true,
   });
+  const [newRoute, setNewRoute] = useState({
+    scope: "area" as "area" | "asset",
+    target: "",
+    label: "",
+    primaryPersonId: "",
+    severityMin: "warning",
+  });
+
+  const reload = useCallback(async () => {
+    setLoadState("loading");
+    setLoadError(null);
+    try {
+      const [peopleRes, routesRes] = await Promise.all([
+        listPeople(),
+        listRoutes(),
+      ]);
+      setPeople(peopleRes.people);
+      setRules(routesRes.routes);
+      setLoadState("ready");
+    } catch (err) {
+      setPeople([]);
+      setRules([]);
+      setLoadState("unavailable");
+      setLoadError(err instanceof Error ? err.message : "Failed to load");
+    }
+  }, []);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
 
   const areas = useMemo(
     () => [...new Set(people.flatMap((p) => p.areas))].sort(),
     [people],
   );
 
-  function setPrimary(ruleId: string, personId: string) {
-    setRules((rows) =>
-      rows.map((r) => (r.id === ruleId ? { ...r, primaryPersonId: personId } : r)),
-    );
-    setToast("Primary contact updated");
-    setEditing(null);
+  function flash(message: string, tone: "good" | "critical" = "good") {
+    setToastTone(tone);
+    setToast(message);
   }
 
-  function toggleBackup(ruleId: string, personId: string) {
-    setRules((rows) =>
-      rows.map((r) => {
-        if (r.id !== ruleId) return r;
-        const has = r.backupPersonIds.includes(personId);
-        const backupPersonIds = has
-          ? r.backupPersonIds.filter((id) => id !== personId)
-          : [...r.backupPersonIds, personId].slice(0, 3);
-        return { ...r, backupPersonIds };
-      }),
-    );
+  async function setPrimary(ruleId: string, personId: string) {
+    setBusy(true);
+    try {
+      const route = await patchRoute(ruleId, { primaryPersonId: personId });
+      setRules((rows) => rows.map((r) => (r.id === ruleId ? route : r)));
+      flash("Primary contact saved");
+      setEditing(null);
+    } catch (err) {
+      flash(err instanceof Error ? err.message : "Save failed", "critical");
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function addPerson() {
+  async function toggleBackup(ruleId: string, personId: string) {
+    const current = rules.find((r) => r.id === ruleId);
+    if (!current) return;
+    const has = current.backupPersonIds.includes(personId);
+    const backupPersonIds = has
+      ? current.backupPersonIds.filter((id) => id !== personId)
+      : [...current.backupPersonIds, personId].slice(0, 3);
+    setBusy(true);
+    try {
+      const route = await patchRoute(ruleId, { backupPersonIds });
+      setRules((rows) => rows.map((r) => (r.id === ruleId ? route : r)));
+      flash("Backup contacts saved");
+    } catch (err) {
+      flash(err instanceof Error ? err.message : "Save failed", "critical");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function addPerson() {
     const name = newPerson.name.trim();
-    if (!name) return;
-    const id = `usr_${Date.now()}`;
-    const phoneMasked = newPerson.phone.trim()
-      ? newPerson.phone.trim().replace(/(\d{2})\d+(\d{4})/, "+91 •••• •• $2")
-      : "+91 •••• •• ----";
-    const person: NotifyPerson = {
-      id,
-      name,
-      role: newPerson.role,
-      phoneMasked,
-      areas: newPerson.areas.split(",").map((a) => a.trim()).filter(Boolean),
-      assetIds: [],
-      skills: newPerson.skills.split(",").map((s) => s.trim()).filter(Boolean),
-      whatsappEnabled: newPerson.whatsappEnabled,
-    };
-    setPeople((prev) => [...prev, person]);
-    setNewPerson({
-      name: "",
-      role: "operator",
-      phone: "",
-      areas: "",
-      skills: "",
-      whatsappEnabled: true,
-    });
-    setShowAddPerson(false);
-    setToast(`${name} added to notify roster`);
+    const phone = newPerson.phone.trim();
+    if (!name || !phone) return;
+    setBusy(true);
+    try {
+      const person = await createPerson({
+        name,
+        role: newPerson.role,
+        phone,
+        areas: newPerson.areas.split(",").map((a) => a.trim()).filter(Boolean),
+        skills: newPerson.skills.split(",").map((s) => s.trim()).filter(Boolean),
+        assetIds: [],
+        whatsappEnabled: newPerson.whatsappEnabled,
+      });
+      setPeople((prev) => [...prev, person]);
+      setNewPerson({
+        name: "",
+        role: "operator",
+        phone: "",
+        areas: "",
+        skills: "",
+        whatsappEnabled: true,
+      });
+      setShowAddPerson(false);
+      flash(`${name} saved to roster`);
+    } catch (err) {
+      flash(err instanceof Error ? err.message : "Could not add person", "critical");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function addRoute() {
+    const label = newRoute.label.trim();
+    const target = newRoute.target.trim();
+    if (!label || !target || !newRoute.primaryPersonId) return;
+    setBusy(true);
+    try {
+      const route = await createRoute({
+        scope: newRoute.scope,
+        target,
+        label,
+        primaryPersonId: newRoute.primaryPersonId,
+        backupPersonIds: [],
+        severityMin: newRoute.severityMin,
+      });
+      setRules((prev) => [...prev, route]);
+      setNewRoute({
+        scope: "area",
+        target: "",
+        label: "",
+        primaryPersonId: "",
+        severityMin: "warning",
+      });
+      setShowAddRoute(false);
+      flash("Route saved");
+    } catch (err) {
+      flash(err instanceof Error ? err.message : "Could not add route", "critical");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (loadState === "loading") {
+    return (
+      <Panel data-assignments-board>
+        <p style={{ margin: 0, fontSize: 14, color: "var(--forge-on-surface-variant)" }}>
+          Loading assignments…
+        </p>
+      </Panel>
+    );
+  }
+
+  if (loadState === "unavailable") {
+    return (
+      <div data-assignments-board>
+        <EmptyUpstreamState
+          title="Assignments unavailable"
+          detail={loadError ?? "Sign in with plant membership to manage notify roster and routes."}
+        />
+      </div>
+    );
   }
 
   return (
@@ -101,8 +220,7 @@ export function AssignmentsBoard() {
         </h2>
         <p style={{ margin: "8px 0 0", fontSize: 14, color: "var(--forge-on-surface-variant)", maxWidth: 720 }}>
           Decide who is responsible for each plant area or asset. Alarm WhatsApp alerts follow these
-          routes. When assigning a prescription, Stamped recommends 2–3 people from this matrix -
-          with an option to browse everyone who can be notified.
+          routes. Changes save to your plant immediately.
         </p>
       </Panel>
 
@@ -113,7 +231,7 @@ export function AssignmentsBoard() {
               <p className="forge-eyebrow">People</p>
               <h3 className="forge-card-title">Notify roster</h3>
             </div>
-            <GhostButton onClick={() => setShowAddPerson((v) => !v)}>
+            <GhostButton onClick={() => setShowAddPerson((v) => !v)} disabled={busy}>
               {showAddPerson ? "Cancel" : "+ Add person"}
             </GhostButton>
           </div>
@@ -153,11 +271,11 @@ export function AssignmentsBoard() {
                 </select>
               </label>
               <label style={{ display: "grid", gap: 4, fontSize: 13 }}>
-                Phone (for WhatsApp routing)
+                Phone (E.164 or 10-digit India)
                 <input
                   value={newPerson.phone}
                   onChange={(e) => setNewPerson((p) => ({ ...p, phone: e.target.value }))}
-                  placeholder="+91 98•• ••• 123"
+                  placeholder="+9198XXXXXXXX"
                   style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid var(--forge-outline-variant)" }}
                 />
               </label>
@@ -187,45 +305,154 @@ export function AssignmentsBoard() {
                 />
                 WhatsApp notifications enabled
               </label>
-              <PrimaryButton onClick={addPerson} disabled={!newPerson.name.trim()}>
+              <PrimaryButton
+                onClick={() => void addPerson()}
+                disabled={busy || !newPerson.name.trim() || !newPerson.phone.trim()}
+              >
                 Save to roster
               </PrimaryButton>
             </div>
           ) : null}
 
-          <ul style={{ listStyle: "none", margin: "16px 0 0", padding: 0, display: "grid", gap: 10 }}>
-            {people.map((p) => (
-              <PersonRow key={p.id} person={p} />
-            ))}
-          </ul>
+          {people.length === 0 ? (
+            <p style={{ margin: "16px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
+              No people on this plant yet. Add someone to start routing.
+            </p>
+          ) : (
+            <ul style={{ listStyle: "none", margin: "16px 0 0", padding: 0, display: "grid", gap: 10 }}>
+              {people.map((p) => (
+                <PersonRow key={p.id} person={p} />
+              ))}
+            </ul>
+          )}
         </Panel>
 
         <Panel>
-          <p className="forge-eyebrow">Routes</p>
-          <h3 className="forge-card-title">Alarm notification routing</h3>
-          <ul style={{ listStyle: "none", margin: "16px 0 0", padding: 0, display: "grid", gap: 14 }}>
-            {rules.map((rule) => (
-              <RouteRow
-                key={rule.id}
-                rule={rule}
-                people={people}
-                areas={areas}
-                editing={editing === rule.id}
-                onEdit={() => setEditing(editing === rule.id ? null : rule.id)}
-                onPrimary={(id) => setPrimary(rule.id, id)}
-                onToggleBackup={(id) => toggleBackup(rule.id, id)}
-              />
-            ))}
-          </ul>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+            <div>
+              <p className="forge-eyebrow">Routes</p>
+              <h3 className="forge-card-title">Alarm notification routing</h3>
+            </div>
+            <GhostButton
+              onClick={() => setShowAddRoute((v) => !v)}
+              disabled={busy || people.length === 0}
+            >
+              {showAddRoute ? "Cancel" : "+ Add route"}
+            </GhostButton>
+          </div>
+
+          {showAddRoute ? (
+            <div
+              style={{
+                marginTop: 16,
+                padding: 14,
+                borderRadius: 12,
+                border: "1px solid var(--forge-outline-variant)",
+                background: "var(--forge-surface-container-low)",
+                display: "grid",
+                gap: 10,
+              }}
+            >
+              <label style={{ display: "grid", gap: 4, fontSize: 13 }}>
+                Label
+                <input
+                  value={newRoute.label}
+                  onChange={(e) => setNewRoute((r) => ({ ...r, label: e.target.value }))}
+                  placeholder="Pyro critical alarms"
+                  style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid var(--forge-outline-variant)" }}
+                />
+              </label>
+              <label style={{ display: "grid", gap: 4, fontSize: 13 }}>
+                Scope
+                <select
+                  value={newRoute.scope}
+                  onChange={(e) =>
+                    setNewRoute((r) => ({
+                      ...r,
+                      scope: e.target.value as "area" | "asset",
+                    }))
+                  }
+                  style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid var(--forge-outline-variant)" }}
+                >
+                  <option value="area">Area</option>
+                  <option value="asset">Asset</option>
+                </select>
+              </label>
+              <label style={{ display: "grid", gap: 4, fontSize: 13 }}>
+                Target ({newRoute.scope === "area" ? "area name" : "asset id"})
+                <input
+                  value={newRoute.target}
+                  onChange={(e) => setNewRoute((r) => ({ ...r, target: e.target.value }))}
+                  list={newRoute.scope === "area" ? "assignment-areas" : undefined}
+                  placeholder={areas[0] ?? "Utilities"}
+                  style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid var(--forge-outline-variant)" }}
+                />
+                <datalist id="assignment-areas">
+                  {areas.map((a) => (
+                    <option key={a} value={a} />
+                  ))}
+                </datalist>
+              </label>
+              <label style={{ display: "grid", gap: 4, fontSize: 13 }}>
+                Primary contact
+                <select
+                  value={newRoute.primaryPersonId}
+                  onChange={(e) =>
+                    setNewRoute((r) => ({ ...r, primaryPersonId: e.target.value }))
+                  }
+                  style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid var(--forge-outline-variant)" }}
+                >
+                  <option value="">Select person</option>
+                  {people.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <PrimaryButton
+                onClick={() => void addRoute()}
+                disabled={
+                  busy ||
+                  !newRoute.label.trim() ||
+                  !newRoute.target.trim() ||
+                  !newRoute.primaryPersonId
+                }
+              >
+                Save route
+              </PrimaryButton>
+            </div>
+          ) : null}
+
+          {rules.length === 0 ? (
+            <p style={{ margin: "16px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
+              No routes yet. Add a person first, then create a route.
+            </p>
+          ) : (
+            <ul style={{ listStyle: "none", margin: "16px 0 0", padding: 0, display: "grid", gap: 14 }}>
+              {rules.map((rule) => (
+                <RouteRow
+                  key={rule.id}
+                  rule={rule}
+                  people={people}
+                  editing={editing === rule.id}
+                  busy={busy}
+                  onEdit={() => setEditing(editing === rule.id ? null : rule.id)}
+                  onPrimary={(id) => void setPrimary(rule.id, id)}
+                  onToggleBackup={(id) => void toggleBackup(rule.id, id)}
+                />
+              ))}
+            </ul>
+          )}
         </Panel>
       </div>
 
-      <ToastRegion message={toast} tone="good" />
+      <ToastRegion message={toast} tone={toastTone} />
     </div>
   );
 }
 
-function PersonRow({ person }: { person: NotifyPerson }) {
+function PersonRow({ person }: { person: NotifyPersonDto }) {
   return (
     <li
       style={{
@@ -260,14 +487,15 @@ function RouteRow({
   rule,
   people,
   editing,
+  busy,
   onEdit,
   onPrimary,
   onToggleBackup,
 }: {
-  rule: AlarmRouteRule;
-  people: NotifyPerson[];
-  areas: string[];
+  rule: AlarmRouteDto;
+  people: NotifyPersonDto[];
   editing: boolean;
+  busy: boolean;
   onEdit: () => void;
   onPrimary: (id: string) => void;
   onToggleBackup: (id: string) => void;
@@ -275,7 +503,7 @@ function RouteRow({
   const primary = people.find((p) => p.id === rule.primaryPersonId);
   const backups = rule.backupPersonIds
     .map((id) => people.find((p) => p.id === id))
-    .filter(Boolean) as NotifyPerson[];
+    .filter(Boolean) as NotifyPersonDto[];
 
   return (
     <li
@@ -297,7 +525,9 @@ function RouteRow({
             Target: {rule.target} · Min severity: {rule.severityMin}
           </p>
         </div>
-        <GhostButton onClick={onEdit}>{editing ? "Done" : "Edit"}</GhostButton>
+        <GhostButton onClick={onEdit} disabled={busy}>
+          {editing ? "Done" : "Edit"}
+        </GhostButton>
       </div>
 
       <p style={{ margin: "12px 0 0", fontSize: 13 }}>
@@ -315,7 +545,7 @@ function RouteRow({
             {people
               .filter((p) => p.whatsappEnabled)
               .map((p) => (
-                <PrimaryButton key={p.id} onClick={() => onPrimary(p.id)}>
+                <PrimaryButton key={p.id} onClick={() => onPrimary(p.id)} disabled={busy}>
                   {p.name}
                 </PrimaryButton>
               ))}
@@ -327,7 +557,7 @@ function RouteRow({
               .map((p) => {
                 const on = rule.backupPersonIds.includes(p.id);
                 return (
-                  <GhostButton key={p.id} onClick={() => onToggleBackup(p.id)}>
+                  <GhostButton key={p.id} onClick={() => onToggleBackup(p.id)} disabled={busy}>
                     {on ? "✓ " : ""}
                     {p.name}
                   </GhostButton>

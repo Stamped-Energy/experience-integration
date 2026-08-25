@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import type { IncomingHttpHeaders } from "node:http";
 import { fromNodeHeaders } from "better-auth/node";
 import type { Auth } from "../auth/index.js";
 import { AuthzError, requirePermission } from "../authz/index.js";
@@ -35,7 +36,7 @@ function problem(
 
 async function resolvePlant(
   deps: CaseRouteDeps,
-  request: { headers: unknown; id: string; query?: unknown },
+  request: { headers: IncomingHttpHeaders; id: string; query?: unknown },
   reply: { status: (n: number) => { send: (b: unknown) => unknown } },
   permission: "prescription:read" | "alarm:read",
 ) {

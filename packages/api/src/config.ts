@@ -119,6 +119,12 @@ const EnvSchema = z.object({
     .enum(["0", "1", "true", "false"])
     .default("1")
     .transform((v) => v !== "0" && v !== "false"),
+  /** WhatsApp Meta Cloud API — dry_run until credentials + WHATSAPP_MODE=live. */
+  WHATSAPP_MODE: z.enum(["dry_run", "live", "auto"]).default("auto"),
+  META_WA_TOKEN: z.string().optional(),
+  META_WA_PHONE_NUMBER_ID: z.string().optional(),
+  META_WA_APP_SECRET: z.string().optional(),
+  META_WA_VERIFY_TOKEN: z.string().optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

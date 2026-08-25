@@ -12,12 +12,14 @@ import {
   buildCaseDetail,
   buildEvidencePack,
   fetchL2Series,
+  packToSample,
   scopeFromRaw,
   seriesToSample,
 } from "./build-evidence.js";
 import {
   L6CasePayloadSchema,
   type CaseEnrichment,
+  type EvidenceSeriesDto,
   type L6CasePayload,
 } from "./contract.js";
 
@@ -45,7 +47,7 @@ export async function assemblePrescriptionCase(input: {
     prescriptionId: input.prescriptionId,
   })) as Record<string, unknown>;
 
-  const prescription = mapL5PrescriptionToProduct(raw, input.plantId);
+  const prescription = mapL5PrescriptionToProduct(raw);
   const enrichment = (raw.case_enrichment as CaseEnrichment | null | undefined) ?? null;
   const refs = stringArray(raw.evidence_refs ?? prescription.evidenceRefs);
   const findingWindow =
@@ -55,9 +57,7 @@ export async function assemblePrescriptionCase(input: {
   const scope = scopeFromRaw(refs, findingWindow);
   const missing: string[] = [];
 
-  let series = undefined as ReturnType<typeof fetchL2Series> extends Promise<infer R>
-    ? R["series"]
-    : never;
+  let series: EvidenceSeriesDto | undefined;
   let loadDialPct: Record<string, number> = {};
 
   if (input.l2) {
@@ -100,7 +100,8 @@ export async function assemblePrescriptionCase(input: {
 
   const bundleId =
     typeof raw.evidence_bundle_id === "string" ? raw.evidence_bundle_id : undefined;
-  const sampleId = bundleId ?? `evd_${prescription.id}`;
+  // UI identity is always evd_{rxId}; L5 bundleId is download-only.
+  const sampleId = `evd_${prescription.id}`;
 
   const sample = series
     ? seriesToSample({
@@ -113,7 +114,15 @@ export async function assemblePrescriptionCase(input: {
         alarmId,
         rxId: prescription.id,
       })
-    : undefined;
+    : packToSample({
+        plantId: input.plantId,
+        sampleId,
+        issueTitle: prescription.title,
+        pack,
+        enrichment,
+        alarmId,
+        rxId: prescription.id,
+      });
 
   if (enrichment?.alarm_summary && alarmId) {
     // enrich alarm summary when we join alarm below
@@ -177,7 +186,7 @@ export async function assemblePrescriptionCase(input: {
       ...(bundleId ? { bundleId } : {}),
       refs,
       pack,
-      ...(sample ? { sample } : {}),
+      sample,
       ...(series ? { series } : {}),
       ...(bundleId ? { downloadHref: `/api/evidence/${bundleId}/download` } : {}),
     },

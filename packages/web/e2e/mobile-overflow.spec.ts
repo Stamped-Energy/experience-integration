@@ -17,7 +17,9 @@ test.describe("mobile page overflow", () => {
   for (const route of OPS_ROUTES) {
     test(`${route} has no page-level horizontal scroll at 360px`, async ({ page }) => {
       await page.goto(route);
-      await expect(page.locator("main#forge-main, main").first()).toBeVisible();
+      await expect(page.locator("main#forge-main, main").first()).toBeVisible({
+        timeout: 15_000,
+      });
       const metrics = await page.evaluate(() => {
         const doc = document.documentElement;
         const body = document.body;

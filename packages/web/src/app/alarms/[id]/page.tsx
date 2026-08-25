@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { AppShell } from "@/components/shell/AppShell";
 import { AlarmFullCase } from "@/components/alarms/AlarmFullCase";
 import { L2PointsDisclosure } from "@/components/evidence/L2PointsDisclosure";
@@ -42,11 +43,9 @@ type CasePayload = {
   links?: { evidenceHref?: string; prescriptionHref?: string };
 };
 
-export default function AlarmDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function AlarmDetailPage() {
+  const routeParams = useParams<{ id: string }>();
+  const alarmId = typeof routeParams.id === "string" ? routeParams.id : "";
   const { activePlant, plants, setActivePlantId } = usePlant();
   const [source, setSource] = useState<DataSource>("unavailable");
   const [payload, setPayload] = useState<CasePayload | null>(null);
@@ -54,11 +53,12 @@ export default function AlarmDetailPage({
   const [detail, setDetail] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!alarmId) return;
     let cancelled = false;
     setLoading(true);
     void fetch(
       bffUrl(
-        `/api/cases/alarm/${encodeURIComponent(params.id)}?plantId=${encodeURIComponent(activePlant.plantId)}`,
+        `/api/cases/alarm/${encodeURIComponent(alarmId)}?plantId=${encodeURIComponent(activePlant.plantId)}`,
       ),
       { credentials: "include", cache: "no-store" },
     )
@@ -84,7 +84,7 @@ export default function AlarmDetailPage({
     return () => {
       cancelled = true;
     };
-  }, [activePlant.plantId, params.id]);
+  }, [activePlant.plantId, alarmId]);
 
   return (
     <AppShell
@@ -96,12 +96,12 @@ export default function AlarmDetailPage({
       role={DEMO_SHELL_ROLE}
       connection={connectionFixture}
       screenTitle="Alarm"
-      contextSummary={[params.id, activePlant.plantName]}
+      contextSummary={[alarmId, activePlant.plantName]}
       criticalAlarmCount={0}
     >
       <PageHead
         eyebrow="Alarm"
-        title={loading ? params.id : (payload?.alarm?.summary ?? params.id)}
+        title={loading ? alarmId : (payload?.alarm?.summary ?? alarmId)}
       />
       <SourceIndicator source={source} loading={loading} detail={detail} />
       {loading ? (
