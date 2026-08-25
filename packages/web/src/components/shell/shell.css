@@ -746,3 +746,110 @@
     max-width: 100px;
   }
 }
+
+/* —— Sign-in (unauthenticated) —— */
+.forge-login {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(247, 84, 64, 0.08), transparent 55%),
+    linear-gradient(180deg, var(--forge-surface-container-low) 0%, var(--forge-background) 48%);
+  font-family: var(--forge-font-body);
+  color: var(--forge-on-surface);
+}
+
+.forge-login__panel {
+  width: min(420px, 100%);
+  padding: 28px 28px 32px;
+  background: var(--forge-surface-container-lowest);
+  border: 1px solid var(--forge-outline-variant);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(25, 28, 26, 0.06);
+}
+
+.forge-login__brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.forge-login__title {
+  margin: 2px 0 0;
+  font-family: var(--forge-font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--forge-on-surface);
+}
+
+.forge-login__lede {
+  margin: 0 0 20px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--forge-on-surface-variant);
+}
+
+.forge-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.forge-login__label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--forge-on-surface);
+}
+
+.forge-login__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--forge-outline-variant);
+  background: var(--forge-surface-container-lowest);
+  color: var(--forge-on-surface);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.forge-login__input:focus {
+  outline: 2px solid var(--forge-primary);
+  outline-offset: 1px;
+}
+
+.forge-login__error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--forge-error);
+}
+
+.forge-login__submit {
+  margin-top: 4px;
+  align-self: stretch;
+  padding: 11px 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--forge-primary);
+  color: var(--forge-on-primary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.forge-login__submit:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.forge-login__submit:focus-visible {
+  outline: 2px solid var(--forge-secondary);
+  outline-offset: 2px;
+}

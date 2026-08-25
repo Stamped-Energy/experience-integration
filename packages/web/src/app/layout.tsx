@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PlantProvider } from "@/lib/plant-context";
 import { DataSourceProvider } from "@/lib/data-source-context";
+import { AuthGate, AuthProvider } from "@/lib/auth-context";
 import { StaffUnlockGuard } from "@/components/settings/StaffUnlockGuard";
 import "@/styles/tokens.css";
 import "@/styles/forge-ui.css";
@@ -26,11 +27,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <PlantProvider>
-          <DataSourceProvider>
-            <StaffUnlockGuard>{children}</StaffUnlockGuard>
-          </DataSourceProvider>
-        </PlantProvider>
+        <AuthProvider>
+          <AuthGate>
+            <PlantProvider>
+              <DataSourceProvider>
+                <StaffUnlockGuard>{children}</StaffUnlockGuard>
+              </DataSourceProvider>
+            </PlantProvider>
+          </AuthGate>
+        </AuthProvider>
       </body>
     </html>
   );

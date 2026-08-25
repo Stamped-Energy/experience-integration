@@ -1,11 +1,13 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/shell/AppShell";
 import { StaffPlantTools } from "@/components/settings/StaffPlantTools";
 import { PageHead, Panel, StatusChip } from "@/components/ui/primitives";
 import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { formatIstDateTime } from "@/lib/format";
 import { usePlant } from "@/lib/plant-context";
+import { useAuth } from "@/lib/auth-context";
 
 type MemberRow = {
   id: string;
@@ -30,6 +32,13 @@ const auditEvents: AuditRow[] = [];
 
 export default function AdminSettingsPage() {
   const { activePlant } = usePlant();
+  const { user, signOut } = useAuth();
+  const router = useRouter();
+
+  const onSignOut = async () => {
+    await signOut();
+    router.replace("/login");
+  };
 
   return (
     <AppShell
@@ -44,10 +53,68 @@ export default function AdminSettingsPage() {
     >
       <PageHead eyebrow="Admin" title="Organization admin" />
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <Panel>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 12,
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <p className="forge-eyebrow" style={{ margin: 0 }}>
+                Signed in
+              </p>
+              <h2
+                style={{
+                  margin: "4px 0 0",
+                  fontFamily: "var(--forge-font-display)",
+                  fontSize: 16,
+                }}
+              >
+                {user?.name || "Account"}
+              </h2>
+              <p
+                style={{
+                  margin: "6px 0 0",
+                  fontSize: 13,
+                  color: "var(--forge-on-surface-variant)",
+                }}
+              >
+                {user?.email}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void onSignOut()}
+              style={{
+                alignSelf: "flex-start",
+                border: "1px solid var(--forge-outline-variant)",
+                background: "transparent",
+                borderRadius: 8,
+                padding: "8px 14px",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                color: "var(--forge-on-surface)",
+              }}
+            >
+              Sign out
+            </button>
+          </div>
+        </Panel>
+
         <StaffPlantTools />
 
         <Panel>
-          <h2 style={{ margin: "0 0 12px", fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
+          <h2
+            style={{
+              margin: "0 0 12px",
+              fontFamily: "var(--forge-font-display)",
+              fontSize: 16,
+            }}
+          >
             Memberships · {activePlant.plantName}
           </h2>
           {members.length === 0 ? (
@@ -100,7 +167,13 @@ export default function AdminSettingsPage() {
         </Panel>
 
         <Panel>
-          <h2 style={{ margin: "0 0 12px", fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
+          <h2
+            style={{
+              margin: "0 0 12px",
+              fontFamily: "var(--forge-font-display)",
+              fontSize: 16,
+            }}
+          >
             Recent audit events
           </h2>
           {auditEvents.length === 0 ? (
@@ -109,17 +182,15 @@ export default function AdminSettingsPage() {
             </p>
           ) : (
             <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 10 }}>
-              {auditEvents.map((e) => (
+              {auditEvents.map((ev) => (
                 <li
-                  key={e.id}
+                  key={ev.id}
                   style={{
                     paddingBottom: 10,
                     borderBottom: "1px solid var(--forge-outline-variant)",
                   }}
                 >
-                  <p style={{ margin: 0, fontWeight: 700 }}>
-                    {e.action} · {e.actor}
-                  </p>
+                  <p style={{ margin: 0, fontWeight: 600 }}>{ev.action}</p>
                   <p
                     style={{
                       margin: "4px 0 0",
@@ -127,7 +198,7 @@ export default function AdminSettingsPage() {
                       color: "var(--forge-on-surface-variant)",
                     }}
                   >
-                    {e.detail} · {formatIstDateTime(e.at)}
+                    {ev.actor} · {ev.detail} · {formatIstDateTime(ev.at)}
                   </p>
                 </li>
               ))}
