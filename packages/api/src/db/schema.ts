@@ -348,6 +348,115 @@ export const productTelemetry = pgTable(
   (t) => [index("product_telemetry_event_idx").on(t.eventName, t.createdAt)],
 );
 
+/**
+ * Notify-people roster — plant-scoped assignees for WhatsApp + Rx assign.
+ * Store E.164 phone; API responses mask by default (phoneMasked).
+ */
+export const notifyPeople = pgTable(
+  "notify_people",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    plantId: uuid("plant_id")
+      .notNull()
+      .references(() => plants.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    role: text("role").notNull(),
+    phoneE164: text("phone_e164").notNull(),
+    areas: jsonb("areas").$type<string[]>().notNull().default([]),
+    assetIds: jsonb("asset_ids").$type<string[]>().notNull().default([]),
+    skills: jsonb("skills").$type<string[]>().notNull().default([]),
+    whatsappEnabled: boolean("whatsapp_enabled").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    index("notify_people_plant_idx").on(t.plantId),
+    index("notify_people_org_idx").on(t.orgId),
+  ],
+);
+
+/** Alarm routing: area/asset → primary + backup notify people. */
+export const alarmRouteRules = pgTable(
+  "alarm_route_rules",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    plantId: uuid("plant_id")
+      .notNull()
+      .references(() => plants.id, { onDelete: "cascade" }),
+    scope: text("scope").notNull(),
+    target: text("target").notNull(),
+    label: text("label").notNull(),
+    primaryPersonId: uuid("primary_person_id")
+      .notNull()
+      .references(() => notifyPeople.id, { onDelete: "restrict" }),
+    backupPersonIds: jsonb("backup_person_ids")
+      .$type<string[]>()
+      .notNull()
+      .default([]),
+    severityMin: text("severity_min").notNull().default("warning"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    uniqueIndex("alarm_route_rules_plant_scope_target_uidx").on(
+      t.plantId,
+      t.scope,
+      t.target,
+    ),
+    index("alarm_route_rules_plant_idx").on(t.plantId),
+  ],
+);
+
+/** Outbound WhatsApp delivery log (dry-run and live). */
+export const whatsappNotificationLog = pgTable(
+  "whatsapp_notification_log",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    plantId: uuid("plant_id")
+      .notNull()
+      .references(() => plants.id, { onDelete: "cascade" }),
+    personId: uuid("person_id").references(() => notifyPeople.id, {
+      onDelete: "set null",
+    }),
+    templateId: text("template_id").notNull(),
+    toPhoneE164: text("to_phone_e164").notNull(),
+    mode: text("mode").notNull(),
+    status: text("status").notNull(),
+    providerMessageId: text("provider_message_id"),
+    error: text("error"),
+    contextType: text("context_type"),
+    contextId: text("context_id"),
+    metadata: jsonb("metadata")
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default({}),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    index("whatsapp_notification_log_plant_idx").on(t.plantId, t.createdAt),
+    index("whatsapp_notification_log_person_idx").on(t.personId),
+  ],
+);
+
 export const schema = {
   ...authSchema,
   organizations,
@@ -364,4 +473,7 @@ export const schema = {
   webhookDeliveries,
   powerbiCheckpoints,
   productTelemetry,
+  notifyPeople,
+  alarmRouteRules,
+  whatsappNotificationLog,
 };
