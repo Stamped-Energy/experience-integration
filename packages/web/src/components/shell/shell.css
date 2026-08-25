@@ -196,8 +196,28 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: color-mix(in srgb, #e6a817 18%, transparent);
+  /* Full-bleed strip: cancel main horizontal inset; top only when first in main. */
+  margin: 0 calc(-1 * var(--forge-margin-mobile)) 16px;
+  padding: 10px var(--forge-margin-mobile);
+  border-radius: 0;
   border-bottom: 1px solid color-mix(in srgb, #e6a817 40%, transparent);
+  background: color-mix(in srgb, #e6a817 18%, transparent);
+  color: #8a5a00;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.forge-shell__main > .forge-shell__banner--demo:first-child {
+  margin-top: -16px;
+}
+
+@media (min-width: 900px) {
+  .forge-shell__banner--demo {
+    margin-left: calc(-1 * var(--forge-main-inset-start));
+    margin-right: calc(-1 * var(--forge-gutter));
+    padding: 10px var(--forge-gutter) 10px var(--forge-main-inset-start);
+  }
 }
 
 .forge-shell__banner-dismiss {
@@ -210,7 +230,8 @@
   font-weight: 600;
   cursor: pointer;
   text-decoration: underline;
-  padding: 0;
+  padding: 4px 0;
+  margin: 0;
 }
 
 .forge-shell__conn-dot {

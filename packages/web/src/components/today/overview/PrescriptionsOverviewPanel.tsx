@@ -74,6 +74,22 @@ export function PrescriptionsOverviewPanel({
       </div>
 
       <div className="forge-scroll-thin" style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
+        {top.length === 0 ? (
+          <div
+            style={{
+              minHeight: 160,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "var(--forge-on-surface-variant)",
+              fontSize: 13,
+              textAlign: "center",
+              padding: 12,
+            }}
+          >
+            {liveMode ? "No prescriptions from L5 yet" : "No prescriptions"}
+          </div>
+        ) : null}
         {top.map((rx) => {
           const lane = LANE_ICON[rx.lane as keyof typeof LANE_ICON] ?? LANE_ICON.active!;
           const isDone = done[rx.id];

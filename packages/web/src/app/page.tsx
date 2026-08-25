@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/shell/AppShell";
 import { OverviewBoard } from "@/components/today/OverviewBoard";
-import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
+import { SourceIndicator } from "@/components/ui/SourceIndicator";
 import { PageHead } from "@/components/ui/primitives";
 import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
@@ -137,20 +137,13 @@ export default function OverviewPage() {
           ([data?.detail.l2, data?.detail.l5].filter(Boolean).join(" · ") || null)
         }
       />
-      {source === "unavailable" && !loading ? (
-        <EmptyUpstreamState
-          title="No upstream data for overview"
-          detail="Connect L2 and L5, then refresh. KPI tiles stay empty until live data arrives."
-        />
-      ) : (
-        <OverviewBoard
-          liveKpis={liveKpis}
-          closurePct={data?.closureRate30d ?? null}
-          alarms={[]}
-          prescriptions={(data?.prescriptions ?? []) as never}
-          assets={[]}
-        />
-      )}
+      <OverviewBoard
+        liveKpis={source === "unavailable" ? null : liveKpis}
+        closurePct={data?.closureRate30d ?? null}
+        alarms={[]}
+        prescriptions={(data?.prescriptions ?? []) as never}
+        assets={[]}
+      />
     </AppShell>
   );
 }

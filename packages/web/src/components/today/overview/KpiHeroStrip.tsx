@@ -6,7 +6,6 @@ import { Gauge } from "@/components/charts/Gauge";
 import { Panel } from "@/components/ui/primitives";
 import { IconBadge, KPI_ICONS } from "@/components/ui/indicators";
 import { Sparkles, TrendingDown, TrendingUp } from "@/components/ui/icons";
-import { EmptyUpstreamState } from "@/components/ui/SourceIndicator";
 
 export type OverviewLiveKpis = {
   stampedSavingsMonthInr: number | null;
@@ -33,11 +32,18 @@ function HeroCard({ children, style }: { children: React.ReactNode; style?: Reac
   );
 }
 
-function NullValue({ label }: { label: string }) {
+function EmDash() {
   return (
-    <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-      {label}
-    </p>
+    <div
+      className="forge-num-display tabular"
+      style={{
+        fontSize: "clamp(1.5rem, 2.2vw, 2.2rem)",
+        marginTop: 8,
+        color: "var(--forge-on-surface-variant)",
+      }}
+    >
+      —
+    </div>
   );
 }
 
@@ -60,7 +66,7 @@ export function KpiHeroStrip({ live }: { live?: OverviewLiveKpis | null }) {
           Stamped Savings This Month
         </p>
         {live?.stampedSavingsMonthInr == null ? (
-          <NullValue label="No upstream data" />
+          <EmDash />
         ) : (
           <>
             <div
@@ -69,7 +75,17 @@ export function KpiHeroStrip({ live }: { live?: OverviewLiveKpis | null }) {
             >
               {formatInr(savings)}
             </div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 8, color: "var(--forge-tertiary)", fontWeight: 600, fontSize: 12 }}>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                marginTop: 8,
+                color: "var(--forge-tertiary)",
+                fontWeight: 600,
+                fontSize: 12,
+              }}
+            >
               <TrendingUp size={13} strokeWidth={2.5} />
               From L5 realised ledger
             </div>
@@ -81,7 +97,7 @@ export function KpiHeroStrip({ live }: { live?: OverviewLiveKpis | null }) {
         <IconBadge icon={KPI_ICONS.energy} tone="warning" size={34} iconSize={17} />
         <p className="forge-eyebrow">Total Energy Consumed</p>
         {live?.totalEnergyKwhMtd == null ? (
-          <NullValue label="No upstream data" />
+          <EmDash />
         ) : (
           <div
             className="forge-num-display tabular"
@@ -102,15 +118,18 @@ export function KpiHeroStrip({ live }: { live?: OverviewLiveKpis | null }) {
         </div>
         <p className="forge-eyebrow">Stamped AI Score</p>
         {live?.aiScore == null ? (
-          <EmptyUpstreamState
-            title="Not available yet"
-            detail="Plant Intelligence Score is not persisted to L2/L5."
-          />
+          <EmDash />
         ) : (
           <>
-            <div className="forge-num-display tabular" style={{ fontSize: "1.85rem", color: "var(--forge-primary)", marginTop: 4 }}>
+            <div
+              className="forge-num-display tabular"
+              style={{ fontSize: "1.85rem", color: "var(--forge-primary)", marginTop: 4 }}
+            >
               {Math.round(score)}
-              <span style={{ fontSize: "0.85rem", color: "var(--forge-on-surface-variant)" }}> / 100</span>
+              <span style={{ fontSize: "0.85rem", color: "var(--forge-on-surface-variant)" }}>
+                {" "}
+                / 100
+              </span>
             </div>
             <span title="Live score" style={{ display: "inline-flex", marginTop: 8 }}>
               <IconBadge icon={Sparkles} tone="primary" size={26} iconSize={13} />
@@ -123,20 +142,31 @@ export function KpiHeroStrip({ live }: { live?: OverviewLiveKpis | null }) {
         <IconBadge icon={KPI_ICONS.carbon} tone="good" size={34} iconSize={17} />
         <p className="forge-eyebrow">CO₂ Equivalent</p>
         {live?.co2Tco2e == null ? (
-          <EmptyUpstreamState
-            title="Not available yet"
-            detail="No grid emission factor in L2/L5."
-          />
+          <EmDash />
         ) : (
           <>
             <div
               className="forge-num-display tabular"
-              style={{ fontSize: "clamp(1.3rem, 1.8vw, 1.85rem)", marginTop: 8, whiteSpace: "nowrap" }}
+              style={{
+                fontSize: "clamp(1.3rem, 1.8vw, 1.85rem)",
+                marginTop: 8,
+                whiteSpace: "nowrap",
+              }}
             >
               {Math.round(carbon)}{" "}
               <span style={{ fontSize: "0.85rem", fontWeight: 700 }}>tCO₂e</span>
             </div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 8, color: "var(--forge-tertiary)", fontWeight: 600, fontSize: 11 }}>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                marginTop: 8,
+                color: "var(--forge-tertiary)",
+                fontWeight: 600,
+                fontSize: 11,
+              }}
+            >
               <TrendingDown size={12} strokeWidth={2.5} />
               From upstream
             </div>
