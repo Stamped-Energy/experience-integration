@@ -12,7 +12,7 @@ import { PrescriptionQueueSkeleton } from "@/components/ui/PageSkeletons";
 import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
 import { usePlant } from "@/lib/plant-context";
-import type { EvidenceSample } from "@/fixtures/evidence-samples";
+import type { EvidenceSample } from "@/lib/evidence";
 
 type CasePayload = {
   source?: string;

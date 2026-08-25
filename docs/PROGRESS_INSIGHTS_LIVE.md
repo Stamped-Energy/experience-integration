@@ -2,11 +2,12 @@
 
 **Started:** 2026-08-26  
 **Plant:** `plant_vinayak_1`  
-**Plan:** `docs/IMPLEMENTATION_PLAN_INSIGHTS_LIVE.md`
+**Plan:** `docs/IMPLEMENTATION_PLAN_INSIGHTS_LIVE.md`  
+**QA:** `docs/QA_INSIGHTS_LIVE_VINAYAK.md`
 
 ## Phase 0 — Audit refresh
 
-### Orphan boards still importing fixtures (runtime)
+### Orphan boards / remount status
 
 | Component | Fixture import | Status |
 |-----------|----------------|--------|
@@ -14,34 +15,30 @@
 | `SustainabilityDashboard.tsx` | `@/fixtures/demo` | remounted |
 | `PlantSectionMap.tsx` | `@/fixtures/plant-sections` | remounted |
 | `MachineHealthBoard.tsx` | `@/fixtures/machine-health` | remounted |
-| `PlantHealthMap.tsx` | `@/fixtures/overview-demo` | remounted (props-only) |
-| `DialBank.tsx` | `@/fixtures/overview-demo` | purged |
-| `DemandProfilePanel.tsx` | `@/fixtures/overview-demo` | purged |
-| `AlertFeedPanel.tsx` | `@/fixtures/overview-demo` | purged |
-| `PrescriptionsOverviewPanel.tsx` | `@/fixtures/demo` (needs-review fallback) | purged |
-| `live-telemetry.ts` | `@/fixtures/overview-demo` | purged (empty baseline) |
-| `ExportCentre.tsx` | local stub (no `@/fixtures`) | remounted on `/api/reports` |
+| `PlantHealthMap.tsx` | `@/fixtures/overview-demo` | remounted |
+| `DialBank.tsx` / `DemandProfilePanel` / `AlertFeedPanel` | overview-demo | purged |
+| `PrescriptionsOverviewPanel.tsx` | demo needs-review | purged |
+| `live-telemetry.ts` | overview-demo | purged |
+| `ExportCentre.tsx` / `SavingsLedger.tsx` | stub / evidence fixture | remounted |
 
 ### Pages today (Vinayak)
 
 | Route | UI state | Notes |
 |-------|----------|-------|
-| `/energy` | EnergyBoard live | done |
-| `/plant-map` | PlantSectionMap live | done |
-| `/intensity` | SustainabilityDashboard live | done |
-| `/equipment` | MachineHealthBoard + PlantHealthMap live | energy-derived; CM empty |
-| `/reports` | ExportCentre + SavingsLedger live | L5 Rx → ledger; report jobs Postgres |
-| `/`, `/live` | L2 overlay; no overview-demo defaults | done |
+| `/energy` | EnergyBoard live | smoke 200 |
+| `/plant-map` | PlantSectionMap live | smoke 200 |
+| `/intensity` | SustainabilityDashboard live | smoke SEC 1.15 |
+| `/equipment` | MachineHealthBoard + PlantHealthMap | 5 assets |
+| `/reports` | ExportCentre + SavingsLedger | L5 Rx ledger |
+| `/`, `/live` | L2 overlay | no overview-demo defaults |
 
 ### Next
 
-Vinayak seed smoke · Hardening (fixture ban + QA).
+Optional PR polish / merge. Plan phases E–F complete for Vinayak insights remount.
 
 ### Done this session
 
-- [x] Phase 0 audit docs
-- [x] `GET /api/insights/energy` + EnergyBoard props remount on `/energy`
-- [x] Plant-map + sustainability remounts
-- [x] `GET /api/insights/equipment` + MachineHealthBoard / PlantHealthMap remount
-- [x] Overview/Live overview-demo purge
-- [x] Reports ExportCentre + SavingsLedger remount
+- [x] Phase 0–D remounts (energy → reports)
+- [x] Overview/Live fixture purge
+- [x] Vinayak authenticated BFF smoke (all insights routes 200, L2+L5 live)
+- [x] Extended fixture ban to remount surfaces + QA checklist doc
