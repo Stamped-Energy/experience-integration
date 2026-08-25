@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import type { Db } from "../db/client.js";
-import { reportJobs } from "../db/schema.js";
+import { plants, reportJobs } from "../db/schema.js";
 import {
   canTransition,
   reportDedupeKey,
@@ -8,8 +8,8 @@ import {
   type ReportState,
 } from "./lifecycle.js";
 import {
-  FIXTURE_SUSTAINABILITY,
   renderSustainabilityHtml,
+  type SustainabilityInputs,
 } from "./sustainability.js";
 
 export type CreateReportInput = {
@@ -79,7 +79,12 @@ export async function markReportRunning(db: Db, id: string) {
   return next!;
 }
 
-export async function completeReportJob(db: Db, id: string) {
+/** Honest artifact: plant identity from DB; missing metrics stay null (never Jaipur fixture). */
+export async function completeReportJob(
+  db: Db,
+  id: string,
+  live?: Partial<SustainabilityInputs>,
+) {
   const job = await db
     .select()
     .from(reportJobs)
@@ -97,10 +102,29 @@ export async function completeReportJob(db: Db, id: string) {
   state = transitionReport(state, "succeed");
   state = transitionReport(state, "submit_for_approval");
 
+  const plant = await db
+    .select()
+    .from(plants)
+    .where(eq(plants.id, job.plantId))
+    .then((rows) => rows[0]);
+
   const html = renderSustainabilityHtml({
-    ...FIXTURE_SUSTAINABILITY,
+    plantName: live?.plantName ?? plant?.name ?? "Plant",
+    plantId: live?.plantId ?? plant?.externalPlantId ?? job.plantId,
     periodStart: job.periodStart.toISOString(),
     periodEnd: job.periodEnd.toISOString(),
+    timezone: live?.timezone ?? plant?.timezone ?? "Asia/Kolkata",
+    gridKwh: live?.gridKwh ?? null,
+    renewableKwh: live?.renewableKwh ?? null,
+    demandChargeInr: live?.demandChargeInr ?? null,
+    powerFactor: live?.powerFactor ?? null,
+    opsConfirmedSavingsInr: live?.opsConfirmedSavingsInr ?? null,
+    emissionFactorTPerMwh: live?.emissionFactorTPerMwh ?? null,
+    emissionFactorRef: live?.emissionFactorRef ?? null,
+    productionUnits: live?.productionUnits ?? null,
+    methodology:
+      live?.methodology ??
+      "IPMVP-aligned windows from L2 when available; missing metrics marked not_measured_by_stamped.",
   });
 
   const [next] = await db

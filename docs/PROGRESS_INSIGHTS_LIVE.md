@@ -20,7 +20,7 @@
 | `AlertFeedPanel.tsx` | `@/fixtures/overview-demo` | purged |
 | `PrescriptionsOverviewPanel.tsx` | `@/fixtures/demo` (needs-review fallback) | purged |
 | `live-telemetry.ts` | `@/fixtures/overview-demo` | purged (empty baseline) |
-| `ExportCentre.tsx` | local stub (no `@/fixtures`) | wire BFF pending |
+| `ExportCentre.tsx` | local stub (no `@/fixtures`) | remounted on `/api/reports` |
 
 ### Pages today (Vinayak)
 
@@ -30,12 +30,12 @@
 | `/plant-map` | PlantSectionMap live | done |
 | `/intensity` | SustainabilityDashboard live | done |
 | `/equipment` | MachineHealthBoard + PlantHealthMap live | energy-derived; CM empty |
-| `/reports` | overview KPIs only | ExportCentre not mounted |
+| `/reports` | ExportCentre + SavingsLedger live | L5 Rx → ledger; report jobs Postgres |
 | `/`, `/live` | L2 overlay; no overview-demo defaults | done |
 
 ### Next
 
-Reports (`ExportCentre` + ledger) · Vinayak smoke · Hardening.
+Vinayak seed smoke · Hardening (fixture ban + QA).
 
 ### Done this session
 
@@ -44,3 +44,4 @@ Reports (`ExportCentre` + ledger) · Vinayak smoke · Hardening.
 - [x] Plant-map + sustainability remounts
 - [x] `GET /api/insights/equipment` + MachineHealthBoard / PlantHealthMap remount
 - [x] Overview/Live overview-demo purge
+- [x] Reports ExportCentre + SavingsLedger remount

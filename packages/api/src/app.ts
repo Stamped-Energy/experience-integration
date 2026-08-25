@@ -258,7 +258,13 @@ export async function buildApp(
       discussEnabled: env.DISCUSS_ENABLED,
       l5: opts.l5,
     });
-    await registerExportRoutes(app, { auth: opts.auth, db: opts.db });
+    await registerExportRoutes(app, {
+      auth: opts.auth,
+      db: opts.db,
+      l5: opts.l5,
+      prescriptionFixture: opts.prescriptionFixture,
+      strictLive: env.L6_STRICT_LIVE,
+    });
     await registerReportRoutes(app, {
       auth: opts.auth,
       db: opts.db,

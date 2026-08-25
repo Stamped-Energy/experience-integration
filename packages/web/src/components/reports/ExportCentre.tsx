@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { LedgerEntry, Prescription } from "@/lib/types";
 import { downloadTextFile, toCsv } from "@/lib/csv-download";
 import { downloadDocx } from "@/lib/docx-download";
 import { sanitizeClaimStatus } from "@/lib/ledger";
+import { bffUrl } from "@/lib/bff";
+import { periodLabelForNow } from "@/lib/ledger-from-prescriptions";
 import {
   GhostButton,
   Panel,
@@ -12,14 +14,19 @@ import {
   SecondaryButton,
   StatusChip,
 } from "@/components/ui/primitives";
+import { EmptyUpstreamState } from "@/components/ui/SourceIndicator";
 
 import "./reports.css";
 
-type LocalReport = {
+type ReportJob = {
   id: string;
   kind: string;
-  state: "pending_approval" | "approved" | "failed" | "running";
-  periodLabel: string;
+  state: string;
+  periodStart?: string | null;
+  periodEnd?: string | null;
+  periodLabel?: string;
+  approvedAt?: string | null;
+  hasArtifact?: boolean;
 };
 
 function ledgerCsv(rows: readonly LedgerEntry[]): string {
@@ -88,104 +95,184 @@ function prescriptionAuditCsv(rows: readonly Prescription[]): string {
   );
 }
 
-function sustainabilityLines(periodLabel: string, id: string): string[] {
-  return [
-    "Stamped Energy - Sustainability pack",
-    `Period: ${periodLabel}`,
-    `Report id: ${id}`,
-    "Status: approved",
-  ];
+function periodLabelFromJob(r: ReportJob): string {
+  if (r.periodLabel) return r.periodLabel;
+  if (r.periodStart) {
+    const d = new Date(r.periodStart);
+    if (!Number.isNaN(d.getTime())) {
+      return d.toLocaleString("en-IN", {
+        month: "short",
+        year: "numeric",
+        timeZone: "Asia/Kolkata",
+      });
+    }
+  }
+  return periodLabelForNow();
 }
 
-function sustainabilityCsv(periodLabel: string, id: string): string {
-  return toCsv(
-    ["field", "value"],
-    [
-      ["period", periodLabel],
-      ["report_id", id],
-      ["status", "approved"],
-    ],
-  );
+function monthBounds(): { periodStart: string; periodEnd: string } {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  return { periodStart: start.toISOString(), periodEnd: end.toISOString() };
 }
 
-/** P0 Export Centre - CSV + DOCX after approval (no HTML pack). */
+/** Export centre — live `/api/reports` jobs; CSV from live ledger/Rx props. */
 export function ExportCentre({
+  plantId,
+  plantName,
   ledger,
   prescriptions,
-  initialReports,
 }: {
+  plantId: string;
+  plantName: string;
   ledger: LedgerEntry[];
   prescriptions: Prescription[];
-  initialReports?: LocalReport[];
 }) {
-  const [reports, setReports] = useState<LocalReport[]>(
-    initialReports?.length
-      ? initialReports
-      : [
-          {
-            id: "rep_fixture_1",
-            kind: "sustainability_monthly",
-            state: "pending_approval",
-            periodLabel: "Jul 2026",
-          },
-        ],
-  );
+  const [reports, setReports] = useState<ReportJob[]>([]);
+  const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const loadJobs = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(
+        bffUrl(`/api/reports?plantId=${encodeURIComponent(plantId)}`),
+        { credentials: "include", cache: "no-store" },
+      );
+      if (!res.ok) throw new Error(`reports ${res.status}`);
+      const body = (await res.json()) as { items?: ReportJob[] };
+      setReports(body.items ?? []);
+      setStatus(null);
+    } catch (err) {
+      setReports([]);
+      setStatus(err instanceof Error ? err.message : "Failed to load report jobs");
+    } finally {
+      setLoading(false);
+    }
+  }, [plantId]);
+
+  useEffect(() => {
+    void loadJobs();
+  }, [loadJobs]);
 
   const pending = useMemo(
     () => reports.filter((r) => r.state === "pending_approval"),
     [reports],
   );
 
-  function generate() {
-    const id = `rep_${Date.now()}`;
-    setReports((prev) => [
-      {
-        id,
-        kind: "sustainability_monthly",
-        state: "pending_approval",
-        periodLabel: "Jul 2026",
-      },
-      ...prev,
-    ]);
-    setStatus(`Generated ${id} - pending approval before external send`);
+  async function generate() {
+    setBusy(true);
+    try {
+      const bounds = monthBounds();
+      const res = await fetch(bffUrl("/api/reports"), {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          kind: "sustainability_monthly",
+          periodStart: bounds.periodStart,
+          periodEnd: bounds.periodEnd,
+          plantId,
+        }),
+      });
+      if (!res.ok) throw new Error(`create report ${res.status}`);
+      const body = (await res.json()) as { id: string; created?: boolean };
+      setStatus(
+        body.created
+          ? `Generated ${body.id} — pending approval`
+          : `Existing job ${body.id} (deduped)`,
+      );
+      await loadJobs();
+    } catch (err) {
+      setStatus(err instanceof Error ? err.message : "Generate failed");
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function approve(id: string) {
-    setReports((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, state: "approved" as const } : r)),
-    );
-    setStatus(`Approved ${id} - CSV / DOCX download unlocked`);
+  async function approve(id: string) {
+    setBusy(true);
+    try {
+      const res = await fetch(bffUrl(`/api/reports/${encodeURIComponent(id)}/approve`), {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error(`approve ${res.status}`);
+      setStatus(`Approved ${id}`);
+      await loadJobs();
+    } catch (err) {
+      setStatus(err instanceof Error ? err.message : "Approve failed");
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function requireApproved(id: string): LocalReport | null {
+  async function downloadArtifact(id: string) {
     const report = reports.find((r) => r.id === id);
     if (!report || report.state !== "approved") {
       setStatus("Approve before download");
-      return null;
+      return;
     }
-    return report;
+    try {
+      const res = await fetch(
+        bffUrl(`/api/reports/${encodeURIComponent(id)}/artifact`),
+        { credentials: "include" },
+      );
+      if (!res.ok) throw new Error(`artifact ${res.status}`);
+      const html = await res.text();
+      downloadTextFile(`sustainability_${id}.html`, html);
+      setStatus(`Downloaded HTML artifact ${id}`);
+    } catch (err) {
+      setStatus(err instanceof Error ? err.message : "Artifact download failed");
+    }
   }
 
   function downloadCsvPack(id: string) {
-    const report = requireApproved(id);
-    if (!report) return;
+    const report = reports.find((r) => r.id === id);
+    if (!report || report.state !== "approved") {
+      setStatus("Approve before download");
+      return;
+    }
+    const label = periodLabelFromJob(report);
     downloadTextFile(
       `sustainability_${id}.csv`,
-      sustainabilityCsv(report.periodLabel, id),
+      toCsv(
+        ["field", "value"],
+        [
+          ["period", label],
+          ["report_id", id],
+          ["plant_id", plantId],
+          ["plant_name", plantName],
+          ["status", "approved"],
+          ["ledger_rows", String(ledger.length)],
+        ],
+      ),
     );
     setStatus(`Downloaded CSV ${id}`);
   }
 
   function downloadDocxPack(id: string) {
-    const report = requireApproved(id);
-    if (!report) return;
-    downloadDocx(
-      `sustainability_${id}.docx`,
-      sustainabilityLines(report.periodLabel, id),
-    );
+    const report = reports.find((r) => r.id === id);
+    if (!report || report.state !== "approved") {
+      setStatus("Approve before download");
+      return;
+    }
+    const label = periodLabelFromJob(report);
+    downloadDocx(`sustainability_${id}.docx`, [
+      "Stamped Energy - Sustainability pack",
+      `Plant: ${plantName} (${plantId})`,
+      `Period: ${label}`,
+      `Report id: ${id}`,
+      "Status: approved",
+      `Ledger rows: ${ledger.length}`,
+      "Metrics marked not_measured_by_stamped were not invented.",
+    ]);
     setStatus(`Downloaded DOCX ${id}`);
   }
+
+  const slug = plantId.replace(/[^\w-]+/g, "_");
 
   return (
     <div className="reports-stack" data-export-centre>
@@ -202,23 +289,29 @@ export function ExportCentre({
               Export centre
             </h2>
             <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-              Generate → review → approve → download. External send is blocked until approved.
+              Generate → review → approve → download. Jobs are stored in L6 Postgres for {plantName}.
             </p>
           </div>
           <div className="reports-export-head__actions">
-            <PrimaryButton onClick={generate}>Generate sustainability pack</PrimaryButton>
+            <PrimaryButton onClick={() => void generate()} disabled={busy}>
+              Generate sustainability pack
+            </PrimaryButton>
             <SecondaryButton
-              onClick={() => downloadTextFile("ledger_jaipur.csv", ledgerCsv(ledger))}
+              onClick={() =>
+                downloadTextFile(`ledger_${slug}.csv`, ledgerCsv(ledger))
+              }
+              disabled={!ledger.length}
             >
               Ledger CSV
             </SecondaryButton>
             <GhostButton
               onClick={() =>
                 downloadTextFile(
-                  "prescription_audit_jaipur.csv",
+                  `prescription_audit_${slug}.csv`,
                   prescriptionAuditCsv(prescriptions),
                 )
               }
+              disabled={!prescriptions.length}
             >
               Prescription audit CSV
             </GhostButton>
@@ -230,15 +323,20 @@ export function ExportCentre({
         <h3 style={{ margin: "0 0 12px", fontFamily: "var(--forge-font-display)", fontSize: 15 }}>
           Approval queue ({pending.length})
         </h3>
-        {reports.length === 0 ? (
-          <p style={{ margin: 0 }}>No report jobs yet.</p>
+        {loading ? (
+          <p style={{ margin: 0 }}>Loading report jobs…</p>
+        ) : reports.length === 0 ? (
+          <EmptyUpstreamState
+            title="No report jobs yet"
+            detail="Generate a sustainability pack for this plant. Fixture report rows are not seeded."
+          />
         ) : (
           <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 10 }}>
             {reports.map((r) => (
               <li key={r.id} className="reports-job">
                 <div className="reports-job__meta">
                   <p style={{ margin: 0, fontWeight: 700 }}>
-                    {r.kind.replaceAll("_", " ")} · {r.periodLabel}
+                    {r.kind.replaceAll("_", " ")} · {periodLabelFromJob(r)}
                   </p>
                   <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
                     {r.id}
@@ -257,10 +355,15 @@ export function ExportCentre({
                     {r.state.replaceAll("_", " ")}
                   </StatusChip>
                   {r.state === "pending_approval" ? (
-                    <SecondaryButton onClick={() => approve(r.id)}>Approve</SecondaryButton>
+                    <SecondaryButton onClick={() => void approve(r.id)} disabled={busy}>
+                      Approve
+                    </SecondaryButton>
                   ) : null}
                   {r.state === "approved" ? (
                     <>
+                      <SecondaryButton onClick={() => void downloadArtifact(r.id)}>
+                        Download HTML
+                      </SecondaryButton>
                       <SecondaryButton onClick={() => downloadCsvPack(r.id)}>
                         Download CSV
                       </SecondaryButton>

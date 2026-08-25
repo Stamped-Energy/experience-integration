@@ -13,7 +13,7 @@ import {
   type ClaimBucket,
 } from "@/lib/ledger";
 import { Panel, StatusChip } from "@/components/ui/primitives";
-import { resolveEvidenceIdForRx } from "@/fixtures/evidence-samples";
+import { EmptyUpstreamState } from "@/components/ui/SourceIndicator";
 import "@/components/reports/reports.css";
 
 const bucketLabel: Record<ClaimBucket | "all", string> = {
@@ -29,6 +29,15 @@ export function SavingsLedger({ rows }: { rows: LedgerEntry[] }) {
   const visible = useMemo(() => filterBucket(rows, bucket), [rows, bucket]);
   const opsTotal = sumOpsConfirmedInr(rows);
   const potentialTotal = sumPotentialInr(rows);
+
+  if (!rows.length) {
+    return (
+      <EmptyUpstreamState
+        title="No ledger rows"
+        detail="L5 prescriptions with ledger_summary are required. Fixture SavingsLedger data is not used."
+      />
+    );
+  }
 
   return (
     <div className="reports-stack" data-ledger>
@@ -97,7 +106,6 @@ export function SavingsLedger({ rows }: { rows: LedgerEntry[] }) {
       ) : (
         visible.map((entry) => {
           const claim = displayClaim(entry);
-          const evidenceId = resolveEvidenceIdForRx(entry.prescriptionId);
           return (
             <Panel key={entry.entryId} as="article" data-ledger-id={entry.entryId}>
               <div className="reports-ledger-row">
@@ -145,14 +153,12 @@ export function SavingsLedger({ rows }: { rows: LedgerEntry[] }) {
                     <span />
                   );
                 })()}
-                {evidenceId ? (
-                  <Link
-                    href={`/evidence/${evidenceId}`}
-                    className="reports-ledger-evidence"
-                  >
-                    Evidence
-                  </Link>
-                ) : null}
+                <Link
+                  href={`/prescriptions/${entry.prescriptionId}`}
+                  className="reports-ledger-evidence"
+                >
+                  Open Rx
+                </Link>
               </div>
             </Panel>
           );

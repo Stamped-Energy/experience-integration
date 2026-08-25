@@ -143,7 +143,7 @@ Follow-on to P1–P4: BFF Class-B routes exist, but insight pages still show raw
 | `/intensity` | `SustainabilityDashboard` | SEC + derived CO₂ → `/api/insights/sustainability` | B | live |
 | `/equipment` | `MachineHealthBoard` | assets + energy series → `/api/insights/equipment` | B | live |
 | `/` `/live` | `PlantHealthMap`, dials, demand, alerts | overview + L2 + L5; **purge overview-demo** | A/B | todo |
-| `/reports` | `ExportCentre`, `SavingsLedger` | `/api/reports` + ledger exports | A/B | todo |
+| `/reports` | `ExportCentre`, `SavingsLedger` | `/api/reports` + L5 Rx ledger | A/B | live |
 | `/energy` | Source mix donut | No generation table | D | empty |
 | `/equipment` | Vibration / FFT / thermal | No L1 CM sensing on Vinayak | D | empty |
 | `/plant-map` | True CAD x/y | No geometry in L2 | D | empty (auto-layout instead) |
