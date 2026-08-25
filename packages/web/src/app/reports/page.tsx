@@ -102,7 +102,7 @@ export default function ReportsPage() {
       screenTitle="Reports and ledger"
       contextSummary={[
         ops != null ? `Confirmed savings MTD ${formatInr(ops)}` : "No confirmed savings",
-        `${ledger.length} ledger rows from L5`,
+        `${ledger.length} ledger entries`,
         activePlant.plantName,
       ]}
       criticalAlarmCount={0}
@@ -129,7 +129,7 @@ export default function ReportsPage() {
         {source === "unavailable" && !loading ? (
           <EmptyUpstreamState
             title="Reports unavailable"
-            detail="Sign in with L2/L5 reachability to load ledger and report jobs."
+            detail="Sign in and connect your plant to load ledger and report jobs."
           />
         ) : (
           <>

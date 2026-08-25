@@ -74,9 +74,9 @@ export default function LivePage() {
       screenTitle="Live"
       contextSummary={[
         source === "l2"
-          ? "L2 measurements · plant-scoped"
+          ? "Live telemetry"
           : "No live telemetry",
-        source === "l2" ? `${assets.length} assets from L2` : "Waiting for L2",
+        source === "l2" ? `${assets.length} assets tracked` : "Waiting for connection",
         activePlant.shift,
       ]}
       criticalAlarmCount={0}
@@ -88,7 +88,7 @@ export default function LivePage() {
         detail={loadError}
       />
       <p className="forge-page-lede">
-        Real-time plant instrumentation from L2 · {activePlant.shift}
+        Real-time plant instrumentation · {activePlant.shift}
       </p>
       {loading ? (
         <LiveBoardSkeleton />
@@ -102,7 +102,7 @@ export default function LivePage() {
       ) : (
         <EmptyUpstreamState
           title="No live telemetry"
-          detail="L2 assets/measurements unavailable. Demo jitter baseline has been removed."
+          detail="Live asset and measurement data is not available for this plant."
         />
       )}
     </AppShell>

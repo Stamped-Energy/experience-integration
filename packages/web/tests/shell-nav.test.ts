@@ -53,7 +53,7 @@ describe("role-aware navigation", () => {
     );
   });
 
-  it("exposes Assignments to admin under reveal (Tools / Settings dock)", () => {
+  it("exposes Assignments to admin under reveal", () => {
     assert.ok(navForRole("admin").reveal.some((i) => i.key === "assignments"));
     assert.equal(navForRole("admin").primary.some((i) => i.key === "assignments"), false);
   });
@@ -78,18 +78,18 @@ describe("role-aware navigation", () => {
   });
 
   it("promotes sanitized pins and drops unauthorized keys", () => {
-    const pins = sanitizePins("plant_head", ["tools", "admin", "alarms", "tools"]);
-    assert.deepEqual(pins, ["tools"]);
+    const pins = sanitizePins("plant_head", ["analyst", "admin", "alarms", "analyst"]);
+    assert.deepEqual(pins, ["analyst"]);
     const { primary, reveal } = composeNav("plant_head", pins);
-    assert.ok(primary.some((i) => i.key === "tools"));
-    assert.equal(reveal.some((i) => i.key === "tools"), false);
+    assert.ok(primary.some((i) => i.key === "analyst"));
+    assert.equal(reveal.some((i) => i.key === "analyst"), false);
   });
 
   it("groups navigation into collapsible sections instead of a flat list", () => {
     const tree = composeNavTree("plant_head", [], { active: "energy" });
     assert.ok(tree.standalone.some((i) => i.key === "today"));
     assert.ok(tree.standalone.some((i) => i.key === "live"));
-    assert.ok(tree.standalone.some((i) => i.key === "analyst"));
+    assert.equal(tree.standalone.some((i) => i.key === "analyst"), false);
     assert.equal(tree.groups.length >= 3, true);
     const insights = tree.groups.find((g) => g.id === "insights");
     assert.ok(insights?.items.some((i) => i.key === "energy"));
@@ -107,7 +107,8 @@ describe("role-aware navigation", () => {
     const tree = composeNavTree("cfo", [], { active: "reports" });
     assert.equal(tree.groups.some((g) => g.id === "operations"), false);
     assert.ok(tree.groups.some((g) => g.id === "reports"));
-    assert.equal(tree.standalone.some((i) => i.key === "analyst"), true);
+    assert.equal(tree.standalone.some((i) => i.key === "analyst"), false);
+    assert.ok(navForRole("cfo").reveal.some((i) => i.key === "analyst"));
   });
 });
 

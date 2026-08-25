@@ -79,7 +79,7 @@ export function PrescriptionsOverviewPanel({
               padding: 12,
             }}
           >
-            No prescriptions from L5 yet
+            No prescriptions yet
           </div>
         ) : null}
         {top.map((rx) => {

@@ -35,7 +35,7 @@ export default function AlarmsPage() {
           if (!cancelled) {
             setDetail(
               res.status === 401
-                ? "Sign in to load alarms from L5."
+                ? "Sign in to load alarms."
                 : `Alarms unavailable (${res.status})`,
             );
             setLoading(false);
@@ -54,17 +54,17 @@ export default function AlarmsPage() {
         } else if (body.source === "unavailable") {
           setAlarms([]);
           setSource("unavailable");
-          setDetail(body.detail ?? "L5 unavailable");
+          setDetail(body.detail ?? "Alarm data unavailable");
         } else {
           // Strict live: ignore fixture payloads
           setAlarms([]);
           setSource("unavailable");
-          setDetail("Fixture alarms suppressed — connect L5");
+          setDetail("Connect operations workflow to load alarms");
         }
         setLoading(false);
       } catch {
         if (!cancelled) {
-          setDetail("BFF unreachable");
+          setDetail("Unable to reach server");
           setLoading(false);
         }
       }
@@ -92,7 +92,7 @@ export default function AlarmsPage() {
       screenTitle="Alarm console"
       contextSummary={[
         `${open} open · ${critical} critical`,
-        source === "l5" ? "Live from L5" : "No L5 alarms",
+        source === "l5" ? "Live alarms" : "No alarm data",
       ]}
       focusEntity={alarms[0] ? { type: "alarm", id: alarms[0].id } : undefined}
       criticalAlarmCount={critical}
@@ -107,13 +107,13 @@ export default function AlarmsPage() {
         ) : (
           <EmptyUpstreamState
             title="No alarms for this plant"
-            detail="L5 returned an empty list — run the L3→L4→L5 pipeline for LNM to raise alarms."
+            detail="No open alarms for this plant right now."
           />
         )
       ) : (
         <EmptyUpstreamState
           title="No alarm data"
-          detail="L5 unreachable or strict-live empty. Fixture alarm console seed removed."
+          detail="Alarm data is not available. Check your plant connection or sign in again."
         />
       )}
     </AppShell>

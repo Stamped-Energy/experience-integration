@@ -60,7 +60,7 @@ export function AlertFeedPanel({ alerts }: { alerts: AlertRow[] }) {
     return (
       <EmptyUpstreamState
         title="No live alerts"
-        detail="L5 alarms are not overlaid on this board yet — fixture alert feed removed."
+        detail="Alarm feed will appear here when operations data is connected."
       />
     );
   }

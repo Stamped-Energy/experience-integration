@@ -87,7 +87,7 @@ export function KpiHeroStrip({ live }: { live?: OverviewLiveKpis | null }) {
               }}
             >
               <TrendingUp size={13} strokeWidth={2.5} />
-              From L5 realised ledger
+              From savings ledger
             </div>
           </>
         )}
@@ -168,7 +168,7 @@ export function KpiHeroStrip({ live }: { live?: OverviewLiveKpis | null }) {
               }}
             >
               <TrendingDown size={12} strokeWidth={2.5} />
-              From upstream
+              From plant data
             </div>
           </>
         )}

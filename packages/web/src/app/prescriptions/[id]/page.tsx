@@ -147,7 +147,7 @@ export default function PrescriptionDetailPage() {
           {payload.evidence.downloadHref ? (
             <p style={{ fontSize: 13 }}>
               <a href={bffUrl(payload.evidence.downloadHref)} target="_blank" rel="noreferrer">
-                Download L5 evidence ZIP
+                Download evidence package
               </a>
             </p>
           ) : null}
@@ -155,7 +155,7 @@ export default function PrescriptionDetailPage() {
       ) : (
         <EmptyUpstreamState
           title="Prescription case unavailable"
-          detail="Live case requires L5 detail + optional L2 series via GET /api/cases/prescription/:id."
+          detail="Open a prescription or alarm to view its evidence case."
         />
       )}
     </AppShell>

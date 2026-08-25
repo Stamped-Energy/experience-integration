@@ -21,7 +21,7 @@ export function L2PointsDisclosure({
   if (!series || series.points.length === 0) {
     return (
       <p style={{ fontSize: 13, opacity: 0.75, margin: "8px 0 0" }}>
-        No L2 measurement points for this window (honest empty — not fixture data).
+        No measurement points for this time window.
       </p>
     );
   }
@@ -33,13 +33,13 @@ export function L2PointsDisclosure({
   }));
 
   return (
-    <ForgeDisclosure title={`L2 points used for chart (${series.points.length})`}>
+    <ForgeDisclosure title={`Chart data points (${series.points.length})`}>
       <p style={{ fontSize: 12, opacity: 0.75, marginBottom: 8 }}>
         {series.assetId}/{series.metric} · {series.granularity} · {series.from.slice(0, 16)} →{" "}
         {series.to.slice(0, 16)} — same series as the chart above.
       </p>
       <DataTable
-        caption="L2 measurement points"
+        caption="Measurement points"
         columns={[
           { key: "ts", header: "Timestamp" },
           { key: "value", header: "Value", align: "right" },

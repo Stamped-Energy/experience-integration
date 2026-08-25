@@ -27,7 +27,7 @@ const SIGNAL_SLOTS: Array<{
     tone: "good",
     fill: (live) =>
       live?.confirmedSavingsMtdInr != null
-        ? { value: formatInr(live.confirmedSavingsMtdInr), hint: "From L5 realised ledger" }
+        ? { value: formatInr(live.confirmedSavingsMtdInr), hint: "From savings ledger" }
         : null,
   },
   {
@@ -37,7 +37,7 @@ const SIGNAL_SLOTS: Array<{
     tone: "good",
     fill: (live) =>
       live?.closureRate30d != null
-        ? { value: `${live.closureRate30d}%`, hint: "From L5 prescription statuses" }
+        ? { value: `${live.closureRate30d}%`, hint: "From prescription workflow" }
         : null,
   },
   {
@@ -47,7 +47,7 @@ const SIGNAL_SLOTS: Array<{
     tone: "critical",
     fill: (live) =>
       live?.criticalAlarmCount != null
-        ? { value: `${live.criticalAlarmCount} open`, hint: "From L5" }
+        ? { value: `${live.criticalAlarmCount} open`, hint: "From alarm console" }
         : null,
   },
   {
@@ -75,7 +75,7 @@ const SIGNAL_SLOTS: Array<{
             hint:
               live.mdPeakKva != null && live.mdCmdKva != null
                 ? `Peak ${Math.round(live.mdPeakKva)} / CMD ${Math.round(live.mdCmdKva)} kVA`
-                : "From L2 tariff + telemetry",
+                : "From demand telemetry",
           }
         : null,
   },
@@ -88,7 +88,7 @@ const SIGNAL_SLOTS: Array<{
       live?.vsBaseline7dPct != null
         ? {
             value: `${live.vsBaseline7dPct > 0 ? "+" : ""}${live.vsBaseline7dPct}%`,
-            hint: "From L2 energy vs implied baseline",
+            hint: "From energy baseline comparison",
           }
         : null,
   },
@@ -151,7 +151,7 @@ export function OverviewBoard({
                 <SignalCard
                   label={slot.label}
                   value={filled?.value ?? "—"}
-                  hint={filled?.hint ?? "No upstream data"}
+                  hint={filled?.hint ?? "No data yet"}
                   tone={filled ? slot.tone : "neutral"}
                 />
               </Link>

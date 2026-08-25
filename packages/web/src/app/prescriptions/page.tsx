@@ -38,7 +38,7 @@ export default function PrescriptionsPage() {
           if (!cancelled) {
             setLoadError(
               res.status === 401
-                ? "Sign in to load live prescriptions from L5."
+                ? "Sign in to load prescriptions."
                 : `Could not load prescriptions (${res.status}).`,
             );
           }
@@ -56,15 +56,15 @@ export default function PrescriptionsPage() {
         } else if (body.source === "unavailable") {
           setRows([]);
           setSource("unavailable");
-          setLoadError(body.detail ?? "L5 unavailable");
+          setLoadError(body.detail ?? "Prescription data unavailable");
         } else {
           setRows([]);
           setSource("unavailable");
-          setLoadError("Fixture prescriptions suppressed — connect L5");
+          setLoadError("Connect operations workflow to load prescriptions");
         }
       } catch {
         if (!cancelled) {
-          setLoadError("BFF unreachable.");
+          setLoadError("Unable to reach server.");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -86,9 +86,9 @@ export default function PrescriptionsPage() {
     ? "Loading prescriptions…"
     : source === "l5"
       ? rows.length === 0
-        ? "Live from L5 · no prescriptions yet"
-        : "Live from L5"
-      : "No L5 prescriptions";
+        ? "Live prescriptions · none yet"
+        : "Live prescriptions"
+      : "No prescription data";
 
   return (
     <AppShell
@@ -121,13 +121,13 @@ export default function PrescriptionsPage() {
         ) : (
           <EmptyUpstreamState
             title="No prescriptions for this plant"
-            detail="L5 returned an empty list — run L3→L4→L5 for LNM to create prescriptions."
+            detail="No prescriptions queued for this plant right now."
           />
         )
       ) : (
         <EmptyUpstreamState
           title="No prescription data"
-          detail="L5 unreachable or strict-live empty. Fixture queue seed removed."
+          detail="Prescription data is not available. Check your plant connection or sign in again."
         />
       )}
     </AppShell>

@@ -237,7 +237,7 @@ export function EnergyTrendPanel({ rows }: { rows?: LiveTrendDay[] | null }) {
             fontSize: 13,
           }}
         >
-          Chart empty until L2 measurements are available
+          Chart empty until measurements are available
         </div>
       ) : (
         <>

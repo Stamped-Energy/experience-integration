@@ -1,14 +1,7 @@
 "use client";
 
 import type { DataSource } from "@/lib/bff";
-
-const LABELS: Record<DataSource, string> = {
-  fixture: "Demo fixture",
-  l2: "Live from L2",
-  l5: "Live from L5",
-  preview: "Preview · not live plant data",
-  unavailable: "No upstream data",
-};
+import { DATA_SOURCE_LABELS } from "@/lib/client-copy";
 
 type Props = {
   source: DataSource;
@@ -16,9 +9,9 @@ type Props = {
   detail?: string | null;
 };
 
-/** Consistent live-vs-fixture indicator across converted screens. */
+/** Consistent live-vs-preview indicator across converted screens. */
 export function SourceIndicator({ source, loading, detail }: Props) {
-  const label = loading ? "Loading…" : LABELS[source];
+  const label = loading ? "Loading…" : DATA_SOURCE_LABELS[source];
   const tone =
     source === "l2" || source === "l5"
       ? "var(--forge-tertiary)"
@@ -44,9 +37,9 @@ export function SourceIndicator({ source, loading, detail }: Props) {
   );
 }
 
-/** Empty-state card for Class D / unavailable tiles. */
+/** Empty-state card for unavailable tiles. */
 export function EmptyUpstreamState({
-  title = "No upstream data",
+  title = "No data available",
   detail,
 }: {
   title?: string;
