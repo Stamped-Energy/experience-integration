@@ -1,12 +1,12 @@
 import type { FastifyInstance } from "fastify";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { fromNodeHeaders } from "better-auth/node";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import type { Auth } from "../auth/index.js";
 import { AuthzError, requirePermission } from "../authz/index.js";
 import type { Db } from "../db/client.js";
-import { webhookDeliveries, webhookEndpoints } from "../db/schema.js";
+import { apiKeys, webhookDeliveries, webhookEndpoints } from "../db/schema.js";
 import { resolveActivePlant } from "../tenancy/service.js";
 import { createOrgApiKey } from "../public/routes.js";
 import {
@@ -69,6 +69,69 @@ export async function registerIntegrationRoutes(
       // shown once
       api_key: created.fullKey,
     });
+  });
+
+  app.get("/api/integrations/api-keys", async (request, reply) => {
+    const session = await deps.auth.api.getSession({
+      headers: fromNodeHeaders(request.headers),
+    });
+    if (!session) return problem(reply, 401, "Session required", request.id);
+    const resolved = await resolveActivePlant(deps.db, { userId: session.user.id });
+    const plant = resolved.activePlant ?? resolved.authorized[0];
+    if (!plant) return problem(reply, 403, "No plant membership", request.id);
+    try {
+      requirePermission(plant.role, "admin:integrations");
+    } catch (err) {
+      if (err instanceof AuthzError) return problem(reply, 403, err.message, request.id);
+      throw err;
+    }
+    const rows = await deps.db
+      .select()
+      .from(apiKeys)
+      .where(eq(apiKeys.orgId, plant.orgId));
+    return {
+      items: rows.map((r) => ({
+        id: r.id,
+        name: r.name,
+        prefix: r.prefix,
+        scopes: r.scopes,
+        created_at: r.createdAt,
+        last_used_at: r.lastUsedAt,
+        revoked_at: r.revokedAt,
+      })),
+    };
+  });
+
+  app.delete("/api/integrations/api-keys/:id", async (request, reply) => {
+    const session = await deps.auth.api.getSession({
+      headers: fromNodeHeaders(request.headers),
+    });
+    if (!session) return problem(reply, 401, "Session required", request.id);
+    const resolved = await resolveActivePlant(deps.db, { userId: session.user.id });
+    const plant = resolved.activePlant ?? resolved.authorized[0];
+    if (!plant) return problem(reply, 403, "No plant membership", request.id);
+    try {
+      requirePermission(plant.role, "admin:integrations");
+    } catch (err) {
+      if (err instanceof AuthzError) return problem(reply, 403, err.message, request.id);
+      throw err;
+    }
+    const { id } = request.params as { id: string };
+    const updated = await deps.db
+      .update(apiKeys)
+      .set({ revokedAt: new Date() })
+      .where(
+        and(
+          eq(apiKeys.id, id),
+          eq(apiKeys.orgId, plant.orgId),
+          isNull(apiKeys.revokedAt),
+        ),
+      )
+      .returning({ id: apiKeys.id });
+    if (updated.length === 0) {
+      return problem(reply, 404, "API key not found or already revoked", request.id);
+    }
+    return reply.status(204).send();
   });
 
   app.post("/api/integrations/webhooks", async (request, reply) => {
