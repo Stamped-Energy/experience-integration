@@ -289,7 +289,7 @@ export function ExportCentre({
               Export centre
             </h2>
             <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-              Generate → review → approve → download. Jobs are stored in L6 Postgres for {plantName}.
+              Generate → review → approve → download. Jobs are stored securely for {plantName}.
             </p>
           </div>
           <div className="reports-export-head__actions">

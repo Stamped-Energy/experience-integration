@@ -124,8 +124,8 @@ export default function EquipmentPage() {
       connection={connectionFixture}
       screenTitle="Machine Health"
       contextSummary={[
-        source === "l2" ? "Live energy-derived health from L2" : "No equipment data",
-        "Vibration/FFT Class D empty",
+        source === "l2" ? "Live equipment health" : "No equipment data",
+        "Vibration data when sensors are connected",
         activePlant.plantName,
       ]}
       criticalAlarmCount={0}
@@ -145,7 +145,7 @@ export default function EquipmentPage() {
       ) : (
         <EmptyUpstreamState
           title="No equipment data"
-          detail="Connect L2 to load the plant asset graph and power series. Fixture health fleets are not used."
+          detail="Connect plant telemetry to load equipment health and load dials."
         />
       )}
     </AppShell>

@@ -69,8 +69,8 @@ export function AppTopbar({
           data-demo-mode={demoMode ? "true" : "false"}
           title={
             demoMode
-              ? "L2 or L5 unreachable — showing empty states where fixtures were removed"
-              : "Upstreams reachable — plant data from L2/L5"
+              ? "Plant connection unavailable — some views may be empty"
+              : "Connected to live plant data"
           }
         >
           <span className="forge-shell__conn-dot" aria-hidden />

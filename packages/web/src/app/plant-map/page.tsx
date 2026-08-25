@@ -56,7 +56,7 @@ export default function PlantMapPage() {
           setSource("l2");
           setDetail(body.detail ?? null);
         } else {
-          setDetail(body.detail ?? "No plant map levels from L2");
+          setDetail(body.detail ?? "Plant map data is not available yet");
           setSource("unavailable");
         }
         setLoading(false);
@@ -84,7 +84,7 @@ export default function PlantMapPage() {
       connection={connectionFixture}
       screenTitle="Plant Map"
       contextSummary={[
-        source === "l2" ? "Live plant map from L2" : "No plant map",
+        source === "l2" ? "Live plant map" : "Plant map unavailable",
         activePlant.plantName,
       ]}
       criticalAlarmCount={0}
@@ -94,15 +94,15 @@ export default function PlantMapPage() {
       {source === "l2" && levels ? (
         <div className="forge-page-stack">
           <p className="forge-page-lede">
-            Hierarchy and live power for {activePlant.plantName}. Card positions are auto-laid
-            out (L2 has no CAD geometry).
+            Hierarchy and live power for {activePlant.plantName}. Card positions are
+            auto-laid out from your plant hierarchy.
           </p>
           <PlantSectionMap levels={levels} rootLevelId={rootLevelId} notes={notes} />
         </div>
       ) : (
         <EmptyUpstreamState
           title="No plant map data"
-          detail="L2 department-graph or assets are required. Fixture section map is not used."
+          detail="Connect plant telemetry to see department layout and live load."
         />
       )}
     </AppShell>

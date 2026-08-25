@@ -8,10 +8,7 @@ export type NavItem = {
   tier: "primary" | "reveal";
 };
 
-/**
- * Nav order mirrors stamped-energy-dashboard, plus ops screens (Alarms, Ask Analyst, Tools).
- * Plant Map is its own route - not a Machine Health tab.
- */
+/** Nav order mirrors stamped-energy-dashboard ops + insights surfaces. */
 export const NAV_ITEMS: NavItem[] = [
   { key: "today", href: "/", label: "Overview", permission: "route:today", tier: "primary" },
   { key: "live", href: "/live", label: "Live", permission: "route:live", tier: "primary" },
@@ -63,13 +60,6 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/analyst",
     label: "Ask Analyst",
     permission: "route:analyst",
-    tier: "primary",
-  },
-  {
-    key: "tools",
-    href: "/tools",
-    label: "Tools",
-    permission: "route:today",
     tier: "reveal",
   },
   {
@@ -185,8 +175,8 @@ export const NAV_PIN_STORAGE_KEY = "stamped.l6.nav.pins";
 export const NAV_COLLAPSE_STORAGE_KEY = "stamped.l6.nav.collapsed";
 export const NAV_GROUPS_STORAGE_KEY = "stamped.l6.nav.groups";
 
-/** Top-level links - always visible, never tucked in a group. */
-export const STANDALONE_NAV_KEYS: readonly NavKey[] = ["today", "live", "analyst"];
+/** Top-level links - always visible, never tucked in a group. Ask Analyst lives in the topbar. */
+export const STANDALONE_NAV_KEYS: readonly NavKey[] = ["today", "live"];
 
 export type NavGroupId = "operations" | "insights" | "reports" | "administration";
 
@@ -206,7 +196,7 @@ export const NAV_GROUP_DEFS: readonly {
   {
     id: "administration",
     label: "Administration",
-    keys: ["admin", "assignments", "integrations", "tools"],
+    keys: ["admin", "assignments", "integrations"],
   },
 ];
 

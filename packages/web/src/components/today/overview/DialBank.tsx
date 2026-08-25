@@ -11,7 +11,7 @@ export function DialBank({ dials }: { dials: DialRow[] }) {
     return (
       <EmptyUpstreamState
         title="No load dials"
-        detail="L2 asset graph has no equipment to dial yet."
+        detail="No equipment to show load dials yet."
       />
     );
   }
@@ -24,7 +24,7 @@ export function DialBank({ dials }: { dials: DialRow[] }) {
           <h3 className="forge-card-title">Critical Asset Load Dials</h3>
         </div>
         <span style={{ fontSize: 11, color: "var(--forge-on-surface-variant)" }}>
-          L2 asset overlay
+          Plant equipment overlay
         </span>
       </div>
 

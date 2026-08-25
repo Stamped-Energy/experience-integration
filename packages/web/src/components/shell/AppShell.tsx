@@ -16,6 +16,7 @@ import { WebVitalsReporter } from "@/components/telemetry/WebVitalsReporter";
 import { SidebarNav } from "@/components/shell/SidebarNav";
 import { AppTopbar } from "@/components/shell/AppTopbar";
 import { DEMO_PLANT, LNM_PLANT, PLANTS } from "@/lib/plant-catalog";
+import { DEMO_BANNER_COPY } from "@/lib/client-copy";
 import { usePlant } from "@/lib/plant-context";
 import { useDataSource } from "@/lib/data-source-context";
 
@@ -203,16 +204,7 @@ export function AppShell({
               className="forge-shell__banner forge-shell__banner--demo"
               data-demo-data-banner
             >
-              <span>
-                Demo data only
-                {probe?.l2 === "down" || probe?.l2 === "off"
-                  ? " — L2 unreachable"
-                  : ""}
-                {probe?.l5 === "down" || probe?.l5 === "off"
-                  ? " — L5 unreachable"
-                  : ""}
-                . Tiles without live upstreams show empty states.
-              </span>
+              <span>{DEMO_BANNER_COPY}</span>
               <button
                 type="button"
                 className="forge-shell__banner-dismiss"
@@ -242,9 +234,6 @@ export function AppShell({
             </Link>
           );
         })}
-        <Link href="/tools">
-          <span>Tools</span>
-        </Link>
       </nav>
 
       <Sheet open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} title="Navigate">

@@ -24,14 +24,14 @@ const TOOLS = [
   {
     href: "/energy",
     title: "Energy Analytics",
-    blurb: "Trends, baselines, and cost views when L2 bills/tariff are reachable.",
+    blurb: "Trends, baselines, and cost views when billing data is connected.",
     Icon: BarChart3,
     badgeKey: null as string | null,
   },
   {
     href: "/equipment",
     title: "Machine Health",
-    blurb: "Asset load dials from live L2 assets when connected.",
+    blurb: "Asset load dials when plant telemetry is connected.",
     Icon: Activity,
     badgeKey: null,
   },

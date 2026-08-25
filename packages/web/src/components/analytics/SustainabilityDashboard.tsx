@@ -98,7 +98,7 @@ export function SustainabilityDashboard({ data }: { data: SustainabilityBoardDat
         </p>
         <h2 className="sust-dash__hero-title">Sustainability & intensity snapshot</h2>
         <p className="sust-dash__hero-lead">
-          SEC, emissions, and demand metrics from L2 for this window.
+          SEC, emissions, and demand metrics for this window.
         </p>
         {data.derivedNotes?.length ? (
           <p className="sust-dash__hint">{data.derivedNotes.join(" · ")}</p>
@@ -157,11 +157,11 @@ export function SustainabilityDashboard({ data }: { data: SustainabilityBoardDat
               <p className="sust-dash__hint">
                 {data.productionUnits != null
                   ? `${formatIndianNum(data.productionUnits)} production units in window`
-                  : "SEC from L2 features window"}
+                  : "SEC from production window"}
               </p>
             </>
           ) : (
-            <EmptyUpstreamState title="SEC trend" detail="No L2 SEC feature points." />
+            <EmptyUpstreamState title="SEC trend" detail="No SEC data points yet." />
           )}
         </Panel>
 
@@ -201,7 +201,7 @@ export function SustainabilityDashboard({ data }: { data: SustainabilityBoardDat
           ) : (
             <EmptyUpstreamState
               title="Energy source mix"
-              detail="No generation / renewable table in L2 — mix stays empty."
+              detail="No generation or renewable mix data yet."
             />
           )}
         </Panel>
@@ -250,7 +250,7 @@ export function SustainabilityDashboard({ data }: { data: SustainabilityBoardDat
           <p className="sust-dash__hint">
             {data.todPeakSharePct != null
               ? `Peak share: ${data.todPeakSharePct}%`
-              : "Peak share not computed from L2 yet"}
+              : "Peak share not computed yet"}
             {data.cmdKva != null
               ? ` · CMD ${formatIndianNum(data.cmdKva)} kVA`
               : ""}

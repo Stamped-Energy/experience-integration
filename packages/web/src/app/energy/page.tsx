@@ -44,7 +44,7 @@ export default function EnergyPage() {
           setSource("l2");
           setDetail(body.detail ?? null);
         } else {
-          setDetail(body.detail ?? "L2 energy board unavailable");
+          setDetail(body.detail ?? "Energy analytics unavailable");
           setSource("unavailable");
         }
         setLoading(false);
@@ -52,7 +52,7 @@ export default function EnergyPage() {
       .catch(() => {
         if (!cancelled) {
           setSource("unavailable");
-          setDetail("BFF unreachable");
+          setDetail("Unable to reach server");
           setLoading(false);
         }
       });
@@ -72,7 +72,7 @@ export default function EnergyPage() {
       connection={connectionFixture}
       screenTitle="Energy Analytics"
       contextSummary={[
-        source === "l2" ? "Live energy board from L2" : "No L2 energy board",
+        source === "l2" ? "Live energy analytics" : "Energy data unavailable",
         activePlant.plantName,
       ]}
       criticalAlarmCount={0}
@@ -82,14 +82,14 @@ export default function EnergyPage() {
       {source === "l2" && board ? (
         <div className="forge-page-stack">
           <p className="forge-page-lede">
-            Charts and KPIs from L2 bills, tariff, and measurements for {activePlant.plantName}.
+            Charts and KPIs from bills, tariff, and measurements for {activePlant.plantName}.
           </p>
           <EnergyBoard data={board} />
         </div>
       ) : (
         <EmptyUpstreamState
           title="No energy analytics data"
-          detail="L2 bills, tariff, or measurement series are required. Fixture EnergyBoard datasets are not used."
+          detail="Connect plant billing and telemetry to see energy analytics."
         />
       )}
     </AppShell>

@@ -167,7 +167,7 @@ export function MachineHealthBoard({ data }: { data: MachineHealthBoardData }) {
     return (
       <EmptyUpstreamState
         title="No equipment assets"
-        detail="L2 returned an empty fleet for this plant."
+        detail="No equipment registered for this plant yet."
       />
     );
   }
@@ -186,10 +186,10 @@ export function MachineHealthBoard({ data }: { data: MachineHealthBoardData }) {
           color: "var(--forge-tertiary)",
         }}
       >
-        Live from L2 · energy-derived load &amp; health
+        Live load and health from plant telemetry
         {data.derivedNotes?.length
           ? ` · ${data.derivedNotes[0]}`
-          : " · vibration / thermal remain empty without L1 sensing"}
+          : " · vibration and thermal appear when condition monitoring is connected"}
       </div>
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -218,7 +218,7 @@ export function MachineHealthBoard({ data }: { data: MachineHealthBoardData }) {
       kpis.maintCompliance == null ? (
         <EmptyUpstreamState
           title="CM KPIs unavailable"
-          detail="Predictive alerts, MTBF, maintenance compliance, and unplanned downtime need condition-monitoring upstream — not invented from kW."
+          detail="Predictive alerts, MTBF, and maintenance metrics need condition monitoring — not estimated from power alone."
         />
       ) : null}
 
@@ -226,7 +226,7 @@ export function MachineHealthBoard({ data }: { data: MachineHealthBoardData }) {
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
           <div>
             <p className="forge-eyebrow">Live Instrumentation</p>
-            <h3 className="forge-card-title">Asset Load Dials — L2 fleet</h3>
+            <h3 className="forge-card-title">Asset load dials</h3>
           </div>
           <span style={{ fontSize: 11, color: "var(--forge-on-surface-variant)" }}>
             Energy-derived load %
@@ -285,11 +285,11 @@ export function MachineHealthBoard({ data }: { data: MachineHealthBoardData }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <EmptyUpstreamState
             title="Vibration trend"
-            detail="No mm/s series on Vinayak L2 — Class D empty."
+            detail="No vibration trend data for this asset yet."
           />
           <EmptyUpstreamState
             title="Vibration FFT"
-            detail="Bearing defect spectrum needs L1 sensing."
+            detail="Bearing spectrum requires on-machine sensors."
           />
         </div>
       </div>
@@ -418,7 +418,7 @@ export function MachineHealthBoard({ data }: { data: MachineHealthBoardData }) {
 
       <EmptyUpstreamState
         title="Maintenance schedule"
-        detail="No CM / work-order upstream — schedule not invented."
+        detail="Maintenance schedule unavailable until work-order integration is connected."
       />
     </div>
   );

@@ -102,7 +102,7 @@ export function SectionDonut({
             padding: 16,
           }}
         >
-          No section breakdown from L2 yet
+          No section breakdown yet
         </div>
       ) : (
         <div ref={hostRef} style={{ height: 220, width: "100%" }} role="img" aria-label="Section energy share" />

@@ -134,7 +134,7 @@ export default function AlarmDetailPage() {
       ) : (
         <EmptyUpstreamState
           title="Alarm case unavailable"
-          detail="Live case requires L5 alarm + linked prescription evidence via GET /api/cases/alarm/:id."
+          detail="Open a prescription or alarm to view its evidence case."
         />
       )}
     </AppShell>

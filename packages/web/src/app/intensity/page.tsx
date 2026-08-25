@@ -77,7 +77,7 @@ export default function IntensityPage() {
       connection={connectionFixture}
       screenTitle="Sustainability"
       contextSummary={[
-        source === "l2" ? "Live sustainability from L2" : "No sustainability data",
+        source === "l2" ? "Live sustainability metrics" : "No sustainability data",
         activePlant.plantName,
       ]}
       criticalAlarmCount={0}
@@ -91,7 +91,7 @@ export default function IntensityPage() {
       ) : (
         <EmptyUpstreamState
           title="No SEC / sustainability data"
-          detail="L2 SEC features and energy series are required. Fixture intensity dashboard is not used."
+          detail="Connect production and energy data to see specific energy consumption."
         />
       )}
     </AppShell>

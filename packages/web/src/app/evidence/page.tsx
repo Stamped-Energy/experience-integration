@@ -113,7 +113,7 @@ function EvidenceIndexInner() {
       role={DEMO_SHELL_ROLE}
       connection={connectionFixture}
       screenTitle="Evidence"
-      contextSummary={["Live L5 / L2 case packs", activePlant.plantName]}
+      contextSummary={["Evidence cases", activePlant.plantName]}
       criticalAlarmCount={0}
     >
       <PageHead eyebrow="Operations" title="Evidence" />
@@ -139,7 +139,7 @@ function EvidenceIndexInner() {
       ) : (
         <EmptyUpstreamState
           title="No evidence for this plant"
-          detail="Seed L5 prescriptions with evidence_refs, then open a case. Queue links use /evidence?rxId=."
+          detail="Prescriptions with evidence will appear here once operations data is connected."
         />
       )}
     </AppShell>

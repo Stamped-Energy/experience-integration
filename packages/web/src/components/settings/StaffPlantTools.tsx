@@ -101,8 +101,8 @@ export function StaffPlantTools() {
             lineHeight: 1.45,
           }}
         >
-          Switch the BFF active plant for your membership. Clients typically stay
-          on one plant; this list comes from `/api/plants`.
+          Switch the active plant for your account. Most users stay on one site;
+          available plants come from your membership.
         </p>
       </div>
 
@@ -167,7 +167,7 @@ export function StaffPlantTools() {
             </p>
           ) : (
             <p style={{ margin: 0, fontSize: 12, color: "var(--forge-on-surface-variant)" }}>
-              Persists via POST `/api/plants/active` and refreshes session + upstream probe.
+              Saves your selection and refreshes plant data.
             </p>
           )}
         </div>

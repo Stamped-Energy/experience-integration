@@ -50,7 +50,7 @@ function LoginForm() {
         </div>
         <p className="forge-login__lede">
           Plant overview, alarms, and prescriptions require a signed-in session.
-          The BFF holds credentials; L2/L5 keys never reach the browser.
+          Your credentials stay on the server and never reach the browser.
         </p>
 
         <form className="forge-login__form" onSubmit={onSubmit}>

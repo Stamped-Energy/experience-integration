@@ -281,7 +281,7 @@ export function ContextualAnalyst({
             {liveMode === true ? (
               <StatusChip tone="good">Live AI</StatusChip>
             ) : liveMode === false ? (
-              <StatusChip tone="neutral">Demo fixture</StatusChip>
+              <StatusChip tone="neutral">Preview</StatusChip>
             ) : null}
             {streaming ? <StatusChip tone="info">Analyzing…</StatusChip> : null}
             <button

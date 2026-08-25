@@ -420,7 +420,7 @@ export function EnergyBoard({ data }: { data: EnergyBoardData }) {
       ) : (
         <EmptyUpstreamState
           title="Monthly consumption chart"
-          detail="No L2 bills with energy totals for this plant yet."
+          detail="No utility bills with energy totals for this plant yet."
         />
       )}
 
@@ -453,7 +453,7 @@ export function EnergyBoard({ data }: { data: EnergyBoardData }) {
         ) : (
           <EmptyUpstreamState
             title="Cost breakdown"
-            detail="Bill line items unavailable from L2 for the latest bill."
+            detail="Bill line items unavailable for the latest bill."
           />
         )}
       </div>
@@ -470,7 +470,7 @@ export function EnergyBoard({ data }: { data: EnergyBoardData }) {
         ) : (
           <EmptyUpstreamState
             title="Power factor trend"
-            detail="No incomer power_factor series from L2."
+            detail="No power factor series for the plant incomer."
           />
         )}
         {secOption ? (
@@ -482,7 +482,7 @@ export function EnergyBoard({ data }: { data: EnergyBoardData }) {
             </div>
           </Panel>
         ) : (
-          <EmptyUpstreamState title="SEC trend" detail="No L2 SEC feature window for this plant." />
+          <EmptyUpstreamState title="SEC trend" detail="No SEC data for this plant yet." />
         )}
       </div>
 
@@ -498,7 +498,7 @@ export function EnergyBoard({ data }: { data: EnergyBoardData }) {
         ) : (
           <EmptyUpstreamState
             title="Weekday profile"
-            detail="No daily energy series from L2 incomer."
+            detail="No daily energy series for the plant incomer."
           />
         )}
         {data.sourceMix?.length ? (
@@ -511,7 +511,7 @@ export function EnergyBoard({ data }: { data: EnergyBoardData }) {
         ) : (
           <EmptyUpstreamState
             title="Energy source mix"
-            detail="No generation or source-mix table in L2 — chart stays empty."
+            detail="No generation or source-mix data — chart stays empty."
           />
         )}
       </div>
@@ -597,7 +597,7 @@ export function EnergyBoard({ data }: { data: EnergyBoardData }) {
       ) : (
         <EmptyUpstreamState
           title="Feeder-wise consumption"
-          detail="No feeder energy series from L2 for this plant."
+          detail="No feeder energy series for this plant."
         />
       )}
     </div>

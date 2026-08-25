@@ -34,7 +34,7 @@ export function SavingsLedger({ rows }: { rows: LedgerEntry[] }) {
     return (
       <EmptyUpstreamState
         title="No ledger rows"
-        detail="L5 prescriptions with ledger_summary are required. Fixture SavingsLedger data is not used."
+        detail="Prescriptions with savings summaries are required to populate the ledger."
       />
     );
   }

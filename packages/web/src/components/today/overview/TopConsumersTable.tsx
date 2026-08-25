@@ -37,7 +37,7 @@ export function TopConsumersTable({ rows }: { rows?: LiveConsumerRow[] | null })
             padding: 16,
           }}
         >
-          No consumer ranking from L2 yet
+          No consumer ranking yet
         </div>
       ) : (
         <div style={{ overflowX: "auto" }} className="forge-scroll-thin">

@@ -65,7 +65,7 @@ export default function EvidenceDetailPage() {
       setSource("unavailable");
       setDetail(
         isLegacyBundleId
-          ? "This URL uses an L5 bundle id. Open evidence via the prescription (evd_{rxId})."
+          ? "Open evidence from the linked prescription."
           : "Unrecognized evidence id",
       );
       setPayload(null);
@@ -137,7 +137,7 @@ export default function EvidenceDetailPage() {
                 target="_blank"
                 rel="noreferrer"
               >
-                Download L5 evidence ZIP
+                Download evidence package
               </a>
             </p>
           ) : null}

@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { bffUrl, type UpstreamProbe } from "@/lib/bff";
+import { connectionPillLabel } from "@/lib/client-copy";
 import { usePlant } from "@/lib/plant-context";
 
 type DataSourceContextValue = {
@@ -106,12 +107,5 @@ export function useDataSource(): DataSourceContextValue {
 }
 
 export function upstreamPillLabel(probe: UpstreamProbe | null): string {
-  if (!probe) return "Checking data…";
-  if (probe.demoMode) return "Demo data only";
-  const live: string[] = [];
-  if (probe.l2 === "live") live.push("L2");
-  if (probe.l5 === "live") live.push("L5");
-  if (probe.l4 === "live") live.push("L4");
-  if (live.length === 0) return "Demo data only";
-  return `Live from ${live.join("+")}`;
+  return connectionPillLabel(probe);
 }
