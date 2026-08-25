@@ -12,6 +12,7 @@ calm, legible, and immediately actionable.
 - Human design guide: `external/design/forge-industrial-design-system.md`
 - Machine tokens: `external/design/forge-industrial-v2.tokens.yaml`
 - Product behavior: `external/handoff/stamped-l6-ui-ux-charter.md`
+- Marketing site (stamped.work) visual system: `docs/design/MAIN_WEBSITE_DESIGN.md` — fonts, chrome tokens, and MotionSlot scene colors. That file is **not** this product UI.
 
 Local components implement these sources; they do not redefine the brand.
 

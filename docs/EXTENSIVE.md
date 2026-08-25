@@ -188,6 +188,7 @@ Notable: `packages/web/tests/l2-live*.test.ts`, `packages/api/tests/cache-header
 - [`docs/deploy/vercel-fixtures.md`](deploy/vercel-fixtures.md)
 - [`deploy/README.md`](../deploy/README.md)
 - [`docs/PHASE_N_VALIDATION.md`](PHASE_N_VALIDATION.md)
+- [`docs/design/MAIN_WEBSITE_DESIGN.md`](design/MAIN_WEBSITE_DESIGN.md) — stamped.work fonts, chrome tokens, MotionSlot colors (not L6 product UI)
 - Platform L6 spec under `external/technical/layers/l4-l6/`
 
 ## 11. Future advancements
