@@ -105,7 +105,7 @@ def _request(method: str, path: str, body: dict | None = None) -> dict:
         headers=headers,
     )
     try:
-        with urllib.request.urlopen(req, timeout=45) as res:
+        with urllib.request.urlopen(req, timeout=120) as res:
             raw = res.read().decode("utf-8")
             return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as exc:

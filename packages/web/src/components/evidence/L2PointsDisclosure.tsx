@@ -1,6 +1,7 @@
 "use client";
 
-import { DataTable, ForgeDisclosure } from "@/components/ui/primitives";
+import { DataTable } from "@/components/ui/primitives";
+import { ForgeDisclosure } from "@/components/ui/ForgeDisclosure";
 
 export type L2SeriesPoint = { ts: string; value: number };
 

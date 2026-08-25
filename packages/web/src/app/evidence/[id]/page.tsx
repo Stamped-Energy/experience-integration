@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { AppShell } from "@/components/shell/AppShell";
 import { EvidenceDetail } from "@/components/evidence/EvidenceDetail";
 import { L2PointsDisclosure } from "@/components/evidence/L2PointsDisclosure";
@@ -38,11 +39,9 @@ function rxIdFromEvidenceParam(id: string): string | null {
   return null;
 }
 
-export default function EvidenceDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function EvidenceDetailPage() {
+  const routeParams = useParams<{ id: string }>();
+  const evidenceId = typeof routeParams.id === "string" ? routeParams.id : "";
   const { activePlant, plants, setActivePlantId } = usePlant();
   const [source, setSource] = useState<DataSource>("unavailable");
   const [payload, setPayload] = useState<CasePayload | null>(null);
@@ -50,16 +49,13 @@ export default function EvidenceDetailPage({
   const [detail, setDetail] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!evidenceId) return;
     let cancelled = false;
     setLoading(true);
-    const rxId = rxIdFromEvidenceParam(params.id);
-    const url = rxId
-      ? bffUrl(
-          `/api/evidence/by-rx?rxId=${encodeURIComponent(rxId)}&plantId=${encodeURIComponent(activePlant.plantId)}`,
-        )
-      : bffUrl(
-          `/api/evidence/by-rx?rxId=${encodeURIComponent(params.id)}&plantId=${encodeURIComponent(activePlant.plantId)}`,
-        );
+    const rxId = rxIdFromEvidenceParam(evidenceId);
+    const url = bffUrl(
+      `/api/evidence/by-rx?rxId=${encodeURIComponent(rxId ?? evidenceId)}&plantId=${encodeURIComponent(activePlant.plantId)}`,
+    );
 
     void fetch(url, { credentials: "include", cache: "no-store" })
       .then(async (res) => {
@@ -84,7 +80,7 @@ export default function EvidenceDetailPage({
     return () => {
       cancelled = true;
     };
-  }, [activePlant.plantId, params.id]);
+  }, [activePlant.plantId, evidenceId]);
 
   const sample = payload?.evidence?.sample;
   const showBaseline = !(payload?.evidence?.pack?.missing ?? []).includes("baseline");
@@ -99,12 +95,12 @@ export default function EvidenceDetailPage({
       role={DEMO_SHELL_ROLE}
       connection={connectionFixture}
       screenTitle="Evidence"
-      contextSummary={[params.id, activePlant.plantName]}
+      contextSummary={[evidenceId, activePlant.plantName]}
       criticalAlarmCount={0}
     >
       <PageHead
         eyebrow="Evidence"
-        title={loading ? params.id : (sample?.issueTitle ?? params.id)}
+        title={loading ? evidenceId : (sample?.issueTitle ?? evidenceId)}
       />
       <SourceIndicator source={source} loading={loading} detail={detail} />
       {loading ? (

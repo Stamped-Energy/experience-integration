@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { AppShell } from "@/components/shell/AppShell";
 import { PrescriptionFullCase } from "@/components/prescriptions/PrescriptionFullCase";
 import { L2PointsDisclosure } from "@/components/evidence/L2PointsDisclosure";
@@ -45,11 +46,9 @@ type CasePayload = {
   links?: { evidenceHref?: string };
 };
 
-export default function PrescriptionDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function PrescriptionDetailPage() {
+  const routeParams = useParams<{ id: string }>();
+  const rxId = typeof routeParams.id === "string" ? routeParams.id : "";
   const { activePlant, plants, setActivePlantId } = usePlant();
   const [source, setSource] = useState<DataSource>("unavailable");
   const [payload, setPayload] = useState<CasePayload | null>(null);
@@ -57,11 +56,12 @@ export default function PrescriptionDetailPage({
   const [detail, setDetail] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!rxId) return;
     let cancelled = false;
     setLoading(true);
     void fetch(
       bffUrl(
-        `/api/cases/prescription/${encodeURIComponent(params.id)}?plantId=${encodeURIComponent(activePlant.plantId)}`,
+        `/api/cases/prescription/${encodeURIComponent(rxId)}?plantId=${encodeURIComponent(activePlant.plantId)}`,
       ),
       { credentials: "include", cache: "no-store" },
     )
@@ -87,7 +87,7 @@ export default function PrescriptionDetailPage({
     return () => {
       cancelled = true;
     };
-  }, [activePlant.plantId, params.id]);
+  }, [activePlant.plantId, rxId]);
 
   const rx = payload?.prescription
     ? {
@@ -110,12 +110,12 @@ export default function PrescriptionDetailPage({
       role={DEMO_SHELL_ROLE}
       connection={connectionFixture}
       screenTitle="Prescription"
-      contextSummary={[params.id, activePlant.plantName]}
+      contextSummary={[rxId, activePlant.plantName]}
       criticalAlarmCount={0}
     >
       <PageHead
         eyebrow="Prescription"
-        title={loading ? params.id : (rx?.title ?? params.id)}
+        title={loading ? rxId : (rx?.title ?? rxId)}
       />
       <SourceIndicator source={source} loading={loading} detail={detail} />
       {loading ? (
