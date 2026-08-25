@@ -29,7 +29,7 @@ import sqlite3
 import sys
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -162,8 +162,11 @@ def _rx(
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     who_label = WHO_LABELS.get(who, who.replace("_", " ").title())
     due_label = DUE_LABELS.get(when, when.replace("_", " "))
+    window_to = datetime.now(timezone.utc)
+    window_from = window_to - timedelta(hours=6)
+    win = f"{window_from.strftime('%Y-%m-%dT%H:%M:%SZ')}/{window_to.strftime('%Y-%m-%dT%H:%M:%SZ')}"
     evidence_refs = [
-        f"tag:{asset_id}/active_power_kw",
+        f"tag:{asset_id}/active_power_kw?window={win}",
         f"baseline:{baseline_id}",
         "tariff:tariff-jvvnl-ht1-vinayak-2026/demand-line",
         f"finding:{finding_id}",
