@@ -160,7 +160,7 @@
 .rx-queue__summary-value {
   margin: 0;
   font-family: var(--forge-font-display);
-  font-weight: 800;
+  font-weight: 700;
   font-size: clamp(1.75rem, 2.5vw, 2.25rem);
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -264,7 +264,7 @@
 .rx-queue__stat-value {
   margin: 4px 0 0;
   font-family: var(--forge-font-display);
-  font-weight: 800;
+  font-weight: 700;
   font-size: 1.35rem;
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -332,7 +332,7 @@
   margin: 0 0 10px;
   font-family: var(--forge-font-display);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--forge-secondary);
@@ -431,7 +431,7 @@
   color: var(--forge-on-tertiary);
   font-family: var(--forge-font-display);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .rx-queue__action-text {
@@ -463,7 +463,7 @@
   color: var(--forge-warning);
   border-radius: var(--forge-radius-sm);
   background: color-mix(in srgb, var(--forge-warning) 10%, var(--forge-surface-container));
-  border-left: 3px solid var(--forge-warning);
+  border: 1px solid color-mix(in srgb, var(--forge-warning) 35%, var(--forge-outline-variant));
 }
 
 .rx-queue__actions-bar {
@@ -498,7 +498,7 @@
   }
 
   .rx-queue__actions-group--ops {
-    border-left: 3px solid var(--forge-tertiary);
+    border-left: 1px solid color-mix(in srgb, var(--forge-tertiary) 40%, var(--forge-outline-variant));
     padding-left: 14px;
   }
 }

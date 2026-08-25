@@ -51,13 +51,14 @@ describe("Forge token contrast", () => {
 
   it("snapshots core Forge brand tokens from design SoT", () => {
     assert.equal(cssVar("--forge-primary").toLowerCase(), "#f75440");
-    assert.equal(cssVar("--forge-secondary").toLowerCase(), "#051f13");
+    assert.equal(cssVar("--forge-secondary").toLowerCase(), "#000a07");
     assert.equal(cssVar("--forge-surface").toLowerCase(), "#f7faf5");
     assert.equal(cssVar("--forge-tertiary").toLowerCase(), "#00666b");
   });
 
-  it("declares display and body font stacks", () => {
-    assert.match(tokens, /Plus Jakarta Sans/);
-    assert.match(tokens, /Public Sans/);
+  it("declares display, body, and mono font stacks", () => {
+    assert.match(tokens, /Space Grotesk/);
+    assert.match(tokens, /Inter/);
+    assert.match(tokens, /IBM Plex Mono/);
   });
 });

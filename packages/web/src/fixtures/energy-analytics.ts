@@ -19,14 +19,14 @@ export const MONTHLY_COMPARISON = [
 
 export const COST_BREAKDOWN = [
   { name: "Energy Charge", value: 1_264_000, color: "#f75440" },
-  { name: "Demand Charge", value: 318_000, color: "#051f13" },
+  { name: "Demand Charge", value: 318_000, color: "#000a07" },
   { name: "TOD Penalty", value: 96_000, color: "#c97a00" },
   { name: "Power Factor Penalty", value: 64_000, color: "#ba1a1a" },
   { name: "Taxes & Duties", value: 58_000, color: "#8f706b" },
 ];
 
 export const SOURCE_MIX = [
-  { name: "Grid (DISCOM)", value: 62, color: "#051f13" },
+  { name: "Grid (DISCOM)", value: 62, color: "#000a07" },
   { name: "Captive Power", value: 24, color: "#f75440" },
   { name: "Solar Rooftop", value: 9, color: "#c97a00" },
   { name: "DG Backup", value: 5, color: "#8f706b" },

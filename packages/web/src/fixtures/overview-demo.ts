@@ -119,7 +119,7 @@ export const OVERVIEW_DIALS = [
 
 export const OVERVIEW_SECTION_BREAKDOWN = [
   { name: "Clinkerization", kwh: 412_000, color: "#f75440" },
-  { name: "Grinding", kwh: 459_000, color: "#051f13" },
+  { name: "Grinding", kwh: 459_000, color: "#000a07" },
   { name: "Raw Grinding", kwh: 191_000, color: "#00666b" },
   { name: "Utilities", kwh: 84_000, color: "#c97a00" },
   { name: "Dispatch", kwh: 54_000, color: "#8f706b" },

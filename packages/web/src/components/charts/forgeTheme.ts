@@ -1,16 +1,16 @@
 /** Forge Industrial v2 palette for ECharts - brand tokens only. */
 
 export const FORGE_ECHARTS_THEME = {
-  color: ["#00666b", "#f75440", "#051f13", "#c97a00", "#1b6b3a"],
+  color: ["#00666b", "#f75440", "#000a07", "#c97a00", "#1b6b3a"],
   backgroundColor: "transparent",
   textStyle: {
-    fontFamily: "Inter, system-ui, sans-serif",
+    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
     color: "#191c1a",
   },
   title: {
     textStyle: {
-      fontFamily: "Plus Jakarta Sans, system-ui, sans-serif",
-      color: "#051f13",
+      fontFamily: "Space Grotesk, ui-sans-serif, system-ui, sans-serif",
+      color: "#000a07",
       fontWeight: 700,
     },
   },

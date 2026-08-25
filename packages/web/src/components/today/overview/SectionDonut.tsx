@@ -49,7 +49,7 @@ export function SectionDonut({
       chartRef.current.setOption({
         tooltip: {
           trigger: "item",
-          backgroundColor: "#051f13",
+          backgroundColor: "#000a07",
           borderColor: "transparent",
           textStyle: { color: "#fff", fontSize: 12 },
           formatter: (p: { name: string; value: number; percent: number }) => {

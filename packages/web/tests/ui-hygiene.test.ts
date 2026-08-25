@@ -19,6 +19,6 @@ describe("forge UI hygiene", () => {
       "utf8",
     );
     assert.match(css, /--forge-primary:\s*#f75440/);
-    assert.match(css, /--forge-secondary:\s*#051f13/);
+    assert.match(css, /--forge-secondary:\s*#000a07/);
   });
 });

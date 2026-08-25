@@ -266,13 +266,13 @@
   border-radius: 8px;
   background: var(--forge-tertiary);
   color: #fff;
-  font-family: var(--forge-font-display);
+  font-family: var(--forge-font-body);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.01em;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 140ms ease;
+  transition: background var(--forge-motion-fast) var(--forge-ease);
 }
 
 .forge-shell__analyst-btn:hover {
@@ -393,6 +393,7 @@
   padding: 0 12px;
   height: 40px;
   border-radius: 8px;
+  font-family: var(--forge-font-body);
   font-weight: 500;
   font-size: 13.5px;
   color: var(--forge-on-surface-variant);
@@ -400,7 +401,8 @@
   align-items: center;
   gap: 12px;
   min-height: 40px;
-  border-left: 2px solid transparent;
+  border-left: 1px solid transparent;
+  transition: background var(--forge-motion-fast) var(--forge-ease), color var(--forge-motion-fast) var(--forge-ease);
 }
 
 .forge-shell--collapsed .forge-shell__nav-link {
@@ -454,13 +456,14 @@
 
 .forge-shell__nav-live-tag {
   margin-left: auto;
+  font-family: var(--forge-font-mono);
   font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #3a8f7b;
   padding: 2px 7px;
-  border-radius: var(--forge-radius-pill);
+  border-radius: var(--forge-radius-sm);
   background: rgba(61, 220, 132, 0.14);
   flex-shrink: 0;
 }
@@ -482,9 +485,10 @@
 .forge-shell__nav-section {
   margin: 14px 4px 6px;
   padding: 0 8px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-family: var(--forge-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--forge-on-surface-variant);
   opacity: 0.72;

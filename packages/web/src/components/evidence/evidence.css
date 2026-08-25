@@ -196,26 +196,27 @@
 .evd-full__callout {
   margin-top: 14px;
   padding: 12px 14px;
-  border-left: 4px solid var(--forge-tertiary);
+  border: 1px solid color-mix(in srgb, var(--forge-tertiary) 28%, var(--forge-outline-variant));
   background: color-mix(in srgb, var(--forge-tertiary) 10%, var(--forge-surface-container));
-  border-radius: 0 var(--forge-radius-sm) var(--forge-radius-sm) 0;
+  border-radius: var(--forge-radius-sm);
 }
 
 .evd-full__callout--key {
-  border-left-color: var(--forge-tertiary);
+  border-color: color-mix(in srgb, var(--forge-tertiary) 35%, var(--forge-outline-variant));
 }
 
 .evd-full__callout--mv {
-  border-left-color: var(--forge-good);
+  border-color: color-mix(in srgb, var(--forge-good) 35%, var(--forge-outline-variant));
   background: color-mix(in srgb, var(--forge-good) 10%, var(--forge-surface-container));
   margin-top: 16px;
 }
 
 .evd-full__callout-label {
   display: block;
+  font-family: var(--forge-font-mono);
   font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--forge-tertiary);
   margin-bottom: 4px;

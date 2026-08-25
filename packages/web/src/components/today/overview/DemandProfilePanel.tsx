@@ -52,7 +52,7 @@ export function DemandProfilePanel({
         grid: { left: 36, right: 8, top: 8, bottom: 24 },
         tooltip: {
           trigger: "axis",
-          backgroundColor: "#051f13",
+          backgroundColor: "#000a07",
           borderColor: "transparent",
           textStyle: { color: "#fff", fontSize: 12 },
           formatter: (params: unknown) => {

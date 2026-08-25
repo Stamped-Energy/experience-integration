@@ -1,10 +1,10 @@
 /* Forge craft utilities - ported from stamped-energy-dashboard visual system */
 
 .forge-eyebrow {
-  font-family: var(--forge-font-body);
-  font-weight: 600;
+  font-family: var(--forge-font-mono);
+  font-weight: 500;
   font-size: var(--forge-size-label);
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--forge-on-surface-variant);
   margin: 0;
@@ -16,6 +16,7 @@
   font-size: 1rem;
   color: var(--forge-on-surface);
   margin: 2px 0 0;
+  letter-spacing: -0.02em;
 }
 
 .forge-section-heading {
@@ -24,13 +25,14 @@
   font-size: 1.25rem;
   color: var(--forge-on-surface);
   margin: 0;
+  letter-spacing: -0.025em;
 }
 
 .forge-num-display {
   font-family: var(--forge-font-display);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.025em;
   color: var(--forge-on-surface);
   font-variant-numeric: tabular-nums;
   font-size: var(--forge-size-num);
@@ -40,11 +42,12 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  border-radius: var(--forge-radius-pill);
-  font-family: var(--forge-font-body);
-  font-weight: 600;
+  border-radius: var(--forge-radius-sm);
+  font-family: var(--forge-font-mono);
+  font-weight: 500;
   font-size: 0.6875rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   padding: 3px 9px;
   white-space: nowrap;
 }
@@ -416,7 +419,8 @@
 }
 
 .forge-kpi-card--accent {
-  border-left: 4px solid var(--forge-primary);
+  border: 1px solid var(--forge-outline-variant);
+  background: color-mix(in srgb, var(--forge-primary) 6%, var(--forge-surface-container-lowest));
 }
 
 .forge-kpi-card__footnote {
@@ -984,8 +988,11 @@ a.forge-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 11.5px;
-  font-weight: 600;
+  font-family: var(--forge-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   line-height: 1;
   white-space: nowrap;
 }
@@ -995,9 +1002,12 @@ a.forge-btn {
   align-items: center;
   gap: 5px;
   padding: 2px 8px 2px 6px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
+  border-radius: var(--forge-radius-sm);
+  font-family: var(--forge-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   line-height: 1.2;
 }
 
@@ -1019,21 +1029,34 @@ a.forge-btn {
 
 .forge-signal-card {
   position: relative;
-  padding: 14px 16px 14px 18px;
+  padding: 14px 16px;
   border-radius: var(--forge-radius-card);
   background: var(--forge-surface-container-lowest);
   border: 1px solid var(--forge-outline-variant);
-  border-left-width: 3px;
   box-shadow: var(--forge-shadow-card);
   height: 100%;
   min-height: 108px;
 }
 
-.forge-signal-card--critical { border-left-color: var(--forge-error); }
-.forge-signal-card--warning { border-left-color: var(--forge-warning); }
-.forge-signal-card--good { border-left-color: var(--forge-tertiary); }
-.forge-signal-card--neutral { border-left-color: var(--forge-outline); }
-.forge-signal-card--info { border-left-color: var(--forge-info); }
+.forge-signal-card--critical {
+  background: color-mix(in srgb, var(--forge-error) 5%, var(--forge-surface-container-lowest));
+  border-color: color-mix(in srgb, var(--forge-error) 28%, var(--forge-outline-variant));
+}
+.forge-signal-card--warning {
+  background: color-mix(in srgb, var(--forge-warning) 6%, var(--forge-surface-container-lowest));
+  border-color: color-mix(in srgb, var(--forge-warning) 28%, var(--forge-outline-variant));
+}
+.forge-signal-card--good {
+  background: color-mix(in srgb, var(--forge-tertiary) 5%, var(--forge-surface-container-lowest));
+  border-color: color-mix(in srgb, var(--forge-tertiary) 28%, var(--forge-outline-variant));
+}
+.forge-signal-card--neutral {
+  border-color: var(--forge-outline-variant);
+}
+.forge-signal-card--info {
+  background: color-mix(in srgb, var(--forge-info) 5%, var(--forge-surface-container-lowest));
+  border-color: color-mix(in srgb, var(--forge-info) 28%, var(--forge-outline-variant));
+}
 
 .forge-signal-card__dot {
   position: absolute;
@@ -1044,9 +1067,10 @@ a.forge-btn {
 .forge-signal-card__label {
   margin: 0;
   padding-right: 22px;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
+  font-family: var(--forge-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--forge-on-surface-variant);
   line-height: 1.3;
@@ -1055,10 +1079,12 @@ a.forge-btn {
 .forge-signal-card__value {
   margin: 8px 0 0;
   font-family: var(--forge-font-display);
-  font-weight: 800;
+  font-weight: 700;
   font-size: 1.55rem;
   line-height: 1;
+  letter-spacing: -0.025em;
   color: var(--forge-on-surface);
+  font-variant-numeric: tabular-nums;
 }
 
 .forge-signal-card__hint {
@@ -1418,9 +1444,11 @@ a.forge-btn {
 }
 
 .forge-live-status__live-label {
+  font-family: var(--forge-font-mono);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--forge-tertiary);
 }
 

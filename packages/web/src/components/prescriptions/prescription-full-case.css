@@ -97,7 +97,7 @@
 .rx-full-case__savings-amount {
   margin: 6px 0 0;
   font-family: var(--forge-font-display);
-  font-weight: 800;
+  font-weight: 700;
   font-size: clamp(1.75rem, 2.5vw, 2.25rem);
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -260,7 +260,7 @@
   padding: 14px 18px;
   font-family: var(--forge-font-display);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--forge-secondary);
@@ -359,7 +359,7 @@
   margin-bottom: 10px;
   border-radius: var(--forge-radius-sm);
   background: color-mix(in srgb, var(--forge-good) 12%, var(--forge-surface-container));
-  border-left: 3px solid var(--forge-good);
+  border: 1px solid color-mix(in srgb, var(--forge-good) 32%, var(--forge-outline-variant));
 }
 
 .rx-full-case__stat-inline .rx-full-case__prose {
@@ -398,7 +398,7 @@
   color: var(--forge-on-tertiary);
   font-family: var(--forge-font-display);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .rx-full-case__action-text {
@@ -418,7 +418,7 @@
   margin: 0 0 10px;
   font-family: var(--forge-font-display);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--forge-secondary);
@@ -504,29 +504,30 @@
 .rx-full-case__callout--key {
   margin-top: 10px;
   padding: 12px 14px;
-  border-left: 4px solid var(--forge-tertiary);
+  border: 1px solid color-mix(in srgb, var(--forge-tertiary) 28%, var(--forge-outline-variant));
   background: color-mix(in srgb, var(--forge-tertiary) 10%, var(--forge-surface-container));
-  border-radius: 0 var(--forge-radius-sm) var(--forge-radius-sm) 0;
+  border-radius: var(--forge-radius-sm);
 }
 
 .rx-full-case__callout--inline {
   margin-top: 10px;
   padding: 10px 14px;
-  border-left: 3px solid var(--forge-primary);
+  border: 1px solid color-mix(in srgb, var(--forge-primary) 28%, var(--forge-outline-variant));
   background: var(--forge-surface-container);
-  border-radius: 0 var(--forge-radius-sm) var(--forge-radius-sm) 0;
+  border-radius: var(--forge-radius-sm);
 }
 
 .rx-full-case__callout--muted {
-  border-left-color: var(--forge-outline-variant);
+  border-color: var(--forge-outline-variant);
   background: var(--forge-surface-container-low);
 }
 
 .rx-full-case__callout-label {
   display: block;
+  font-family: var(--forge-font-mono);
   font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--forge-tertiary);
   margin-bottom: 4px;
@@ -643,7 +644,7 @@
 .rx-full-case__evidence-title {
   margin: 4px 0 0;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   line-height: 1.35;
@@ -781,7 +782,7 @@
 
 .rx-full-case__evidence-tag-value {
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
   font-family: var(--forge-font-display);
   color: var(--forge-secondary);
   line-height: 1.2;

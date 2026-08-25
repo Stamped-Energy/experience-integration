@@ -116,6 +116,8 @@ export function PageHead({
             fontFamily: "var(--forge-font-display)",
             fontSize: "var(--forge-size-headline)",
             fontWeight: 700,
+            letterSpacing: "-0.025em",
+            lineHeight: 1.15,
           }}
         >
           {title}

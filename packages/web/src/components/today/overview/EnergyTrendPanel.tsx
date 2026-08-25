@@ -56,7 +56,7 @@ function toOption(tab: TabId, rows: LiveTrendDay[]): EChartsCoreOption {
     grid: { left: 52, right: 16, top: 16, bottom: 28 },
     tooltip: {
       trigger: "axis",
-      backgroundColor: "#051f13",
+      backgroundColor: "#000a07",
       borderColor: "transparent",
       textStyle: { color: "#fff", fontSize: 12 },
     },

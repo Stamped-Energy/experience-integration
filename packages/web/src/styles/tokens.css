@@ -34,10 +34,10 @@
   --forge-surface-tint: #f75440;
   /* Alias used by shell/primitives until migrated */
   --forge-surface-lowest: var(--forge-surface-container-lowest);
-  --forge-secondary: #051f13;
+  --forge-secondary: #000a07;
   --forge-on-secondary: #ffffff;
-  --forge-secondary-container: #ccead6;
-  --forge-on-secondary-container: #ccead6;
+  --forge-secondary-container: #bdd9c8;
+  --forge-on-secondary-container: #2a4034;
   --forge-tertiary: #00666b;
   --forge-on-tertiary: #ffffff;
   --forge-tertiary-container: #008287;
@@ -58,9 +58,10 @@
   --forge-outline: #8f706b;
   --forge-outline-variant: #e3beb8;
 
-  /* Typography - Plus Jakarta Sans display, Public Sans body */
-  --forge-font-display: "Plus Jakarta Sans", system-ui, sans-serif;
-  --forge-font-body: "Public Sans", system-ui, sans-serif;
+  /* Typography - Space Grotesk titles/KPIs, Inter body/UI, IBM Plex Mono labels */
+  --forge-font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --forge-font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --forge-font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --forge-size-display: 2rem;
   --forge-size-headline: 1.5rem;
   --forge-size-title: 1.125rem;
@@ -132,7 +133,7 @@ h2,
 h3,
 .forge-display {
   font-family: var(--forge-font-display);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.025em;
 }
 
 button {
@@ -148,7 +149,7 @@ a {
 }
 
 :focus-visible {
-  outline: 2px solid var(--forge-tertiary);
+  outline: 2px solid var(--forge-secondary);
   outline-offset: 2px;
 }
 

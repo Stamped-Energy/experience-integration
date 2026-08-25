@@ -28,7 +28,7 @@
 .alm-console__summary-value {
   margin: 6px 0 0;
   font-family: var(--forge-font-display);
-  font-weight: 800;
+  font-weight: 700;
   font-size: clamp(1.75rem, 2.5vw, 2.25rem);
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -83,7 +83,8 @@
 
 .alm-console__list-btn[aria-current="true"] {
   background: color-mix(in srgb, var(--forge-primary) 8%, var(--forge-surface-container-lowest));
-  border-left: 3px solid var(--forge-primary);
+  border: 1px solid color-mix(in srgb, var(--forge-primary) 35%, var(--forge-outline-variant));
+  box-shadow: inset 1px 0 0 var(--forge-primary);
 }
 
 .alm-console__list-title {
@@ -256,7 +257,7 @@
   margin: 0 0 10px;
   font-family: var(--forge-font-display);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--forge-secondary);
@@ -306,16 +307,17 @@
 .alm-full-case__callout {
   margin-top: 12px;
   padding: 12px 14px;
-  border-left: 4px solid var(--forge-tertiary);
+  border: 1px solid color-mix(in srgb, var(--forge-tertiary) 28%, var(--forge-outline-variant));
   background: color-mix(in srgb, var(--forge-tertiary) 10%, var(--forge-surface-container));
-  border-radius: 0 var(--forge-radius-sm) var(--forge-radius-sm) 0;
+  border-radius: var(--forge-radius-sm);
 }
 
 .alm-full-case__callout-label {
   display: block;
+  font-family: var(--forge-font-mono);
   font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--forge-tertiary);
   margin-bottom: 4px;

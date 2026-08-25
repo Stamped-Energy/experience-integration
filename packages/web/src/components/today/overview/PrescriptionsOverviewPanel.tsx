@@ -130,7 +130,7 @@ export function PrescriptionsOverviewPanel({
                 <div>
                   <div
                     className="tabular"
-                    style={{ fontFamily: "var(--forge-font-display)", fontWeight: 800, fontSize: 16, color: borderColor }}
+                    style={{ fontFamily: "var(--forge-font-display)", fontWeight: 700, fontSize: 16, color: borderColor }}
                   >
                     {formatInr(rx.impactInrPerMonth)}
                     <span style={{ fontSize: 10, fontWeight: 600, color: "var(--forge-on-surface-variant)" }}> /mo</span>

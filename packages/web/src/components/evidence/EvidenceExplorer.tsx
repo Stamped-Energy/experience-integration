@@ -23,23 +23,15 @@ export function EvidenceExplorer({ pack }: { pack: EvidencePack }) {
     <RouteStateView state={state}>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }} data-evidence>
         <Panel>
-          <p
-            style={{
-              margin: 0,
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "var(--forge-on-surface-variant)",
-            }}
-          >
-            Pre-scoped proof
-          </p>
+          <p className="forge-eyebrow">Pre-scoped proof</p>
           <h2
             style={{
               margin: "6px 0 0",
               fontFamily: "var(--forge-font-display)",
               fontSize: 22,
+              fontWeight: 700,
+              letterSpacing: "-0.025em",
+              lineHeight: 1.2,
             }}
           >
             {scope.assetLabel} · {scope.metric.replaceAll("_", " ")}

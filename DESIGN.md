@@ -12,14 +12,14 @@ calm, legible, and immediately actionable.
 - Human design guide: `external/design/forge-industrial-design-system.md`
 - Machine tokens: `external/design/forge-industrial-v2.tokens.yaml`
 - Product behavior: `external/handoff/stamped-l6-ui-ux-charter.md`
-- Marketing site (stamped.work) visual system: `docs/design/MAIN_WEBSITE_DESIGN.md` — fonts, chrome tokens, and MotionSlot scene colors. That file is **not** this product UI.
+- Marketing site (stamped.work) visual system: `docs/design/MAIN_WEBSITE_DESIGN.md` — MotionSlot scene colors stay marketing-only; product fonts and secondary chrome now match stamped.work (`#000a07`, Space Grotesk / Inter / Plex Mono).
 
 Local components implement these sources; they do not redefine the brand.
 
 ## Theme and color
 
 - Light industrial surface (`#f7faf5`) for primary work.
-- Dark forest structural chrome (`#051f13`) for topbar and anchors.
+- Dark Obsidian Green structural chrome (`#000a07`) for topbar and anchors.
 - Coral primary (`#f75440`) on no more than 10% of the surface, reserved for
   critical actions and abnormal state.
 - Tinted neutrals, never pure black or white.
@@ -29,9 +29,9 @@ Local components implement these sources; they do not redefine the brand.
 
 ## Typography
 
-- Plus Jakarta Sans for page titles and display values.
-- Public Sans for body, controls, and data.
-- Tabular numerals for ₹, energy, demand, percentages, and tables.
+- Space Grotesk for page titles and KPI figures only.
+- Inter for body, controls, and data (tabular numerals for ₹, energy, demand).
+- IBM Plex Mono for status chips, eyebrows, and mono labels.
 - Minimum 1.25 scale ratio between hierarchy levels.
 - Body copy remains within 65–75 characters where it is read sequentially.
 
@@ -125,7 +125,7 @@ Every primary route implements:
 ## Accessibility
 
 - WCAG AA contrast on all Forge roles.
-- 2px visible focus ring in the secondary brand color.
+- 2px visible focus ring in Obsidian Green (`#000a07`).
 - Touch targets at least 44×44; primary buttons target 48px.
 - Semantic headings, landmarks, lists, buttons, and tables.
 - Sort changes and live state updates announced without excessive chatter.
