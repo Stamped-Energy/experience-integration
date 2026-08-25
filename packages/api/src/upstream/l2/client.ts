@@ -46,9 +46,15 @@ const AssetSchema = z.object({
   asset_class: z.string().optional(),
 });
 
-const AssetsResponseSchema = z.object({
-  items: z.array(AssetSchema),
-});
+/** L2 query-api returns `assets`; older sketches used `items`. Accept either. */
+const AssetsResponseSchema = z
+  .object({
+    items: z.array(AssetSchema).optional(),
+    assets: z.array(AssetSchema).optional(),
+  })
+  .transform((raw) => ({
+    items: raw.items ?? raw.assets ?? [],
+  }));
 
 const BaselineSchema = z.object({
   baseline_id: z.string().min(1),
