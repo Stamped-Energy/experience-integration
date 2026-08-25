@@ -140,6 +140,12 @@
   max-width: 160px;
 }
 
+/* Native dropdown popup is light — options must not inherit topbar white text. */
+.forge-shell__plant-select option {
+  color: #1a1a1a;
+  background: #fff;
+}
+
 .forge-shell__conn {
   display: inline-flex;
   align-items: center;
