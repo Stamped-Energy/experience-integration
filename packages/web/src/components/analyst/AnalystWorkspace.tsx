@@ -17,16 +17,21 @@ import {
 } from "@/lib/analyst-context";
 
 import {
+  bindAnalystLiveSession,
+  createAnalystSession,
   fetchAnalystLive,
+  fetchAnalystMessages,
+  fetchAnalystSessions,
   resetAnalystLiveSession,
   sendAnalystMessageStream,
+  type AnalystHistorySessionDto,
 } from "@/lib/analyst-live";
 
 import { analystPlantSnapshot } from "@/lib/analyst-fixtures";
 
 import { usePlant } from "@/lib/plant-context";
 
-import { formatInr } from "@/lib/format";
+import { formatInr, formatIstCompactDateTime, formatIstTime } from "@/lib/format";
 
 import {
   AnalystRichBlock,
@@ -97,6 +102,26 @@ const QUICK = [
   },
 ] as const;
 
+function historyToSidebar(s: AnalystHistorySessionDto): AnalystChatSession {
+  return {
+    id: s.id,
+    title: s.title?.trim() || "Conversation",
+    preview: s.preview || s.summary || "No messages yet",
+    updatedAt: s.updatedAt || s.createdAt,
+    messages: [],
+  };
+}
+
+function localNewSession(plantName: string, plantId: string): AnalystChatSession {
+  return {
+    id: `chat_${plantId}_new`,
+    title: "New conversation",
+    preview: `Ask about ${plantName}…`,
+    updatedAt: new Date().toISOString(),
+    messages: [],
+  };
+}
+
 function ChatMessage({
   message,
   onStreamComplete,
@@ -106,6 +131,9 @@ function ChatMessage({
 }) {
   const isUser = message.role === "user";
   const relatedLinks = !isUser && !message.stream ? relatedLinksFromReply(message) : [];
+  const timeLabel = message.createdAt
+    ? formatIstTime(message.createdAt)
+    : null;
 
   return (
     <article className={`analyst-msg ${isUser ? "analyst-msg--user" : "analyst-msg--assistant"}`}>
@@ -115,6 +143,11 @@ function ChatMessage({
       <div className="analyst-msg__content">
         <header className="analyst-msg__head">
           <span className="analyst-msg__role">{isUser ? "You" : "Stamped Analyst"}</span>
+          {timeLabel ? (
+            <time className="analyst-msg__time" dateTime={message.createdAt}>
+              {timeLabel}
+            </time>
+          ) : null}
           {!isUser && message.stream ? (
             <span className="analyst-msg__thinking">Analyzing plant data…</span>
           ) : null}
@@ -183,14 +216,10 @@ function QuickPromptButton({
 /** Mode B - full-page analyst workspace with streaming replies. */
 export function AnalystWorkspace() {
   const { activePlant } = usePlant();
+  const [liveMode, setLiveMode] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const [sessions, setSessions] = useState<AnalystChatSession[]>(() => [
-    {
-      id: `chat_${activePlant.plantId}_new`,
-      title: "New conversation",
-      preview: `Ask about ${activePlant.plantName}…`,
-      updatedAt: new Date().toISOString(),
-      messages: [],
-    },
+    localNewSession(activePlant.plantName, activePlant.plantId),
   ]);
   const [activeSessionId, setActiveSessionId] = useState(
     () => `chat_${activePlant.plantId}_new`,
@@ -199,6 +228,7 @@ export function AnalystWorkspace() {
   const [draft, setDraft] = useState("");
   const [streaming, setStreaming] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const loadingSessionRef = useRef<string | null>(null);
 
   const snapshot = useMemo(
     () => analystPlantSnapshot(activePlant.plantId),
@@ -220,63 +250,136 @@ export function AnalystWorkspace() {
     [activePlant],
   );
 
+  const refreshHistory = useCallback(async () => {
+    const live = await fetchAnalystLive();
+    setLiveMode(live);
+    if (!live) {
+      const local = localNewSession(activePlant.plantName, activePlant.plantId);
+      setSessions([local]);
+      setActiveSessionId(local.id);
+      setMessages([]);
+      setHistoryLoading(false);
+      return;
+    }
+    setHistoryLoading(true);
+    try {
+      const remote = await fetchAnalystSessions({
+        orgId: activePlant.orgId,
+        plantId: activePlant.plantId,
+      });
+      const mapped = remote.map(historyToSidebar);
+      const draftSession = localNewSession(activePlant.plantName, activePlant.plantId);
+      setSessions([draftSession, ...mapped]);
+      setActiveSessionId(draftSession.id);
+      setMessages([]);
+      resetAnalystLiveSession();
+    } catch {
+      const local = localNewSession(activePlant.plantName, activePlant.plantId);
+      setSessions([local]);
+      setActiveSessionId(local.id);
+      setMessages([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, [activePlant.orgId, activePlant.plantId, activePlant.plantName]);
+
   useEffect(() => {
     resetAnalystLiveSession();
-    const id = `chat_${activePlant.plantId}_${Date.now()}`;
-    setSessions([
-      {
-        id,
-        title: "New conversation",
-        preview: `Ask about ${activePlant.plantName}…`,
-        updatedAt: new Date().toISOString(),
-        messages: [],
-      },
-    ]);
-    setActiveSessionId(id);
-    setMessages([]);
     setDraft("");
     setStreaming(false);
-  }, [activePlant.plantId, activePlant.plantName]);
+    void refreshHistory();
+  }, [activePlant.plantId, refreshHistory]);
 
   const scrollToBottom = useCallback(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, []);
 
-  const onStreamComplete = useCallback(
-    (messageId: string) => {
-      setMessages((prev) => {
-        const next = prev.map((m) => (m.id === messageId ? { ...m, stream: false } : m));
-        setSessions((ss) =>
-          ss.map((s) => (s.id === activeSessionId ? { ...s, messages: next } : s)),
-        );
-        return next;
-      });
-      setStreaming(false);
-    },
-    [activeSessionId],
-  );
+  const onStreamComplete = useCallback((messageId: string) => {
+    setMessages((prev) => prev.map((m) => (m.id === messageId ? { ...m, stream: false } : m)));
+    setStreaming(false);
+  }, []);
 
-  function selectSession(id: string) {
+  async function selectSession(id: string) {
+    if (streaming) return;
     const session = sessions.find((s) => s.id === id);
     if (!session) return;
     setActiveSessionId(id);
-    setMessages(session.messages);
     setStreaming(false);
+
+    if (id.startsWith("chat_") || !liveMode) {
+      setMessages(session.messages);
+      resetAnalystLiveSession();
+      return;
+    }
+
+    loadingSessionRef.current = id;
+    bindAnalystLiveSession(envelope, id);
+    try {
+      const loaded = await fetchAnalystMessages({
+        orgId: activePlant.orgId,
+        plantId: activePlant.plantId,
+        sessionId: id,
+      });
+      if (loadingSessionRef.current !== id) return;
+      setMessages(loaded);
+      setSessions((ss) =>
+        ss.map((s) => (s.id === id ? { ...s, messages: loaded } : s)),
+      );
+    } catch (err) {
+      if (loadingSessionRef.current !== id) return;
+      const message = err instanceof Error ? err.message : "Failed to load messages";
+      setMessages([
+        {
+          id: `err_${Date.now()}`,
+          role: "assistant",
+          content: `Could not load conversation: ${message}`,
+        },
+      ]);
+    }
   }
 
-  function startNewChat() {
-    const id = `chat_new_${Date.now()}`;
-    const session: AnalystChatSession = {
-      id,
-      title: "New conversation",
-      preview: "Ask about alarms, prescriptions, demand…",
-      updatedAt: new Date().toISOString(),
-      messages: [],
-    };
-    setSessions((prev) => [session, ...prev]);
-    setActiveSessionId(id);
-    setMessages([]);
-    setStreaming(false);
+  async function startNewChat() {
+    if (streaming) return;
+    resetAnalystLiveSession();
+    if (!liveMode) {
+      const session = {
+        ...localNewSession(activePlant.plantName, activePlant.plantId),
+        id: `chat_new_${Date.now()}`,
+      };
+      setSessions((prev) => [session, ...prev]);
+      setActiveSessionId(session.id);
+      setMessages([]);
+      return;
+    }
+    try {
+      const sessionId = await createAnalystSession({
+        orgId: activePlant.orgId,
+        plantId: activePlant.plantId,
+        userId: envelope.userId,
+      });
+      bindAnalystLiveSession(envelope, sessionId);
+      const session: AnalystChatSession = {
+        id: sessionId,
+        title: "New conversation",
+        preview: `Ask about ${activePlant.plantName}…`,
+        updatedAt: new Date().toISOString(),
+        messages: [],
+      };
+      setSessions((prev) => {
+        const withoutDraft = prev.filter((s) => !s.id.startsWith("chat_"));
+        return [session, ...withoutDraft];
+      });
+      setActiveSessionId(sessionId);
+      setMessages([]);
+    } catch {
+      const session = {
+        ...localNewSession(activePlant.plantName, activePlant.plantId),
+        id: `chat_new_${Date.now()}`,
+      };
+      setSessions((prev) => [session, ...prev]);
+      setActiveSessionId(session.id);
+      setMessages([]);
+    }
   }
 
   async function send(text?: string) {
@@ -284,14 +387,20 @@ export function AnalystWorkspace() {
     if (!q || streaming) return;
     setStreaming(true);
 
-    const userMsg: AnalystMessage = { id: `u_${Date.now()}`, role: "user", content: q };
+    const nowIso = new Date().toISOString();
+    const userMsg: AnalystMessage = {
+      id: `u_${Date.now()}`,
+      role: "user",
+      content: q,
+      createdAt: nowIso,
+    };
     const assistantId = `a_${Date.now()}`;
     setDraft("");
 
-    const persist = (next: AnalystMessage[]) => {
+    const bumpSidebar = (next: AnalystMessage[], sessionId: string) => {
       setSessions((ss) =>
         ss.map((s) =>
-          s.id === activeSessionId
+          s.id === sessionId
             ? {
                 ...s,
                 messages: next,
@@ -305,28 +414,78 @@ export function AnalystWorkspace() {
     };
 
     const live = await fetchAnalystLive();
+    setLiveMode(live);
     if (!live) {
       const reply = fixtureAnalystReply(envelope, q);
-      const assistantMsg: AnalystMessage = { ...reply, id: assistantId, stream: true };
+      const assistantMsg: AnalystMessage = {
+        ...reply,
+        id: assistantId,
+        stream: true,
+        createdAt: nowIso,
+      };
       setMessages((prev) => {
         const next = [...prev, userMsg, assistantMsg];
-        persist(next);
+        bumpSidebar(next, activeSessionId);
         return next;
       });
       requestAnimationFrame(scrollToBottom);
       return;
     }
 
+    let sessionId = activeSessionId.startsWith("chat_") ? "" : activeSessionId;
+    if (!sessionId) {
+      try {
+        sessionId = await createAnalystSession({
+          orgId: activePlant.orgId,
+          plantId: activePlant.plantId,
+          userId: envelope.userId,
+        });
+        bindAnalystLiveSession(envelope, sessionId);
+        setActiveSessionId(sessionId);
+        setSessions((ss) => {
+          const rest = ss.filter((s) => !s.id.startsWith("chat_"));
+          return [
+            {
+              id: sessionId,
+              title: q.slice(0, 42),
+              preview: q.slice(0, 72),
+              updatedAt: new Date().toISOString(),
+              messages: [],
+            },
+            ...rest,
+          ];
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "session create failed";
+        setMessages((prev) => [
+          ...prev,
+          userMsg,
+          {
+            id: assistantId,
+            role: "assistant",
+            content: `Analyst unavailable: ${message}`,
+            createdAt: nowIso,
+          },
+        ]);
+        setStreaming(false);
+        return;
+      }
+    } else {
+      bindAnalystLiveSession(envelope, sessionId);
+    }
+
+    const boundSessionId = sessionId;
     const assistantMsg: AnalystMessage = {
       id: assistantId,
       role: "assistant",
       content: "",
       citations: [],
       stream: false,
+      createdAt: nowIso,
     };
     setMessages((prev) => {
       const next = [...prev, userMsg, assistantMsg];
-      persist(next);
+      bumpSidebar(next, boundSessionId);
       return next;
     });
     requestAnimationFrame(scrollToBottom);
@@ -335,50 +494,56 @@ export function AnalystWorkspace() {
     const patchAssistant = (patch: Partial<AnalystMessage>) => {
       setMessages((prev) => {
         const next = prev.map((m) => (m.id === assistantId ? { ...m, ...patch } : m));
-        persist(next);
+        bumpSidebar(next, boundSessionId);
         return next;
       });
     };
 
     try {
-      await sendAnalystMessageStream(envelope, q, {
-        onToken: (tok) => {
-          setMessages((prev) => {
-            const next = prev.map((m) =>
-              m.id === assistantId ? { ...m, content: m.content + tok } : m,
-            );
-            persist(next);
-            return next;
-          });
-          requestAnimationFrame(scrollToBottom);
-        },
-        onCitation: (cite) => {
-          if (citations.some((c) => c.id === cite.id)) return;
-          citations.push(cite);
-          patchAssistant({ citations: [...citations] });
-        },
-        onDone: (payload) => {
-          setMessages((prev) => {
-            const next = prev.map((m) => {
-              if (m.id !== assistantId) return m;
-              return {
-                ...m,
-                content: payload.content?.trim() ? payload.content : m.content,
-                citations: citations.length ? citations : m.citations,
-              };
+      await sendAnalystMessageStream(
+        envelope,
+        q,
+        {
+          onToken: (tok) => {
+            setMessages((prev) => {
+              const next = prev.map((m) =>
+                m.id === assistantId ? { ...m, content: m.content + tok } : m,
+              );
+              bumpSidebar(next, boundSessionId);
+              return next;
             });
-            persist(next);
-            return next;
-          });
-          setStreaming(false);
+            requestAnimationFrame(scrollToBottom);
+          },
+          onCitation: (cite) => {
+            if (citations.some((c) => c.id === cite.id)) return;
+            citations.push(cite);
+            patchAssistant({ citations: [...citations] });
+          },
+          onDone: (payload) => {
+            setMessages((prev) => {
+              const next = prev.map((m) => {
+                if (m.id !== assistantId) return m;
+                return {
+                  ...m,
+                  content: payload.content?.trim() ? payload.content : m.content,
+                  citations: citations.length ? citations : m.citations,
+                  createdAt: m.createdAt ?? new Date().toISOString(),
+                };
+              });
+              bumpSidebar(next, boundSessionId);
+              return next;
+            });
+            setStreaming(false);
+          },
+          onError: (message) => {
+            patchAssistant({
+              content: `Analyst error: ${message}`,
+            });
+            setStreaming(false);
+          },
         },
-        onError: (message) => {
-          patchAssistant({
-            content: `Analyst error: ${message}`,
-          });
-          setStreaming(false);
-        },
-      });
+        { sessionId: boundSessionId },
+      );
     } catch (err) {
       const message = err instanceof Error ? err.message : "stream failed";
       patchAssistant({
@@ -398,6 +563,11 @@ export function AnalystWorkspace() {
           </div>
           <div className="analyst-hero__badges">
             <StatusChip tone="good">Source citations</StatusChip>
+            {liveMode ? (
+              <StatusChip tone="good">Saved history</StatusChip>
+            ) : (
+              <StatusChip tone="neutral">Demo history</StatusChip>
+            )}
             <StatusChip tone="neutral">{sessions.length} conversations</StatusChip>
           </div>
         </div>
@@ -448,6 +618,9 @@ export function AnalystWorkspace() {
                 </h2>
                 <p className="analyst-chat-header__sub">
                   {snapshot.plantName} · Linked to alarms & prescriptions
+                  {activeSession?.updatedAt
+                    ? ` · ${formatIstCompactDateTime(activeSession.updatedAt)}`
+                    : ""}
                 </p>
               </div>
             </div>
@@ -537,13 +710,19 @@ export function AnalystWorkspace() {
           <div className="analyst-history__head">
             <div>
               <h2 className="analyst-history__title">Conversations</h2>
-              <p className="analyst-history__sub">{sessions.length} saved</p>
+              <p className="analyst-history__sub">
+                {historyLoading
+                  ? "Loading…"
+                  : liveMode
+                    ? `${sessions.filter((s) => !s.id.startsWith("chat_")).length} saved · IST`
+                    : `${sessions.length} local`}
+              </p>
             </div>
             <ForgeButton
               type="button"
               variant="secondary"
               size="sm"
-              onClick={startNewChat}
+              onClick={() => void startNewChat()}
               icon={<MessageSquare size={15} />}
             >
               New
@@ -555,7 +734,7 @@ export function AnalystWorkspace() {
                 <button
                   type="button"
                   className={`analyst-history__item${activeSessionId === session.id ? " analyst-history__item--active" : ""}`}
-                  onClick={() => selectSession(session.id)}
+                  onClick={() => void selectSession(session.id)}
                   aria-current={activeSessionId === session.id ? "true" : undefined}
                 >
                   <span className="analyst-history__item-icon" aria-hidden>
@@ -565,7 +744,9 @@ export function AnalystWorkspace() {
                     <span className="analyst-history__item-title">{session.title}</span>
                     <span className="analyst-history__item-preview">{session.preview}</span>
                     <span className="analyst-history__item-date">
-                      {formatChatDate(session.updatedAt)}
+                      {liveMode && !session.id.startsWith("chat_")
+                        ? formatIstCompactDateTime(session.updatedAt)
+                        : formatChatDate(session.updatedAt)}
                     </span>
                   </span>
                 </button>

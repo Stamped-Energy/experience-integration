@@ -246,6 +246,18 @@
   text-align: center;
 }
 
+.analyst-panel__history-link {
+  color: var(--forge-primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.analyst-panel__history-link:hover {
+  color: var(--forge-primary);
+  opacity: 0.9;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .analyst-panel,
   .analyst-panel__backdrop {

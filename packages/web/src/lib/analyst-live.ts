@@ -2,7 +2,7 @@
 
 import { bffUrl } from "./bff";
 import type { AnalystContextEnvelope } from "./types";
-import type { AnalystCitation } from "./analyst-context";
+import type { AnalystCitation, AnalystMessage } from "./analyst-context";
 
 export type AnalystStreamHandlers = {
   onToken?: (text: string) => void;
@@ -16,6 +16,18 @@ export type AnalystStreamHandlers = {
   onError?: (message: string) => void;
 };
 
+export type AnalystHistorySessionDto = {
+  id: string;
+  orgId: string;
+  plantId: string;
+  userId: string;
+  title: string | null;
+  summary: string;
+  preview: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 let cachedLive: boolean | null = null;
 let cachedLiveAt = 0;
 const LIVE_CACHE_MS = 5_000;
@@ -26,6 +38,19 @@ let liveSessionKey: string | null = null;
 export function resetAnalystLiveSession(): void {
   liveSessionId = null;
   liveSessionKey = null;
+}
+
+export function getAnalystLiveSessionId(): string | null {
+  return liveSessionId;
+}
+
+/** Bind UI to an existing L4 session (resume history). */
+export function bindAnalystLiveSession(
+  envelope: AnalystContextEnvelope,
+  sessionId: string,
+): void {
+  liveSessionId = sessionId;
+  liveSessionKey = `${envelope.orgId}:${envelope.plantId}:${envelope.userId}`;
 }
 
 export async function fetchAnalystLive(): Promise<boolean> {
@@ -59,27 +84,93 @@ export async function fetchAnalystLive(): Promise<boolean> {
   }
 }
 
-async function ensureSession(envelope: AnalystContextEnvelope): Promise<string> {
-  const key = `${envelope.orgId}:${envelope.plantId}:${envelope.userId}`;
-  if (liveSessionId && liveSessionKey === key) return liveSessionId;
+export async function fetchAnalystSessions(input: {
+  orgId: string;
+  plantId: string;
+}): Promise<AnalystHistorySessionDto[]> {
+  const qs = new URLSearchParams({
+    orgId: input.orgId,
+    plantId: input.plantId,
+  });
+  const res = await fetch(bffUrl(`/api/analyst/sessions?${qs}`), {
+    credentials: "include",
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text.slice(0, 200) || `sessions ${res.status}`);
+  }
+  const body = (await res.json()) as { items?: AnalystHistorySessionDto[] };
+  return Array.isArray(body.items) ? body.items : [];
+}
+
+export async function fetchAnalystMessages(input: {
+  orgId: string;
+  plantId: string;
+  sessionId: string;
+}): Promise<AnalystMessage[]> {
+  const qs = new URLSearchParams({
+    orgId: input.orgId,
+    plantId: input.plantId,
+  });
+  const res = await fetch(
+    bffUrl(
+      `/api/analyst/sessions/${encodeURIComponent(input.sessionId)}/messages?${qs}`,
+    ),
+    { credentials: "include", cache: "no-store" },
+  );
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text.slice(0, 200) || `messages ${res.status}`);
+  }
+  const body = (await res.json()) as {
+    items?: Array<{
+      id: string;
+      role: string;
+      content: string;
+      citations?: AnalystCitation[];
+      createdAt?: string | null;
+    }>;
+  };
+  return (body.items ?? []).map((m) => ({
+    id: m.id,
+    role: m.role === "user" ? "user" : "assistant",
+    content: m.content,
+    citations: m.citations,
+    createdAt: m.createdAt ?? undefined,
+  }));
+}
+
+export async function createAnalystSession(input: {
+  orgId: string;
+  plantId: string;
+  userId: string;
+}): Promise<string> {
   const res = await fetch(bffUrl("/api/analyst/sessions"), {
     method: "POST",
     credentials: "include",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      orgId: envelope.orgId,
-      plantId: envelope.plantId,
-      userId: envelope.userId,
-    }),
+    body: JSON.stringify(input),
   });
   if (!res.ok) {
     const text = await res.text();
     throw new Error(text.slice(0, 200) || `session create ${res.status}`);
   }
   const body = (await res.json()) as { sessionId: string };
-  liveSessionId = body.sessionId;
-  liveSessionKey = key;
   return body.sessionId;
+}
+
+async function ensureSession(envelope: AnalystContextEnvelope): Promise<string> {
+  const key = `${envelope.orgId}:${envelope.plantId}:${envelope.userId}`;
+  if (liveSessionId && liveSessionKey === key) return liveSessionId;
+  const sessionId = await createAnalystSession({
+    orgId: envelope.orgId,
+    plantId: envelope.plantId,
+    userId: envelope.userId,
+  });
+  liveSessionId = sessionId;
+  liveSessionKey = key;
+  return sessionId;
 }
 
 function parseSseChunk(
@@ -141,8 +232,15 @@ export async function sendAnalystMessageStream(
   envelope: AnalystContextEnvelope,
   content: string,
   handlers: AnalystStreamHandlers,
-): Promise<void> {
-  const sessionId = await ensureSession(envelope);
+  opts?: { sessionId?: string },
+): Promise<string> {
+  let sessionId: string;
+  if (opts?.sessionId) {
+    bindAnalystLiveSession(envelope, opts.sessionId);
+    sessionId = opts.sessionId;
+  } else {
+    sessionId = await ensureSession(envelope);
+  }
   const res = await fetch(
     bffUrl(`/api/analyst/sessions/${encodeURIComponent(sessionId)}/messages/stream`),
     {
@@ -177,4 +275,5 @@ export async function sendAnalystMessageStream(
     buffer = parseSseChunk(buffer, handlers);
   }
   if (buffer.trim()) parseSseChunk(`${buffer}\n\n`, handlers);
+  return sessionId;
 }

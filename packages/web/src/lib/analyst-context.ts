@@ -20,6 +20,8 @@ export type AnalystMessage = {
   citations?: AnalystCitation[];
   /** When true, UI streams content letter-by-letter. */
   stream?: boolean;
+  /** ISO timestamp from L4 when persisted. */
+  createdAt?: string;
 };
 
 export type AnalystRelatedLink = {

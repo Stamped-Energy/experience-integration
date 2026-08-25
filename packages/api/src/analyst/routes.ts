@@ -63,6 +63,94 @@ export async function registerAnalystRoutes(
     allow_anonymous: allowAnonymous,
   }));
 
+  app.get("/api/analyst/sessions", async (request, reply) => {
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(request.headers),
+    });
+    if (!session && !allowAnonymous) return unauthorized(reply, request.id);
+    const q = request.query as { orgId?: string; plantId?: string; userId?: string };
+    if (!q.plantId) {
+      return reply.status(400).send({
+        type: "https://httpstatuses.com/400",
+        title: "Bad Request",
+        status: 400,
+        detail: "plantId required",
+        request_id: request.id,
+      });
+    }
+    const orgId = q.orgId || "org_acme";
+    try {
+      // Plant-scoped durable history (all operators on the plant).
+      const sessions = await l4.listSessions({
+        orgId,
+        plantId: q.plantId,
+        ...(q.userId ? { userId: q.userId } : {}),
+      });
+      return { source: live ? "l4" : "fixture", items: sessions };
+    } catch (err) {
+      if (err instanceof UpstreamError) {
+        return reply.status(err.status).send({
+          type: `https://httpstatuses.com/${err.status}`,
+          title: err.code,
+          status: err.status,
+          detail: err.message,
+          request_id: request.id,
+        });
+      }
+      throw err;
+    }
+  });
+
+  app.get("/api/analyst/sessions/:sessionId/messages", async (request, reply) => {
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(request.headers),
+    });
+    if (!session && !allowAnonymous) return unauthorized(reply, request.id);
+    const { sessionId } = request.params as { sessionId: string };
+    const q = request.query as { orgId?: string; plantId?: string; userId?: string };
+    if (!q.plantId) {
+      return reply.status(400).send({
+        type: "https://httpstatuses.com/400",
+        title: "Bad Request",
+        status: 400,
+        detail: "plantId required",
+        request_id: request.id,
+      });
+    }
+    const orgId = q.orgId || "org_acme";
+    const userId = session?.user.id || q.userId || "anonymous";
+    try {
+      const messages = await l4.listMessages({
+        orgId,
+        plantId: q.plantId,
+        userId,
+        sessionId,
+      });
+      return {
+        source: live ? "l4" : "fixture",
+        sessionId,
+        items: messages.map((m) => ({
+          id: m.id,
+          role: m.role === "user" || m.role === "assistant" ? m.role : "assistant",
+          content: m.content,
+          citations: m.citations,
+          createdAt: m.createdAt,
+        })),
+      };
+    } catch (err) {
+      if (err instanceof UpstreamError) {
+        return reply.status(err.status).send({
+          type: `https://httpstatuses.com/${err.status}`,
+          title: err.code,
+          status: err.status,
+          detail: err.message,
+          request_id: request.id,
+        });
+      }
+      throw err;
+    }
+  });
+
   app.post("/api/analyst/sessions", async (request, reply) => {
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(request.headers),
