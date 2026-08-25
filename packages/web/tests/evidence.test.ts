@@ -1,11 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
-import {
-  alarmsFixture,
-  DEMO_PLANT,
-  prescriptionsFixture,
-} from "../src/fixtures/demo.js";
+import { DEMO_PLANT } from "../src/lib/plant-catalog.js";
+import { sampleAlarms, samplePrescriptions } from "./samples.js";
 import {
   findEvidenceSample,
   resolveEvidenceIdForAlarm,
@@ -23,8 +20,8 @@ describe("evidence scope and honesty", () => {
     const scope = resolveEvidenceScope({
       plantId: DEMO_PLANT.plantId,
       alarmId: "alm_1001",
-      alarms: alarmsFixture,
-      prescriptions: prescriptionsFixture,
+      alarms: sampleAlarms,
+      prescriptions: samplePrescriptions,
     });
     assert.equal(scope.assetId, "kiln_1");
     assert.equal(scope.alarmId, "alm_1001");
@@ -35,8 +32,8 @@ describe("evidence scope and honesty", () => {
     const scope = resolveEvidenceScope({
       plantId: DEMO_PLANT.plantId,
       rxId: "rx_9005",
-      alarms: alarmsFixture,
-      prescriptions: prescriptionsFixture,
+      alarms: sampleAlarms,
+      prescriptions: samplePrescriptions,
     });
     assert.equal(scope.rxId, "rx_9005");
     assert.equal(scope.assetId, "mill_2");
@@ -46,8 +43,8 @@ describe("evidence scope and honesty", () => {
   it("keeps baseline missing when gated - never invents band", () => {
     const scope = resolveEvidenceScope({
       plantId: DEMO_PLANT.plantId,
-      alarms: alarmsFixture,
-      prescriptions: prescriptionsFixture,
+      alarms: sampleAlarms,
+      prescriptions: samplePrescriptions,
     });
     const pack = buildEvidencePack(scope, { baselineAvailable: false });
     assert.deepEqual(pack.missing, ["baseline"]);
@@ -60,8 +57,8 @@ describe("evidence scope and honesty", () => {
   it("includes baseline source only when available", () => {
     const scope = resolveEvidenceScope({
       plantId: DEMO_PLANT.plantId,
-      alarms: alarmsFixture,
-      prescriptions: prescriptionsFixture,
+      alarms: sampleAlarms,
+      prescriptions: samplePrescriptions,
     });
     const pack = buildEvidencePack(scope, { baselineAvailable: true });
     assert.deepEqual(pack.missing, []);

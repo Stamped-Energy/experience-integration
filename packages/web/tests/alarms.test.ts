@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { alarmsFixture } from "../src/fixtures/demo.js";
+import { sampleAlarms } from "./samples.js";
 import {
   actionsForState,
   applyAlarmAction,
@@ -10,7 +10,7 @@ import {
 
 describe("EMS alarm helpers", () => {
   it("sorts critical before warning and older first within severity", () => {
-    const sorted = sortAlarms(alarmsFixture.filter((a) => a.state !== "cleared"));
+    const sorted = sortAlarms(sampleAlarms.filter((a) => a.state !== "cleared"));
     assert.equal(sorted[0]?.severity, "critical");
     assert.equal(sorted[0]?.id, "alm_1001");
     assert.equal(sorted[1]?.severity, "critical");
@@ -19,7 +19,7 @@ describe("EMS alarm helpers", () => {
   });
 
   it("applies lifecycle actions and keyboard selection moves", () => {
-    const raised = alarmsFixture.find((a) => a.id === "alm_1001")!;
+    const raised = sampleAlarms.find((a) => a.id === "alm_1001")!;
     assert.ok(actionsForState(raised.state).includes("ack"));
     const acked = applyAlarmAction(raised, "ack");
     assert.equal(acked.state, "acked");

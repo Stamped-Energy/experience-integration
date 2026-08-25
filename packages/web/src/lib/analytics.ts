@@ -37,9 +37,17 @@ export const TOD_BANDS_RJ: TodBand[] = [
   { id: "peak2", label: "Peak", fromHour: 18, toHour: 22, rateInrPerKwh: 8.9 },
 ];
 
-/** Top consumers from shared Jaipur demo plant assets (excludes incomer). */
-export function topConsumersFixture(): ConsumerRow[] {
-  return consumersFromAssets().map((r) => ({
+/** Top consumers — pass rows in tests; product demo catalog stays empty. */
+export function topConsumersFixture(
+  rows: Array<{
+    assetId: string;
+    label: string;
+    kwh: number;
+    sharePct: number;
+    health: "calm" | "watch" | "hot";
+  }> = consumersFromAssets(),
+): ConsumerRow[] {
+  return rows.map((r) => ({
     assetId: r.assetId,
     label: r.label,
     kwh: r.kwh,
