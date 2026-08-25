@@ -71,21 +71,8 @@ export const OVERVIEW_KPIS = {
   carbon: { value: 852, delta: -74, gridFactor: 0.71 },
 };
 
-export type MachineStatus =
-  | "CRITICAL"
-  | "WARNING"
-  | "GOOD"
-  | "OPTIMIZED"
-  | "OFFLINE"
-  | "INFO";
-
-export type OverviewMachine = {
-  name: string;
-  status: MachineStatus;
-  load: number;
-  kwh: number | null;
-  reason: string;
-};
+import type { OverviewMachine } from "@/lib/overview-machines";
+export type { MachineStatus, OverviewMachine } from "@/lib/overview-machines";
 
 export const OVERVIEW_MACHINES: OverviewMachine[] = [
   { name: "Kiln 1", status: "CRITICAL", load: 108, kwh: 4820, reason: "Specific energy 12.4% above target; MD coincidence risk." },

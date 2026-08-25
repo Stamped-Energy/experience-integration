@@ -138,10 +138,10 @@ Follow-on to P1–P4: BFF Class-B routes exist, but insight pages still show raw
 
 | Route | Demo visual to remount | Upstream | Class | Status |
 |-------|------------------------|----------|-------|--------|
-| `/energy` | `EnergyBoard` (Forge ECharts) | bills + tariff + measurements + SEC → `/api/insights/energy` | B | in_progress |
-| `/plant-map` | `PlantSectionMap` (SVG graph) | department-graph + assets + power → `/api/insights/plant-map` | B | todo |
-| `/intensity` | `SustainabilityDashboard` | SEC + derived CO₂ → `/api/insights/sustainability` | B | todo |
-| `/equipment` | `MachineHealthBoard` | assets + energy series → `/api/insights/equipment` | B | todo |
+| `/energy` | `EnergyBoard` (Forge ECharts) | bills + tariff + measurements + SEC → `/api/insights/energy` | B | live |
+| `/plant-map` | `PlantSectionMap` (SVG graph) | department-graph + assets + power → `/api/insights/plant-map` | B | live |
+| `/intensity` | `SustainabilityDashboard` | SEC + derived CO₂ → `/api/insights/sustainability` | B | live |
+| `/equipment` | `MachineHealthBoard` | assets + energy series → `/api/insights/equipment` | B | live |
 | `/` `/live` | `PlantHealthMap`, dials, demand, alerts | overview + L2 + L5; **purge overview-demo** | A/B | todo |
 | `/reports` | `ExportCentre`, `SavingsLedger` | `/api/reports` + ledger exports | A/B | todo |
 | `/energy` | Source mix donut | No generation table | D | empty |

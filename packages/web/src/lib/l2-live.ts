@@ -1,4 +1,4 @@
-import type { OverviewMachine } from "@/fixtures/overview-demo";
+import type { OverviewMachine } from "@/lib/overview-machines";
 import type { L2Asset, L2MeasurementPoint } from "@/hooks/useL2Data";
 import type { DataSource } from "@/lib/bff";
 import type { LiveDial, LiveTelemetrySnapshot } from "@/lib/live-telemetry";

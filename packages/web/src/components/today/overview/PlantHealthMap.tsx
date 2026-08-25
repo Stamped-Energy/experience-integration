@@ -3,12 +3,10 @@
 import { useState } from "react";
 import { Panel, PanelHeader } from "@/components/ui/primitives";
 import { StatusDotByStatus, StatusLegend, SeverityTag } from "@/components/ui/indicators";
-import {
-  OVERVIEW_MACHINES,
-  type MachineStatus,
-  type OverviewMachine,
-} from "@/fixtures/overview-demo";
+import type { MachineStatus, OverviewMachine } from "@/lib/overview-machines";
 import { formatIndianNum } from "@/lib/format";
+
+export type { MachineStatus, OverviewMachine };
 
 const STYLE: Record<
   MachineStatus,
@@ -39,16 +37,29 @@ function summarize(machines: OverviewMachine[]): string {
     .join(" · ");
 }
 
-export function PlantHealthMap({ machines = OVERVIEW_MACHINES }: { machines?: OverviewMachine[] }) {
+export function PlantHealthMap({ machines }: { machines: OverviewMachine[] }) {
   const [hover, setHover] = useState<{ m: OverviewMachine; x: number; y: number } | null>(null);
+
+  if (!machines.length) {
+    return (
+      <Panel style={{ padding: 20 }}>
+        <PanelHeader eyebrow="Real-Time Health Map" title="Plant Equipment Status" meta="No assets" />
+        <p style={{ margin: 0, fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
+          No live machines to map.
+        </p>
+      </Panel>
+    );
+  }
 
   return (
     <Panel style={{ padding: 20, position: "relative" }}>
-      <PanelHeader eyebrow="Real-Time Health Map" title="Plant Equipment Status" meta="115 assets" />
+      <PanelHeader
+        eyebrow="Real-Time Health Map"
+        title="Plant Equipment Status"
+        meta={`${machines.length} assets`}
+      />
 
-      <div
-        className="forge-plant-health-grid"
-      >
+      <div className="forge-plant-health-grid">
         {machines.map((m) => {
           const s = STYLE[m.status];
           return (
@@ -134,7 +145,7 @@ export function PlantHealthMap({ machines = OVERVIEW_MACHINES }: { machines?: Ov
           </div>
           <div className="forge-tooltip__row">
             <span>Energy</span>
-            <span>{hover.m.kwh == null ? "-" : `${formatIndianNum(hover.m.kwh)} kWh/h`}</span>
+            <span>{hover.m.kwh == null ? "-" : `${formatIndianNum(hover.m.kwh)} kWh`}</span>
           </div>
           <div style={{ marginTop: 5, fontSize: 11, opacity: 0.85, lineHeight: 1.4 }}>{hover.m.reason}</div>
         </div>

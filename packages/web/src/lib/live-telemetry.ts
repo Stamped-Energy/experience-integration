@@ -5,8 +5,8 @@ import {
   OVERVIEW_KPIS,
   OVERVIEW_MACHINES,
   type AlertSeverity,
-  type OverviewMachine,
 } from "@/fixtures/overview-demo";
+import type { OverviewMachine } from "@/lib/overview-machines";
 
 export type LiveDial = {
   name: string;

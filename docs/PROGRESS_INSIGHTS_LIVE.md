@@ -10,11 +10,11 @@
 
 | Component | Fixture import | Status |
 |-----------|----------------|--------|
-| `EnergyBoard.tsx` | `@/fixtures/energy-analytics` | remount pending |
-| `SustainabilityDashboard.tsx` | `@/fixtures/demo` | remount pending |
-| `PlantSectionMap.tsx` | `@/fixtures/plant-sections` | extract lib + remount pending |
-| `MachineHealthBoard.tsx` | `@/fixtures/machine-health` | remount pending |
-| `PlantHealthMap.tsx` | `@/fixtures/overview-demo` | remount pending |
+| `EnergyBoard.tsx` | `@/fixtures/energy-analytics` | remounted |
+| `SustainabilityDashboard.tsx` | `@/fixtures/demo` | remounted |
+| `PlantSectionMap.tsx` | `@/fixtures/plant-sections` | remounted |
+| `MachineHealthBoard.tsx` | `@/fixtures/machine-health` | remounted |
+| `PlantHealthMap.tsx` | `@/fixtures/overview-demo` | remounted (props-only) |
 | `DialBank.tsx` | `@/fixtures/overview-demo` | purge pending |
 | `DemandProfilePanel.tsx` | `@/fixtures/overview-demo` | purge pending |
 | `AlertFeedPanel.tsx` | `@/fixtures/overview-demo` | purge pending |
@@ -26,18 +26,20 @@
 
 | Route | UI state | Notes |
 |-------|----------|-------|
-| `/energy` | bills/tariff text + empty chart shells | EnergyBoard not mounted |
-| `/plant-map` | raw department-graph JSON | PlantSectionMap not mounted |
-| `/intensity` | raw SEC JSON | SustainabilityDashboard not mounted |
-| `/equipment` | L2 assets + fixture CM trends in board | hybrid |
+| `/energy` | EnergyBoard live | done |
+| `/plant-map` | PlantSectionMap live | done |
+| `/intensity` | SustainabilityDashboard live | done |
+| `/equipment` | MachineHealthBoard + PlantHealthMap live | energy-derived; CM empty |
 | `/reports` | overview KPIs only | ExportCentre not mounted |
 | `/`, `/live` | partial L2; subpanels still fixture-backed | purge pending |
 
 ### Next
 
-Phase A continued — plant-map / sustainability / equipment DTOs, then remount those boards.
+Overview/Live fixture purge · Reports · Vinayak smoke · Hardening.
 
 ### Done this session
 
 - [x] Phase 0 audit docs
 - [x] `GET /api/insights/energy` + EnergyBoard props remount on `/energy`
+- [x] Plant-map + sustainability remounts
+- [x] `GET /api/insights/equipment` + MachineHealthBoard / PlantHealthMap remount
