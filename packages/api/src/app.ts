@@ -33,7 +33,7 @@ import { registerAnalystRoutes } from "./analyst/routes.js";
 import { registerCaseRoutes } from "./cases/routes.js";
 import { registerL2Routes } from "./l2/routes.js";
 import { registerOverviewRoutes } from "./overview/routes.js";
-import { registerInsightsRoutes } from "./insights/routes.js";
+import { registerAssignmentsRoutes } from "./assignments/routes.js";
 import { probeUpstreams } from "./meta/upstreams.js";
 import { orgIdForExternalPlantId } from "./upstream/mappings.js";
 import type pg from "pg";
@@ -265,6 +265,7 @@ export async function buildApp(
       enqueueGenerate: opts.enqueueReportGenerate,
     });
     await registerIntegrationRoutes(app, { auth: opts.auth, db: opts.db });
+    await registerAssignmentsRoutes(app, { auth: opts.auth, db: opts.db });
     await registerL2Routes(app, {
       auth: opts.auth,
       db: opts.db,
@@ -279,11 +280,6 @@ export async function buildApp(
       alarmFixture: opts.alarmFixture,
       prescriptionFixture: opts.prescriptionFixture,
       strictLive: env.L6_STRICT_LIVE,
-    });
-    await registerInsightsRoutes(app, {
-      auth: opts.auth,
-      db: opts.db,
-      createL2Client: opts.createL2Client,
     });
     await registerCaseRoutes(app, {
       auth: opts.auth,
