@@ -1,7 +1,5 @@
-import { plantForId, type DemoAsset } from "@/fixtures/demo";
-import { prescriptionCaseDetailOverrides } from "@/fixtures/prescription-case-details";
 import type { EvidencePack } from "@/lib/evidence";
-import { formatBaselineLabel, formatEmissionFactorRef, formatInr, formatMetricLabel, formatRuleLabel } from "@/lib/format";
+import { formatBaselineLabel, formatInr, formatMetricLabel } from "@/lib/format";
 import type {
   Alarm,
   LedgerEntry,
@@ -17,16 +15,16 @@ function annualFromMonthly(monthly: number): string {
   return formatInr(monthly * 12);
 }
 
-/** Merge fixture override with derived defaults from Rx, evidence pack, ledger, and alarm. */
+/** Merge server caseDetail (preferred) with derived defaults. No fixture overrides. */
 export function buildPrescriptionCaseDetail(input: {
   rx: Prescription;
   pack: EvidencePack;
   ledger?: LedgerEntry;
   alarm?: Alarm;
-  asset?: DemoAsset;
+  asset?: { area?: string; loadPct?: number; kwhMtd?: number };
 }): PrescriptionCaseDetail {
   const { rx, pack, ledger, alarm, asset } = input;
-  const override = rx.caseDetail ?? prescriptionCaseDetailOverrides[rx.id] ?? {};
+  const override = rx.caseDetail ?? {};
 
   const derived: PrescriptionCaseDetail = {
     createdAt: rx.dueAt.slice(0, 10),
@@ -34,11 +32,11 @@ export function buildPrescriptionCaseDetail(input: {
     savingsRange: `${formatInr(rx.impactInrPerMonth)} / mo · ${annualFromMonthly(rx.impactInrPerMonth)} / yr modeled`,
     metadata: [
       { label: "Case", value: rx.title },
-      { label: "Plant", value: plantForId(rx.plantId).plantName },
+      { label: "Plant", value: rx.plantId },
       { label: "Category", value: rx.category ?? "-" },
       { label: "Priority", value: rx.priority ?? "-" },
       { label: "Status", value: rx.lane.replaceAll("_", " ") },
-      { label: "Owner", value: ownerLabel(rx.ownerRole) },
+      { label: "Owner", value: ownerLabel(rx.whoLabel ?? rx.ownerRole) },
       { label: "Bill line", value: rx.billLine ?? "-" },
       { label: "Effort", value: rx.effort ?? "-" },
       { label: "Due", value: rx.dueLabel ?? rx.dueAt.slice(0, 10) },
@@ -72,7 +70,7 @@ export function buildPrescriptionCaseDetail(input: {
       })),
       interpretation: pack.anomaly.summary,
       sanityCheck:
-        "Confirm finding against live load for the named assets. Log header pressure, kW, and alarms for 15–30 minutes to validate.",
+        "Confirm finding against live load. Use the L2 points disclosure for raw values.",
     },
     rootCause: [rx.why],
     costBenefit: {
@@ -155,9 +153,13 @@ export function buildPrescriptionCaseDetail(input: {
   if (asset) {
     derived.metadata = [
       ...(derived.metadata ?? []),
-      { label: "Asset area", value: asset.area },
-      { label: "Asset load", value: `${asset.loadPct}%` },
-      { label: "Asset kWh MTD", value: asset.kwhMtd.toLocaleString("en-IN") },
+      ...(asset.area ? [{ label: "Asset area", value: asset.area }] : []),
+      ...(asset.loadPct != null
+        ? [{ label: "Asset load", value: `${asset.loadPct}%` }]
+        : []),
+      ...(asset.kwhMtd != null
+        ? [{ label: "Asset kWh MTD", value: asset.kwhMtd.toLocaleString("en-IN") }]
+        : []),
     ];
   }
 

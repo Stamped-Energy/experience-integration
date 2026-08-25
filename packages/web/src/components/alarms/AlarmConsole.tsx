@@ -2,9 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Alarm } from "@/lib/types";
-import { assetsFixture, prescriptionsFixture } from "@/fixtures/demo";
-import { resolveEvidenceIdForAlarm } from "@/fixtures/evidence-samples";
-import { buildEvidencePack, resolveEvidenceScope } from "@/lib/evidence";
 import { usePlant } from "@/lib/plant-context";
 import {
   ForgeButton,
@@ -60,26 +57,12 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
 
   const evidenceRows = useMemo(() => {
     if (!current) return [];
-    const asset = assetsFixture.find((a) => a.id === current.assetId);
-    const scope = resolveEvidenceScope({
-      plantId: current.plantId || activePlant.plantId,
-      alarmId: current.id,
-      alarms,
-      prescriptions: prescriptionsFixture,
-    });
-    const pack = buildEvidencePack(scope, { baselineAvailable: true });
     return [
       {
-        id: "load",
-        metric: "Load",
-        value: asset ? `${asset.loadPct}%` : "-",
-        note: current.summary,
-      },
-      {
-        id: "kwh",
-        metric: "MTD energy",
-        value: asset ? `${Math.round(asset.kwhMtd / 1000)} MWh` : "-",
-        note: pack.lineage.sources.join(", "),
+        id: "summary",
+        metric: "Summary",
+        value: current.summary,
+        note: current.assetLabel,
       },
       {
         id: "raised",
@@ -87,8 +70,16 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
         value: formatIstTime(current.raisedAt),
         note: formatIstDateTime(current.raisedAt),
       },
+      {
+        id: "link",
+        metric: "Full case",
+        value: "Open",
+        note: current.relatedPrescriptionId
+          ? `Rx ${current.relatedPrescriptionId}`
+          : "Alarm detail",
+      },
     ];
-  }, [current, alarms, activePlant.plantId]);
+  }, [current]);
 
   function runAction(action: AlarmAction) {
     if (!current) return;
@@ -248,19 +239,15 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
                   Prescription
                 </ForgeButton>
               ) : null}
-              {(() => {
-                const evidenceId = resolveEvidenceIdForAlarm(current.id);
-                if (!evidenceId) return null;
-                return (
-                  <ForgeButton
-                    variant="secondary"
-                    icon={<FileText size={16} />}
-                    href={`/evidence/${evidenceId}`}
-                  >
-                    Evidence
-                  </ForgeButton>
-                );
-              })()}
+              {current.relatedPrescriptionId ? (
+                <ForgeButton
+                  variant="secondary"
+                  icon={<FileText size={16} />}
+                  href={`/evidence/evd_${current.relatedPrescriptionId}`}
+                >
+                  Evidence
+                </ForgeButton>
+              ) : null}
               <ForgeButton variant="ghost" href={`/alarms/${current.id}`}>
                 Full detail
               </ForgeButton>
