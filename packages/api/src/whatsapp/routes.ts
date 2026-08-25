@@ -162,10 +162,11 @@ export async function registerWhatsAppRoutes(
     const signature = request.headers["x-hub-signature-256"] as
       | string
       | undefined;
+    const rawBodyCandidate = (request as unknown as { rawBody?: Buffer | string })
+      .rawBody;
     const rawBody =
-      typeof (request as { rawBody?: Buffer | string }).rawBody === "string" ||
-      Buffer.isBuffer((request as { rawBody?: Buffer | string }).rawBody)
-        ? (request as { rawBody: Buffer | string }).rawBody
+      typeof rawBodyCandidate === "string" || Buffer.isBuffer(rawBodyCandidate)
+        ? rawBodyCandidate
         : typeof request.body === "string"
           ? request.body
           : JSON.stringify(request.body ?? {});

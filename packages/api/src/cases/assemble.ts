@@ -19,6 +19,7 @@ import {
 import {
   L6CasePayloadSchema,
   type CaseEnrichment,
+  type EvidenceSeriesDto,
   type L6CasePayload,
 } from "./contract.js";
 
@@ -46,7 +47,7 @@ export async function assemblePrescriptionCase(input: {
     prescriptionId: input.prescriptionId,
   })) as Record<string, unknown>;
 
-  const prescription = mapL5PrescriptionToProduct(raw, input.plantId);
+  const prescription = mapL5PrescriptionToProduct(raw);
   const enrichment = (raw.case_enrichment as CaseEnrichment | null | undefined) ?? null;
   const refs = stringArray(raw.evidence_refs ?? prescription.evidenceRefs);
   const findingWindow =
@@ -56,9 +57,7 @@ export async function assemblePrescriptionCase(input: {
   const scope = scopeFromRaw(refs, findingWindow);
   const missing: string[] = [];
 
-  let series = undefined as ReturnType<typeof fetchL2Series> extends Promise<infer R>
-    ? R["series"]
-    : never;
+  let series: EvidenceSeriesDto | undefined;
   let loadDialPct: Record<string, number> = {};
 
   if (input.l2) {
