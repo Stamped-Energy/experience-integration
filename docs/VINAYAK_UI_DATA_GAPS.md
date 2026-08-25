@@ -17,23 +17,22 @@ Discrepancy matrix for **Vinayak Plant** (`plant_vinayak_1`) after Phase 1–2 o
 |---------|------------|--------|-----------------|-----------|
 | Overview tiles (Rx panel) | `title`, `why`, impact ₹/mo, due | Empty `why`; weak titles from missing list narrative | **Filled** — L5 list DTO includes `what`/`why`/`who`/`who_label`/`due_label`/`effort`/`evidence_refs`; BFF maps into overview queue | Confirmed-savings strip still depends on verified ledger |
 | Overview KPI / signal strip | Confirmed savings, closure %, MD headroom, telemetry freshness | Often null / “No upstream data” while loading | **Partial** — live KPIs when L2/L5 up; loading now uses skeletons instead of empty-state copy | Fixture-only signals stay blank |
-| Prescription queue flip cards | `who`, `when`, `evidenceRefs`, impact | Missing who/when/evidence on list payload | **Filled** — same list DTO → BFF `whoLabel` / `dueLabel` / `evidenceRefs` | Full flip evidence charts still limited without tag windows |
-| Prescription detail `/prescriptions/[id]` | Structured title / why / who / evidence | Raw JSON only | **Partial** — light structured case view + optional raw JSON | Full `PrescriptionFullCase` remount out of scope |
-| Evidence pages / ZIP | Packs, charts, download | Stub / 404 when gate withheld | **Partial** — seed force-path + open ingest stores evidence bundles; evidence GET **200** on seed Rx; refs listed on detail | Chart explorer / fixture charts still out of scope |
-| Alarms console | Severity, category, link to Rx | Empty when Rx withheld | **Filled** — gate-safe verbs + open ingest raise alarms (6 for Vinayak seed) | — |
-| Confirmed savings (MTD) | Verified ledger ₹ | Often null | **Partial** — verify path attempted on `rx_vinayak_cw_pump_recirc`; may still fail without matching L2 windows | Need L2 points aligned to MV plan for reliable verify |
-| Live | Asset tree + incomer power | Empty if L2 down or during load | **Partial** — L2 when seeded; loading skeletons while assets/measurements fetch | Class-D surfaces (FFT, renewables mix) stay empty |
-| Negotiate / tradeoff | Full-case remount | Stub | **Stub** | Explicit non-goal this pass |
+| Prescription queue | `who`, `when`, `evidenceRefs`, impact | Missing on list payload | **Filled** — list DTO → BFF | — |
+| Prescription detail `/prescriptions/[id]` | FullCase + chart + L2 points | Raw JSON / thin narrative | **Filled** — `GET /api/cases/prescription/:id` → `PrescriptionFullCase` + `L2PointsDisclosure` | Enrichment null if LLM down |
+| Evidence pages / ZIP | Packs, charts, download | Stub | **Filled** — `/evidence`, `/evidence/[id]`, `?rxId=` via by-rx; ZIP when bundle exists | — |
+| Alarm detail `/alarms/[id]` | AlarmFullCase + proof | Raw JSON | **Filled** — `GET /api/cases/alarm/:id` | — |
+| Alarms console | Severity, category, link to Rx | Empty when Rx withheld | **Filled** — live list; evidence links to case (no fixture pack) | — |
+| Confirmed savings (MTD) | Verified ledger ₹ | Often null | **Partial** — verify path if L2 allows | Need aligned MV windows |
+| Live | Asset tree + incomer power | Empty if L2 down or during load | **Partial** — L2 when seeded; skeletons while loading | Class-D surfaces stay empty |
+| Negotiate / tradeoff | Full-case remount | Stub | **Stub** | Explicit non-goal |
 
 ## Data path (fixed)
 
 ```text
-L5 seed (gate-safe what + who_label + evidence_refs)
-  → practicality gate opens
-  → alarm + evidence bundle + ledger intent
-  → L5 list DTO includes what/why/who/who_label/effort/evidence_refs
-  → BFF maps title/why/whoLabel/evidenceRefs
-  → Overview + Prescriptions queue render narrative
+L5 seed (gate-safe what + who_label + evidence_refs with ?window=)
+  → practicality gate opens → alarm + evidence ZIP + case_enrichment
+  → L6 GET /api/cases/* resolves tag windows via L2 measurements
+  → PrescriptionFullCase / AlarmFullCase / EvidenceDetail + L2 points table
 ```
 
 ## How to re-seed Vinayak L5 only
