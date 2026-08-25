@@ -34,7 +34,7 @@ test.describe("operational journeys", () => {
     await expect(
       page
         .locator("main")
-        .getByText(/Prescription|Needs attention|Addressable|upstream|unavailable|Loading/i)
+        .getByText(/Prescription|Prescriptions|Needs attention|Addressable|upstream|unavailable|Loading/i)
         .first(),
     ).toBeVisible();
     await page.goto("/evidence/evd_4401");
@@ -52,7 +52,7 @@ test.describe("operational journeys", () => {
     await expect(
       page
         .locator("main")
-        .getByText(/Report|Export|Confirmed savings|ledger|upstream|unavailable|Loading/i)
+        .getByText(/Report|Export|Confirmed savings|Export centre|ledger|upstream|unavailable|Loading|Ledger/i)
         .first(),
     ).toBeVisible();
     const approve = page.getByRole("button", { name: /^Approve$/i }).first();
