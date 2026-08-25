@@ -89,6 +89,9 @@ export default function OverviewPage() {
     );
     void fetch(url, { credentials: "include", cache: "no-store" })
       .then(async (res) => {
+        if (res.status === 401) {
+          throw new Error("Sign in required — overview needs a BFF session (L2/L5 are reachable).");
+        }
         if (!res.ok) throw new Error(`overview ${res.status}`);
         return (await res.json()) as OverviewResponse;
       })
