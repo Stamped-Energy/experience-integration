@@ -166,6 +166,8 @@ jobs:
 
       - name: Build web
         run: pnpm --filter @stamped/l6-web build
+        env:
+          NEXT_PUBLIC_E2E_BYPASS_AUTH: "true"
 
       - name: Install Playwright Chromium
         run: pnpm --filter @stamped/l6-web exec playwright install --with-deps chromium
@@ -174,6 +176,7 @@ jobs:
         run: pnpm --filter @stamped/l6-web test:e2e
         env:
           CI: "true"
+          NEXT_PUBLIC_E2E_BYPASS_AUTH: "true"
 
   infra:
     runs-on: ubuntu-latest

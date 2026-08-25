@@ -110,15 +110,17 @@ export function useAuth(): AuthContextValue {
 
 /**
  * Redirects unauthenticated users to /login. Login page is public.
+ * E2E may set NEXT_PUBLIC_E2E_BYPASS_AUTH=true (Playwright / CI only).
  */
 export function AuthGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const isPublic = pathname != null && PUBLIC_PATHS.has(pathname);
+  const bypassAuth = process.env.NEXT_PUBLIC_E2E_BYPASS_AUTH === "true";
 
   useEffect(() => {
-    if (loading) return;
+    if (bypassAuth || loading) return;
     if (!user && !isPublic) {
       const next = pathname && pathname !== "/" ? `?next=${encodeURIComponent(pathname)}` : "";
       router.replace(`/login${next}`);
@@ -126,7 +128,11 @@ export function AuthGate({ children }: { children: ReactNode }) {
     if (user && isPublic) {
       router.replace("/");
     }
-  }, [loading, user, isPublic, pathname, router]);
+  }, [bypassAuth, loading, user, isPublic, pathname, router]);
+
+  if (bypassAuth) {
+    return <>{children}</>;
+  }
 
   if (loading) {
     return (
