@@ -94,21 +94,10 @@ export function AppShell({
     setCollapsed(readCollapsed(storage));
   }, []);
 
-  // Keep plant switcher + facility label identical on every route.
-  const shellPlants = useMemo(
-    () =>
-      plants && plants.length > 0
-        ? plants
-        : plantCtx.plants.map((p) => ({ id: p.plantId, name: p.plantName })),
-    [plants, plantCtx.plants],
-  );
+  // Facility label follows active plant (client is single-plant; staff switch is under Admin).
   const shellPlantId = plants && plants.length > 0 ? plantId : plantCtx.activePlantId;
   const shellPlantName =
     plants && plants.length > 0 ? plantName : plantCtx.activePlant.plantName;
-  const shellOnPlantChange =
-    plants && plants.length > 0 && onPlantChange
-      ? onPlantChange
-      : plantCtx.setActivePlantId;
 
   const dock = useMemo(() => mobileDock(role, pins), [role, pins]);
   const sse = useMemo(() => sseMeta(connection), [connection]);
@@ -160,9 +149,6 @@ export function AppShell({
         onOpenNav={() => setMobileNavOpen(true)}
         onAskAnalyst={() => setAnalystOpen(true)}
         askAnalystRef={askAnalystRef}
-        plants={shellPlants}
-        activePlantId={shellPlantId}
-        onPlantChange={shellOnPlantChange}
       />
 
       <div className="forge-shell__body">
