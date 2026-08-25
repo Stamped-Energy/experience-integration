@@ -157,7 +157,15 @@ export async function sendAnalystMessageStream(
   );
   if (!res.ok || !res.body) {
     const text = await res.text();
-    throw new Error(text.slice(0, 240) || `stream ${res.status}`);
+    let detail = text.slice(0, 240) || `stream ${res.status}`;
+    try {
+      const problem = JSON.parse(text) as { detail?: string; title?: string };
+      if (problem.detail) detail = problem.detail;
+      else if (problem.title) detail = problem.title;
+    } catch {
+      /* keep raw */
+    }
+    throw new Error(detail);
   }
   const reader = res.body.getReader();
   const decoder = new TextDecoder();

@@ -40,6 +40,17 @@ function unauthorized(reply: {
   });
 }
 
+/** CORS headers required when hijacking the raw response (SSE bypasses @fastify/cors). */
+function corsHeadersFor(request: { headers: { origin?: string } }): Record<string, string> {
+  const origin = request.headers.origin;
+  if (!origin) return {};
+  return {
+    "access-control-allow-origin": origin,
+    "access-control-allow-credentials": "true",
+    vary: "Origin",
+  };
+}
+
 export async function registerAnalystRoutes(
   app: FastifyInstance,
   deps: AnalystRouteDeps,
@@ -56,7 +67,21 @@ export async function registerAnalystRoutes(
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(request.headers),
     });
-    const body = CreateSessionBody.parse(request.body);
+    let body: z.infer<typeof CreateSessionBody>;
+    try {
+      body = CreateSessionBody.parse(request.body);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return reply.status(400).send({
+          type: "https://httpstatuses.com/400",
+          title: "Bad Request",
+          status: 400,
+          detail: err.issues.map((i) => i.message).join("; "),
+          request_id: request.id,
+        });
+      }
+      throw err;
+    }
     const userId = session?.user.id || body.userId;
     if (!userId) {
       if (!allowAnonymous) return unauthorized(reply, request.id);
@@ -103,7 +128,21 @@ export async function registerAnalystRoutes(
       headers: fromNodeHeaders(request.headers),
     });
     const sessionId = String((request.params as { sessionId: string }).sessionId);
-    const body = StreamMessageBody.parse(request.body);
+    let body: z.infer<typeof StreamMessageBody>;
+    try {
+      body = StreamMessageBody.parse(request.body);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return reply.status(400).send({
+          type: "https://httpstatuses.com/400",
+          title: "Bad Request",
+          status: 400,
+          detail: err.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "),
+          request_id: request.id,
+        });
+      }
+      throw err;
+    }
     if (!session && !allowAnonymous) return unauthorized(reply, request.id);
 
     const envelope = {
@@ -134,6 +173,7 @@ export async function registerAnalystRoutes(
         connection: "keep-alive",
         "x-accel-buffering": "no",
         "x-request-id": request.id,
+        ...corsHeadersFor(request),
       });
       const reader = upstream.body?.getReader();
       if (!reader) {

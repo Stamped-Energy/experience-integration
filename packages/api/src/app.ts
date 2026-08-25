@@ -102,6 +102,9 @@ export async function buildApp(
       },
     },
     crossOriginEmbedderPolicy: false,
+    // Browser web (localhost:3000) reads BFF (localhost:3001) with credentials;
+    // default same-origin CORP breaks credentialed cross-origin SSE/fetch.
+    crossOriginResourcePolicy: { policy: "cross-origin" },
   });
   await app.register(cors, {
     // Local web may be opened as localhost or 127.0.0.1 — both must work with credentials.
