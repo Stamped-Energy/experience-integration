@@ -33,6 +33,8 @@ describe("alarms product API", () => {
       BETTER_AUTH_SECRET: "test-secret-stamped-l6-auth-32chars!",
       BETTER_AUTH_URL: "http://localhost:3001",
       WEB_ORIGIN: "http://localhost:3000",
+      // Fixture Auto path — strict live would return empty / unavailable.
+      L6_STRICT_LIVE: "false",
     });
     const mailer = createMailer({ from: env.SMTP_FROM });
     const auth = createAuth(db, env, mailer);

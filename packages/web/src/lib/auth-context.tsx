@@ -81,6 +81,11 @@ export function useAuth(): AuthContextValue {
   return ctx;
 }
 
+/** Playwright / offline shell — set at Next build time for browser-e2e CI. */
+const E2E_BYPASS_AUTH =
+  process.env.NEXT_PUBLIC_E2E_BYPASS_AUTH === "1" ||
+  process.env.NEXT_PUBLIC_E2E_BYPASS_AUTH === "true";
+
 /**
  * Redirects unauthenticated users to /login. Login page is public.
  */
@@ -91,6 +96,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
   const isPublic = pathname != null && PUBLIC_PATHS.has(pathname);
 
   useEffect(() => {
+    if (E2E_BYPASS_AUTH) return;
     if (loading) return;
     if (!user && !isPublic) {
       const next = pathname && pathname !== "/" ? `?next=${encodeURIComponent(pathname)}` : "";
@@ -100,6 +106,10 @@ export function AuthGate({ children }: { children: ReactNode }) {
       router.replace("/");
     }
   }, [loading, user, isPublic, pathname, router]);
+
+  if (E2E_BYPASS_AUTH) {
+    return <>{children}</>;
+  }
 
   if (loading) {
     return (
