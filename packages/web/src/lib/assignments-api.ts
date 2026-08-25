@@ -163,3 +163,28 @@ export async function deleteRoute(id: string): Promise<void> {
   );
   if (!res.ok && res.status !== 204) throw new Error(await readProblem(res));
 }
+
+export type AssignmentNotifyResult = {
+  log_id: string;
+  mode: "dry_run" | "live";
+  status: "accepted" | "dry_run" | "failed";
+  provider_message_id: string | null;
+  error: string | null;
+  person: { id: string; name: string; phone_masked: string };
+};
+
+/** Enqueue WhatsApp for an assignee; returns real dry_run / accepted / failed. */
+export async function notifyAssignee(input: {
+  personId: string;
+  prescriptionId?: string;
+  template?: string;
+}): Promise<AssignmentNotifyResult> {
+  const res = await fetch(bffUrl("/api/assignments/notify"), {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error(await readProblem(res));
+  return (await res.json()) as AssignmentNotifyResult;
+}

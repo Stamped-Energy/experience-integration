@@ -205,6 +205,42 @@ describe("assignments CRUD API", () => {
     });
     assert.equal(after.json().people.length, 0);
 
+    // Re-create person for notify enqueue (dry_run by default without Meta creds)
+    const forNotify = await app.inject({
+      method: "POST",
+      url: "/api/assignments/people",
+      headers: { cookie, "content-type": "application/json" },
+      payload: {
+        name: "Notify Target",
+        role: "operator",
+        phone: "9876544413",
+        areas: ["Pyro"],
+        whatsappEnabled: true,
+      },
+    });
+    assert.equal(forNotify.statusCode, 201, forNotify.body);
+    const notifyPersonId = forNotify.json().person.id as string;
+
+    const notified = await app.inject({
+      method: "POST",
+      url: "/api/assignments/notify",
+      headers: { cookie, "content-type": "application/json" },
+      payload: {
+        personId: notifyPersonId,
+        prescriptionId: "rx_test_1",
+        template: "issue",
+      },
+    });
+    assert.equal(notified.statusCode, 201, notified.body);
+    const body = notified.json() as {
+      log_id: string;
+      status: string;
+      mode: string;
+    };
+    assert.ok(body.log_id);
+    assert.equal(body.status, "dry_run");
+    assert.equal(body.mode, "dry_run");
+
     await app.close();
     await pool.end();
   });

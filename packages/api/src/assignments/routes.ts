@@ -1,9 +1,19 @@
 import type { FastifyInstance } from "fastify";
 import { fromNodeHeaders } from "better-auth/node";
+import { and, eq } from "drizzle-orm";
+import { z } from "zod";
 import type { Auth } from "../auth/index.js";
 import { AuthzError, requirePermission } from "../authz/index.js";
 import type { Db } from "../db/client.js";
+import { notifyPeople } from "../db/schema.js";
 import { resolveActivePlant } from "../tenancy/service.js";
+import {
+  enqueueWhatsAppNotification,
+} from "../whatsapp/service.js";
+import {
+  WHATSAPP_TEMPLATES,
+  type WhatsAppTemplateId,
+} from "../whatsapp/templates.js";
 import {
   PersonCreateBody,
   PersonPatchBody,
@@ -15,6 +25,7 @@ import {
   deleteNotifyPerson,
   listAlarmRouteRules,
   listNotifyPeople,
+  maskPhoneE164,
   updateAlarmRouteRule,
   updateNotifyPerson,
 } from "./service.js";
@@ -48,7 +59,7 @@ function problem(
 async function requirePlantActor(
   deps: AssignmentsRouteDeps,
   request: { headers: Record<string, unknown>; id: string },
-  permission: "admin:users" | "prescription:read",
+  permission: "admin:users" | "prescription:read" | "prescription:act",
 ) {
   const session = await deps.auth.api.getSession({
     headers: fromNodeHeaders(request.headers as never),
@@ -276,6 +287,100 @@ export async function registerAssignmentsRoutes(
       });
       if (!ok) return problem(reply, 404, "Route not found", request.id);
       return reply.status(204).send();
+    } catch (err) {
+      return problem(
+        reply,
+        statusFromErr(err),
+        err instanceof Error ? err.message : "Error",
+        request.id,
+      );
+    }
+  });
+
+  /**
+   * Enqueue WhatsApp for a notify_people assignee (Rx/alarm assign).
+   * Looks up phone server-side; logs dry_run | accepted | failed.
+   */
+  app.post("/api/assignments/notify", async (request, reply) => {
+    try {
+      const { plant } = await requirePlantActor(
+        deps,
+        request,
+        "prescription:act",
+      );
+      const parsed = z
+        .object({
+          personId: z.string().uuid(),
+          prescriptionId: z.string().min(1).optional(),
+          template: z
+            .enum(
+              Object.keys(WHATSAPP_TEMPLATES) as [
+                WhatsAppTemplateId,
+                ...WhatsAppTemplateId[],
+              ],
+            )
+            .default("issue"),
+        })
+        .safeParse(request.body ?? {});
+      if (!parsed.success) {
+        return problem(
+          reply,
+          400,
+          parsed.error.issues.map((i) => i.message).join("; "),
+          request.id,
+        );
+      }
+
+      const person = await deps.db
+        .select()
+        .from(notifyPeople)
+        .where(
+          and(
+            eq(notifyPeople.id, parsed.data.personId),
+            eq(notifyPeople.plantId, plant.id),
+          ),
+        )
+        .then((rows) => rows[0]);
+      if (!person) {
+        return problem(reply, 404, "Person not found", request.id);
+      }
+      if (!person.whatsappEnabled) {
+        return problem(
+          reply,
+          400,
+          "Person has WhatsApp notifications disabled",
+          request.id,
+        );
+      }
+
+      const { logId, result } = await enqueueWhatsAppNotification(deps.db, {
+        orgId: plant.orgId,
+        plantId: plant.id,
+        personId: person.id,
+        toPhoneE164: person.phoneE164,
+        template: parsed.data.template,
+        contextType: parsed.data.prescriptionId
+          ? "prescription_assign"
+          : "assignment_notify",
+        contextId: parsed.data.prescriptionId ?? person.id,
+        metadata: {
+          person_name: person.name,
+          prescription_id: parsed.data.prescriptionId ?? null,
+        },
+      });
+
+      return reply.status(201).send({
+        log_id: logId,
+        mode: result.mode,
+        status: result.status,
+        provider_message_id: result.providerMessageId ?? null,
+        error: result.error ?? null,
+        person: {
+          id: person.id,
+          name: person.name,
+          phone_masked: maskPhoneE164(person.phoneE164),
+        },
+      });
     } catch (err) {
       return problem(
         reply,

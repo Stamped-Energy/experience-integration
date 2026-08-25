@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
-import { prescriptionsFixture } from "../src/fixtures/demo.js";
+import type { Prescription } from "../src/lib/types.js";
 import {
   applyRxAction,
   classLabel,
@@ -28,6 +28,47 @@ const decisionSrc = readFileSync(
   "utf8",
 );
 
+/** Inline samples — product fixtures are empty; logic tests must not depend on them. */
+const sampleRx: Prescription[] = [
+  {
+    id: "rx_mgmt",
+    plantId: "plant_lnm_faridabad_1",
+    title: "Stagger kiln starts",
+    why: "Avoid MD spike",
+    impactInrPerMonth: 120_000,
+    confidence: 0.9,
+    lane: "needs_review",
+    ownerRole: "energy_manager",
+    dueAt: "2026-08-01T10:00:00+05:30",
+    decisionClass: "mgmt_tod",
+    valueDomain: "energy_efficiency",
+    wasteCategory: 1,
+  },
+  {
+    id: "rx_maint",
+    plantId: "plant_lnm_faridabad_1",
+    title: "Replace belt",
+    why: "Vibration",
+    impactInrPerMonth: 40_000,
+    confidence: 0.7,
+    lane: "active",
+    ownerRole: "operator",
+    dueAt: "2026-08-02T10:00:00+05:30",
+    decisionClass: "maint_mech",
+  },
+  {
+    id: "rx_done",
+    plantId: "plant_lnm_faridabad_1",
+    title: "Closed item",
+    why: "Done",
+    impactInrPerMonth: 10_000,
+    confidence: 0.5,
+    lane: "closed",
+    ownerRole: "supervisor",
+    dueAt: "2026-07-01T10:00:00+05:30",
+  },
+];
+
 describe("prescription triage", () => {
   it("offers Evidence deep-link from expand via rxId query", () => {
     assert.match(queueSrc, />\s*Evidence\s*</);
@@ -45,7 +86,7 @@ describe("prescription triage", () => {
   });
 
   it("builds pillar badges from value domain and waste category", () => {
-    const rich = prescriptionsFixture[0]!;
+    const rich = sampleRx[0]!;
     const badges = pillarBadges({
       ...rich,
       valueDomain: "energy_efficiency",
@@ -67,20 +108,15 @@ describe("prescription triage", () => {
     assert.match(queueSrc, /Add feedback/);
   });
 
-  it("ships detailed dummy prescriptions with action + why fields", () => {
-    const rich = prescriptionsFixture.find((r) => r.id === "rx_9001");
-    assert.ok(rich?.actions && rich.actions.length >= 2);
-    assert.ok(rich?.category);
-    assert.ok(rich?.billLine);
-    assert.match(rich!.title, /Stagger/i);
-    assert.ok(prescriptionsFixture.some((r) => r.id === "rx_9011"));
-    assert.equal(isManagementClass(rich!), true);
-    assert.equal(classLabel(rich!), "Management");
-    assert.ok(prescriptionsFixture.some((r) => r.decisionClass === "maint"));
+  it("classifies management vs maintenance without fixture catalog", () => {
+    assert.equal(isManagementClass(sampleRx[0]!), true);
+    assert.equal(classLabel(sampleRx[0]!), "Management");
+    assert.equal(isManagementClass(sampleRx[1]!), false);
+    assert.equal(classLabel(sampleRx[1]!), "Maintenance");
   });
 
   it("orders by impact×confidence then due date", () => {
-    const sorted = sortPrescriptions(prescriptionsFixture);
+    const sorted = sortPrescriptions(sampleRx);
     assert.ok(
       sorted[0]!.impactInrPerMonth * sorted[0]!.confidence >=
         sorted[1]!.impactInrPerMonth * sorted[1]!.confidence,
@@ -88,13 +124,13 @@ describe("prescription triage", () => {
   });
 
   it("filters inbox sections and class facet", () => {
-    const needs = filterInbox(prescriptionsFixture, "needs_attention", "all");
+    const needs = filterInbox(sampleRx, "needs_attention", "all");
     assert.ok(needs.every((r) => r.lane === "needs_review"));
-    const mgmtNeeds = filterInbox(prescriptionsFixture, "needs_attention", "management");
+    const mgmtNeeds = filterInbox(sampleRx, "needs_attention", "management");
     assert.ok(mgmtNeeds.every((r) => isManagementClass(r)));
-    const ack = filterInbox(prescriptionsFixture, "acknowledged", "all");
+    const ack = filterInbox(sampleRx, "acknowledged", "all");
     assert.ok(ack.every((r) => r.lane === "active" || r.lane === "verifying"));
-    const withDone = filterInbox(prescriptionsFixture, "acknowledged", "all", {
+    const withDone = filterInbox(sampleRx, "acknowledged", "all", {
       includeDone: true,
     });
     assert.ok(withDone.some((r) => r.lane === "closed"));
@@ -104,26 +140,30 @@ describe("prescription triage", () => {
     assert.equal(requiresReason("defer"), true);
     assert.equal(requiresReason("reject"), true);
     assert.equal(requiresReason("done"), false);
-    const target = prescriptionsFixture.find((r) => r.lane === "needs_review")!;
-    const { next, rollback } = optimisticRxUpdate(
-      prescriptionsFixture,
-      target.id,
-      "done",
-    );
+    const target = sampleRx.find((r) => r.lane === "needs_review")!;
+    const { next, rollback } = optimisticRxUpdate(sampleRx, target.id, "done");
     assert.equal(next.find((r) => r.id === target.id)?.lane, "verifying");
     assert.equal(rollback.find((r) => r.id === target.id)?.lane, target.lane);
     assert.equal(applyRxAction(target, "reject").lane, "closed");
     assert.equal(applyRxAction(target, "ack").lane, "active");
-    assert.ok(filterLane(prescriptionsFixture, "needs_review").length >= 1);
+    assert.ok(filterLane(sampleRx, "needs_review").length >= 1);
   });
 
   it("stores feedback on a prescription optimistically", () => {
-    const target = prescriptionsFixture.find((r) => r.lane === "active")!;
-    const { next } = optimisticRxFeedback(prescriptionsFixture, target.id, {
+    const target = sampleRx.find((r) => r.lane === "active")!;
+    const { next } = optimisticRxFeedback(sampleRx, target.id, {
       note: "Stage swap completed",
       outcome: "helped",
       at: "2026-07-31T10:00:00+05:30",
     });
     assert.equal(next.find((r) => r.id === target.id)?.feedback?.note, "Stage swap completed");
+  });
+
+  it("assigns via BFF notify and toasts real WhatsApp status (not fake queued)", () => {
+    assert.match(queueSrc, /notifyAssignee/);
+    assert.match(queueSrc, /WhatsApp dry-run logged|whatsappOutcomeToast/);
+    assert.doesNotMatch(queueSrc, /WhatsApp notification queued/);
+    assert.doesNotMatch(queueSrc, /@\/fixtures\/assignments/);
+    assert.doesNotMatch(queueSrc, /assetsFixture/);
   });
 });

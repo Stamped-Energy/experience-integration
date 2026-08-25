@@ -4,8 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import type { Prescription, PrescriptionFeedback } from "@/lib/types";
 import { hydrateRxFeedback, saveRxFeedback } from "@/lib/rx-feedback-store";
 import { claimBadgeLabel, formatInr } from "@/lib/format";
-import { assetsFixture } from "@/fixtures/demo";
-import type { NotifyPerson } from "@/fixtures/assignments";
+import {
+  notifyAssignee,
+  type NotifyPersonDto,
+} from "@/lib/assignments-api";
 import { AssignAssigneeSheet } from "@/components/assignments/AssignAssigneeSheet";
 import { CheckCircle, FileText, MessageSquare, Users } from "@/components/ui/icons";
 import {
@@ -55,12 +57,30 @@ const outcomeLabel: Record<NonNullable<PrescriptionFeedback["outcome"]>, string>
 };
 
 function areaForRx(rx: Prescription): { area?: string; assetId?: string } {
-  const hit = assetsFixture.find(
-    (a) =>
-      rx.title.toLowerCase().includes(a.label.toLowerCase().split(" ")[0]!) ||
-      rx.why.toLowerCase().includes(a.label.toLowerCase()),
-  );
-  return { area: hit?.area, assetId: hit?.id };
+  // Prefer explicit fields when present; otherwise leave unset so recommend falls back.
+  const area =
+    typeof (rx as { area?: string }).area === "string"
+      ? (rx as { area?: string }).area
+      : undefined;
+  const assetId =
+    typeof (rx as { assetId?: string }).assetId === "string"
+      ? (rx as { assetId?: string }).assetId
+      : undefined;
+  return { area, assetId };
+}
+
+function whatsappOutcomeToast(
+  personName: string,
+  status: "accepted" | "dry_run" | "failed",
+  error?: string | null,
+): string {
+  if (status === "dry_run") {
+    return `Assigned to ${personName} · WhatsApp dry-run logged`;
+  }
+  if (status === "accepted") {
+    return `Assigned to ${personName} · WhatsApp accepted by Meta`;
+  }
+  return `Assigned to ${personName} · WhatsApp failed${error ? `: ${error}` : ""}`;
 }
 
 function truncateNote(note: string, max = 120): string {
@@ -91,6 +111,8 @@ export function PrescriptionQueue({
   const [feedbackOutcome, setFeedbackOutcome] =
     useState<PrescriptionFeedback["outcome"]>(undefined);
   const [toast, setToast] = useState<string | null>(null);
+  const [toastTone, setToastTone] = useState<"good" | "critical" | "warning">("good");
+  const [assignBusy, setAssignBusy] = useState(false);
 
   useEffect(() => {
     setRows(hydrateRxFeedback(initial));
@@ -150,13 +172,32 @@ export function PrescriptionQueue({
     setToast(`${pendingAction.action} confirmed`);
   }
 
-  function onAssigned(person: NotifyPerson) {
-    if (!assignFor) return;
-    const { next } = optimisticRxUpdate(rows, assignFor.id, "assign");
-    setRows(next);
-    setToast(`Assigned to ${person.name} - WhatsApp notification queued`);
-    setAssignFor(null);
-    setSection("acknowledged");
+  async function onAssigned(person: NotifyPersonDto) {
+    if (!assignFor || assignBusy) return;
+    const rxId = assignFor.id;
+    setAssignBusy(true);
+    try {
+      const notify = await notifyAssignee({
+        personId: person.id,
+        prescriptionId: rxId,
+        template: "issue",
+      });
+      const { next } = optimisticRxUpdate(rows, rxId, "assign");
+      setRows(next);
+      setToastTone(notify.status === "failed" ? "critical" : "good");
+      setToast(whatsappOutcomeToast(person.name, notify.status, notify.error));
+      setAssignFor(null);
+      setSection("acknowledged");
+    } catch (err) {
+      setToastTone("critical");
+      setToast(
+        err instanceof Error
+          ? `Assign failed: ${err.message}`
+          : "Assign failed — WhatsApp not sent",
+      );
+    } finally {
+      setAssignBusy(false);
+    }
   }
 
   function openFeedback(id: string) {
@@ -484,14 +525,17 @@ export function PrescriptionQueue({
 
       <AssignAssigneeSheet
         open={!!assignFor}
-        onClose={() => setAssignFor(null)}
+        onClose={() => {
+          if (!assignBusy) setAssignFor(null);
+        }}
         title={assignFor?.title ?? "Assign"}
         area={assignFor ? areaForRx(assignFor).area : undefined}
         assetId={assignFor ? areaForRx(assignFor).assetId : undefined}
-        onAssign={onAssigned}
+        onAssign={(person) => void onAssigned(person)}
+        busy={assignBusy}
       />
 
-      <ToastRegion message={toast} tone="good" />
+      <ToastRegion message={toast} tone={toastTone} />
     </div>
   );
 }

@@ -10,6 +10,14 @@ const ASSIGNMENTS_BOARD = join(
   import.meta.dirname,
   "../src/components/assignments/AssignmentsBoard.tsx",
 );
+const ASSIGN_SHEET = join(
+  import.meta.dirname,
+  "../src/components/assignments/AssignAssigneeSheet.tsx",
+);
+const RX_QUEUE = join(
+  import.meta.dirname,
+  "../src/components/prescriptions/PrescriptionQueue.tsx",
+);
 
 const BANNED_SUBSTRINGS = [
   "@/fixtures",
@@ -20,6 +28,7 @@ const BANNED_SUBSTRINGS = [
   "webhooksFixture",
   "notifyPeopleFixture",
   "alarmRouteRulesFixture",
+  "WhatsApp notification queued",
 ];
 
 function walk(dir: string, out: string[] = []): string[] {
@@ -32,8 +41,14 @@ function walk(dir: string, out: string[] = []): string[] {
 }
 
 describe("admin surfaces stay fixture-free", () => {
-  it("settings + tools pages and AssignmentsBoard ban fixtures / DEMO_SHELL_ROLE", () => {
-    const files = [...walk(SETTINGS), ...walk(TOOLS), ASSIGNMENTS_BOARD];
+  it("settings + tools + assign/Rx surfaces ban fixtures / fake WA toast", () => {
+    const files = [
+      ...walk(SETTINGS),
+      ...walk(TOOLS),
+      ASSIGNMENTS_BOARD,
+      ASSIGN_SHEET,
+      RX_QUEUE,
+    ];
     const offenders: string[] = [];
     for (const file of files) {
       const text = readFileSync(file, "utf8");
