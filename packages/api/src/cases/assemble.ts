@@ -12,6 +12,7 @@ import {
   buildCaseDetail,
   buildEvidencePack,
   fetchL2Series,
+  packToSample,
   scopeFromRaw,
   seriesToSample,
 } from "./build-evidence.js";
@@ -100,7 +101,8 @@ export async function assemblePrescriptionCase(input: {
 
   const bundleId =
     typeof raw.evidence_bundle_id === "string" ? raw.evidence_bundle_id : undefined;
-  const sampleId = bundleId ?? `evd_${prescription.id}`;
+  // UI identity is always evd_{rxId}; L5 bundleId is download-only.
+  const sampleId = `evd_${prescription.id}`;
 
   const sample = series
     ? seriesToSample({
@@ -113,7 +115,15 @@ export async function assemblePrescriptionCase(input: {
         alarmId,
         rxId: prescription.id,
       })
-    : undefined;
+    : packToSample({
+        plantId: input.plantId,
+        sampleId,
+        issueTitle: prescription.title,
+        pack,
+        enrichment,
+        alarmId,
+        rxId: prescription.id,
+      });
 
   if (enrichment?.alarm_summary && alarmId) {
     // enrich alarm summary when we join alarm below
@@ -177,7 +187,7 @@ export async function assemblePrescriptionCase(input: {
       ...(bundleId ? { bundleId } : {}),
       refs,
       pack,
-      ...(sample ? { sample } : {}),
+      sample,
       ...(series ? { series } : {}),
       ...(bundleId ? { downloadHref: `/api/evidence/${bundleId}/download` } : {}),
     },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { AppShell } from "@/components/shell/AppShell";
 import { EvidenceDetail } from "@/components/evidence/EvidenceDetail";
@@ -31,8 +32,14 @@ type CasePayload = {
     missing?: string[];
     pack?: { missing?: string[] };
   };
+  links?: {
+    prescriptionHref?: string;
+    alarmHref?: string;
+    evidenceHref?: string;
+  };
 };
 
+/** Map URL id → prescription id. Legacy eb-* bundle routes are not resolved. */
 function rxIdFromEvidenceParam(id: string): string | null {
   if (id.startsWith("evd_")) return id.slice(4);
   if (id.startsWith("rx_")) return id;
@@ -48,13 +55,27 @@ export default function EvidenceDetailPage() {
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState<string | null>(null);
 
+  const isLegacyBundleId = evidenceId.startsWith("eb-");
+  const rxId = rxIdFromEvidenceParam(evidenceId);
+
   useEffect(() => {
     if (!evidenceId) return;
+    if (isLegacyBundleId || !rxId) {
+      setLoading(false);
+      setSource("unavailable");
+      setDetail(
+        isLegacyBundleId
+          ? "This URL uses an L5 bundle id. Open evidence via the prescription (evd_{rxId})."
+          : "Unrecognized evidence id",
+      );
+      setPayload(null);
+      return;
+    }
+
     let cancelled = false;
     setLoading(true);
-    const rxId = rxIdFromEvidenceParam(evidenceId);
     const url = bffUrl(
-      `/api/evidence/by-rx?rxId=${encodeURIComponent(rxId ?? evidenceId)}&plantId=${encodeURIComponent(activePlant.plantId)}`,
+      `/api/evidence/by-rx?rxId=${encodeURIComponent(rxId)}&plantId=${encodeURIComponent(activePlant.plantId)}`,
     );
 
     void fetch(url, { credentials: "include", cache: "no-store" })
@@ -80,7 +101,7 @@ export default function EvidenceDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [activePlant.plantId, evidenceId]);
+  }, [activePlant.plantId, evidenceId, isLegacyBundleId, rxId]);
 
   const sample = payload?.evidence?.sample;
   const showBaseline = !(payload?.evidence?.pack?.missing ?? []).includes("baseline");
@@ -120,11 +141,28 @@ export default function EvidenceDetailPage() {
               </a>
             </p>
           ) : null}
+          <p style={{ fontSize: 13, display: "flex", gap: 12, flexWrap: "wrap" }}>
+            {payload?.links?.prescriptionHref ? (
+              <Link href={payload.links.prescriptionHref}>Open prescription</Link>
+            ) : null}
+            {payload?.links?.alarmHref ? (
+              <Link href={payload.links.alarmHref}>Open alarm</Link>
+            ) : null}
+            <Link href="/evidence">Evidence index</Link>
+          </p>
         </div>
       ) : (
         <EmptyUpstreamState
-          title="Evidence sample unavailable"
-          detail="Open from a prescription with L2 telemetry in the evidence window, or seed Vinayak tag windows."
+          title={
+            isLegacyBundleId
+              ? "Legacy bundle URL"
+              : "Evidence sample unavailable"
+          }
+          detail={
+            isLegacyBundleId
+              ? "Use /evidence/evd_{prescriptionId} or open Full evidence from the prescription case. Bundle ids are for ZIP download only."
+              : "Open from a prescription with evidence_refs, or browse /evidence."
+          }
         />
       )}
     </AppShell>

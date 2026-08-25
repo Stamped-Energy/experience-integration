@@ -109,6 +109,10 @@ export function seriesToSample(input: {
   };
 
   const dialNeedle = last != null && max > 0 ? Math.round((last / max) * 100) : 0;
+  const pointMeta =
+    points.length > 0
+      ? `${points.length} L2 points @ ${input.series.granularity}`
+      : "No L2 points in window (honest empty)";
 
   return {
     id: input.sampleId,
@@ -126,7 +130,7 @@ export function seriesToSample(input: {
     metadata: [
       input.pack.lineage.ruleLabel,
       input.pack.lineage.tariffLabel,
-      `${points.length} L2 points @ ${input.series.granularity}`,
+      pointMeta,
     ].join(" · "),
     mvFooter:
       input.enrichment?.mv_footer ??
@@ -148,6 +152,29 @@ export function seriesToSample(input: {
     assetId: input.pack.scope.assetId,
     issueTitle: input.issueTitle,
   };
+}
+
+/** EvidenceSample from pack scope when L2 series is missing or empty. */
+export function packToSample(input: {
+  plantId: string;
+  sampleId: string;
+  issueTitle: string;
+  pack: EvidencePackDto;
+  enrichment?: CaseEnrichment | null;
+  alarmId?: string;
+  rxId?: string;
+}): EvidenceSampleDto {
+  const scope = input.pack.scope;
+  const emptySeries: EvidenceSeriesDto = {
+    assetId: scope.assetId,
+    metric: scope.metric,
+    from: scope.from,
+    to: scope.to,
+    granularity: "15min",
+    unit: metricUnit(scope.metric),
+    points: [],
+  };
+  return seriesToSample({ ...input, series: emptySeries });
 }
 
 export function buildCaseDetail(input: {
