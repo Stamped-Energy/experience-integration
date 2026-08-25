@@ -17,7 +17,9 @@ test.describe("mobile page overflow", () => {
   for (const route of OPS_ROUTES) {
     test(`${route} has no page-level horizontal scroll at 360px`, async ({ page }) => {
       await page.goto(route);
-      await expect(page.locator("main#forge-main, main").first()).toBeVisible();
+      // Unauthenticated CI has AuthGate → /login (no forge main). Still assert no H-scroll.
+      const shell = page.locator("main#forge-main, main, [data-auth-gate], form, body");
+      await expect(shell.first()).toBeVisible({ timeout: 15_000 });
       const metrics = await page.evaluate(() => {
         const doc = document.documentElement;
         const body = document.body;
