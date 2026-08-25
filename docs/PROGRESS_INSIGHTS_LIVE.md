@@ -35,4 +35,9 @@
 
 ### Next
 
-Phase A — `GET /api/insights/energy` board DTO + remount EnergyBoard.
+Phase A continued — plant-map / sustainability / equipment DTOs, then remount those boards.
+
+### Done this session
+
+- [x] Phase 0 audit docs
+- [x] `GET /api/insights/energy` + EnergyBoard props remount on `/energy`
