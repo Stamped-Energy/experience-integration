@@ -1,10 +1,15 @@
 import type { FastifyInstance } from "fastify";
 import { fromNodeHeaders } from "better-auth/node";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, gt } from "drizzle-orm";
 import type pg from "pg";
 import type { Auth } from "../auth/index.js";
 import type { Db } from "../db/client.js";
-import { memberships, plantMemberships, plants } from "../db/schema.js";
+import {
+  l5Events,
+  memberships,
+  plantMemberships,
+  plants,
+} from "../db/schema.js";
 import { formatSseComment, resumeEventStream } from "./sse.js";
 
 /** Plant access: active org membership plus optional plant_memberships row. */
@@ -141,5 +146,74 @@ export async function registerEventRoutes(
       request.raw.off("close", onClose);
       if (!reply.raw.writableEnded) reply.raw.end();
     }
+  });
+
+  app.get("/api/events", async (request, reply) => {
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(request.headers),
+    });
+    if (!session) {
+      return reply.status(401).send({
+        type: "https://httpstatuses.com/401",
+        title: "Unauthorized",
+        status: 401,
+        detail: "Session required",
+        request_id: request.id,
+      });
+    }
+    const query = request.query as {
+      orgId?: string;
+      plantId?: string;
+      after?: string;
+      limit?: string;
+    };
+    const plantExternalId = query.plantId?.trim() ?? "";
+    if (!plantExternalId) {
+      return reply.status(400).send({
+        type: "https://httpstatuses.com/400",
+        title: "Bad Request",
+        status: 400,
+        detail: "plantId is required",
+        request_id: request.id,
+      });
+    }
+    const allowed = await userCanAccessPlant(
+      db,
+      session.user.id,
+      plantExternalId,
+    );
+    if (!allowed) {
+      return reply.status(403).send({
+        type: "https://httpstatuses.com/403",
+        title: "Forbidden",
+        status: 403,
+        detail: "Plant access denied",
+        request_id: request.id,
+      });
+    }
+    const limit = Math.min(Math.max(Number(query.limit) || 50, 1), 200);
+    const afterSeq = query.after ? Number(query.after) : 0;
+    const orgExternalId = query.orgId?.trim() || "org_acme";
+    const conditions = [
+      eq(l5Events.orgExternalId, orgExternalId),
+      eq(l5Events.plantExternalId, plantExternalId),
+    ];
+    if (afterSeq > 0) conditions.push(gt(l5Events.seq, afterSeq));
+    const rows = await db
+      .select()
+      .from(l5Events)
+      .where(and(...conditions))
+      .orderBy(desc(l5Events.seq))
+      .limit(limit);
+    return {
+      items: rows.map((r) => ({
+        seq: r.seq,
+        eventId: r.eventId,
+        occurredAt: r.occurredAt,
+        payload: r.payload,
+      })),
+      source: "l5" as const,
+      generatedAt: new Date().toISOString(),
+    };
   });
 }

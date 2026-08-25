@@ -201,14 +201,6 @@ export class L2QueryClient {
   }
 
   async getBaseline(baselineId: string) {
-    if (!this.opts.features.baselines) {
-      throw new UpstreamError(
-        "UPSTREAM_FEATURE_UNAVAILABLE",
-        "L2 baseline reads are not published yet — feature-gated in L6",
-        501,
-        { x_stamped_status: "upstream_missing" },
-      );
-    }
     const raw = await upstreamFetch<unknown>({
       baseUrl: this.opts.baseUrl,
       path: `v1/baselines/${encodeURIComponent(baselineId)}`,
@@ -216,6 +208,158 @@ export class L2QueryClient {
       headers: this.headers(),
     });
     return BaselineSchema.parse(raw);
+  }
+
+  async listBaselines(input: {
+    plantId: string;
+    assetId?: string;
+    category?: string;
+  }) {
+    const raw = await upstreamFetch<unknown>({
+      baseUrl: this.opts.baseUrl,
+      path: `v1/plants/${encodeURIComponent(input.plantId)}/baselines`,
+      query: {
+        asset_id: input.assetId,
+        category: input.category,
+      },
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.headers(),
+    });
+    return z
+      .object({
+        baselines: z.array(z.record(z.string(), z.unknown())).optional(),
+        items: z.array(z.record(z.string(), z.unknown())).optional(),
+        next_cursor: z.union([z.string(), z.number(), z.null()]).optional(),
+      })
+      .transform((r) => ({
+        items: r.baselines ?? r.items ?? [],
+        nextCursor:
+          r.next_cursor === undefined || r.next_cursor === null
+            ? null
+            : String(r.next_cursor),
+      }))
+      .parse(raw);
+  }
+
+  async listBills(input: { plantId: string; billMonth?: string }) {
+    const raw = await upstreamFetch<unknown>({
+      baseUrl: this.opts.baseUrl,
+      path: `v1/plants/${encodeURIComponent(input.plantId)}/bills`,
+      query: { bill_month: input.billMonth },
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.headers(),
+    });
+    return z
+      .object({
+        bills: z.array(z.record(z.string(), z.unknown())).default([]),
+        next_cursor: z.union([z.string(), z.number(), z.null()]).optional(),
+      })
+      .parse(raw);
+  }
+
+  async getBillLines(input: { plantId: string; billId: string }) {
+    const raw = await upstreamFetch<unknown>({
+      baseUrl: this.opts.baseUrl,
+      path: `v1/plants/${encodeURIComponent(input.plantId)}/bills/${encodeURIComponent(input.billId)}/lines`,
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.headers(),
+    });
+    return z
+      .object({
+        bill_id: z.string().optional(),
+        bill_month: z.string().optional(),
+        lines: z.array(z.record(z.string(), z.unknown())).default([]),
+      })
+      .parse(raw);
+  }
+
+  async getActiveTariff(plantId: string) {
+    const raw = await upstreamFetch<unknown>({
+      baseUrl: this.opts.baseUrl,
+      path: "v1/tariffs/active",
+      query: { plant_id: plantId },
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.headers(),
+    });
+    return z.record(z.string(), z.unknown()).parse(raw);
+  }
+
+  async getSecFeature(input: { plantId: string; window: string }) {
+    const raw = await upstreamFetch<unknown>({
+      baseUrl: this.opts.baseUrl,
+      path: "v1/features/sec",
+      query: { plant_id: input.plantId, window: input.window },
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.headers(),
+    });
+    return z.record(z.string(), z.unknown()).parse(raw);
+  }
+
+  /** Plant Intelligence Score — stored as sec_feature window_key plant_intelligence_score. */
+  async getPlantIntelligenceScore(plantId: string) {
+    return this.getSecFeature({
+      plantId,
+      window: "plant_intelligence_score",
+    });
+  }
+
+  async getDepartmentGraph(plantId: string) {
+    const raw = await upstreamFetch<unknown>({
+      baseUrl: this.opts.baseUrl,
+      path: `v1/plants/${encodeURIComponent(plantId)}/department-graph`,
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.headers(),
+    });
+    return z.record(z.string(), z.unknown()).parse(raw);
+  }
+
+  async listProductionOrders(input: {
+    plantId: string;
+    status?: string;
+    from?: string;
+    to?: string;
+  }) {
+    const raw = await upstreamFetch<unknown>({
+      baseUrl: this.opts.baseUrl,
+      path: `v1/plants/${encodeURIComponent(input.plantId)}/production-orders`,
+      query: {
+        status: input.status,
+        from: input.from,
+        to: input.to,
+      },
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.headers(),
+    });
+    return z
+      .object({
+        orders: z.array(z.record(z.string(), z.unknown())).default([]),
+        next_cursor: z.union([z.string(), z.number(), z.null()]).optional(),
+      })
+      .parse(raw);
+  }
+
+  async getEvidenceWindow(input: {
+    plantId: string;
+    assetId: string;
+    from: string;
+    to: string;
+    baselineId?: string;
+    category?: string;
+  }) {
+    const raw = await upstreamFetch<unknown>({
+      baseUrl: this.opts.baseUrl,
+      path: `v1/plants/${encodeURIComponent(input.plantId)}/evidence/window`,
+      query: {
+        asset_id: input.assetId,
+        from: input.from,
+        to: input.to,
+        baseline_id: input.baselineId,
+        category: input.category,
+      },
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.headers(),
+    });
+    return z.record(z.string(), z.unknown()).parse(raw);
   }
 
   /**

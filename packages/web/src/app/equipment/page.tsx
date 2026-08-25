@@ -1,21 +1,40 @@
 "use client";
 
-import { useMemo } from "react";
 import { MachineHealthBoard } from "@/components/equipment/MachineHealthBoard";
 import { AppShell } from "@/components/shell/AppShell";
-import { SourceIndicator } from "@/components/ui/SourceIndicator";
+import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
 import { PageHead } from "@/components/ui/primitives";
 import {
   DEMO_SHELL_ROLE,
-  alarmsForPlant,
   connectionFixture,
-} from "@/fixtures/demo";
+} from "@/lib/plant-catalog";
 import { useL2Assets } from "@/hooks/useL2Data";
-import type { HealthAsset } from "@/fixtures/machine-health";
-import { fixtureAssetsAsL2 } from "@/lib/l2-live";
 import { usePlant } from "@/lib/plant-context";
 
-function l2AssetsToHealth(assets: ReturnType<typeof fixtureAssetsAsL2>): HealthAsset[] {
+type HealthAsset = {
+  name: string;
+  type: string;
+  section: string;
+  health: number;
+  load: number;
+  vib: number;
+  temp: number;
+  rpm: number;
+  current: number;
+  runtime: number;
+  mtbf: number;
+  status: "GOOD" | "WARNING" | "CRITICAL";
+  next: string;
+};
+
+function l2AssetsToHealth(
+  assets: Array<{
+    asset_id: string;
+    name: string;
+    level?: string;
+    asset_class?: string;
+  }>,
+): HealthAsset[] {
   const equipment = assets.filter(
     (a) => a.level === "equipment" || a.asset_class === "cnc_machine",
   );
@@ -25,7 +44,7 @@ function l2AssetsToHealth(assets: ReturnType<typeof fixtureAssetsAsL2>): HealthA
       name: a.name,
       type: isCnc ? "CNC Machine" : (a.asset_class ?? "Equipment"),
       section: isCnc ? "Machining" : (a.level ?? "Plant"),
-      health: isCnc ? 78 : 72,
+      health: 0,
       load: 0,
       vib: 0,
       temp: 0,
@@ -33,7 +52,7 @@ function l2AssetsToHealth(assets: ReturnType<typeof fixtureAssetsAsL2>): HealthA
       current: 0,
       runtime: 0,
       mtbf: 0,
-      status: isCnc ? "GOOD" : "WARNING",
+      status: "GOOD" as const,
       next: "—",
     };
   });
@@ -41,28 +60,12 @@ function l2AssetsToHealth(assets: ReturnType<typeof fixtureAssetsAsL2>): HealthA
 
 export default function EquipmentPage() {
   const { activePlant, plants, setActivePlantId } = usePlant();
-  const critical = alarmsForPlant(activePlant.plantId).filter(
-    (a) => a.severity === "critical" && a.state !== "cleared",
-  ).length;
-
-  const getFixture = useMemo(() => fixtureAssetsAsL2, []);
-  const { assets, source, loading, loadError } = useL2Assets(
-    activePlant.plantId,
-    getFixture,
-  );
+  const { assets, source, loading, loadError } = useL2Assets(activePlant.plantId);
 
   const liveHealthAssets =
     source === "l2" ? l2AssetsToHealth(assets) : undefined;
 
-  /** Preview when not on live L2 — never silent fixture (Phase E commit 30). */
-  const boardMode = source === "l2" ? "live" : "preview";
-  const indicatorSource = source === "l2" ? "l2" : "preview";
-
-  const contextLine = loading
-    ? "Loading equipment…"
-    : source === "l2"
-      ? `${assets.length} assets from L2`
-      : "Preview · fixture condition monitoring";
+  const indicatorSource = source === "l2" ? "l2" : "unavailable";
 
   return (
     <AppShell
@@ -75,11 +78,11 @@ export default function EquipmentPage() {
       connection={connectionFixture}
       screenTitle="Machine Health"
       contextSummary={[
-        contextLine,
-        source === "l2" ? "CNC asset graph" : "Predictive preview",
+        source === "l2" ? `${assets.length} assets from L2` : "No L2 assets",
+        "Vibration/FFT not available without L1 sensing",
         activePlant.plantName,
       ]}
-      criticalAlarmCount={critical}
+      criticalAlarmCount={0}
     >
       <PageHead eyebrow="Operations" title="Machine Health" />
       <SourceIndicator
@@ -90,13 +93,28 @@ export default function EquipmentPage() {
       <p style={{ margin: "0 0 8px", fontSize: 14, color: "var(--forge-on-surface-variant)" }}>
         {source === "l2"
           ? `Live L2 asset graph · ${assets.length} assets · ${activePlant.plantName}`
-          : "Preview condition monitoring — not live plant instrumentation"}
+          : "L2 unreachable — no fixture fleet shown"}
       </p>
-      <MachineHealthBoard
-        key={`${activePlant.plantId}:${source}`}
-        mode={boardMode}
-        liveAssets={liveHealthAssets}
-      />
+      {source === "l2" && liveHealthAssets ? (
+        <>
+          <MachineHealthBoard
+            key={`${activePlant.plantId}:${source}`}
+            mode="live"
+            liveAssets={liveHealthAssets}
+          />
+          <div style={{ marginTop: 16 }}>
+            <EmptyUpstreamState
+              title="Vibration / FFT / thermal charts"
+              detail="LNM CNC telemetry has machine_state and spindle load — not vibration or bearing temperature. These panels stay empty until L1 sensing exists."
+            />
+          </div>
+        </>
+      ) : (
+        <EmptyUpstreamState
+          title="No equipment data"
+          detail="Connect L2 to load the plant asset graph. Fixture health fleets have been removed."
+        />
+      )}
     </AppShell>
   );
 }

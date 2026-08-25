@@ -73,6 +73,8 @@ export type AlarmRouteDeps = {
   db: Db;
   l5?: L5WorkflowClient | null;
   fixture?: AlarmStore;
+  /** When true, never fall back to in-memory fixtures. */
+  strictLive?: boolean;
 };
 
 function problem(
@@ -132,8 +134,13 @@ export async function registerAlarmRoutes(
       fixture,
       orgId: orgIdForExternalPlantId(plant.externalPlantId),
       plantId: plant.externalPlantId,
+      strictLive: deps.strictLive,
     });
-    return { items: result.items, source: result.source };
+    return {
+      items: result.items,
+      source: result.source,
+      ...(result.detail ? { detail: result.detail } : {}),
+    };
   });
 
   app.post("/api/alarms/:alarmId/actions", async (request, reply) => {

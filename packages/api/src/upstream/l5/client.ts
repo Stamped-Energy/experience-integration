@@ -200,6 +200,134 @@ export class L5WorkflowClient {
     };
   }
 
+  async getPrescription(input: {
+    orgId: string;
+    plantId: string;
+    prescriptionId: string;
+  }): Promise<Record<string, unknown>> {
+    const raw = await upstreamFetch<unknown>({
+      baseUrl: this.opts.baseUrl,
+      path: `v1/plants/${encodeURIComponent(input.plantId)}/prescriptions/${encodeURIComponent(input.prescriptionId)}`,
+      query: { org_id: input.orgId },
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.headers(),
+    });
+    return z.record(z.string(), z.unknown()).parse(raw);
+  }
+
+  async getPrescriptionEvidence(input: {
+    orgId: string;
+    plantId: string;
+    prescriptionId: string;
+  }): Promise<Record<string, unknown>> {
+    const raw = await upstreamFetch<unknown>({
+      baseUrl: this.opts.baseUrl,
+      path: `v1/plants/${encodeURIComponent(input.plantId)}/prescriptions/${encodeURIComponent(input.prescriptionId)}/evidence`,
+      query: { org_id: input.orgId },
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.headers(),
+    });
+    return z.record(z.string(), z.unknown()).parse(raw);
+  }
+
+  async downloadEvidenceBundle(bundleId: string): Promise<Response> {
+    const url = new URL(
+      `v1/evidence/${encodeURIComponent(bundleId)}/download`,
+      this.opts.baseUrl.endsWith("/") ? this.opts.baseUrl : `${this.opts.baseUrl}/`,
+    );
+    const res = await fetch(url, {
+      method: "GET",
+      headers: this.headers(),
+      signal: AbortSignal.timeout(this.opts.timeoutMs),
+    });
+    if (!res.ok) {
+      throw new UpstreamError(
+        "UPSTREAM_HTTP_ERROR",
+        `L5 evidence download failed (${res.status})`,
+        res.status >= 400 && res.status < 600 ? res.status : 502,
+      );
+    }
+    return res;
+  }
+
+  async listPlantLedger(input: {
+    orgId: string;
+    plantId: string;
+    cursor?: string;
+  }): Promise<{ items: Record<string, unknown>[]; nextCursor: string | null }> {
+    const raw = await upstreamFetch<unknown>({
+      baseUrl: this.opts.baseUrl,
+      path: `v1/plants/${encodeURIComponent(input.plantId)}/ledger`,
+      query: {
+        org_id: input.orgId,
+        cursor: input.cursor,
+      },
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.headers(),
+    });
+    const parsed = z
+      .object({
+        items: z.array(z.record(z.string(), z.unknown())).default([]),
+        next_cursor: z.union([z.string(), z.number(), z.null()]).optional(),
+      })
+      .parse(raw);
+    return {
+      items: parsed.items,
+      nextCursor:
+        parsed.next_cursor === undefined || parsed.next_cursor === null
+          ? null
+          : String(parsed.next_cursor),
+    };
+  }
+
+  async acceptNegotiationThread(input: {
+    threadId: string;
+    orgId: string;
+    plantId: string;
+    actorId: string;
+    idempotencyKey: string;
+  }): Promise<Record<string, unknown>> {
+    const raw = await upstreamFetch<unknown>({
+      baseUrl: this.opts.baseUrl,
+      path: `v1/negotiation/threads/${encodeURIComponent(input.threadId)}/accept`,
+      method: "POST",
+      body: {
+        org_id: input.orgId,
+        plant_id: input.plantId,
+        actor_id: input.actorId,
+      },
+      idempotencyKey: input.idempotencyKey,
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.headers(),
+    });
+    return z.record(z.string(), z.unknown()).parse(raw);
+  }
+
+  async rejectNegotiationThread(input: {
+    threadId: string;
+    orgId: string;
+    plantId: string;
+    actorId: string;
+    reasonCode: string;
+    idempotencyKey: string;
+  }): Promise<Record<string, unknown>> {
+    const raw = await upstreamFetch<unknown>({
+      baseUrl: this.opts.baseUrl,
+      path: `v1/negotiation/threads/${encodeURIComponent(input.threadId)}/reject`,
+      method: "POST",
+      body: {
+        org_id: input.orgId,
+        plant_id: input.plantId,
+        actor_id: input.actorId,
+        reason_code: input.reasonCode,
+      },
+      idempotencyKey: input.idempotencyKey,
+      timeoutMs: this.opts.timeoutMs,
+      headers: this.headers(),
+    });
+    return z.record(z.string(), z.unknown()).parse(raw);
+  }
+
   async listEvents(input: {
     orgId: string;
     plantId: string;

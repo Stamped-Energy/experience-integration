@@ -15,8 +15,9 @@ import { ContextualAnalyst } from "@/components/analyst/ContextualAnalyst";
 import { WebVitalsReporter } from "@/components/telemetry/WebVitalsReporter";
 import { SidebarNav } from "@/components/shell/SidebarNav";
 import { AppTopbar } from "@/components/shell/AppTopbar";
-import { DEMO_PLANT, LNM_PLANT, PLANTS } from "@/fixtures/demo";
+import { DEMO_PLANT, LNM_PLANT, PLANTS } from "@/lib/plant-catalog";
 import { usePlant } from "@/lib/plant-context";
+import { useDataSource } from "@/lib/data-source-context";
 
 function sseMeta(connection: ConnectionStatus): {
   label: string;
@@ -75,6 +76,12 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const plantCtx = usePlant();
+  const {
+    demoMode,
+    bannerDismissed,
+    dismissBanner,
+    probe,
+  } = useDataSource();
   const [analystOpen, setAnalystOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [pins, setPins] = useState<NavKey[]>([]);
@@ -201,6 +208,31 @@ export function AppShell({
           {sse.banner ? (
             <div role="status" className="forge-shell__banner">
               {sse.banner}
+            </div>
+          ) : null}
+          {demoMode && !bannerDismissed ? (
+            <div
+              role="status"
+              className="forge-shell__banner forge-shell__banner--demo"
+              data-demo-data-banner
+            >
+              <span>
+                Demo data only
+                {probe?.l2 === "down" || probe?.l2 === "off"
+                  ? " — L2 unreachable"
+                  : ""}
+                {probe?.l5 === "down" || probe?.l5 === "off"
+                  ? " — L5 unreachable"
+                  : ""}
+                . Tiles without live upstreams show empty states.
+              </span>
+              <button
+                type="button"
+                className="forge-shell__banner-dismiss"
+                onClick={dismissBanner}
+              >
+                Dismiss
+              </button>
             </div>
           ) : null}
           <div className="forge-shell__content" key={shellPlantId}>

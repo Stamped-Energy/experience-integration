@@ -15,14 +15,26 @@ const LANE_ICON = {
   verifying: { icon: Sparkles, tone: "good" as const },
 };
 
-export function PrescriptionsOverviewPanel({ prescriptions }: { prescriptions: Prescription[] }) {
+export function PrescriptionsOverviewPanel({
+  prescriptions,
+  liveMode = false,
+}: {
+  prescriptions: Prescription[];
+  /** When true, never pull demoNeedsReview* fixtures. */
+  liveMode?: boolean;
+}) {
   const [done, setDone] = useState<Record<string, boolean>>({});
   const top = prescriptions
     .filter((p) => p.lane === "needs_review" || p.lane === "active")
     .slice(0, 3);
 
-  const pending = demoNeedsReviewCount() - Object.keys(done).length;
-  const totalImpact = demoNeedsReviewInr();
+  const needsReview = prescriptions.filter((p) => p.lane === "needs_review");
+  const pending = liveMode
+    ? Math.max(0, needsReview.length - Object.keys(done).length)
+    : demoNeedsReviewCount() - Object.keys(done).length;
+  const totalImpact = liveMode
+    ? needsReview.reduce((s, p) => s + p.impactInrPerMonth, 0)
+    : demoNeedsReviewInr();
 
   return (
     <Panel style={{ display: "flex", flexDirection: "column", overflow: "hidden", padding: 0 }}>

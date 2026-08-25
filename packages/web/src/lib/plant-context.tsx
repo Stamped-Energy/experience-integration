@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { LNM_PLANT, PLANTS } from "@/fixtures/demo";
+import { LNM_PLANT, PLANTS } from "@/lib/plant-catalog";
 
 const STORAGE_KEY = "l6.activePlantId";
 

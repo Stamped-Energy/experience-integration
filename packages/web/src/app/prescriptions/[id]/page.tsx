@@ -1,99 +1,92 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/shell/AppShell";
-import { PrescriptionFullCase } from "@/components/prescriptions/PrescriptionFullCase";
-import { PrescriptionDetailNav } from "@/components/prescriptions/PrescriptionDetailNav";
+import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
 import { PageHead } from "@/components/ui/primitives";
-import {
-  DEMO_SHELL_ROLE,
-  alarmsForPlant,
-  assetById,
-  connectionFixture,
-  findPrescription,
-  ledgerFixture,
-  plantForId,
-  prescriptionsForPlant,
-} from "@/fixtures/demo";
-import { resolveEvidenceIdForRx, findEvidenceSample } from "@/fixtures/evidence-samples";
-import { buildEvidencePack, resolveEvidenceScope } from "@/lib/evidence";
-import { formatInr } from "@/lib/format";
-import {
-  navForPrescription,
-  parseClassFacet,
-  parseInboxSection,
-} from "@/lib/prescription-nav";
+import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
+import { bffUrl, type DataSource } from "@/lib/bff";
+import { usePlant } from "@/lib/plant-context";
 
-export default async function PrescriptionDetailPage({
+export default function PrescriptionDetailPage({
   params,
-  searchParams,
 }: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ section?: string; class?: string }>;
+  params: { id: string };
 }) {
-  const { id } = await params;
-  const sp = await searchParams;
-  const rx = findPrescription(id);
-  if (!rx) notFound();
+  const { activePlant, plants, setActivePlantId } = usePlant();
+  const [source, setSource] = useState<DataSource>("unavailable");
+  const [item, setItem] = useState<Record<string, unknown> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [detail, setDetail] = useState<string | null>(null);
 
-  const plant = plantForId(rx.plantId);
-  const plantRx = prescriptionsForPlant(rx.plantId);
-  const plantAlarms = alarmsForPlant(rx.plantId);
-
-  const section = parseInboxSection(sp.section, rx);
-  const facet = parseClassFacet(sp.class);
-  const nav = navForPrescription(plantRx, rx.id, section, facet, {
-    includeDone: section === "acknowledged" && rx.lane === "closed",
-  });
-
-  const scope = resolveEvidenceScope({
-    plantId: plant.plantId,
-    rxId: rx.id,
-    alarms: plantAlarms,
-    prescriptions: plantRx,
-  });
-  const pack = buildEvidencePack(scope, { baselineAvailable: true });
-  const evidenceId = resolveEvidenceIdForRx(rx.id);
-  const evidenceSample = evidenceId ? findEvidenceSample(evidenceId) : undefined;
-  const evidenceHref = evidenceId ? `/evidence/${evidenceId}` : undefined;
-  const ledger = ledgerFixture.find((e) => e.prescriptionId === rx.id);
-  const alarm = rx.relatedAlarmId
-    ? plantAlarms.find((a) => a.id === rx.relatedAlarmId)
-    : plantAlarms.find((a) => a.relatedPrescriptionId === rx.id);
-  const asset = alarm ? assetById(alarm.assetId) : assetById(scope.assetId);
-  const criticalAlarmCount = plantAlarms.filter(
-    (a) => a.severity === "critical" && a.state !== "cleared",
-  ).length;
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    void fetch(
+      bffUrl(
+        `/api/prescriptions/${encodeURIComponent(params.id)}?plantId=${encodeURIComponent(activePlant.plantId)}`,
+      ),
+      { credentials: "include" },
+    )
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`prescription ${res.status}`);
+        return (await res.json()) as {
+          item?: Record<string, unknown>;
+          raw?: Record<string, unknown>;
+          source?: string;
+        };
+      })
+      .then((body) => {
+        if (cancelled) return;
+        setItem(body.raw ?? body.item ?? null);
+        setSource(body.source === "l5" ? "l5" : "unavailable");
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setDetail(err instanceof Error ? err.message : "Unavailable");
+          setSource("unavailable");
+          setLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activePlant.plantId, params.id]);
 
   return (
     <AppShell
       active="prescriptions"
-      plantName={plant.plantName}
+      plantName={activePlant.plantName}
+      plantId={activePlant.plantId}
+      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
+      onPlantChange={setActivePlantId}
       role={DEMO_SHELL_ROLE}
       connection={connectionFixture}
-      screenTitle={rx.title}
-      contextSummary={[rx.why, formatInr(rx.impactInrPerMonth) + "/mo"]}
-      focusEntity={{ type: "prescription", id: rx.id }}
-      criticalAlarmCount={criticalAlarmCount}
+      screenTitle="Prescription"
+      contextSummary={[params.id, activePlant.plantName]}
+      criticalAlarmCount={0}
     >
-      <PageHead
-        eyebrow="Prescription · Full case"
-        title={rx.title}
-        actions={
-          <PrescriptionDetailNav
-            prevHref={nav.prevHref}
-            nextHref={nav.nextHref}
-            label={nav.label}
-          />
-        }
-      />
-      <PrescriptionFullCase
-        rx={rx}
-        pack={pack}
-        ledger={ledger}
-        alarm={alarm}
-        asset={asset}
-        evidenceSample={evidenceSample}
-        evidenceHref={evidenceHref}
-      />
+      <PageHead eyebrow="Prescription" title={params.id} />
+      <SourceIndicator source={source} loading={loading} detail={detail} />
+      {source === "l5" && item ? (
+        <pre
+          style={{
+            fontSize: 12,
+            overflow: "auto",
+            padding: 12,
+            background: "var(--forge-surface-container)",
+            borderRadius: 8,
+          }}
+        >
+          {JSON.stringify(item, null, 2)}
+        </pre>
+      ) : (
+        <EmptyUpstreamState
+          title="Prescription case fixtures removed"
+          detail="Live case data comes from L5 GET /api/prescriptions/:id. Seed LNM via scripts/seed_lnm_l5_prescriptions.py."
+        />
+      )}
     </AppShell>
   );
 }

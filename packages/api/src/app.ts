@@ -31,6 +31,9 @@ import type { L4AnalystClient } from "./upstream/l4/client.js";
 import type { L2QueryClient } from "./upstream/l2/client.js";
 import { registerAnalystRoutes } from "./analyst/routes.js";
 import { registerL2Routes } from "./l2/routes.js";
+import { registerOverviewRoutes } from "./overview/routes.js";
+import { probeUpstreams } from "./meta/upstreams.js";
+import { orgIdForExternalPlantId } from "./upstream/mappings.js";
 import type pg from "pg";
 
 export type AppDeps = {
@@ -176,7 +179,28 @@ export async function buildApp(
     surface: "product",
     public_api: Boolean(opts.db),
     auth: Boolean(opts.auth),
+    strict_live: env.L6_STRICT_LIVE,
   }));
+
+  app.get("/api/meta/upstreams", async (request) => {
+    const q = request.query as { plantId?: string; orgId?: string };
+    const plantId = q.plantId?.trim() || "plant_lnm_faridabad_1";
+    const orgId = q.orgId?.trim() || orgIdForExternalPlantId(plantId);
+    const l5Live = Boolean(opts.l5) && !env.USE_FIXTURES && env.L5_LIVE && env.L6_L5_LIVE;
+    const l2Live = !env.USE_FIXTURES && env.L2_LIVE;
+    const l4Live = Boolean(opts.l4) && !env.USE_FIXTURES && env.L4_LIVE;
+    return probeUpstreams(
+      {
+        l5: opts.l5,
+        l4: opts.l4,
+        createL2Client: opts.createL2Client,
+        l2Live,
+        l5Live,
+        l4Live,
+      },
+      { orgId, plantId },
+    );
+  });
 
   await registerTelemetryRoutes(app, { db: opts.db, auth: opts.auth });
 
@@ -198,17 +222,20 @@ export async function buildApp(
       db: opts.db,
       l5: opts.l5,
       fixture: opts.alarmFixture,
+      strictLive: env.L6_STRICT_LIVE,
     });
     await registerPrescriptionRoutes(app, {
       auth: opts.auth,
       db: opts.db,
       l5: opts.l5,
       fixture: opts.prescriptionFixture,
+      strictLive: env.L6_STRICT_LIVE,
     });
     await registerNegotiationRoutes(app, {
       auth: opts.auth,
       db: opts.db,
       discussEnabled: env.DISCUSS_ENABLED,
+      l5: opts.l5,
     });
     await registerExportRoutes(app, { auth: opts.auth, db: opts.db });
     await registerReportRoutes(app, {
@@ -222,6 +249,15 @@ export async function buildApp(
       db: opts.db,
       l2: opts.l2,
       createL2Client: opts.createL2Client,
+    });
+    await registerOverviewRoutes(app, {
+      auth: opts.auth,
+      db: opts.db,
+      l5: opts.l5,
+      createL2Client: opts.createL2Client,
+      alarmFixture: opts.alarmFixture,
+      prescriptionFixture: opts.prescriptionFixture,
+      strictLive: env.L6_STRICT_LIVE,
     });
   }
   if (opts.auth && opts.l4) {

@@ -6,6 +6,9 @@ import type { Auth } from "../auth/index.js";
 import { AuthzError, requirePermission } from "../authz/index.js";
 import type { Db } from "../db/client.js";
 import { resolveActivePlant } from "../tenancy/service.js";
+import { UpstreamError } from "../upstream/http.js";
+import type { L5WorkflowClient } from "../upstream/l5/client.js";
+import { orgIdForExternalPlantId } from "../upstream/mappings.js";
 import { acceptFixture, rejectFixture, reviseFixture } from "./fixture.js";
 
 const BodySchema = z.object({
@@ -22,6 +25,7 @@ export type NegotiationRouteDeps = {
   auth: Auth;
   db: Db;
   discussEnabled?: boolean;
+  l5?: L5WorkflowClient | null;
 };
 
 function problem(
@@ -134,6 +138,21 @@ export async function registerNegotiationRoutes(
       (typeof request.headers["idempotency-key"] === "string" &&
         request.headers["idempotency-key"]) ||
       randomUUID();
+    if (deps.l5) {
+      try {
+        const result = await deps.l5.acceptNegotiationThread({
+          threadId: parsed.data.threadId,
+          orgId: orgIdForExternalPlantId(plant.externalPlantId),
+          plantId: plant.externalPlantId,
+          actorId: session.user.id,
+          idempotencyKey,
+        });
+        return { ...result, source: "l5" as const };
+      } catch (err) {
+        if (!(err instanceof UpstreamError)) throw err;
+        // fall through to fixture for offline demos
+      }
+    }
     return acceptFixture({
       orgId: parsed.data.orgId,
       plantId: parsed.data.plantId,
@@ -173,6 +192,21 @@ export async function registerNegotiationRoutes(
       (typeof request.headers["idempotency-key"] === "string" &&
         request.headers["idempotency-key"]) ||
       randomUUID();
+    if (deps.l5) {
+      try {
+        const result = await deps.l5.rejectNegotiationThread({
+          threadId: parsed.data.threadId,
+          orgId: orgIdForExternalPlantId(plant.externalPlantId),
+          plantId: plant.externalPlantId,
+          actorId: session.user.id,
+          reasonCode: parsed.data.reasonCode ?? "operator_rejected",
+          idempotencyKey,
+        });
+        return { ...result, source: "l5" as const };
+      } catch (err) {
+        if (!(err instanceof UpstreamError)) throw err;
+      }
+    }
     return rejectFixture({
       orgId: parsed.data.orgId,
       plantId: parsed.data.plantId,

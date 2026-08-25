@@ -5,6 +5,10 @@ import { StampedLogo } from "@/components/shell/StampedLogo";
 import { liveConnectionLabel } from "@/lib/format";
 import type { ConnectionStatus } from "@/lib/types";
 import type { RefObject } from "react";
+import {
+  upstreamPillLabel,
+  useDataSource,
+} from "@/lib/data-source-context";
 
 export function AppTopbar({
   plantName,
@@ -31,6 +35,8 @@ export function AppTopbar({
   const live = connection.sse === "live";
   const connectionLabel = liveConnectionLabel(connection.sse);
   const plantShort = plantName.split(",")[0]?.trim() ?? plantName;
+  const { probe, demoMode, loading: probeLoading } = useDataSource();
+  const dataLabel = probeLoading ? "Checking data…" : upstreamPillLabel(probe);
 
   return (
     <header className="forge-shell__topbar">
@@ -78,6 +84,20 @@ export function AppTopbar({
       </div>
 
       <div className="forge-shell__topbar-actions">
+        <span
+          aria-live="polite"
+          className={`forge-shell__data-pill${demoMode ? " is-demo" : " is-live"}`}
+          data-demo-mode={demoMode ? "true" : "false"}
+          title={
+            demoMode
+              ? "L2 or L5 unreachable — showing empty states where fixtures were removed"
+              : "Upstreams reachable — plant data from L2/L5"
+          }
+        >
+          <span className="forge-shell__conn-dot" aria-hidden />
+          <span className="forge-shell__conn-label">{dataLabel}</span>
+        </span>
+
         <span
           aria-live="polite"
           className={`forge-shell__conn${live ? " is-live" : " is-stale"}`}

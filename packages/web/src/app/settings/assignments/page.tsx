@@ -1,9 +1,9 @@
 "use client";
 
 import { AppShell } from "@/components/shell/AppShell";
-import { AssignmentsBoard } from "@/components/assignments/AssignmentsBoard";
+import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
 import { PageHead } from "@/components/ui/primitives";
-import { DEMO_SHELL_ROLE, connectionFixture } from "@/fixtures/demo";
+import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { usePlant } from "@/lib/plant-context";
 
 export default function AssignmentsPage() {
@@ -20,14 +20,17 @@ export default function AssignmentsPage() {
       connection={connectionFixture}
       screenTitle="Assignments"
       contextSummary={[
-        "Alarm WhatsApp routing",
-        "Prescription assignee recommendations",
+        "No upstream routing API",
         activePlant.plantName,
       ]}
       criticalAlarmCount={0}
     >
       <PageHead eyebrow="Admin" title="Assignments & notification routing" />
-      <AssignmentsBoard />
+      <SourceIndicator source="unavailable" />
+      <EmptyUpstreamState
+        title="No assignment / routing data"
+        detail="L5 plant_escalation_policy has no customer read API, and L6 has no notify-people table. Fixture AssignmentsBoard removed."
+      />
     </AppShell>
   );
 }

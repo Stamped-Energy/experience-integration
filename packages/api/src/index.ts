@@ -70,16 +70,21 @@ const app = await startServer({
   checkReady: () => pingDatabase(pool),
 });
 
-const VINAYAK_LIVE_POLL = { orgId: "org_acme", plantId: "plant_vinayak_1" };
+const L5_LIVE_POLLS = [
+  { orgId: "org_acme", plantId: "plant_vinayak_1" },
+  { orgId: "org_acme", plantId: "plant_lnm_faridabad_1" },
+];
 let l5PollInterval: ReturnType<typeof setInterval> | null = null;
 if (l5) {
   l5PollInterval = setInterval(() => {
-    void ingestL5Events(pool, l5, VINAYAK_LIVE_POLL).catch((err) => {
-      app.log.warn({ err }, "l5 event poll failed");
-    });
+    for (const target of L5_LIVE_POLLS) {
+      void ingestL5Events(pool, l5, target).catch((err) => {
+        app.log.warn({ err, ...target }, "l5 event poll failed");
+      });
+    }
   }, 30_000);
   l5PollInterval.unref();
-  app.log.info({ ...VINAYAK_LIVE_POLL }, "l5 live — event poll started (30s)");
+  app.log.info({ plants: L5_LIVE_POLLS.map((p) => p.plantId) }, "l5 live — event poll started (30s)");
 } else {
   app.log.info("l5 live gate off — fixture-only mode");
 }

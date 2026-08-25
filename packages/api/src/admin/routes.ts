@@ -1,10 +1,12 @@
 import type { FastifyInstance } from "fastify";
 import { fromNodeHeaders } from "better-auth/node";
+import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { RoleSchema } from "@stamped/l6-contracts";
 import type { Auth } from "../auth/index.js";
 import { AuthzError, requirePermission } from "../authz/index.js";
 import type { Db } from "../db/client.js";
+import { auditEvents } from "../db/schema.js";
 import {
   addMembership,
   listOrgMemberships,
@@ -206,6 +208,41 @@ export async function registerAdminRoutes(
           metadata: parsed.data,
         });
         return { membership };
+      } catch (err) {
+        return problem(reply, request.id, err);
+      }
+    },
+  );
+
+  app.get(
+    "/api/admin/orgs/:orgId/audit-events",
+    async (request, reply) => {
+      const { orgId } = request.params as { orgId: string };
+      try {
+        await requireAdminActor(auth, db, request, orgId);
+        const limit = Math.min(
+          Math.max(Number((request.query as { limit?: string }).limit) || 50, 1),
+          200,
+        );
+        const rows = await db
+          .select()
+          .from(auditEvents)
+          .where(eq(auditEvents.orgId, orgId))
+          .orderBy(desc(auditEvents.createdAt))
+          .limit(limit);
+        return {
+          items: rows.map((r) => ({
+            id: r.id,
+            action: r.action,
+            resourceType: r.resourceType,
+            resourceId: r.resourceId,
+            actorUserId: r.actorUserId,
+            metadata: r.metadata,
+            createdAt: r.createdAt,
+          })),
+          source: "l6" as const,
+          generatedAt: new Date().toISOString(),
+        };
       } catch (err) {
         return problem(reply, request.id, err);
       }

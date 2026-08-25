@@ -245,6 +245,161 @@ export async function registerL2Routes(
       throw err;
     }
   });
+
+  async function withL2(
+    request: { id: string; headers: unknown; query: unknown },
+    reply: {
+      status: (n: number) => { send: (b: unknown) => unknown };
+      header: (k: string, v: string) => void;
+    },
+    plantIdFromQuery: string | undefined,
+    run: (client: L2QueryClient, plantId: string) => Promise<unknown>,
+  ) {
+    const session = await deps.auth.api.getSession({
+      headers: fromNodeHeaders(request.headers as Parameters<typeof fromNodeHeaders>[0]),
+    });
+    if (!session) {
+      return problem(reply, 401, "Session required", request.id);
+    }
+    const plantId = plantIdFromQuery?.trim();
+    if (!plantId) {
+      return problem(reply, 400, "plantId is required", request.id, "Bad Request");
+    }
+    const { plant } = await resolveAuthorizedPlant(
+      deps,
+      session.user.id,
+      undefined,
+      plantId,
+    );
+    if (!plant) {
+      return problem(reply, 403, "Plant not authorized", request.id);
+    }
+    try {
+      requirePermission(plant.role, "alarm:read");
+    } catch (err) {
+      if (err instanceof AuthzError) {
+        return problem(reply, 403, err.message, request.id);
+      }
+      throw err;
+    }
+    const client = clientForPlant(deps, plantId);
+    if (!client) {
+      return problem(
+        reply,
+        503,
+        "L2 client unavailable",
+        request.id,
+        "Service Unavailable",
+      );
+    }
+    try {
+      const data = await run(client, plantId);
+      reply.header("cache-control", "no-store");
+      return { data, source: "l2" as const, generatedAt: new Date().toISOString() };
+    } catch (err) {
+      if (err instanceof UpstreamError) {
+        return problem(
+          reply,
+          err.status >= 400 && err.status < 600 ? err.status : 502,
+          err.message,
+          request.id,
+          "Upstream Error",
+        );
+      }
+      throw err;
+    }
+  }
+
+  app.get("/api/l2/bills", async (request, reply) => {
+    const q = request.query as { plantId?: string; billMonth?: string };
+    return withL2(request, reply, q.plantId, (client, plantId) =>
+      client.listBills({ plantId, billMonth: q.billMonth }),
+    );
+  });
+
+  app.get("/api/l2/tariff", async (request, reply) => {
+    const q = request.query as { plantId?: string };
+    return withL2(request, reply, q.plantId, (client, plantId) =>
+      client.getActiveTariff(plantId),
+    );
+  });
+
+  app.get("/api/l2/baselines", async (request, reply) => {
+    const q = request.query as {
+      plantId?: string;
+      assetId?: string;
+      category?: string;
+    };
+    return withL2(request, reply, q.plantId, (client, plantId) =>
+      client.listBaselines({
+        plantId,
+        assetId: q.assetId,
+        category: q.category,
+      }),
+    );
+  });
+
+  app.get("/api/l2/sec", async (request, reply) => {
+    const q = request.query as { plantId?: string; window?: string };
+    const window = q.window?.trim() || "P30D";
+    return withL2(request, reply, q.plantId, (client, plantId) =>
+      client.getSecFeature({ plantId, window }),
+    );
+  });
+
+  app.get("/api/l2/department-graph", async (request, reply) => {
+    const q = request.query as { plantId?: string };
+    return withL2(request, reply, q.plantId, (client, plantId) =>
+      client.getDepartmentGraph(plantId),
+    );
+  });
+
+  app.get("/api/l2/production-orders", async (request, reply) => {
+    const q = request.query as {
+      plantId?: string;
+      status?: string;
+      from?: string;
+      to?: string;
+    };
+    return withL2(request, reply, q.plantId, (client, plantId) =>
+      client.listProductionOrders({
+        plantId,
+        status: q.status,
+        from: q.from,
+        to: q.to,
+      }),
+    );
+  });
+
+  app.get("/api/l2/evidence-window", async (request, reply) => {
+    const q = request.query as {
+      plantId?: string;
+      assetId?: string;
+      from?: string;
+      to?: string;
+      baselineId?: string;
+      category?: string;
+    };
+    if (!q.assetId || !q.from || !q.to) {
+      return problem(
+        reply,
+        400,
+        "assetId, from, and to are required",
+        request.id,
+        "Bad Request",
+      );
+    }
+    return withL2(request, reply, q.plantId, (client, plantId) =>
+      client.getEvidenceWindow({
+        plantId,
+        assetId: q.assetId!,
+        from: q.from!,
+        to: q.to!,
+        baselineId: q.baselineId,
+        category: q.category,
+      }),
+    );
+  });
 }
 
 /** Build an org-scoped L2 client from env-shaped options; null when not live. */

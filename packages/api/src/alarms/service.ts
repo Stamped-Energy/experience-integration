@@ -62,12 +62,16 @@ export function createFixtureAlarmStore(seed: ProductAlarm[]) {
 
 export type AlarmStore = ReturnType<typeof createFixtureAlarmStore>;
 
+export type ListAlarmsSource = "l5" | "fixture" | "unavailable";
+
 export async function listAlarmsForPlant(input: {
   l5?: L5WorkflowClient | null;
   fixture: AlarmStore;
   orgId: string;
   plantId: string;
-}): Promise<{ items: ProductAlarm[]; source: "l5" | "fixture" }> {
+  /** When true, never substitute in-memory fixtures. */
+  strictLive?: boolean;
+}): Promise<{ items: ProductAlarm[]; source: ListAlarmsSource; detail?: string }> {
   if (input.l5) {
     try {
       const { items } = await input.l5.listAlarms({
@@ -80,8 +84,22 @@ export async function listAlarmsForPlant(input: {
       };
     } catch (err) {
       if (!(err instanceof UpstreamError)) throw err;
+      if (input.strictLive) {
+        return {
+          source: "unavailable",
+          items: [],
+          detail: err.message || "L5 unreachable",
+        };
+      }
       // fall through to fixture
     }
+  }
+  if (input.strictLive) {
+    return {
+      source: "unavailable",
+      items: [],
+      detail: input.l5 ? "L5 unreachable" : "L5 live gate off",
+    };
   }
   return { source: "fixture", items: input.fixture.list(input.plantId) };
 }

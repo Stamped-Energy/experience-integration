@@ -155,6 +155,58 @@
   white-space: nowrap;
 }
 
+.forge-shell__data-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-family: var(--forge-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.forge-shell__data-pill.is-live {
+  color: #b8e8d4;
+}
+
+.forge-shell__data-pill.is-live .forge-shell__conn-dot {
+  background: #5ecf9a;
+}
+
+.forge-shell__data-pill.is-demo {
+  color: #f0c674;
+}
+
+.forge-shell__data-pill.is-demo .forge-shell__conn-dot {
+  background: #e6a817;
+}
+
+.forge-shell__banner--demo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: color-mix(in srgb, #e6a817 18%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, #e6a817 40%, transparent);
+}
+
+.forge-shell__banner-dismiss {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
 .forge-shell__conn-dot {
   width: 7px;
   height: 7px;

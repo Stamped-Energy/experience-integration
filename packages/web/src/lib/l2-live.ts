@@ -157,5 +157,8 @@ export function resolveLivePageSource(
 ): DataSource {
   if (assetSource === "l2") return "l2";
   if (measSource === "l2") return "preview";
+  if (assetSource === "unavailable" || measSource === "unavailable") {
+    return "unavailable";
+  }
   return "fixture";
 }

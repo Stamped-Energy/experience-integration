@@ -58,6 +58,14 @@ const EnvSchema = z.object({
     .enum(["true", "false", "1", "0"])
     .default("false")
     .transform((v) => v === "true" || v === "1"),
+  /**
+   * When true, alarms/prescriptions never fall back to in-memory fixtures.
+   * Upstream down → empty list with source "unavailable" (honest empty state).
+   */
+  L6_STRICT_LIVE: z
+    .enum(["true", "false", "1", "0"])
+    .default("true")
+    .transform((v) => v === "true" || v === "1"),
   /** Upstream gaps — default off until OpenAPI publishes the routes. */
   L5_FEATURE_ALARM_ACK: z
     .enum(["true", "false"])

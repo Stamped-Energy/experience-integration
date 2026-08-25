@@ -3,33 +3,25 @@
 import { useEffect, useState } from "react";
 import { PrescriptionQueue } from "@/components/prescriptions/PrescriptionQueue";
 import { AppShell } from "@/components/shell/AppShell";
-import { SourceIndicator } from "@/components/ui/SourceIndicator";
+import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
 import { PageHead } from "@/components/ui/primitives";
-import {
-  DEMO_SHELL_ROLE,
-  alarmsForPlant,
-  connectionFixture,
-  prescriptionsForPlant,
-} from "@/fixtures/demo";
-import { bffUrl } from "@/lib/bff";
+import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
+import { bffUrl, type DataSource } from "@/lib/bff";
 import { formatInr } from "@/lib/format";
 import { usePlant } from "@/lib/plant-context";
 import type { Prescription } from "@/lib/types";
 
 export default function PrescriptionsPage() {
   const { activePlant, plants, setActivePlantId } = usePlant();
-  const [rows, setRows] = useState<Prescription[]>(() =>
-    prescriptionsForPlant(activePlant.plantId),
-  );
-  const [source, setSource] = useState<"fixture" | "l5">("fixture");
+  const [rows, setRows] = useState<Prescription[]>([]);
+  const [source, setSource] = useState<DataSource>("unavailable");
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    const fixtureRows = prescriptionsForPlant(activePlant.plantId);
-    setRows(fixtureRows);
-    setSource("fixture");
+    setRows([]);
+    setSource("unavailable");
     setLoading(true);
     setLoadError(null);
 
@@ -46,24 +38,32 @@ export default function PrescriptionsPage() {
             setLoadError(
               res.status === 401
                 ? "Sign in to load live prescriptions from L5."
-                : "Could not load live prescriptions — showing demo data.",
+                : `Could not load prescriptions (${res.status}).`,
             );
           }
           return;
         }
         const body = (await res.json()) as {
           items?: Prescription[];
-          source?: "fixture" | "l5";
+          source?: string;
+          detail?: string;
         };
-        if (!cancelled) {
-          if (Array.isArray(body.items)) {
-            setRows(body.items);
-            setSource(body.source === "l5" ? "l5" : "fixture");
-          }
+        if (cancelled) return;
+        if (body.source === "l5") {
+          setRows(Array.isArray(body.items) ? body.items : []);
+          setSource("l5");
+        } else if (body.source === "unavailable") {
+          setRows([]);
+          setSource("unavailable");
+          setLoadError(body.detail ?? "L5 unavailable");
+        } else {
+          setRows([]);
+          setSource("unavailable");
+          setLoadError("Fixture prescriptions suppressed — connect L5");
         }
       } catch {
         if (!cancelled) {
-          setLoadError("BFF unreachable — showing demo prescriptions.");
+          setLoadError("BFF unreachable.");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -80,18 +80,14 @@ export default function PrescriptionsPage() {
     (s, p) => s + p.impactInrPerMonth,
     0,
   );
-  const criticalAlarmCount = alarmsForPlant(activePlant.plantId).filter(
-    (a) => a.severity === "critical" && a.state !== "cleared",
-  ).length;
 
-  const contextLine =
-    loading
-      ? "Loading prescriptions…"
-      : source === "l5"
-        ? rows.length === 0
-          ? "Live from L5 · no approved prescriptions yet"
-          : "Live from L5"
-        : "Maintenance & management inbox";
+  const contextLine = loading
+    ? "Loading prescriptions…"
+    : source === "l5"
+      ? rows.length === 0
+        ? "Live from L5 · no prescriptions yet"
+        : "Live from L5"
+      : "No L5 prescriptions";
 
   return (
     <AppShell
@@ -108,19 +104,29 @@ export default function PrescriptionsPage() {
         contextLine,
       ]}
       focusEntity={rows[0] ? { type: "prescription", id: rows[0].id } : undefined}
-      criticalAlarmCount={criticalAlarmCount}
+      criticalAlarmCount={0}
     >
       <PageHead eyebrow="Plant inbox" title="Prescriptions" />
-      <SourceIndicator
-        source={source}
-        loading={loading}
-        detail={loadError}
-      />
-      <PrescriptionQueue
-        key={`${activePlant.plantId}:${source}:${loading}`}
-        initial={rows}
-        loadError={loadError}
-      />
+      <SourceIndicator source={source} loading={loading} detail={loadError} />
+      {source === "l5" ? (
+        rows.length > 0 ? (
+          <PrescriptionQueue
+            key={`${activePlant.plantId}:${source}:${loading}`}
+            initial={rows}
+            loadError={loadError}
+          />
+        ) : (
+          <EmptyUpstreamState
+            title="No prescriptions for this plant"
+            detail="L5 returned an empty list — run L3→L4→L5 for LNM to create prescriptions."
+          />
+        )
+      ) : (
+        <EmptyUpstreamState
+          title="No prescription data"
+          detail="L5 unreachable or strict-live empty. Fixture queue seed removed."
+        />
+      )}
     </AppShell>
   );
 }

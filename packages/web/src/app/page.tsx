@@ -1,35 +1,112 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/shell/AppShell";
 import { OverviewBoard } from "@/components/today/OverviewBoard";
+import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
 import { PageHead } from "@/components/ui/primitives";
-import {
-  DEMO_SHELL_ROLE,
-  alarmsForPlant,
-  assetsFixture,
-  connectionFixture,
-  prescriptionsForPlant,
-  todaySignalsFixture,
-} from "@/fixtures/demo";
+import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
+import { bffUrl, type DataSource } from "@/lib/bff";
 import { formatInr } from "@/lib/format";
 import { usePlant } from "@/lib/plant-context";
-import { selectTodaySignals } from "@/lib/today-signals";
+import type { OverviewLiveKpis } from "@/components/today/overview/KpiHeroStrip";
 
-const ROLE = "plant_head" as const;
+type OverviewResponse = {
+  plantId: string;
+  source: { l2: "l2" | "unavailable"; l5: "l5" | "unavailable" };
+  generatedAt: string;
+  confirmedSavingsMtdInr: number | null;
+  closureRate30d: number | null;
+  criticalAlarmCount: number | null;
+  needsReviewCount: number | null;
+  needsReviewInr: number | null;
+  mdHeadroomPct: number | null;
+  mdPeakKva: number | null;
+  mdCmdKva: number | null;
+  vsBaseline7dPct: number | null;
+  telemetryFreshnessSec: number | null;
+  totalEnergyKwhMtd: number | null;
+  stampedSavingsMonthInr: number | null;
+  aiScore: number | null;
+  co2Tco2e: number | null;
+  prescriptions: Array<{
+    id: string;
+    plantId: string;
+    title: string;
+    why: string;
+    impactInrPerMonth: number;
+    confidence: number;
+    lane: string;
+    ownerRole: string;
+    dueAt: string;
+  }>;
+  detail: { l2?: string; l5?: string };
+};
+
+function overviewSource(data: OverviewResponse | null): DataSource {
+  if (!data) return "unavailable";
+  if (data.source.l2 === "l2" || data.source.l5 === "l5") {
+    return data.source.l5 === "l5" ? "l5" : "l2";
+  }
+  return "unavailable";
+}
 
 export default function OverviewPage() {
   const { activePlant, plants, setActivePlantId } = usePlant();
-  const signals = selectTodaySignals(ROLE, todaySignalsFixture);
-  const alarms = alarmsForPlant(activePlant.plantId);
-  const prescriptions = prescriptionsForPlant(activePlant.plantId);
-  const critical = alarms.filter(
-    (a) => a.severity === "critical" && a.state !== "cleared",
-  ).length;
-  const needsReview = prescriptions.filter((p) => p.lane === "needs_review");
-  const needsReviewInr = needsReview.reduce((s, p) => s + p.impactInrPerMonth, 0);
-  const closed = prescriptions.filter((p) => p.lane === "closed").length;
-  const closurePct =
-    prescriptions.length === 0 ? 0 : Math.round((closed / prescriptions.length) * 100);
+  const [data, setData] = useState<OverviewResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    const url = bffUrl(
+      `/api/overview?plantId=${encodeURIComponent(activePlant.plantId)}`,
+    );
+    void fetch(url, { credentials: "include" })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`overview ${res.status}`);
+        return (await res.json()) as OverviewResponse;
+      })
+      .then((json) => {
+        if (!cancelled) {
+          setData(json);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setData(null);
+          setError(err instanceof Error ? err.message : "Overview unavailable");
+          setLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activePlant.plantId]);
+
+  const critical = data?.criticalAlarmCount ?? 0;
+  const needsReviewInr = data?.needsReviewInr ?? 0;
+  const source = overviewSource(data);
+
+  const liveKpis: OverviewLiveKpis = {
+    stampedSavingsMonthInr: data?.stampedSavingsMonthInr ?? null,
+    totalEnergyKwhMtd: data?.totalEnergyKwhMtd ?? null,
+    aiScore: data?.aiScore ?? null,
+    co2Tco2e: data?.co2Tco2e ?? null,
+    confirmedSavingsMtdInr: data?.confirmedSavingsMtdInr ?? null,
+    closureRate30d: data?.closureRate30d ?? null,
+    mdHeadroomPct: data?.mdHeadroomPct ?? null,
+    mdPeakKva: data?.mdPeakKva ?? null,
+    mdCmdKva: data?.mdCmdKva ?? null,
+    vsBaseline7dPct: data?.vsBaseline7dPct ?? null,
+    telemetryFreshnessSec: data?.telemetryFreshnessSec ?? null,
+    needsReviewCount: data?.needsReviewCount ?? null,
+    needsReviewInr: data?.needsReviewInr ?? null,
+    criticalAlarmCount: data?.criticalAlarmCount ?? null,
+  };
 
   return (
     <AppShell
@@ -50,15 +127,30 @@ export default function OverviewPage() {
     >
       <PageHead eyebrow={activePlant.plantName} title="Overview" />
       <p className="forge-page-lede">
-        {activePlant.contractDemandNote} · As of {activePlant.demoAsOf} · {activePlant.tariff}
+        {activePlant.contractDemandNote} · {activePlant.tariff}
       </p>
-      <OverviewBoard
-        signals={signals}
-        closurePct={closurePct}
-        alarms={alarms}
-        prescriptions={prescriptions}
-        assets={assetsFixture}
+      <SourceIndicator
+        source={source}
+        loading={loading}
+        detail={
+          error ??
+          ([data?.detail.l2, data?.detail.l5].filter(Boolean).join(" · ") || null)
+        }
       />
+      {source === "unavailable" && !loading ? (
+        <EmptyUpstreamState
+          title="No upstream data for overview"
+          detail="Connect L2 and L5, then refresh. KPI tiles stay empty until live data arrives."
+        />
+      ) : (
+        <OverviewBoard
+          liveKpis={liveKpis}
+          closurePct={data?.closureRate30d ?? null}
+          alarms={[]}
+          prescriptions={(data?.prescriptions ?? []) as never}
+          assets={[]}
+        />
+      )}
     </AppShell>
   );
 }

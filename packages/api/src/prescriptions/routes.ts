@@ -4,11 +4,14 @@ import type { Auth } from "../auth/index.js";
 import { AuthzError, requirePermission } from "../authz/index.js";
 import type { Db } from "../db/client.js";
 import { resolveActivePlant } from "../tenancy/service.js";
+import { UpstreamError } from "../upstream/http.js";
 import type { L5WorkflowClient } from "../upstream/l5/client.js";
 import { orgIdForExternalPlantId } from "../upstream/mappings.js";
 import {
   createFixturePrescriptionStore,
+  isCustomerVisiblePrescription,
   listPrescriptionsForPlant,
+  mapL5PrescriptionToProduct,
   type PrescriptionStore,
   type ProductPrescription,
 } from "./service.js";
@@ -93,6 +96,8 @@ export type PrescriptionRouteDeps = {
   db: Db;
   l5?: L5WorkflowClient | null;
   fixture?: PrescriptionStore;
+  /** When true, never fall back to in-memory fixtures. */
+  strictLive?: boolean;
 };
 
 function problem(
@@ -152,7 +157,161 @@ export async function registerPrescriptionRoutes(
       fixture,
       orgId: orgIdForExternalPlantId(plant.externalPlantId),
       plantId: plant.externalPlantId,
+      strictLive: deps.strictLive,
     });
-    return { items: result.items, source: result.source };
+    return {
+      items: result.items,
+      source: result.source,
+      ...(result.detail ? { detail: result.detail } : {}),
+    };
+  });
+
+  app.get("/api/prescriptions/:rxId", async (request, reply) => {
+    const session = await deps.auth.api.getSession({
+      headers: fromNodeHeaders(request.headers),
+    });
+    if (!session) {
+      return problem(reply, 401, "Session required", request.id);
+    }
+    const { rxId } = request.params as { rxId: string };
+    const q = request.query as { plantId?: string; orgId?: string };
+    const resolved = await resolveActivePlant(deps.db, {
+      userId: session.user.id,
+      orgId: q.orgId,
+    });
+    const plant =
+      resolved.authorized.find((p) => p.externalPlantId === q.plantId) ??
+      resolved.activePlant ??
+      resolved.authorized[0];
+    if (!plant) {
+      return problem(reply, 403, "No plant membership", request.id);
+    }
+    try {
+      requirePermission(plant.role, "prescription:read");
+    } catch (err) {
+      if (err instanceof AuthzError) {
+        return problem(reply, 403, err.message, request.id);
+      }
+      throw err;
+    }
+    if (!deps.l5) {
+      return problem(reply, 503, "L5 unavailable", request.id, "Service Unavailable");
+    }
+    try {
+      const raw = await deps.l5.getPrescription({
+        orgId: orgIdForExternalPlantId(plant.externalPlantId),
+        plantId: plant.externalPlantId,
+        prescriptionId: rxId,
+      });
+      if (!isCustomerVisiblePrescription(raw)) {
+        return problem(reply, 404, "Prescription not found", request.id, "Not Found");
+      }
+      return {
+        item: mapL5PrescriptionToProduct(raw),
+        raw,
+        source: "l5" as const,
+        generatedAt: new Date().toISOString(),
+      };
+    } catch (err) {
+      if (err instanceof UpstreamError) {
+        return problem(
+          reply,
+          err.status >= 400 && err.status < 600 ? err.status : 502,
+          err.message,
+          request.id,
+          "Upstream Error",
+        );
+      }
+      throw err;
+    }
+  });
+
+  app.get("/api/prescriptions/:rxId/evidence", async (request, reply) => {
+    const session = await deps.auth.api.getSession({
+      headers: fromNodeHeaders(request.headers),
+    });
+    if (!session) {
+      return problem(reply, 401, "Session required", request.id);
+    }
+    const { rxId } = request.params as { rxId: string };
+    const q = request.query as { plantId?: string; orgId?: string };
+    const resolved = await resolveActivePlant(deps.db, {
+      userId: session.user.id,
+      orgId: q.orgId,
+    });
+    const plant =
+      resolved.authorized.find((p) => p.externalPlantId === q.plantId) ??
+      resolved.activePlant ??
+      resolved.authorized[0];
+    if (!plant) {
+      return problem(reply, 403, "No plant membership", request.id);
+    }
+    try {
+      requirePermission(plant.role, "prescription:read");
+    } catch (err) {
+      if (err instanceof AuthzError) {
+        return problem(reply, 403, err.message, request.id);
+      }
+      throw err;
+    }
+    if (!deps.l5) {
+      return problem(reply, 503, "L5 unavailable", request.id, "Service Unavailable");
+    }
+    try {
+      const data = await deps.l5.getPrescriptionEvidence({
+        orgId: orgIdForExternalPlantId(plant.externalPlantId),
+        plantId: plant.externalPlantId,
+        prescriptionId: rxId,
+      });
+      return { data, source: "l5" as const, generatedAt: new Date().toISOString() };
+    } catch (err) {
+      if (err instanceof UpstreamError) {
+        return problem(
+          reply,
+          err.status >= 400 && err.status < 600 ? err.status : 502,
+          err.message,
+          request.id,
+          "Upstream Error",
+        );
+      }
+      throw err;
+    }
+  });
+
+  app.get("/api/evidence/:bundleId/download", async (request, reply) => {
+    const session = await deps.auth.api.getSession({
+      headers: fromNodeHeaders(request.headers),
+    });
+    if (!session) {
+      return problem(reply, 401, "Session required", request.id);
+    }
+    if (!deps.l5) {
+      return problem(reply, 503, "L5 unavailable", request.id, "Service Unavailable");
+    }
+    const { bundleId } = request.params as { bundleId: string };
+    try {
+      const upstream = await deps.l5.downloadEvidenceBundle(bundleId);
+      const buf = Buffer.from(await upstream.arrayBuffer());
+      const contentType =
+        upstream.headers.get("content-type") ?? "application/zip";
+      reply.header("content-type", contentType);
+      reply.header(
+        "content-disposition",
+        upstream.headers.get("content-disposition") ??
+          `attachment; filename="${bundleId}.zip"`,
+      );
+      return reply.send(buf);
+    } catch (err) {
+      if (err instanceof UpstreamError) {
+        return problem(
+          reply,
+          err.status >= 400 && err.status < 600 ? err.status : 502,
+          err.message,
+          request.id,
+          "Upstream Error",
+        );
+      }
+      throw err;
+    }
   });
 }

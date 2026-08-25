@@ -9,6 +9,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "tsx --import ./tests/register-css-stub.mjs --test tests/**/*.test.ts",
+    "test:fixtures": "node scripts/check-no-app-fixtures.mjs",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install chromium"
   },

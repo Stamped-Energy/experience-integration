@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PlantProvider } from "@/lib/plant-context";
+import { DataSourceProvider } from "@/lib/data-source-context";
 import "@/styles/tokens.css";
 import "@/styles/forge-ui.css";
 import "@/components/shell/shell.css";
@@ -24,7 +25,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <PlantProvider>{children}</PlantProvider>
+        <PlantProvider>
+          <DataSourceProvider>{children}</DataSourceProvider>
+        </PlantProvider>
       </body>
     </html>
   );

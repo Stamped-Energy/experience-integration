@@ -1,40 +1,34 @@
-import { redirect } from "next/navigation";
-import { EvidenceIndexClient } from "@/components/evidence/EvidenceIndexClient";
-import { alarmsFixture } from "@/fixtures/demo";
-import {
-  evidenceSamplesFixture,
-  resolvePrimaryEvidenceId,
-} from "@/fixtures/evidence-samples";
+"use client";
 
-export default async function EvidencePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ alarmId?: string; rxId?: string }>;
-}) {
-  const sp = await searchParams;
+import { AppShell } from "@/components/shell/AppShell";
+import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
+import { PageHead } from "@/components/ui/primitives";
+import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
+import { usePlant } from "@/lib/plant-context";
 
-  const evidenceId = resolvePrimaryEvidenceId({
-    alarmId: sp.alarmId,
-    rxId: sp.rxId,
-  });
+/** Evidence index — live bundles come from L5 prescription evidence refs. */
+export default function EvidencePage() {
+  const { activePlant, plants, setActivePlantId } = usePlant();
 
-  if (evidenceId) {
-    redirect(`/evidence/${evidenceId}`);
-  }
-
-  if (sp.alarmId) {
-    const alarm = alarmsFixture.find((a) => a.id === sp.alarmId);
-    const fallbackId = resolvePrimaryEvidenceId({
-      findingId: alarm?.findingId,
-      rxId: alarm?.relatedPrescriptionId,
-    });
-    if (fallbackId) redirect(`/evidence/${fallbackId}`);
-  }
-
-  if (sp.rxId) {
-    const rxEvidenceId = resolvePrimaryEvidenceId({ rxId: sp.rxId });
-    if (rxEvidenceId) redirect(`/evidence/${rxEvidenceId}`);
-  }
-
-  return <EvidenceIndexClient samples={evidenceSamplesFixture} />;
+  return (
+    <AppShell
+      active="evidence"
+      plantName={activePlant.plantName}
+      plantId={activePlant.plantId}
+      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
+      onPlantChange={setActivePlantId}
+      role={DEMO_SHELL_ROLE}
+      connection={connectionFixture}
+      screenTitle="Evidence"
+      contextSummary={["L5 evidence bundles", activePlant.plantName]}
+      criticalAlarmCount={0}
+    >
+      <PageHead eyebrow="Operations" title="Evidence" />
+      <SourceIndicator source="unavailable" />
+      <EmptyUpstreamState
+        title="No evidence samples"
+        detail="Open a prescription case and use its evidence_bundle_id (L5). Fixture evidenceSamplesFixture index removed. Download via /api/evidence/:bundleId/download when a bundle exists."
+      />
+    </AppShell>
+  );
 }
