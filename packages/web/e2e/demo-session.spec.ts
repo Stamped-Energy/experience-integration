@@ -25,7 +25,9 @@ test.describe("Jaipur demo session", () => {
 
     await page.goto("/");
     await expect(page.getByText(/Jaipur demo — sample data only/i)).toBeVisible();
-    await expect(page.getByText(/Preview mode/i).first()).toBeVisible();
+    await expect(
+      page.getByText(/Preview · not connected to plant/i).first(),
+    ).toBeVisible();
   });
 
   test("login form accepts demo credentials shape", async ({ page }) => {
