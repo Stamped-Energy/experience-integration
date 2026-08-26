@@ -6,19 +6,34 @@ import { AppShell } from "@/components/shell/AppShell";
 import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
 import { AlarmListSkeleton } from "@/components/ui/PageSkeletons";
 import { PageHead } from "@/components/ui/primitives";
-import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
-import { usePlant } from "@/lib/plant-context";
+import { DEMO_DATA_SOURCE, getDemoAlarms } from "@/lib/demo-data";
+import { useProductShell } from "@/lib/product-shell";
 import type { Alarm } from "@/lib/types";
 
 export default function AlarmsPage() {
-  const { activePlant, plants, setActivePlantId } = usePlant();
+  const {
+    activePlant,
+    plants,
+    onPlantChange,
+    role,
+    connection,
+    isDemoSession,
+  } = useProductShell();
   const [alarms, setAlarms] = useState<Alarm[]>([]);
   const [source, setSource] = useState<DataSource>("unavailable");
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isDemoSession) {
+      setAlarms(getDemoAlarms());
+      setSource(DEMO_DATA_SOURCE);
+      setLoading(false);
+      setDetail(null);
+      return;
+    }
+
     let cancelled = false;
     setAlarms([]);
     setSource("unavailable");
@@ -56,7 +71,6 @@ export default function AlarmsPage() {
           setSource("unavailable");
           setDetail(body.detail ?? "Alarm data unavailable");
         } else {
-          // Strict live: ignore fixture payloads
           setAlarms([]);
           setSource("unavailable");
           setDetail("Connect operations workflow to load alarms");
@@ -73,26 +87,27 @@ export default function AlarmsPage() {
     return () => {
       cancelled = true;
     };
-  }, [activePlant.plantId]);
+  }, [activePlant.plantId, isDemoSession]);
 
   const critical = alarms.filter(
     (a) => a.severity === "critical" && a.state !== "cleared",
   ).length;
   const open = alarms.filter((a) => a.state !== "cleared").length;
+  const hasData = source === "l5" || source === "preview";
 
   return (
     <AppShell
       active="alarms"
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
-      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
-      onPlantChange={setActivePlantId}
-      role={DEMO_SHELL_ROLE}
-      connection={connectionFixture}
+      plants={plants}
+      onPlantChange={onPlantChange}
+      role={role}
+      connection={connection}
       screenTitle="Alarm console"
       contextSummary={[
         `${open} open · ${critical} critical`,
-        source === "l5" ? "Live alarms" : "No alarm data",
+        hasData ? "Alarms loaded" : "No alarm data",
       ]}
       focusEntity={alarms[0] ? { type: "alarm", id: alarms[0].id } : undefined}
       criticalAlarmCount={critical}
@@ -101,7 +116,7 @@ export default function AlarmsPage() {
       <SourceIndicator source={source} loading={loading} detail={detail} />
       {loading ? (
         <AlarmListSkeleton />
-      ) : source === "l5" ? (
+      ) : hasData ? (
         alarms.length > 0 ? (
           <AlarmConsole key={`${activePlant.plantId}:${source}`} initial={alarms} />
         ) : (

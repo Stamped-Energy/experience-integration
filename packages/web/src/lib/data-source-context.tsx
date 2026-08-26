@@ -11,6 +11,8 @@ import {
 } from "react";
 import { bffUrl, type UpstreamProbe } from "@/lib/bff";
 import { connectionPillLabel } from "@/lib/client-copy";
+import { getDemoUpstreamProbe } from "@/lib/demo-data";
+import { useAuth } from "@/lib/auth-context";
 import { usePlant } from "@/lib/plant-context";
 
 type DataSourceContextValue = {
@@ -28,12 +30,18 @@ const DataSourceContext = createContext<DataSourceContextValue | null>(null);
 const POLL_MS = 15_000;
 
 export function DataSourceProvider({ children }: { children: ReactNode }) {
+  const { isDemoSession } = useAuth();
   const { activePlantId: plantId, plantEpoch } = usePlant();
   const [probe, setProbe] = useState<UpstreamProbe | null>(null);
   const [loading, setLoading] = useState(true);
   const [bannerDismissed, setBannerDismissed] = useState(false);
 
   const refresh = useCallback(() => {
+    if (isDemoSession) {
+      setProbe(getDemoUpstreamProbe());
+      setLoading(false);
+      return;
+    }
     const url = bffUrl(
       `/api/meta/upstreams?plantId=${encodeURIComponent(plantId)}`,
     );
@@ -60,17 +68,17 @@ export function DataSourceProvider({ children }: { children: ReactNode }) {
         });
         setLoading(false);
       });
-  }, [plantId]);
+  }, [isDemoSession, plantId]);
 
   useEffect(() => {
-    // Drop prior plant's probe immediately so UI does not show stale live/demo state.
     setProbe(null);
     setLoading(true);
     setBannerDismissed(false);
     refresh();
+    if (isDemoSession) return;
     const id = window.setInterval(refresh, POLL_MS);
     return () => window.clearInterval(id);
-  }, [refresh, plantEpoch]);
+  }, [refresh, plantEpoch, isDemoSession]);
 
   const value = useMemo<DataSourceContextValue>(
     () => ({

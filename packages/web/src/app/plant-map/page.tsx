@@ -8,9 +8,9 @@ import {
   PlantSectionMap,
   type PlantMapLevels,
 } from "@/components/equipment/PlantSectionMap";
-import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
-import { usePlant } from "@/lib/plant-context";
+import { DEMO_DATA_SOURCE, getDemoPlantMap } from "@/lib/demo-data";
+import { useProductShell } from "@/lib/product-shell";
 
 type PlantMapResponse = {
   plantId: string;
@@ -22,7 +22,14 @@ type PlantMapResponse = {
 };
 
 export default function PlantMapPage() {
-  const { activePlant, plants, setActivePlantId } = usePlant();
+  const {
+    activePlant,
+    plants,
+    onPlantChange,
+    role,
+    connection,
+    isDemoSession,
+  } = useProductShell();
   const [source, setSource] = useState<DataSource>("unavailable");
   const [loading, setLoading] = useState(true);
   const [levels, setLevels] = useState<PlantMapLevels | null>(null);
@@ -31,6 +38,17 @@ export default function PlantMapPage() {
   const [detail, setDetail] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isDemoSession) {
+      const demo = getDemoPlantMap();
+      setLevels(demo.levels);
+      setRootLevelId(demo.rootLevelId);
+      setNotes(demo.notes);
+      setSource(DEMO_DATA_SOURCE);
+      setLoading(false);
+      setDetail(null);
+      return;
+    }
+
     let cancelled = false;
     setLoading(true);
     setLevels(null);
@@ -71,27 +89,29 @@ export default function PlantMapPage() {
     return () => {
       cancelled = true;
     };
-  }, [activePlant.plantId]);
+  }, [activePlant.plantId, isDemoSession]);
+
+  const hasData = source === "l2" || source === "preview";
 
   return (
     <AppShell
       active="plant_map"
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
-      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
-      onPlantChange={setActivePlantId}
-      role={DEMO_SHELL_ROLE}
-      connection={connectionFixture}
+      plants={plants}
+      onPlantChange={onPlantChange}
+      role={role}
+      connection={connection}
       screenTitle="Plant Map"
       contextSummary={[
-        source === "l2" ? "Live plant map" : "Plant map unavailable",
+        hasData ? "Plant map loaded" : "Plant map unavailable",
         activePlant.plantName,
       ]}
       criticalAlarmCount={0}
     >
       <PageHead eyebrow="Operations" title="Plant Map" />
       <SourceIndicator source={source} loading={loading} detail={detail} />
-      {source === "l2" && levels ? (
+      {hasData && levels ? (
         <div className="forge-page-stack">
           <p className="forge-page-lede">
             Hierarchy and live power for {activePlant.plantName}. Card positions are

@@ -7,11 +7,15 @@ import { PageHead } from "@/components/ui/primitives";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { ExportCentre } from "@/components/reports/ExportCentre";
 import { SavingsLedger } from "@/components/ledger/SavingsLedger";
-import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
+import {
+  DEMO_DATA_SOURCE,
+  getDemoOverview,
+  getDemoPrescriptions,
+} from "@/lib/demo-data";
 import { formatInr } from "@/lib/format";
 import { ledgerEntriesFromPrescriptions } from "@/lib/ledger-from-prescriptions";
-import { usePlant } from "@/lib/plant-context";
+import { useProductShell } from "@/lib/product-shell";
 import type { Prescription } from "@/lib/types";
 
 type OverviewLite = {
@@ -21,7 +25,14 @@ type OverviewLite = {
 };
 
 export default function ReportsPage() {
-  const { activePlant, plants, setActivePlantId } = usePlant();
+  const {
+    activePlant,
+    plants,
+    onPlantChange,
+    role,
+    connection,
+    isDemoSession,
+  } = useProductShell();
   const [overview, setOverview] = useState<OverviewLite | null>(null);
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [source, setSource] = useState<DataSource>("unavailable");
@@ -29,6 +40,20 @@ export default function ReportsPage() {
   const [detail, setDetail] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isDemoSession) {
+      const demoOverview = getDemoOverview();
+      setOverview({
+        confirmedSavingsMtdInr: demoOverview.confirmedSavingsMtdInr,
+        stampedSavingsMonthInr: demoOverview.stampedSavingsMonthInr,
+        source: { l2: "unavailable", l5: "unavailable" },
+      });
+      setPrescriptions(getDemoPrescriptions());
+      setSource(DEMO_DATA_SOURCE);
+      setLoading(false);
+      setDetail(null);
+      return;
+    }
+
     let cancelled = false;
     setLoading(true);
     setOverview(null);
@@ -67,7 +92,13 @@ export default function ReportsPage() {
           ov.source.l5 === "l5" ||
           ov.source.l2 === "l2" ||
           rxBody.source === "l5";
-        setSource(live ? (ov.source.l5 === "l5" || rxBody.source === "l5" ? "l5" : "l2") : "unavailable");
+        setSource(
+          live
+            ? ov.source.l5 === "l5" || rxBody.source === "l5"
+              ? "l5"
+              : "l2"
+            : "unavailable",
+        );
         setLoading(false);
       })
       .catch((err) => {
@@ -81,7 +112,7 @@ export default function ReportsPage() {
     return () => {
       cancelled = true;
     };
-  }, [activePlant.plantId]);
+  }, [activePlant.plantId, isDemoSession]);
 
   const ledger = useMemo(
     () => ledgerEntriesFromPrescriptions(prescriptions),
@@ -89,16 +120,17 @@ export default function ReportsPage() {
   );
 
   const ops = overview?.confirmedSavingsMtdInr ?? null;
+  const hasData = source === "l2" || source === "l5" || source === "preview";
 
   return (
     <AppShell
       active="reports"
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
-      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
-      onPlantChange={setActivePlantId}
-      role={DEMO_SHELL_ROLE}
-      connection={connectionFixture}
+      plants={plants}
+      onPlantChange={onPlantChange}
+      role={role}
+      connection={connection}
       screenTitle="Reports and ledger"
       contextSummary={[
         ops != null ? `Confirmed savings MTD ${formatInr(ops)}` : "No confirmed savings",
@@ -126,7 +158,7 @@ export default function ReportsPage() {
           />
         </div>
 
-        {source === "unavailable" && !loading ? (
+        {!hasData && !loading ? (
           <EmptyUpstreamState
             title="Reports unavailable"
             detail="Sign in and connect your plant to load ledger and report jobs."

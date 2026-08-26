@@ -16,7 +16,8 @@ import { WebVitalsReporter } from "@/components/telemetry/WebVitalsReporter";
 import { SidebarNav } from "@/components/shell/SidebarNav";
 import { AppTopbar } from "@/components/shell/AppTopbar";
 import { DEMO_PLANT, LNM_PLANT, PLANTS } from "@/lib/plant-catalog";
-import { DEMO_BANNER_COPY } from "@/lib/client-copy";
+import { DEMO_BANNER_COPY, DEMO_SESSION_BANNER_COPY } from "@/lib/client-copy";
+import { isDemoSessionActive } from "@/lib/demo-session";
 import { usePlant } from "@/lib/plant-context";
 import { useDataSource } from "@/lib/data-source-context";
 
@@ -77,6 +78,7 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const plantCtx = usePlant();
+  const isDemoSession = isDemoSessionActive();
   const {
     demoMode,
     bannerDismissed,
@@ -198,7 +200,15 @@ export function AppShell({
               {sse.banner}
             </div>
           ) : null}
-          {demoMode && !bannerDismissed ? (
+          {isDemoSession ? (
+            <div
+              role="status"
+              className="forge-shell__banner forge-shell__banner--demo"
+              data-demo-session-banner
+            >
+              <span>{DEMO_SESSION_BANNER_COPY}</span>
+            </div>
+          ) : demoMode && !bannerDismissed ? (
             <div
               role="status"
               className="forge-shell__banner forge-shell__banner--demo"

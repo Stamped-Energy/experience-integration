@@ -6,16 +6,20 @@ import { AppShell } from "@/components/shell/AppShell";
 import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
 import { LiveBoardSkeleton } from "@/components/ui/PageSkeletons";
 import { PageHead } from "@/components/ui/primitives";
-import {
-  DEMO_SHELL_ROLE,
-  connectionFixture,
-} from "@/lib/plant-catalog";
+import { DEMO_DATA_SOURCE, getDemoLiveSnapshot } from "@/lib/demo-data";
 import { useL2Assets, useL2Measurements } from "@/hooks/useL2Data";
 import { liveSnapshotFromL2Assets, resolveLivePageSource } from "@/lib/l2-live";
-import { usePlant } from "@/lib/plant-context";
+import { useProductShell } from "@/lib/product-shell";
 
 export default function LivePage() {
-  const { activePlant, plants, setActivePlantId } = usePlant();
+  const {
+    activePlant,
+    plants,
+    onPlantChange,
+    role,
+    connection,
+    isDemoSession,
+  } = useProductShell();
 
   const {
     assets,
@@ -45,59 +49,56 @@ export default function LivePage() {
     metric: "active_power_kw",
     from: windowFrom.toISOString(),
     to: windowTo.toISOString(),
-    enabled: assetSource === "l2",
+    enabled: !isDemoSession && assetSource === "l2",
   });
 
-  const source = resolveLivePageSource(assetSource, measSource);
-  const loading = assetsLoading || measLoading;
-  const loadError = assetsError ?? measError;
+  const demoOverlay = isDemoSession ? getDemoLiveSnapshot() : null;
+  const source = isDemoSession
+    ? DEMO_DATA_SOURCE
+    : resolveLivePageSource(assetSource, measSource);
+  const loading = isDemoSession ? false : assetsLoading || measLoading;
+  const loadError = isDemoSession ? null : assetsError ?? measError;
 
   const overlay = useMemo(() => {
+    if (isDemoSession) return demoOverlay;
     if (assetSource !== "l2") return null;
     return liveSnapshotFromL2Assets(assets, {
       measurementPoints: measSource === "l2" ? points : undefined,
     });
-  }, [assetSource, measSource, assets, points]);
+  }, [isDemoSession, demoOverlay, assetSource, measSource, assets, points]);
 
-  const indicatorSource =
-    source === "l2" || source === "preview" ? source : "unavailable";
+  const hasData = source === "l2" || source === "preview";
 
   return (
     <AppShell
       active="live"
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
-      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
-      onPlantChange={setActivePlantId}
-      role={DEMO_SHELL_ROLE}
-      connection={connectionFixture}
+      plants={plants}
+      onPlantChange={onPlantChange}
+      role={role}
+      connection={connection}
       screenTitle="Live"
       contextSummary={[
-        source === "l2"
-          ? "Live telemetry"
-          : "No live telemetry",
-        source === "l2" ? `${assets.length} assets tracked` : "Waiting for connection",
+        hasData ? "Live telemetry" : "No live telemetry",
+        hasData ? `${overlay?.machines.length ?? 0} assets tracked` : "Waiting for connection",
         activePlant.shift,
       ]}
       criticalAlarmCount={0}
     >
       <PageHead eyebrow="Operations" title="Live" />
-      <SourceIndicator
-        source={indicatorSource}
-        loading={loading}
-        detail={loadError}
-      />
+      <SourceIndicator source={source} loading={loading} detail={loadError} />
       <p className="forge-page-lede">
         Real-time plant instrumentation · {activePlant.shift}
       </p>
       {loading ? (
         <LiveBoardSkeleton />
-      ) : source === "l2" && overlay ? (
+      ) : hasData && overlay ? (
         <LiveBoard
           key={`${activePlant.plantId}:${source}`}
-          connection={connectionFixture}
+          connection={connection}
           overlay={overlay}
-          jitter={false}
+          jitter={!isDemoSession}
         />
       ) : (
         <EmptyUpstreamState

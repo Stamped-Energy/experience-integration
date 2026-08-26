@@ -9,9 +9,9 @@ import { PlantHealthMap } from "@/components/today/overview/PlantHealthMap";
 import { AppShell } from "@/components/shell/AppShell";
 import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
 import { PageHead } from "@/components/ui/primitives";
-import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
-import { usePlant } from "@/lib/plant-context";
+import { DEMO_DATA_SOURCE, getDemoEquipmentBoard } from "@/lib/demo-data";
+import { useProductShell } from "@/lib/product-shell";
 
 type EquipmentApi = MachineHealthBoardData & {
   source?: string;
@@ -42,7 +42,14 @@ type EquipmentApi = MachineHealthBoardData & {
 };
 
 export default function EquipmentPage() {
-  const { activePlant, plants, setActivePlantId } = usePlant();
+  const {
+    activePlant,
+    plants,
+    onPlantChange,
+    role,
+    connection,
+    isDemoSession,
+  } = useProductShell();
   const [source, setSource] = useState<DataSource>("unavailable");
   const [loading, setLoading] = useState(true);
   const [board, setBoard] = useState<MachineHealthBoardData | null>(null);
@@ -52,6 +59,16 @@ export default function EquipmentPage() {
   const [detail, setDetail] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isDemoSession) {
+      const demo = getDemoEquipmentBoard();
+      setBoard(demo.board);
+      setMapMachines(demo.mapMachines);
+      setSource(DEMO_DATA_SOURCE);
+      setLoading(false);
+      setDetail(null);
+      return;
+    }
+
     let cancelled = false;
     setLoading(true);
     setBoard(null);
@@ -111,20 +128,22 @@ export default function EquipmentPage() {
     return () => {
       cancelled = true;
     };
-  }, [activePlant.plantId]);
+  }, [activePlant.plantId, isDemoSession]);
+
+  const hasData = source === "l2" || source === "preview";
 
   return (
     <AppShell
       active="equipment"
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
-      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
-      onPlantChange={setActivePlantId}
-      role={DEMO_SHELL_ROLE}
-      connection={connectionFixture}
+      plants={plants}
+      onPlantChange={onPlantChange}
+      role={role}
+      connection={connection}
       screenTitle="Machine Health"
       contextSummary={[
-        source === "l2" ? "Live equipment health" : "No equipment data",
+        hasData ? "Equipment health loaded" : "No equipment data",
         "Vibration data when sensors are connected",
         activePlant.plantName,
       ]}
@@ -132,7 +151,7 @@ export default function EquipmentPage() {
     >
       <PageHead eyebrow="Operations" title="Machine Health" />
       <SourceIndicator source={source} loading={loading} detail={detail} />
-      {source === "l2" && board ? (
+      {hasData && board ? (
         <div className="forge-page-stack">
           {mapMachines.length > 0 ? (
             <PlantHealthMap machines={mapMachines} />

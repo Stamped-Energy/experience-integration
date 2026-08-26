@@ -6,20 +6,35 @@ import { AppShell } from "@/components/shell/AppShell";
 import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
 import { PrescriptionQueueSkeleton } from "@/components/ui/PageSkeletons";
 import { PageHead } from "@/components/ui/primitives";
-import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
+import { DEMO_DATA_SOURCE, getDemoPrescriptions } from "@/lib/demo-data";
 import { formatInr } from "@/lib/format";
-import { usePlant } from "@/lib/plant-context";
+import { useProductShell } from "@/lib/product-shell";
 import type { Prescription } from "@/lib/types";
 
 export default function PrescriptionsPage() {
-  const { activePlant, plants, setActivePlantId } = usePlant();
+  const {
+    activePlant,
+    plants,
+    onPlantChange,
+    role,
+    connection,
+    isDemoSession,
+  } = useProductShell();
   const [rows, setRows] = useState<Prescription[]>([]);
   const [source, setSource] = useState<DataSource>("unavailable");
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isDemoSession) {
+      setRows(getDemoPrescriptions());
+      setSource(DEMO_DATA_SOURCE);
+      setLoading(false);
+      setLoadError(null);
+      return;
+    }
+
     let cancelled = false;
     setRows([]);
     setSource("unavailable");
@@ -74,20 +89,21 @@ export default function PrescriptionsPage() {
     return () => {
       cancelled = true;
     };
-  }, [activePlant.plantId]);
+  }, [activePlant.plantId, isDemoSession]);
 
   const needsReview = rows.filter((p) => p.lane === "needs_review");
   const needsReviewInr = needsReview.reduce(
     (s, p) => s + p.impactInrPerMonth,
     0,
   );
+  const hasData = source === "l5" || source === "preview";
 
   const contextLine = loading
     ? "Loading prescriptions…"
-    : source === "l5"
+    : hasData
       ? rows.length === 0
-        ? "Live prescriptions · none yet"
-        : "Live prescriptions"
+        ? "Prescriptions · none yet"
+        : "Prescriptions loaded"
       : "No prescription data";
 
   return (
@@ -95,10 +111,10 @@ export default function PrescriptionsPage() {
       active="prescriptions"
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
-      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
-      onPlantChange={setActivePlantId}
-      role={DEMO_SHELL_ROLE}
-      connection={connectionFixture}
+      plants={plants}
+      onPlantChange={onPlantChange}
+      role={role}
+      connection={connection}
       screenTitle="Prescription queue"
       contextSummary={[
         `${needsReview.length} need attention · ${formatInr(needsReviewInr)}/mo`,
@@ -111,7 +127,7 @@ export default function PrescriptionsPage() {
       <SourceIndicator source={source} loading={loading} detail={loadError} />
       {loading ? (
         <PrescriptionQueueSkeleton />
-      ) : source === "l5" ? (
+      ) : hasData ? (
         rows.length > 0 ? (
           <PrescriptionQueue
             key={`${activePlant.plantId}:${source}:${loading}`}

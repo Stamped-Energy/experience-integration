@@ -6,10 +6,10 @@ import { OverviewBoard } from "@/components/today/OverviewBoard";
 import { SourceIndicator } from "@/components/ui/SourceIndicator";
 import { OverviewBoardSkeleton } from "@/components/ui/PageSkeletons";
 import { PageHead } from "@/components/ui/primitives";
-import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
+import { DEMO_DATA_SOURCE, getDemoOverview } from "@/lib/demo-data";
 import { formatInr } from "@/lib/format";
-import { usePlant } from "@/lib/plant-context";
+import { useProductShell } from "@/lib/product-shell";
 import type { OverviewLiveKpis } from "@/components/today/overview/KpiHeroStrip";
 
 type OverviewResponse = {
@@ -66,7 +66,8 @@ type OverviewResponse = {
   detail: { l2?: string; l5?: string };
 };
 
-function overviewSource(data: OverviewResponse | null): DataSource {
+function overviewSource(data: OverviewResponse | null, demo: boolean): DataSource {
+  if (demo) return DEMO_DATA_SOURCE;
   if (!data) return "unavailable";
   if (data.source.l2 === "l2" || data.source.l5 === "l5") {
     return data.source.l5 === "l5" ? "l5" : "l2";
@@ -75,12 +76,31 @@ function overviewSource(data: OverviewResponse | null): DataSource {
 }
 
 export default function OverviewPage() {
-  const { activePlant, plants, setActivePlantId } = usePlant();
+  const {
+    activePlant,
+    plants,
+    onPlantChange,
+    role,
+    connection,
+    isDemoSession,
+  } = useProductShell();
   const [data, setData] = useState<OverviewResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isDemoSession) {
+      const demo = getDemoOverview();
+      setData({
+        ...demo,
+        source: { l2: "unavailable", l5: "unavailable" },
+        detail: {},
+      });
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     let cancelled = false;
     setLoading(true);
     setError(null);
@@ -112,11 +132,12 @@ export default function OverviewPage() {
     return () => {
       cancelled = true;
     };
-  }, [activePlant.plantId]);
+  }, [activePlant.plantId, isDemoSession]);
 
   const critical = data?.criticalAlarmCount ?? 0;
   const needsReviewInr = data?.needsReviewInr ?? 0;
-  const source = overviewSource(data);
+  const source = overviewSource(data, isDemoSession);
+  const hasData = source !== "unavailable";
 
   const liveKpis: OverviewLiveKpis = {
     stampedSavingsMonthInr: data?.stampedSavingsMonthInr ?? null,
@@ -140,10 +161,10 @@ export default function OverviewPage() {
       active="today"
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
-      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
-      onPlantChange={setActivePlantId}
-      role={DEMO_SHELL_ROLE}
-      connection={connectionFixture}
+      plants={plants}
+      onPlantChange={onPlantChange}
+      role={role}
+      connection={connection}
       screenTitle="Overview"
       contextSummary={[
         `${critical} critical alarms`,
@@ -168,10 +189,10 @@ export default function OverviewPage() {
         <OverviewBoardSkeleton />
       ) : (
         <OverviewBoard
-          liveKpis={source === "unavailable" ? null : liveKpis}
-          energyTrend30d={source === "unavailable" ? null : data?.energyTrend30d}
-          topConsumers={source === "unavailable" ? null : data?.topConsumers}
-          sectionShare={source === "unavailable" ? null : data?.sectionShare}
+          liveKpis={hasData ? liveKpis : null}
+          energyTrend30d={hasData ? data?.energyTrend30d : null}
+          topConsumers={hasData ? data?.topConsumers : null}
+          sectionShare={hasData ? data?.sectionShare : null}
           energyInrPerKwh={data?.energyInrPerKwh ?? null}
           closurePct={data?.closureRate30d ?? null}
           prescriptions={(data?.prescriptions ?? []) as never}

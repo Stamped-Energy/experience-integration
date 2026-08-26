@@ -7,13 +7,20 @@ import { AppShell } from "@/components/shell/AppShell";
 import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
 import { PageHead } from "@/components/ui/primitives";
 import { PrescriptionQueueSkeleton } from "@/components/ui/PageSkeletons";
-import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
-import { usePlant } from "@/lib/plant-context";
+import { DEMO_DATA_SOURCE, getDemoPrescriptions } from "@/lib/demo-data";
+import { useProductShell } from "@/lib/product-shell";
 import type { Prescription } from "@/lib/types";
 
 function EvidenceIndexInner() {
-  const { activePlant, plants, setActivePlantId } = usePlant();
+  const {
+    activePlant,
+    plants,
+    onPlantChange,
+    role,
+    connection,
+    isDemoSession,
+  } = useProductShell();
   const search = useSearchParams();
   const rxId = search.get("rxId");
   const [source, setSource] = useState<DataSource>("unavailable");
@@ -22,8 +29,19 @@ function EvidenceIndexInner() {
   const [detail, setDetail] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isDemoSession) {
+      if (rxId) {
+        window.location.replace(`/evidence/evd_${rxId}`);
+        return;
+      }
+      setRows(getDemoPrescriptions());
+      setSource(DEMO_DATA_SOURCE);
+      setLoading(false);
+      setDetail(null);
+      return;
+    }
+
     if (rxId) {
-      // Redirect-style: load by-rx and send user to evidence detail id
       let cancelled = false;
       setLoading(true);
       void fetch(
@@ -96,22 +114,23 @@ function EvidenceIndexInner() {
     return () => {
       cancelled = true;
     };
-  }, [activePlant.plantId, rxId]);
+  }, [activePlant.plantId, rxId, isDemoSession]);
 
   const withEvidence = useMemo(
     () => rows.filter((r) => (r.evidenceRefs?.length ?? 0) > 0 || r.id),
     [rows],
   );
+  const hasData = source === "l5" || source === "preview";
 
   return (
     <AppShell
       active="evidence"
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
-      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
-      onPlantChange={setActivePlantId}
-      role={DEMO_SHELL_ROLE}
-      connection={connectionFixture}
+      plants={plants}
+      onPlantChange={onPlantChange}
+      role={role}
+      connection={connection}
       screenTitle="Evidence"
       contextSummary={["Evidence cases", activePlant.plantName]}
       criticalAlarmCount={0}
@@ -120,7 +139,7 @@ function EvidenceIndexInner() {
       <SourceIndicator source={source} loading={loading} detail={detail} />
       {loading ? (
         <PrescriptionQueueSkeleton count={3} />
-      ) : source === "l5" && withEvidence.length > 0 ? (
+      ) : hasData && withEvidence.length > 0 ? (
         <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 12 }}>
           {withEvidence.map((rx) => (
             <li key={rx.id} className="forge-panel" style={{ padding: 14 }}>

@@ -8,18 +8,35 @@ import {
   SustainabilityDashboard,
   type SustainabilityBoardData,
 } from "@/components/analytics/SustainabilityDashboard";
-import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
-import { usePlant } from "@/lib/plant-context";
+import { DEMO_DATA_SOURCE, getDemoSustainabilityBoard } from "@/lib/demo-data";
+import { useProductShell } from "@/lib/product-shell";
 
 export default function IntensityPage() {
-  const { activePlant, plants, setActivePlantId } = usePlant();
+  const {
+    activePlant,
+    plants,
+    onPlantChange,
+    role,
+    connection,
+    isDemoSession,
+  } = useProductShell();
   const [source, setSource] = useState<DataSource>("unavailable");
   const [loading, setLoading] = useState(true);
   const [board, setBoard] = useState<SustainabilityBoardData | null>(null);
   const [detail, setDetail] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isDemoSession) {
+      setBoard(
+        getDemoSustainabilityBoard(activePlant.plantName, activePlant.tariff ?? ""),
+      );
+      setSource(DEMO_DATA_SOURCE);
+      setLoading(false);
+      setDetail(null);
+      return;
+    }
+
     let cancelled = false;
     setLoading(true);
     setBoard(null);
@@ -64,27 +81,29 @@ export default function IntensityPage() {
     return () => {
       cancelled = true;
     };
-  }, [activePlant.plantId, activePlant.plantName, activePlant.tariff]);
+  }, [activePlant.plantId, activePlant.plantName, activePlant.tariff, isDemoSession]);
+
+  const hasData = source === "l2" || source === "preview";
 
   return (
     <AppShell
       active="intensity"
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
-      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
-      onPlantChange={setActivePlantId}
-      role={DEMO_SHELL_ROLE}
-      connection={connectionFixture}
+      plants={plants}
+      onPlantChange={onPlantChange}
+      role={role}
+      connection={connection}
       screenTitle="Sustainability"
       contextSummary={[
-        source === "l2" ? "Live sustainability metrics" : "No sustainability data",
+        hasData ? "Sustainability metrics loaded" : "No sustainability data",
         activePlant.plantName,
       ]}
       criticalAlarmCount={0}
     >
       <PageHead eyebrow="Analytics" title="Sustainability" />
       <SourceIndicator source={source} loading={loading} detail={detail} />
-      {source === "l2" && board ? (
+      {hasData && board ? (
         <div className="forge-page-stack">
           <SustainabilityDashboard data={board} />
         </div>

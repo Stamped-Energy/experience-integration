@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, type FormEvent } from "react";
+import { Suspense, useEffect, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { StampedLogo } from "@/components/shell/StampedLogo";
 import { useAuth } from "@/lib/auth-context";
@@ -19,6 +19,11 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const fromQuery = searchParams.get("error");
+    if (fromQuery) setError(fromQuery);
+  }, [searchParams]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();

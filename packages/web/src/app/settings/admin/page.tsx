@@ -31,7 +31,7 @@ const INVITE_ROLES: Role[] = [
 
 export default function AdminSettingsPage() {
   const { activePlant } = usePlant();
-  const { user, orgId, plantId, membershipRole, signOut } = useAuth();
+  const { user, orgId, plantId, membershipRole, signOut, isDemoSession } = useAuth();
   const { probe } = useDataSource();
   const router = useRouter();
 
@@ -124,6 +124,12 @@ export default function AdminSettingsPage() {
       criticalAlarmCount={0}
     >
       <PageHead eyebrow="Admin" title="Organization admin" />
+      {isDemoSession ? (
+        <EmptyUpstreamState
+          title="Admin requires a real account"
+          detail="The Jaipur demo login is read-only for product screens. Sign in with your organization email to manage members, plants, and integrations."
+        />
+      ) : (
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <Panel>
           <div
@@ -371,6 +377,7 @@ export default function AdminSettingsPage() {
           )}
         </Panel>
       </div>
+      )}
     </AppShell>
   );
 }

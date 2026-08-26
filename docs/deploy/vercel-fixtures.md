@@ -1,21 +1,15 @@
-# Phase H0 lean — L6 on Vercel (fixture mode)
+# L6 on Vercel — web-only Jaipur demo vs live BFF
 
-Laptop on the plant LAN remains the primary demo. This path is the **backup** when
-that laptop fails: L6 loads from Vercel with **no AWS backend**.
+## Two deployment modes
 
-## Why fixtures only
+| Mode | Login | `NEXT_PUBLIC_BFF_URL` | Data |
+|------|-------|------------------------|------|
+| **Jaipur demo (offline)** | `demo@stamped.local` / `StampedDemo123!` | Omit or empty | Client fixtures — no BFF |
+| **Normal (live)** | Org users via Better Auth | Public API URL (not `localhost`) | Live L2/L5 via BFF |
 
-A browser loading L6 from Vercel **cannot** reach a BFF on the presenter's laptop.
-There is no middle option. Lean backup = fixture-backed UI walkthrough.
+See [`docs/demo-login.md`](../demo-login.md) for credential details and security notes.
 
-## Package for Vercel
-
-| File | Role |
-|------|------|
-| [`vercel.json`](../../vercel.json) (repo root) | Preferred Root Directory = repo root |
-| [`packages/web/vercel.json`](../../packages/web/vercel.json) | Alternate if Root Directory = `packages/web` |
-
-### Vercel project settings
+## Vercel project settings
 
 1. **Framework:** Next.js  
 2. **Root Directory:** repository root (uses root `vercel.json`)  
@@ -23,35 +17,40 @@ There is no middle option. Lean backup = fixture-backed UI walkthrough.
 4. **Build:** `pnpm --filter @stamped/l6-web build`  
 5. **Node:** match `.nvmrc` (≥22.14)
 
-### Environment variables (lean / fixture)
+### Environment variables — demo-only Vercel
 
 | Variable | Value | Notes |
 |----------|-------|--------|
-| `USE_FIXTURES` | `true` | Forces BFF offline/fixture path if a BFF is ever linked |
-| `NEXT_PUBLIC_BFF_URL` | *(omit or empty)* | Same-origin; lean backup has no BFF — screens fall back to fixtures |
-| `NEXT_PUBLIC_ANALYST_LIVE` | `false` | Optional; keeps analyst offline |
+| `NEXT_PUBLIC_BFF_URL` | *(omit or empty)* | Demo login never calls the BFF |
+| `NEXT_PUBLIC_ANALYST_LIVE` | `false` | Optional |
 
-Do **not** set `L2_BASE_URL` / live service keys on the lean Vercel project.
+Do **not** set `USE_FIXTURES` — demo data is client-side for the hardcoded login only.
 
-### Local verification
+### Environment variables — normal login + live data
+
+| Variable | Value | Notes |
+|----------|-------|--------|
+| `NEXT_PUBLIC_BFF_URL` | `https://your-api.example.com` | Must be reachable from the browser |
+| API `WEB_ORIGIN` | Exact Vercel web origin | CORS / Better Auth |
+| API `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` | As per API deploy | Required for sign-in |
+
+## Local verification
 
 ```bash
 pnpm --filter @stamped/l6-web build
-# Fixture walkthrough: pnpm --filter @stamped/l6-web start
-# Source indicators must stay visible (Preview · fixture / Demo fixture).
+pnpm --filter @stamped/l6-web start
+# Demo: sign in with demo@stamped.local — no API required
+# Normal: set NEXT_PUBLIC_BFF_URL=http://localhost:3001 and run the API
 ```
 
 ### Honesty rule
 
-Fixture-backed screens must keep the hybrid **source indicator**. Say out loud in
-the room that this backup shows the product shape, not the customer's live plant.
+Demo session screens show **Preview mode** and a Jaipur demo banner. Say in the room that this path shows product shape with sample data, not the customer's live plant.
 
-## Rollback (L6 web)
+## Rollback
 
 Promote the previous Vercel deployment in the Vercel dashboard (Instant Rollback).
-No container image involved for this lean path.
 
 ## Not in lean path
 
-AWS VPC/EC2/RDS, Mosquitto, `stamped-cloud`, and pointing Vercel at a real BFF are
-Phase H / H0-full. See [`deploy/README.md`](../../deploy/README.md).
+AWS VPC/EC2/RDS, Mosquitto, `stamped-cloud` — see [`deploy/README.md`](../../deploy/README.md).
