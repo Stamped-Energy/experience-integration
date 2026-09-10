@@ -232,6 +232,7 @@ export async function buildEquipmentBoard(input: {
   const derivedNotes = [
     "Health / load / status are energy-derived from active_power_kw (not vibration CM).",
     "Vibration, FFT, thermal, MTBF, and maintenance stay empty until L1 sensing exists.",
+    "Dark assets (no OPERATE in the window) belong on the long-stop watchlist.",
   ];
 
   const to = new Date();
