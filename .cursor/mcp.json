@@ -2,10 +2,6 @@
   "mcpServers": {
     "agent-patterns": {
       "url": "https://mcp.agentpatternscatalog.org/mcp"
-    },
-    "shadcn": {
-      "command": "npx",
-      "args": ["shadcn@latest", "mcp"]
     }
   }
 }

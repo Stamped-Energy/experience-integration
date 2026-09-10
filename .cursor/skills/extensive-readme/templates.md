@@ -1,117 +1,88 @@
-# Extensive README — section templates
+# Extensive README — templates
 
-Use these as starting headings. Renumber sequentially; skip what does not apply.
+Default file: `docs/EXTENSIVE.md`. Number sections sequentially.
 
-## Cover block
+**Order rule:** domain concepts and how-it-runs **before** the package map.
+Do not open with a package table.
+
+## Skeleton
 
 ```markdown
-# Project Name — one-line subtitle
+# {Project} — extensive internals
 
-> **What it is:** …  
-> **What it is not:** …  
-> **Primary interface:** CLI | Web | API | Agent
-
----
-
-**TL;DR**
-
-- Differentiator 1
-- Differentiator 2
-- … (8–12 bullets)
-```
+Companion to the main [README](../README.md). Concepts first, then how the repo
+runs, then every package. Do not invent paths.
 
 ## Table of contents
 
+- [1. Domain concepts](#1-domain-concepts)
+- [2. How this repository runs](#2-how-this-repository-runs)
+- [3. Package map](#3-package-map)
+- [4. Packages](#4-packages)
+- [5. Configuration](#5-configuration)
+- [6. Tests and CI](#6-tests-and-ci)
+- [7. Further reading](#7-further-reading)
+- [8. Future advancements](#8-future-advancements)
+
+## 1. Domain concepts
+
+{3–8 ideas this tree actually implements. Invariants, seams, protocols.
+Cite paths. Honest limits. Not a marketing recap of the landing README.}
+
+## 2. How this repository runs
+
+{Mermaid: user/action → entry → packages → result. Then a short walkthrough.}
+
+## 3. Package map
+
+| Package | Path | Role | Entry |
+|---------|------|------|-------|
+| `{name}` | `{dir}` | {one line} | `{file or command}` |
+
+## 4. Packages
+
+### 4.1 `{package name}`
+
+**What it is for.** {Plain sentence.}
+
+**How it is used.** {Who imports it, which CLI, which URL.}
+
+**How it works.** {High-level flow. Cite entry `{path}`.}
+
+#### File map
+
+| File | Why it is here | What it does |
+|------|----------------|--------------|
+| `{path}` | {reason this file exists} | {one line} |
+
+{Repeat 4.2, 4.3, … for every first-party package.}
+
+## 5. Configuration
+
+## 6. Tests and CI
+
+## 7. Further reading
+
+## 8. Future advancements
+```
+
+Tiny repos: treat top-level folders (`src/`, `lib/`, `app/`) as packages.
+Domain-heavy internals may insert extra concept sections **before** §3.
+
+## Package section (copy per package)
+
 ```markdown
-## Table of contents
+### N.M `{name}` (`{dir}`)
 
-1. [Vision](#1-vision)
-2. [Architecture](#2-architecture)
-…
+**What it is for.** …
+
+**How it is used.** …
+
+**How it works.** …
+
+#### File map
+
+| File | Why it is here | What it does |
+|------|----------------|--------------|
+| `{path}` | {why} | {what} |
 ```
-
-## 1. Vision
-
-```markdown
-## 1. Vision
-
-### What it is
-### What it is not
-### Who it is for
-### Success criteria
-```
-
-## 2. Architecture
-
-```markdown
-## 2. Architecture
-
-### 2.1 High-level diagram
-```mermaid
-flowchart LR
-  Client --> API --> Service --> DB
-```
-
-### 2.2 Data flow
-### 2.3 Key modules (with paths)
-```
-
-## 3. Quickstart
-
-```markdown
-## 3. Quickstart
-
-### Prerequisites
-### Install
-### Run locally
-### Verify (smoke test)
-```
-
-## 4. Configuration
-
-```markdown
-## 4. Configuration
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `DATABASE_URL` | Yes | — | … |
-```
-
-## 5. Project structure
-
-```markdown
-## 5. Project structure
-
-\`\`\`text
-src/
-├── …
-\`\`\`
-```
-
-## 6. API / CLI / interfaces
-
-Catalog tables grouped by category with counts.
-
-## 7. Data model
-
-Entities, relationships, migrations path.
-
-## 8. Testing
-
-How to run, coverage scope, CI command.
-
-## 9. Deployment
-
-Docker, env targets, CI/CD pipeline.
-
-## 10. Cookbook (optional)
-
-Example prompts, common tasks, recipes.
-
-## 11. Roadmap & changelog
-
-Completed phases table + future directions + recent changelog rows.
-
-## 12. FAQ & glossary (optional)
-
-Domain terms and sharp edges.
