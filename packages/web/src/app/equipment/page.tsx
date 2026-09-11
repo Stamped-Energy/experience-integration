@@ -149,7 +149,7 @@ export default function EquipmentPage() {
       ]}
       criticalAlarmCount={0}
     >
-      <PageHead eyebrow="Operations" title="Machine Health" />
+      <PageHead eyebrow="Long-stop / dark assets" title="Machine Health" />
       <SourceIndicator source={source} loading={loading} detail={detail} />
       {hasData && board ? (
         <div className="forge-page-stack">
@@ -164,7 +164,7 @@ export default function EquipmentPage() {
       ) : (
         <EmptyUpstreamState
           title="No equipment data"
-          detail="Connect plant telemetry to load equipment health and load dials."
+          detail="Connect plant telemetry to load equipment health. Dark assets (no OPERATE in the window) belong on the long-stop watchlist."
         />
       )}
     </AppShell>

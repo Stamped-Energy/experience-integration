@@ -574,6 +574,9 @@ export async function buildEnergyBoard(input: {
       `CO₂e uses grid factor ${GRID_TCO2E_PER_KWH} t/kWh (not plant-specific).`,
     );
   }
+  derivedNotes.push(
+    "State-split kWh is modeled unless a feeder or FANUC power series exists. Do not label modeled energy as bill-verified.",
+  );
 
   const hasAny =
     monthlyComparison != null ||

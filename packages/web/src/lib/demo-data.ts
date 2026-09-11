@@ -52,6 +52,76 @@ import type { Alarm, Prescription } from "@/lib/types";
 
 export const DEMO_DATA_SOURCE = "preview" as const;
 
+/** Cap L6 worklist — historian template flood must never render here. */
+export const WORKLIST_MAX = 10;
+
+export function getDemoConservationWorklist(): Prescription[] {
+  const plantId = DEMO_PLANT_ID;
+  const dueAt = "2026-09-18T18:00:00+05:30";
+  return [
+    {
+      id: "rx-lnm-longstop",
+      plantId,
+      title: "Named owner on long stops — CNC_14_S1, CNC_23, VMC_08",
+      why: "State-hours observation, not verified kWh",
+      impactInrPerMonth: 0,
+      confidence: 0.9,
+      lane: "needs_review",
+      ownerRole: "supervisor",
+      dueAt,
+      verificationStatus: "pending",
+    },
+    {
+      id: "rx-lnm-cmd",
+      plantId,
+      title: "File CMD 750→600 kVA",
+      why: "Paperwork rupee from billed demand vs MDI",
+      impactInrPerMonth: 0,
+      confidence: 0.8,
+      lane: "needs_review",
+      ownerRole: "energy_manager",
+      dueAt,
+      verificationStatus: "pending",
+    },
+    {
+      id: "rx-lnm-incomer",
+      plantId,
+      title: "Sunday 03:00 incomer photo",
+      why: "Night residual is modeled until a feeder series exists",
+      impactInrPerMonth: 0,
+      confidence: 0.55,
+      lane: "needs_review",
+      ownerRole: "energy_manager",
+      dueAt,
+      verificationStatus: "modeled",
+    },
+    {
+      id: "rx-lnm-vmc09",
+      plantId,
+      title: "Confirm VMC_09 mothballed or dead",
+      why: "Dark from day 1 of the historian window",
+      impactInrPerMonth: 0,
+      confidence: 0.85,
+      lane: "needs_review",
+      ownerRole: "supervisor",
+      dueAt,
+      verificationStatus: "pending",
+    },
+    {
+      id: "rx-lnm-ple",
+      plantId,
+      title: "Review 100% PLE exemption level",
+      why: "TOD / PLE paperwork, existing money-pack TOD engine",
+      impactInrPerMonth: 0,
+      confidence: 0.7,
+      lane: "needs_review",
+      ownerRole: "energy_manager",
+      dueAt,
+      verificationStatus: "pending",
+    },
+  ];
+}
+
 export function getDemoAlarms(): Alarm[] {
   return alarmsForPlant(DEMO_PLANT_ID);
 }
@@ -163,7 +233,10 @@ export function getDemoEnergyBoard(): EnergyBoardData {
     weekdayProfile: WEEKDAY_PROFILE,
     feederWise: FEEDER_WISE,
     loadHeatmap: LOAD_HEATMAP,
-    derivedNotes: ["Jaipur demo — sample analytics, not live billing data."],
+    derivedNotes: [
+      "Jaipur demo — sample analytics, not live billing data.",
+      "State-split kWh is modeled unless a feeder or FANUC power series exists.",
+    ],
   };
 }
 
@@ -196,7 +269,10 @@ export function getDemoEquipmentBoard(): {
     })),
     kpis: HEALTH_KPIS,
     healthDistribution: HEALTH_DISTRIBUTION,
-    derivedNotes: ["Jaipur demo — predictive maintenance sample data."],
+    derivedNotes: [
+      "Jaipur demo — predictive maintenance sample data.",
+      "Dark assets (no OPERATE all window) sit on the long-stop watchlist, not a 6k card flood.",
+    ],
   };
   const mapMachines = OVERVIEW_MACHINES.map((m) => ({
     name: m.name,

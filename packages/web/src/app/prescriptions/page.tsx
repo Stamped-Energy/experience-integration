@@ -7,7 +7,7 @@ import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndic
 import { PrescriptionQueueSkeleton } from "@/components/ui/PageSkeletons";
 import { PageHead } from "@/components/ui/primitives";
 import { bffUrl, type DataSource } from "@/lib/bff";
-import { DEMO_DATA_SOURCE, getDemoPrescriptions } from "@/lib/demo-data";
+import { DEMO_DATA_SOURCE, WORKLIST_MAX, getDemoConservationWorklist } from "@/lib/demo-data";
 import { formatInr } from "@/lib/format";
 import { useProductShell } from "@/lib/product-shell";
 import type { Prescription } from "@/lib/types";
@@ -28,7 +28,7 @@ export default function PrescriptionsPage() {
 
   useEffect(() => {
     if (isDemoSession) {
-      setRows(getDemoPrescriptions());
+      setRows(getDemoConservationWorklist().slice(0, WORKLIST_MAX));
       setSource(DEMO_DATA_SOURCE);
       setLoading(false);
       setLoadError(null);
@@ -66,7 +66,9 @@ export default function PrescriptionsPage() {
         };
         if (cancelled) return;
         if (body.source === "l5") {
-          setRows(Array.isArray(body.items) ? body.items : []);
+          setRows(
+            (Array.isArray(body.items) ? body.items : []).slice(0, WORKLIST_MAX),
+          );
           setSource("l5");
         } else if (body.source === "unavailable") {
           setRows([]);
@@ -123,7 +125,10 @@ export default function PrescriptionsPage() {
       focusEntity={rows[0] ? { type: "prescription", id: rows[0].id } : undefined}
       criticalAlarmCount={0}
     >
-      <PageHead eyebrow="Plant inbox" title="Prescriptions" />
+      <PageHead
+        eyebrow="Ranked worklist · max 10"
+        title="Prescriptions"
+      />
       <SourceIndicator source={source} loading={loading} detail={loadError} />
       {loading ? (
         <PrescriptionQueueSkeleton />
