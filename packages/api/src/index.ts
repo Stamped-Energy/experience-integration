@@ -11,6 +11,7 @@ import {
 import { L4AnalystClient } from "./upstream/l4/client.js";
 import { defaultL2FeaturesFromEnv } from "./upstream/l2/client.js";
 import { createL2ClientFromOptions } from "./l2/routes.js";
+import { LNM_L5_POLL_TARGET } from "./sites/lnm.js";
 
 const env = loadEnv();
 
@@ -72,7 +73,7 @@ const app = await startServer({
 
 const L5_LIVE_POLLS = [
   { orgId: "org_acme", plantId: "plant_vinayak_1" },
-  { orgId: "org_acme", plantId: "plant_lnm_faridabad_1" },
+  LNM_L5_POLL_TARGET,
 ];
 let l5PollInterval: ReturnType<typeof setInterval> | null = null;
 if (l5) {

@@ -122,15 +122,17 @@ export function projectPrescriptionLane(status: WorkflowStatus): PrescriptionLan
   return workflowStatusToLane(status);
 }
 
+import { LNM_EXTERNAL_PLANT_ID } from "../sites/lnm.js";
+
 /**
  * L5/L2 external org id for a given external plant id.
- * - Vinayak + LNM Factory 1 (live CNC path) → org_acme
- * - Jaipur (offline fixture baseline) → org_demo
+ * - Vinayak + LNM Factory 1 (site pack) → org_acme
+ * - Jaipur (offline fixture baseline / platform default) → org_demo
  * Unknown plants default to org_acme (the live org).
  */
 export function orgIdForExternalPlantId(externalPlantId: string): string {
   if (externalPlantId === "plant_vinayak_1") return "org_acme";
-  if (externalPlantId === "plant_lnm_faridabad_1") return "org_acme";
+  if (externalPlantId === LNM_EXTERNAL_PLANT_ID) return "org_acme";
   if (externalPlantId === "plant_jaipur_01") return "org_demo";
   return "org_acme";
 }

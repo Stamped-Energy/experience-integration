@@ -15,7 +15,7 @@ import { ContextualAnalyst } from "@/components/analyst/ContextualAnalyst";
 import { WebVitalsReporter } from "@/components/telemetry/WebVitalsReporter";
 import { SidebarNav } from "@/components/shell/SidebarNav";
 import { AppTopbar } from "@/components/shell/AppTopbar";
-import { DEMO_PLANT, LNM_PLANT, PLANTS } from "@/lib/plant-catalog";
+import { DEMO_PLANT, defaultPlant, PLANTS } from "@/lib/plant-catalog";
 import { DEMO_BANNER_COPY, DEMO_SESSION_BANNER_COPY } from "@/lib/client-copy";
 import { isDemoSessionActive } from "@/lib/demo-session";
 import { usePlant } from "@/lib/plant-context";
@@ -48,7 +48,7 @@ function sseMeta(connection: ConnectionStatus): {
 export function AppShell({
   active,
   plantName,
-  plantId = LNM_PLANT.plantId,
+  plantId = defaultPlant().plantId,
   plants,
   onPlantChange,
   role,

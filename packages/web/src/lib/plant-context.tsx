@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { DEMO_PLANT, LNM_PLANT, PLANTS } from "@/lib/plant-catalog";
+import { DEMO_PLANT, defaultPlant, PLANTS } from "@/lib/plant-catalog";
 
 const STORAGE_KEY = "l6.activePlantId";
 
@@ -28,7 +28,7 @@ export type PlantOption = {
 };
 
 export type PlantContextValue = {
-  /** LNM (CNC demo) first, then Vinayak, then Jaipur offline. */
+  /** Generic demo first; LNM is an explicit site pack. */
   plants: PlantOption[];
   activePlantId: string;
   activePlant: PlantOption;
@@ -43,17 +43,17 @@ export type PlantContextValue = {
 const PlantContext = createContext<PlantContextValue | null>(null);
 
 function resolvePlant(plantId: string): PlantOption {
-  return PLANTS.find((p) => p.plantId === plantId) ?? LNM_PLANT;
+  return PLANTS.find((p) => p.plantId === plantId) ?? defaultPlant();
 }
 
 /**
- * Active-plant provider — defaults to LNM Factory 1 for the CNC demo path
- * and persists selection across sessions via localStorage.
+ * Active-plant provider — defaults to generic demo (or STAMPED_DEFAULT_PLANT_ID).
+ * LNM is a site pack, not the unnamed fallback.
  */
 export function PlantProvider({ children }: { children: ReactNode }) {
   const { isDemoSession } = useAuth();
   const [activePlantId, setActivePlantIdState] = useState<string>(
-    LNM_PLANT.plantId,
+    defaultPlant().plantId,
   );
   const [plantEpoch, setPlantEpoch] = useState(0);
 
@@ -109,14 +109,15 @@ export function PlantProvider({ children }: { children: ReactNode }) {
   return <PlantContext.Provider value={value}>{children}</PlantContext.Provider>;
 }
 
-/** Reads the active plant; falls back to LNM default outside a provider. */
+/** Reads the active plant; falls back to generic demo outside a provider. */
 export function usePlant(): PlantContextValue {
   const ctx = useContext(PlantContext);
   if (ctx) return ctx;
+  const fallback = defaultPlant();
   return {
     plants: PLANTS,
-    activePlantId: LNM_PLANT.plantId,
-    activePlant: LNM_PLANT,
+    activePlantId: fallback.plantId,
+    activePlant: fallback,
     plantEpoch: 0,
     setActivePlantId: () => {
       /* no-op outside PlantProvider */

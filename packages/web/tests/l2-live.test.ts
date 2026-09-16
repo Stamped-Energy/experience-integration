@@ -10,7 +10,7 @@ describe("LNM plant registration", () => {
     assert.ok(PLANTS.some((p) => p.plantId === LNM_PLANT.plantId));
     assert.ok(PLANTS.some((p) => p.plantId === VINAYAK_PLANT.plantId));
     assert.ok(PLANTS.some((p) => p.plantId === DEMO_PLANT.plantId));
-    assert.equal(PLANTS[0]?.plantId, LNM_PLANT.plantId);
+    assert.equal(PLANTS[0]?.plantId, DEMO_PLANT.plantId);
   });
 });
 
