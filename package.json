@@ -14,7 +14,7 @@
     "validate": "bash ./scripts/validate.sh",
     "ci:local": "bash ./scripts/ci-local.sh",
     "contracts:check": "./external/scripts/contracts/contract-check.sh",
-    "contracts:upstream": "pnpm exec tsx ./scripts/check-upstream-contracts.ts",
+    "contracts:upstream": "pnpm --filter @stamped/l6-contracts exec tsx ../../scripts/check-upstream-contracts.ts",
     "test:integration": "pnpm --filter @stamped/l6-api --filter @stamped/l6-worker --filter @stamped/l6-infra test",
     "smoke:bff": "pnpm --filter @stamped/l6-api exec tsx ../../scripts/smoke-bff.ts",
     "compose:smoke": "bash ./scripts/compose-smoke.sh",
