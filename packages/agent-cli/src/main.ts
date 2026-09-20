@@ -26,6 +26,10 @@ async function runVerb(parsed: ParsedCommand): Promise<Record<string, unknown>> 
       return handleOpenapiPublicDump();
     case "upstreams.probe":
       return handleUpstreamsProbe(parsed.flags);
+    default: {
+      const unreachable: never = parsed;
+      throw new Error(`Unhandled verb: ${String(unreachable)}`);
+    }
   }
 }
 
