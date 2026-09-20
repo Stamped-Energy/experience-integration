@@ -1,0 +1,72 @@
+import { denyReason } from "./deny.js";
+import {
+  exitForEnvelope,
+  failureEnvelope,
+  successEnvelope,
+} from "./envelope.js";
+import { handleAuthzMatrix } from "./handlers/authz-matrix.js";
+import {
+  handleContractsUpstreamCheck,
+  UpstreamContractsError,
+} from "./handlers/contracts-upstream-check.js";
+import { handleHealth } from "./handlers/health.js";
+import { handleOpenapiPublicDump } from "./handlers/openapi-public-dump.js";
+import { handleUpstreamsProbe } from "./handlers/upstreams-probe.js";
+import { parseCommand } from "./parse-args.js";
+
+async function runVerb(
+  parsed: Exclude<ReturnType<typeof parseCommand>, { code: string }>,
+): Promise<Record<string, unknown>> {
+  switch (parsed.verb) {
+    case "health":
+      return handleHealth();
+    case "contracts.upstream-check":
+      return handleContractsUpstreamCheck();
+    case "authz.matrix":
+      return handleAuthzMatrix();
+    case "openapi.public-dump":
+      return handleOpenapiPublicDump();
+    case "upstreams.probe":
+      return handleUpstreamsProbe(parsed.flags);
+    default: {
+      const _exhaustive: never = parsed.verb;
+      throw new Error(`Unhandled verb ${_exhaustive}`);
+    }
+  }
+}
+
+export async function runAgentCli(argv: string[]): Promise<void> {
+  const deny = denyReason(argv);
+  if (deny) {
+    exitForEnvelope(failureEnvelope("cli", "denied", deny, 0));
+  }
+
+  const parsed = parseCommand(argv);
+  if ("code" in parsed) {
+    exitForEnvelope(
+      failureEnvelope("cli", parsed.code, parsed.message, 0),
+    );
+  }
+
+  const started = performance.now();
+  const verb = parsed.verb;
+
+  let data: Record<string, unknown>;
+  try {
+    data = await runVerb(parsed);
+  } catch (err) {
+    const durationMs = Math.round(performance.now() - started);
+    if (err instanceof UpstreamContractsError) {
+      exitForEnvelope(
+        failureEnvelope(verb, err.code, err.message, durationMs),
+      );
+    }
+    const message =
+      err instanceof Error ? err.message : "Unexpected handler failure";
+    exitForEnvelope(failureEnvelope(verb, "internal", message, durationMs));
+  }
+
+  exitForEnvelope(
+    successEnvelope(verb, data, Math.round(performance.now() - started)),
+  );
+}

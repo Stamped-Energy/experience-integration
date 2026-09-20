@@ -1,0 +1,40 @@
+{
+  "binary": "stamped-l6",
+  "layer": "l6",
+  "repo": "experience-integration",
+  "envelope": "../../../docs/plans/agent-cli/ENVELOPE.md",
+  "deny": "../../../docs/plans/agent-cli/DENY_LIST.md",
+  "verbs": [
+    {
+      "id": "health",
+      "command": ["health"],
+      "readOnly": true,
+      "description": "Agent CLI liveness"
+    },
+    {
+      "id": "contracts.upstream-check",
+      "command": ["contracts", "upstream-check"],
+      "readOnly": true,
+      "description": "Verify contracts/upstream OpenAPI pins (no --write)"
+    },
+    {
+      "id": "authz.matrix",
+      "command": ["authz", "matrix"],
+      "readOnly": true,
+      "description": "Export RBAC matrix entries"
+    },
+    {
+      "id": "upstreams.probe",
+      "command": ["upstreams", "probe"],
+      "readOnly": true,
+      "description": "Probe L2/L4/L5 reachability (fixture-safe defaults)",
+      "flags": ["--plant-id", "--org-id"]
+    },
+    {
+      "id": "openapi.public-dump",
+      "command": ["openapi", "public-dump"],
+      "readOnly": true,
+      "description": "Dump L6 public /v1 OpenAPI document"
+    }
+  ]
+}
