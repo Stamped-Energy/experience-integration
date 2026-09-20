@@ -1,0 +1,22 @@
+{
+  "name": "@stamped/l6-agent-cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Read-only stamped-l6 agent CLI (JSON envelope)",
+  "bin": {
+    "stamped-l6": "./bin/stamped-l6.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/**/*.test.ts"
+  },
+  "dependencies": {
+    "@stamped/l6-contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}
