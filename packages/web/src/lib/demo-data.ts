@@ -55,14 +55,15 @@ export const DEMO_DATA_SOURCE = "preview" as const;
 /** Cap L6 worklist — historian template flood must never render here. */
 export const WORKLIST_MAX = 10;
 
+/** Jaipur demo worklist — LNM-specific RX lives in `@/sites/lnm`. */
 export function getDemoConservationWorklist(): Prescription[] {
   const plantId = DEMO_PLANT_ID;
   const dueAt = "2026-09-18T18:00:00+05:30";
   return [
     {
-      id: "rx-lnm-longstop",
+      id: "rx-demo-kiln-idle",
       plantId,
-      title: "Named owner on long stops — CNC_14_S1, CNC_23, VMC_08",
+      title: "Named owner on kiln idle between batches",
       why: "State-hours observation, not verified kWh",
       impactInrPerMonth: 0,
       confidence: 0.9,
@@ -72,9 +73,9 @@ export function getDemoConservationWorklist(): Prescription[] {
       verificationStatus: "pending",
     },
     {
-      id: "rx-lnm-cmd",
+      id: "rx-demo-cmd",
       plantId,
-      title: "File CMD 750→600 kVA",
+      title: "Review CMD vs peak MD headroom",
       why: "Paperwork rupee from billed demand vs MDI",
       impactInrPerMonth: 0,
       confidence: 0.8,
@@ -84,9 +85,9 @@ export function getDemoConservationWorklist(): Prescription[] {
       verificationStatus: "pending",
     },
     {
-      id: "rx-lnm-incomer",
+      id: "rx-demo-incomer",
       plantId,
-      title: "Sunday 03:00 incomer photo",
+      title: "Sunday quiet-hour incomer photo",
       why: "Night residual is modeled until a feeder series exists",
       impactInrPerMonth: 0,
       confidence: 0.55,
@@ -96,10 +97,10 @@ export function getDemoConservationWorklist(): Prescription[] {
       verificationStatus: "modeled",
     },
     {
-      id: "rx-lnm-vmc09",
+      id: "rx-demo-compressor",
       plantId,
-      title: "Confirm VMC_09 mothballed or dead",
-      why: "Dark from day 1 of the historian window",
+      title: "Confirm Compressor 2 standby vs fault",
+      why: "Dark or low-load asset needs an owner walk",
       impactInrPerMonth: 0,
       confidence: 0.85,
       lane: "needs_review",
@@ -108,10 +109,10 @@ export function getDemoConservationWorklist(): Prescription[] {
       verificationStatus: "pending",
     },
     {
-      id: "rx-lnm-ple",
+      id: "rx-demo-tod",
       plantId,
-      title: "Review 100% PLE exemption level",
-      why: "TOD / PLE paperwork, existing money-pack TOD engine",
+      title: "Review TOD peak shift opportunity",
+      why: "Tariff window vs load profile, sample demo",
       impactInrPerMonth: 0,
       confidence: 0.7,
       lane: "needs_review",

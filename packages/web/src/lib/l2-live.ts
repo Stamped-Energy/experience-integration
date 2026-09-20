@@ -1,6 +1,8 @@
 import type { OverviewMachine } from "@/lib/overview-machines";
 import type { L2Asset, L2MeasurementPoint } from "@/hooks/useL2Data";
 import type { DataSource } from "@/lib/bff";
+import { LNM_FIXTURE_ASSETS } from "@/sites/lnm/assets";
+import { LNM_EXTERNAL_PLANT_ID } from "@/sites/lnm/catalog";
 import type {
   LiveDemandPoint,
   LiveDial,
@@ -151,21 +153,8 @@ export function liveSnapshotFromL2Assets(
 }
 
 export function fixtureAssetsAsL2(plantId: string): L2Asset[] {
-  if (plantId === "plant_lnm_faridabad_1") {
-    return [
-      {
-        asset_id: "incomer_1",
-        name: "HT Incomer 11kV",
-        level: "measurement_point",
-        asset_class: "incomer",
-      },
-      {
-        asset_id: "cnc_vtl_01",
-        name: "VTL-01",
-        level: "equipment",
-        asset_class: "cnc_machine",
-      },
-    ];
+  if (plantId === LNM_EXTERNAL_PLANT_ID) {
+    return [...LNM_FIXTURE_ASSETS];
   }
   return [
     {

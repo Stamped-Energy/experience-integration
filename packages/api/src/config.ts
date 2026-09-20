@@ -125,6 +125,11 @@ const EnvSchema = z.object({
   META_WA_PHONE_NUMBER_ID: z.string().optional(),
   META_WA_APP_SECRET: z.string().optional(),
   META_WA_VERIFY_TOKEN: z.string().optional(),
+  /**
+   * Default external plant id when a request omits plantId.
+   * Generic demo — not LNM. Point this at a site pack plant id when that site should be default.
+   */
+  STAMPED_DEFAULT_PLANT_ID: z.string().min(1).default("plant_jaipur_01"),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

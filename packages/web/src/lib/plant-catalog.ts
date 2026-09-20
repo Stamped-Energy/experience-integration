@@ -2,8 +2,14 @@
  * Plant catalog + shell defaults — not KPI/alarm fixtures.
  * Prefer `/api/plants` when the session is authenticated; this catalog is the
  * offline switcher list until every screen loads plants from the BFF.
+ *
+ * Default identity is the generic demo plant (or STAMPED_DEFAULT_PLANT_ID).
+ * LNM Faridabad is a site pack — see `@/sites/lnm`.
  */
 import type { ConnectionStatus, Role } from "@/lib/types";
+import { LNM_PLANT } from "@/sites/lnm/catalog";
+
+export { LNM_PLANT };
 
 export const DEMO_PLANT = {
   orgId: "org_demo",
@@ -31,28 +37,30 @@ export const VINAYAK_PLANT = {
   demoAsOf: "2026-07-21T10:15:00+05:30",
 };
 
-export const LNM_PLANT = {
-  orgId: "org_acme",
-  orgName: "Acme",
-  plantId: "plant_lnm_faridabad_1",
-  plantName: "LNM Factory 1",
-  timezone: "Asia/Kolkata",
-  tariff: "DHBVN HT industrial TOD",
-  cmdKva: 2500,
-  contractDemandNote: "CMD 2,500 kVA · Faridabad Sector 59",
-  shift: "A · 06:00–14:00 IST",
-  demoAsOf: "2026-08-25T10:15:00+05:30",
-};
-
-export const PLANTS = [LNM_PLANT, VINAYAK_PLANT, DEMO_PLANT];
+/** Generic demo first. LNM is an explicit site, not the unnamed default. */
+export const PLANTS = [DEMO_PLANT, VINAYAK_PLANT, LNM_PLANT];
 
 export const DEMO_SHELL_ROLE: Role = "admin";
 
-export const connectionFixture: ConnectionStatus = {
-  sse: "live",
-  lastEventAt: LNM_PLANT.demoAsOf,
-};
+export function defaultPlantId(): string {
+  const fromEnv =
+    (typeof process !== "undefined" &&
+      (process.env.NEXT_PUBLIC_STAMPED_DEFAULT_PLANT_ID?.trim() ||
+        process.env.STAMPED_DEFAULT_PLANT_ID?.trim())) ||
+    "";
+  if (fromEnv && PLANTS.some((p) => p.plantId === fromEnv)) return fromEnv;
+  return DEMO_PLANT.plantId;
+}
 
 export function plantForId(plantId: string) {
-  return PLANTS.find((p) => p.plantId === plantId) ?? LNM_PLANT;
+  return PLANTS.find((p) => p.plantId === plantId) ?? DEMO_PLANT;
 }
+
+export function defaultPlant() {
+  return plantForId(defaultPlantId());
+}
+
+export const connectionFixture: ConnectionStatus = {
+  sse: "live",
+  lastEventAt: defaultPlant().demoAsOf,
+};

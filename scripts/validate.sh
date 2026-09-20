@@ -26,6 +26,9 @@ if grep -R --line-number -E 'L2_DATABASE_URL\s*=' packages/api/src packages/web/
   fail "L2_DATABASE_URL must not be configured for use in L6 product code"
 fi
 
+echo "== validate: no LNM identity in core sources =="
+python3 scripts/check-core-site-identity.py
+
 echo "== validate: contracts =="
 ./external/scripts/contracts/contract-check.sh
 pnpm contracts:upstream

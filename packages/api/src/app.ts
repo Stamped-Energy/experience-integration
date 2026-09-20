@@ -207,7 +207,7 @@ export async function buildApp(
 
   app.get("/api/meta/upstreams", async (request) => {
     const q = request.query as { plantId?: string; orgId?: string };
-    const plantId = q.plantId?.trim() || "plant_lnm_faridabad_1";
+    const plantId = q.plantId?.trim() || env.STAMPED_DEFAULT_PLANT_ID;
     const orgId = q.orgId?.trim() || orgIdForExternalPlantId(plantId);
     const l5Live = Boolean(opts.l5) && !env.USE_FIXTURES && env.L5_LIVE && env.L6_L5_LIVE;
     const l2Live = !env.USE_FIXTURES && env.L2_LIVE;

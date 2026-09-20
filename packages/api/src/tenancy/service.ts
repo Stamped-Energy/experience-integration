@@ -11,6 +11,9 @@ import {
   userPreferences,
   auditEvents,
 } from "../db/schema.js";
+import { LNM_EXTERNAL_PLANT_ID } from "../sites/lnm.js";
+
+export { LNM_EXTERNAL_PLANT_ID };
 
 export type MembershipRecord = {
   id: string;
@@ -306,9 +309,6 @@ export async function seedVinayakPlant(
 
   return { org, plant: vinayakPlant, membership };
 }
-
-/** Canonical LNM Factory 1 external plant id (Phase B L2 persona). */
-export const LNM_EXTERNAL_PLANT_ID = "plant_lnm_faridabad_1";
 
 /**
  * Seed/attach LNM Factory 1 (Faridabad) — CNC demo plant on org_acme
