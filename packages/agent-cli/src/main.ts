@@ -12,11 +12,9 @@ import {
 import { handleHealth } from "./handlers/health.js";
 import { handleOpenapiPublicDump } from "./handlers/openapi-public-dump.js";
 import { handleUpstreamsProbe } from "./handlers/upstreams-probe.js";
-import { parseCommand } from "./parse-args.js";
+import { parseCommand, type ParsedCommand } from "./parse-args.js";
 
-async function runVerb(
-  parsed: Exclude<ReturnType<typeof parseCommand>, { code: string }>,
-): Promise<Record<string, unknown>> {
+async function runVerb(parsed: ParsedCommand): Promise<Record<string, unknown>> {
   switch (parsed.verb) {
     case "health":
       return handleHealth();
@@ -28,10 +26,6 @@ async function runVerb(
       return handleOpenapiPublicDump();
     case "upstreams.probe":
       return handleUpstreamsProbe(parsed.flags);
-    default: {
-      const _exhaustive: never = parsed.verb;
-      throw new Error(`Unhandled verb ${_exhaustive}`);
-    }
   }
 }
 
