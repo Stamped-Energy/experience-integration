@@ -1,3 +1,12 @@
+/** Thrown when tests stub exit instead of terminating the process. */
+export class AgentCliAbort extends Error {
+  readonly name = "AgentCliAbort";
+
+  constructor(readonly code: number) {
+    super(`agent-cli exit ${code}`);
+  }
+}
+
 /** Injectable process exit — tests can stub without fighting Node internals. */
 let exitImpl: (code: number) => never = (code) => {
   process.exit(code);

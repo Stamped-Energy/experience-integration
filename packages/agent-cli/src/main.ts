@@ -14,12 +14,31 @@ import { handleOpenapiPublicDump } from "./handlers/openapi-public-dump.js";
 import { handleUpstreamsProbe } from "./handlers/upstreams-probe.js";
 import { parseCommand } from "./parse-args.js";
 
+async function runVerb(
+  parsed: Exclude<ReturnType<typeof parseCommand>, { code: string }>,
+): Promise<Record<string, unknown>> {
+  switch (parsed.verb) {
+    case "health":
+      return handleHealth();
+    case "contracts.upstream-check":
+      return handleContractsUpstreamCheck();
+    case "authz.matrix":
+      return handleAuthzMatrix();
+    case "openapi.public-dump":
+      return handleOpenapiPublicDump();
+    case "upstreams.probe":
+      return handleUpstreamsProbe(parsed.flags);
+    default: {
+      const _exhaustive: never = parsed.verb;
+      throw new Error(`Unhandled verb ${_exhaustive}`);
+    }
+  }
+}
+
 export async function runAgentCli(argv: string[]): Promise<void> {
   const deny = denyReason(argv);
   if (deny) {
-    exitForEnvelope(
-      failureEnvelope("cli", "denied", deny, 0),
-    );
+    exitForEnvelope(failureEnvelope("cli", "denied", deny, 0));
   }
 
   const parsed = parseCommand(argv);
@@ -32,31 +51,9 @@ export async function runAgentCli(argv: string[]): Promise<void> {
   const started = performance.now();
   const verb = parsed.verb;
 
+  let data: Record<string, unknown>;
   try {
-    let data: Record<string, unknown>;
-    switch (verb) {
-      case "health":
-        data = handleHealth();
-        break;
-      case "contracts.upstream-check":
-        data = handleContractsUpstreamCheck();
-        break;
-      case "authz.matrix":
-        data = handleAuthzMatrix();
-        break;
-      case "openapi.public-dump":
-        data = handleOpenapiPublicDump();
-        break;
-      case "upstreams.probe":
-        data = await handleUpstreamsProbe(parsed.flags);
-        break;
-      default: {
-        const _exhaustive: never = verb;
-        throw new Error(`Unhandled verb ${_exhaustive}`);
-      }
-    }
-    const durationMs = Math.round(performance.now() - started);
-    exitForEnvelope(successEnvelope(verb, data, durationMs));
+    data = await runVerb(parsed);
   } catch (err) {
     const durationMs = Math.round(performance.now() - started);
     if (err instanceof UpstreamContractsError) {
@@ -68,4 +65,8 @@ export async function runAgentCli(argv: string[]): Promise<void> {
       err instanceof Error ? err.message : "Unexpected handler failure";
     exitForEnvelope(failureEnvelope(verb, "internal", message, durationMs));
   }
+
+  exitForEnvelope(
+    successEnvelope(verb, data, Math.round(performance.now() - started)),
+  );
 }

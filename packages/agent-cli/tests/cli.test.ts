@@ -1,14 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { runAgentCli } from "../src/main.js";
-import { resetExitImpl, setExitImpl } from "../src/runtime.js";
-
-class CliExit extends Error {
-  constructor(readonly code: number) {
-    super(`exit ${code}`);
-    this.name = "CliExit";
-  }
-}
+import {
+  AgentCliAbort,
+  resetExitImpl,
+  setExitImpl,
+} from "../src/runtime.js";
 
 async function invoke(args: string[], env?: NodeJS.ProcessEnv) {
   const prevEnv = process.env;
@@ -27,13 +24,13 @@ async function invoke(args: string[], env?: NodeJS.ProcessEnv) {
   let exitCode = 0;
   setExitImpl((code) => {
     exitCode = code;
-    throw new CliExit(code);
+    throw new AgentCliAbort(code);
   });
 
   try {
     await runAgentCli(args);
   } catch (err) {
-    if (!(err instanceof CliExit)) {
+    if (!(err instanceof AgentCliAbort)) {
       throw err;
     }
   } finally {
