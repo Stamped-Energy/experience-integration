@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/workspace/docs/architecture/archify/src/L6-04a-l5-events-ingest.json",
+  "output": "/workspace/docs/architecture/archify/L6-04a-l5-events-ingest.html",
+  "specification": {
+    "sha256": "244bf9fca2568f7af1566499eba224c9b3c03f574a9e5f2b6181a9c7202bd42e",
+    "bytes": 1870
+  },
+  "artifact": {
+    "sha256": "d0d2b6e63a5c3f272bc73533f0283f0cb15c016aa7245a81ba8b5dfbbb861fa4",
+    "bytes": 797367
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  }
+}

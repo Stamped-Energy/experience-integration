@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/workspace/docs/architecture/archify/src/L6-04b-l5-events-ui-refresh.json",
+  "output": "/workspace/docs/architecture/archify/L6-04b-l5-events-ui-refresh.html",
+  "specification": {
+    "sha256": "ed91ca86fd3ab0de81303c8052099950c91174a37159458c9eb7aefa84ba0e9a",
+    "bytes": 2517
+  },
+  "artifact": {
+    "sha256": "ee930cb44f532b013525f57489c02c7e3fb38e58e84db0255ed2a3da8d0eb691",
+    "bytes": 801531
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  }
+}

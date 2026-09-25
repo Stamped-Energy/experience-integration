@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/workspace/docs/architecture/archify/src/L6-07-whatsapp-action-loop.json",
+  "output": "/workspace/docs/architecture/archify/L6-07-whatsapp-action-loop.html",
+  "specification": {
+    "sha256": "8fffaed4530b7889babaf4183443c752f48a41fbc75892e82363aa7b09ab7530",
+    "bytes": 3242
+  },
+  "artifact": {
+    "sha256": "9ca7c1fa6c7efc459566f5c68f7d0049ca6c6947d48b629b7b35cb311ae88624",
+    "bytes": 801107
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  }
+}

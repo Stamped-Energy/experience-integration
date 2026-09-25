@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/workspace/docs/architecture/archify/src/L6-02-page-load-live-fixture-gates.json",
+  "output": "/workspace/docs/architecture/archify/L6-02-page-load-live-fixture-gates.html",
+  "specification": {
+    "sha256": "39a848574c350dc4b4f60ae1dc72ede1487f8d3f2e5bf60fee7bb121fabe3589",
+    "bytes": 3260
+  },
+  "artifact": {
+    "sha256": "162dc8b91930f97a2b5796be12da497a893a4866ce101e43756abda6ea93ee6c",
+    "bytes": 805696
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  }
+}
