@@ -1,0 +1,115 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "WhatsApp owner action loop",
+    "output": "L6-07-whatsapp-action-loop.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "visual_preset": "classic",
+    "viewBox": [1100, 540],
+    "legend": { "mode": "hidden" },
+    "views": [
+      {
+        "id": "notify",
+        "label": "Notify owner",
+        "focus": ["assign", "send", "deliver"],
+        "note": "Assignments notify enqueues WhatsApp template; WHATSAPP_MODE auto → live when Meta creds set else dry_run."
+      },
+      {
+        "id": "inbound",
+        "label": "Button tap",
+        "focus": ["tap", "verify", "deliver"],
+        "note": "Meta POST /api/webhooks/whatsapp verifies HMAC; allowlisted button ids only."
+      },
+      {
+        "id": "stub",
+        "label": "Card action stub",
+        "focus": ["verify", "tap", "deliver"],
+        "note": "P1 stub returns ok+buttons — Rx ack/done/defer mapping not wired end-to-end yet."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "l6", "label": "L6 BFF" },
+    { "id": "meta", "label": "Meta Cloud" },
+    { "id": "owner", "label": "Card owner" }
+  ],
+  "phases": [
+    { "id": "p0", "label": "Notify", "fromCol": 0, "toCol": 1 },
+    { "id": "p1", "label": "Act", "fromCol": 2, "toCol": 4, "variant": "emphasis" }
+  ],
+  "mainPath": ["assign", "send", "deliver", "tap", "verify"],
+  "nodes": [
+    {
+      "id": "assign",
+      "lane": "l6",
+      "col": 0,
+      "type": "backend",
+      "label": "Notify",
+      "sublabel": "BUILT · assign route",
+      "width": 100
+    },
+    {
+      "id": "send",
+      "lane": "l6",
+      "col": 1,
+      "type": "backend",
+      "label": "Send template",
+      "sublabel": "BUILT · service",
+      "width": 100
+    },
+    {
+      "id": "deliver",
+      "lane": "meta",
+      "col": 2,
+      "type": "cloud",
+      "label": "Meta API",
+      "sublabel": "PARTIAL · dry_run",
+      "width": 100
+    },
+    {
+      "id": "tap",
+      "lane": "owner",
+      "col": 3,
+      "type": "external",
+      "label": "Tap button",
+      "sublabel": "BUILT · buttons"
+    },
+    {
+      "id": "verify",
+      "lane": "l6",
+      "col": 4,
+      "type": "security",
+      "label": "Verify HMAC",
+      "sublabel": "PARTIAL · stub",
+      "width": 100
+    }
+  ],
+  "edges": [
+    { "from": "assign", "to": "send", "label": "POST notify", "variant": "emphasis" },
+    { "from": "send", "to": "deliver", "label": "Graph API", "variant": "default" },
+    { "from": "deliver", "to": "tap", "label": "WhatsApp msg", "variant": "default" },
+    { "from": "tap", "to": "verify", "label": "webhook POST", "variant": "emphasis" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Status & sources",
+      "items": [
+        "experience-integration@82df09ee · whatsapp/client.ts WHATSAPP_MODE auto",
+        "Live when META_WA_TOKEN + META_WA_PHONE_NUMBER_ID set",
+        "End-to-end card state change: PARTIAL until P1 mapping lands"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety",
+      "items": [
+        "Unknown button ids → HTTP 400",
+        "Secrets server-side only — never in web bundle",
+        "No customer plant live integration"
+      ]
+    }
+  ]
+}
