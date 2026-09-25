@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "L5 card events — ingest (a)",
+    "output": "L6-04a-l5-events-ingest.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "visual_preset": "classic",
+    "viewBox": [940, 520],
+    "legend": { "mode": "hidden" },
+    "views": [
+      {
+        "id": "poll",
+        "label": "Poll L5 events",
+        "focus": ["bff", "l5", "postgres"],
+        "note": "When L5 live, API timer calls ingestL5Events every 30s — no inbound L5 HMAC webhook route on main."
+      }
+    ]
+  },
+  "participants": [
+    { "id": "bff", "type": "backend", "label": "Fastify BFF", "sublabel": "BUILT · index.ts poll" },
+    { "id": "l5", "type": "external", "label": "L5 workflow", "sublabel": "BUILT · v1/events" },
+    { "id": "postgres", "type": "database", "label": "l5_events", "sublabel": "BUILT · dedupe" }
+  ],
+  "messages": [
+    { "from": "bff", "to": "l5", "y": 160, "label": "GET v1/events since cursor", "variant": "emphasis" },
+    { "from": "l5", "to": "bff", "y": 188, "label": "WorkflowEvent batch", "variant": "return" },
+    { "from": "bff", "to": "postgres", "y": 216, "label": "INSERT dedupe_key", "variant": "emphasis" },
+    { "from": "bff", "to": "postgres", "y": 244, "label": "NOTIFY l6_l5_events", "variant": "default" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Status & sources",
+      "items": [
+        "experience-integration@82df09ee · events/ingest.ts · sse.ts",
+        "Doc gap: L5→L6 HMAC push described in ADR; as-built is poll",
+        "DESIGNED dashed: future webhook ingest endpoint"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Not on this path",
+      "items": [
+        "pg-boss is for reports/outbound webhooks — not L5 ingest",
+        "Worker queue l6.webhooks.deliver has no handler yet"
+      ]
+    }
+  ]
+}

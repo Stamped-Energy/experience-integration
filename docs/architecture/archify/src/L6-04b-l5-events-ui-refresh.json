@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "L5 card events — UI refresh (b)",
+    "output": "L6-04b-l5-events-ui-refresh.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "visual_preset": "classic",
+    "viewBox": [940, 548],
+    "legend": { "mode": "hidden" },
+    "column_fit": "spread",
+    "views": [
+      {
+        "id": "sse-api",
+        "label": "SSE endpoint exists",
+        "focus": ["bff", "postgres", "sse"],
+        "note": "GET /api/events/stream resumes cursor; NOTIFY wakes SSE subscribers in the API process."
+      },
+      {
+        "id": "ui-today",
+        "label": "UI refresh today",
+        "focus": ["web", "bff", "browser"],
+        "note": "Web app does not open EventSource yet — screens refetch on navigation and user actions; probe pill uses upstream meta."
+      }
+    ]
+  },
+  "participants": [
+    { "id": "browser", "type": "external", "label": "Operator", "sublabel": "BUILT" },
+    { "id": "web", "type": "frontend", "label": "Rx UI", "sublabel": "BUILT · fetch" },
+    { "id": "bff", "type": "backend", "label": "BFF events", "sublabel": "BUILT · events API" },
+    { "id": "postgres", "type": "database", "label": "Postgres", "sublabel": "BUILT · NOTIFY" },
+    { "id": "sse", "type": "messagebus", "label": "SSE stream", "sublabel": "PARTIAL · no client" }
+  ],
+  "messages": [
+    { "from": "postgres", "to": "bff", "y": 160, "label": "NOTIFY l6_l5_events", "variant": "default" },
+    { "from": "bff", "to": "sse", "y": 188, "label": "push l5_event SSE", "variant": "emphasis" },
+    { "from": "browser", "to": "web", "y": 216, "label": "open /prescriptions", "variant": "emphasis" },
+    { "from": "web", "to": "bff", "y": 244, "label": "GET /api/prescriptions", "variant": "emphasis" },
+    { "from": "bff", "to": "web", "y": 272, "label": "cards JSON (L5 or fixture)", "variant": "return" },
+    { "from": "web", "to": "browser", "y": 300, "label": "render queue", "variant": "return" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Status & sources",
+      "items": [
+        "experience-integration@82df09ee · events/routes.ts",
+        "SSE consumer: tests only — no packages/web EventSource",
+        "Connection chip: shell-session.ts upstream probe"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "When live",
+      "items": [
+        "L5_LIVE + L6_L5_LIVE + !USE_FIXTURES required",
+        "Strict live: L6_STRICT_LIVE empty lists when upstream down"
+      ]
+    }
+  ]
+}

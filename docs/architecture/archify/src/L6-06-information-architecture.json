@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Information architecture — as-built vs target",
+    "output": "L6-06-information-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "visual_preset": "classic",
+    "viewBox": [1180, 520],
+    "legend": { "mode": "hidden" },
+    "repository": {
+      "url": "https://github.com/Stamped-Energy/experience-integration",
+      "revision": "82df09ee87eb67b2e177f5d085dc83c171d85830"
+    },
+    "views": [
+      {
+        "id": "as-built",
+        "label": "As-built nav",
+        "focus": ["overview", "live", "equipment", "alarms", "rx", "ask", "evidence"],
+        "note": "packages/web/src/lib/navigation.ts primary routes operators see today."
+      },
+      {
+        "id": "target",
+        "label": "SSOT target loop",
+        "focus": ["now", "card", "close"],
+        "note": "Vision/handoff names decision-loop surfaces; dashed DESIGNED until routed in web."
+      }
+    ]
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 4,
+    "origin": [40, 64],
+    "gapX": 28,
+    "gapY": 36,
+    "cellW": 140,
+    "cellH": 56
+  },
+  "components": [
+    {
+      "id": "overview",
+      "type": "frontend",
+      "label": "Overview",
+      "sublabel": "BUILT · /",
+      "row": 0,
+      "col": 0,
+      "tag": "BUILT",
+      "sources": [{ "path": "packages/web/src/lib/navigation.ts", "line": 13, "label": "today" }]
+    },
+    {
+      "id": "live",
+      "type": "frontend",
+      "label": "Live plant",
+      "sublabel": "BUILT · /live",
+      "row": 0,
+      "col": 1,
+      "tag": "BUILT"
+    },
+    {
+      "id": "equipment",
+      "type": "frontend",
+      "label": "Equipment",
+      "sublabel": "BUILT · /equipment",
+      "row": 0,
+      "col": 2,
+      "tag": "BUILT"
+    },
+    {
+      "id": "alarms",
+      "type": "frontend",
+      "label": "Alarms",
+      "sublabel": "BUILT · /alarms",
+      "row": 0,
+      "col": 3,
+      "tag": "BUILT"
+    },
+    {
+      "id": "rx",
+      "type": "frontend",
+      "label": "Prescriptions",
+      "sublabel": "BUILT · /prescriptions",
+      "row": 1,
+      "col": 0,
+      "tag": "BUILT"
+    },
+    {
+      "id": "ask",
+      "type": "frontend",
+      "label": "Ask Analyst",
+      "sublabel": "BUILT · /analyst",
+      "row": 1,
+      "col": 1,
+      "tag": "BUILT"
+    },
+    {
+      "id": "evidence",
+      "type": "frontend",
+      "label": "Evidence / Reports",
+      "sublabel": "BUILT · /evidence",
+      "row": 1,
+      "col": 2,
+      "tag": "BUILT"
+    },
+    {
+      "id": "now",
+      "type": "frontend",
+      "label": "Now",
+      "sublabel": "DESIGNED · loop",
+      "row": 2,
+      "col": 0,
+      "tag": "DESIGNED"
+    },
+    {
+      "id": "card",
+      "type": "frontend",
+      "label": "Card",
+      "sublabel": "DESIGNED · card",
+      "row": 2,
+      "col": 1,
+      "tag": "DESIGNED"
+    },
+    {
+      "id": "close",
+      "type": "frontend",
+      "label": "Close",
+      "sublabel": "DESIGNED · verify",
+      "row": 2,
+      "col": 2,
+      "tag": "DESIGNED"
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "As-built (main @ navigation.ts)",
+      "wraps": ["overview", "live", "equipment", "alarms", "rx", "ask", "evidence"],
+      "pad": 12
+    },
+    {
+      "kind": "region",
+      "label": "SSOT target IA (handoff / ADR-030)",
+      "wraps": ["now", "card", "close"],
+      "pad": 12
+    }
+  ],
+  "connections": [],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Status & sources",
+      "items": [
+        "experience-integration@82df09ee · navigation.ts · external handoff l6 UI charter",
+        "Gap G7: as-built module grid ≠ five-domain loop nav",
+        "Target nodes DESIGNED — no dedicated /now route on main"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Reading the map",
+      "items": [
+        "Solid BUILT boxes are shippable routes",
+        "Dashed arrows are intent mapping only",
+        "Dashed target region = DESIGNED IA only",
+        "Autonomy · Constraints · Ask — DESIGNED (handoff only)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Ask Analyst turn",
+    "output": "L6-03-ask-analyst-turn.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "visual_preset": "classic",
+    "viewBox": [940, 520],
+    "legend": { "mode": "hidden" },
+    "views": [
+      {
+        "id": "compose",
+        "label": "Compose with context",
+        "focus": ["browser", "web", "bff"],
+        "note": "Mode A/B sends removable context envelope chips plus question text to the BFF."
+      },
+      {
+        "id": "stream",
+        "label": "Stream from L4",
+        "focus": ["bff", "l4", "web"],
+        "note": "BFF opens SSE to L4 when L4_LIVE; otherwise fixture stream from packages/api upstream client."
+      }
+    ]
+  },
+  "participants": [
+    { "id": "browser", "type": "external", "label": "Operator", "sublabel": "BUILT" },
+    { "id": "web", "type": "frontend", "label": "Ask UI", "sublabel": "BUILT · web" },
+    { "id": "bff", "type": "backend", "label": "BFF analyst", "sublabel": "BUILT · /api/analyst" },
+    { "id": "l4", "type": "external", "label": "L4 ReAct", "sublabel": "PARTIAL · L4_LIVE off" }
+  ],
+  "messages": [
+    { "from": "browser", "to": "web", "y": 160, "label": "type question + chips", "variant": "emphasis" },
+    { "from": "web", "to": "bff", "y": 188, "label": "POST /api/analyst/sessions/:id/messages/stream", "variant": "emphasis" },
+    { "from": "bff", "to": "l4", "y": 216, "label": "v1/chat/.../messages/stream + envelope", "variant": "default" },
+    { "from": "l4", "to": "bff", "y": 244, "label": "SSE tokens + citations", "variant": "return" },
+    { "from": "bff", "to": "web", "y": 272, "label": "forward SSE", "variant": "return" },
+    { "from": "web", "to": "browser", "y": 300, "label": "render answer + sources", "variant": "emphasis" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Status & sources",
+      "items": [
+        "experience-integration@82df09ee · analyst/routes.ts · upstream/l4/client.ts",
+        "ADR-023: explicit removable context envelope only",
+        "Fixture path: source fixture in listSessions response"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Newcomer memory",
+      "items": [
+        "Browser never holds L4_AUTH_TOKEN",
+        "Live Ask requires L4_LIVE=true and reachable L4",
+        "Esc closes Mode A focus trap (web e2e)"
+      ]
+    }
+  ]
+}

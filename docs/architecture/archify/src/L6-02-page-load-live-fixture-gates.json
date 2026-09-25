@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Page load — Live vs Preview gates",
+    "output": "L6-02-page-load-live-fixture-gates.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "visual_preset": "classic",
+    "animation": "trace",
+    "viewBox": [940, 548],
+    "legend": { "mode": "hidden" },
+    "column_fit": "spread",
+    "views": [
+      {
+        "id": "open-page",
+        "label": "Open a screen",
+        "focus": ["browser", "web", "bff"],
+        "note": "User navigates; Next.js loads route data via BFF session cookies."
+      },
+      {
+        "id": "probe-gates",
+        "label": "Probe upstream gates",
+        "focus": ["web", "bff", "gates"],
+        "note": "AppShell polls GET /api/meta/upstreams; BFF reads USE_FIXTURES and L2/L5/L4 live flags."
+      },
+      {
+        "id": "badge",
+        "label": "Live vs Preview pill",
+        "focus": ["bff", "gates", "source", "pill"],
+        "note": "demoMode true → Preview; live upstream without demoMode → Live plant connected."
+      }
+    ]
+  },
+  "participants": [
+    { "id": "browser", "type": "external", "label": "Browser", "sublabel": "BUILT · operator" },
+    { "id": "web", "type": "frontend", "label": "Next.js web", "sublabel": "BUILT · :3000" },
+    { "id": "bff", "type": "backend", "label": "Fastify BFF", "sublabel": "BUILT · :3001" },
+    { "id": "gates", "type": "security", "label": "Live gates", "sublabel": "BUILT · env defaults" },
+    { "id": "source", "type": "cloud", "label": "Data source", "sublabel": "PARTIAL · live|fixture" },
+    { "id": "pill", "type": "frontend", "label": "Data pill", "sublabel": "BUILT · AppTopbar" }
+  ],
+  "messages": [
+    { "from": "browser", "to": "web", "y": 160, "label": "GET route (e.g. /alarms)", "variant": "emphasis" },
+    { "from": "web", "to": "bff", "y": 188, "label": "GET /api/* + session", "variant": "emphasis" },
+    { "from": "bff", "to": "gates", "y": 216, "label": "USE_FIXTURES · L*_LIVE", "variant": "default" },
+    { "from": "bff", "to": "source", "y": 244, "label": "live HTTP or fixtures", "variant": "default" },
+    { "from": "source", "to": "bff", "y": 272, "label": "JSON payload", "variant": "return" },
+    { "from": "web", "to": "bff", "y": 300, "label": "GET /api/meta/upstreams", "variant": "emphasis" },
+    { "from": "bff", "to": "web", "y": 328, "label": "demoMode + layer status", "variant": "return" },
+    { "from": "web", "to": "pill", "y": 356, "label": "connectionPillLabel", "variant": "default" },
+    { "from": "pill", "to": "browser", "y": 384, "label": "Live or Preview pill", "variant": "return" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Status & sources",
+      "items": [
+        "experience-integration@82df09ee · config.ts · meta/upstreams.ts · client-copy.ts",
+        "Defaults: USE_FIXTURES false · L2/L5 live true · L4_LIVE false",
+        "L4 live requires L4_LIVE=true explicitly"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Gate truth table",
+      "items": [
+        "USE_FIXTURES true → Preview for all layers",
+        "demoMode when a configured live layer is down",
+        "Preview copy: client-copy.ts — not connected to plant"
+      ]
+    }
+  ]
+}
