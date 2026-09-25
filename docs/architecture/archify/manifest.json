@@ -1,0 +1,198 @@
+{
+  "node": "B10",
+  "repo": "Stamped-Energy/experience-integration",
+  "base_sha": "82df09ee87eb67b2e177f5d085dc83c171d85830",
+  "branch": "cursor/archify-architecture-62cc",
+  "pr_url": null,
+  "pr_state": "draft",
+  "archify": {
+    "commit": "9e35d2b0b39b155553ba9fcfe0b4f2a5198dd993",
+    "version": "2.17.0-dev.1"
+  },
+  "diagrams": [
+    {
+      "id": "L6-01",
+      "type": "architecture",
+      "title": "L6 control-room components",
+      "question": "How is the control-room app built?",
+      "file": "L6-01-experience-integration-components.html",
+      "spec": "src/L6-01-experience-integration-components.json",
+      "status_counts": {
+        "BUILT": 5,
+        "PARTIAL": 3,
+        "DESIGNED": 0,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "b2b1502c9481fe05932804d6fe9ec4a42f1bfdd15239080ece6d4625f1c5e033",
+      "artifact_sha256": "bca9f1c270dfcf9662e484c515590f07faa6b3a8e754f165f79485e6fde8363c",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    },
+    {
+      "id": "L6-02",
+      "type": "sequence",
+      "title": "Page load \u2014 Live vs Preview gates",
+      "question": "What happens when a user opens a page, and when is data Live vs Preview?",
+      "file": "L6-02-page-load-live-fixture-gates.html",
+      "spec": "src/L6-02-page-load-live-fixture-gates.json",
+      "status_counts": {
+        "BUILT": 5,
+        "PARTIAL": 1,
+        "DESIGNED": 0,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "39a848574c350dc4b4f60ae1dc72ede1487f8d3f2e5bf60fee7bb121fabe3589",
+      "artifact_sha256": "162dc8b91930f97a2b5796be12da497a893a4866ce101e43756abda6ea93ee6c",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    },
+    {
+      "id": "L6-03",
+      "type": "sequence",
+      "title": "Ask Analyst turn",
+      "question": "How does the UI send a question and show the answer?",
+      "file": "L6-03-ask-analyst-turn.html",
+      "spec": "src/L6-03-ask-analyst-turn.json",
+      "status_counts": {
+        "BUILT": 3,
+        "PARTIAL": 1,
+        "DESIGNED": 0,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "bb9ff8cadd782a98c96873e26317773ddfb980edc0c2bbe6224d9b786309ed6f",
+      "artifact_sha256": "cabe7e5f92ed07ff2ff37a7f4829d07978adcf466ebcf133a7ee311bde639125",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    },
+    {
+      "id": "L6-04a",
+      "type": "sequence",
+      "title": "L5 card events \u2014 ingest (a)",
+      "question": "How do L5 workflow events reach Postgres (as-built poll path)?",
+      "file": "L6-04a-l5-events-ingest.html",
+      "spec": "src/L6-04a-l5-events-ingest.json",
+      "status_counts": {
+        "BUILT": 3,
+        "PARTIAL": 0,
+        "DESIGNED": 0,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "244bf9fca2568f7af1566499eba224c9b3c03f574a9e5f2b6181a9c7202bd42e",
+      "artifact_sha256": "d0d2b6e63a5c3f272bc73533f0283f0cb15c016aa7245a81ba8b5dfbbb861fa4",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    },
+    {
+      "id": "L6-04b",
+      "type": "sequence",
+      "title": "L5 card events \u2014 UI refresh (b)",
+      "question": "How do card changes reach the operator screen today?",
+      "file": "L6-04b-l5-events-ui-refresh.html",
+      "spec": "src/L6-04b-l5-events-ui-refresh.json",
+      "status_counts": {
+        "BUILT": 4,
+        "PARTIAL": 1,
+        "DESIGNED": 0,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "ed91ca86fd3ab0de81303c8052099950c91174a37159458c9eb7aefa84ba0e9a",
+      "artifact_sha256": "ee930cb44f532b013525f57489c02c7e3fb38e58e84db0255ed2a3da8d0eb691",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    },
+    {
+      "id": "L6-07",
+      "type": "workflow",
+      "title": "WhatsApp owner action loop",
+      "question": "How does an owner act on a card from WhatsApp?",
+      "file": "L6-07-whatsapp-action-loop.html",
+      "spec": "src/L6-07-whatsapp-action-loop.json",
+      "status_counts": {
+        "BUILT": 3,
+        "PARTIAL": 2,
+        "DESIGNED": 0,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "8fffaed4530b7889babaf4183443c752f48a41fbc75892e82363aa7b09ab7530",
+      "artifact_sha256": "9ca7c1fa6c7efc459566f5c68f7d0049ca6c6947d48b629b7b35cb311ae88624",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    },
+    {
+      "id": "L6-05",
+      "type": "dataflow",
+      "title": "Claim label sanitisation",
+      "question": "How does the UI avoid over-claiming savings?",
+      "file": "L6-05-claim-label-sanitisation.html",
+      "spec": "src/L6-05-claim-label-sanitisation.json",
+      "status_counts": {
+        "BUILT": 6,
+        "PARTIAL": 0,
+        "DESIGNED": 0,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "09029f9c23be726285696c22e42d45204a35ccc29324d74c034e762d457bb4ca",
+      "artifact_sha256": "90c5fb2ce1cb261b177a2b758f1761d7b202729ad440d93fe3a8283c579e325a",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    },
+    {
+      "id": "L6-06",
+      "type": "architecture",
+      "title": "Information architecture \u2014 as-built vs target",
+      "question": "Which screens exist today and which are planned?",
+      "file": "L6-06-information-architecture.html",
+      "spec": "src/L6-06-information-architecture.json",
+      "status_counts": {
+        "BUILT": 7,
+        "PARTIAL": 0,
+        "DESIGNED": 3,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "3d9d4f9e4686400c758818d4795b2b1b87aa763a81d233e8167765420d062dfc",
+      "artifact_sha256": "66ba60a2bcb9102c07b8eb1b809914959d56285e34c157ebd6c83d865c522823",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    }
+  ],
+  "skipped": [],
+  "gaps": [
+    {
+      "id": "G7",
+      "summary": "As-built nav module grid \u2260 SSOT five-domain loop IA",
+      "evidence": "packages/web/src/lib/navigation.ts:12-93"
+    },
+    {
+      "id": "new-L5-push",
+      "summary": "No inbound L5 HMAC webhook; 30s poll ingest instead",
+      "evidence": "packages/api/src/index.ts:74-88"
+    },
+    {
+      "id": "new-SSE-ui",
+      "summary": "SSE API exists; web UI does not subscribe yet",
+      "evidence": "packages/api/src/events/routes.ts:67"
+    }
+  ],
+  "key_facts": [
+    "Next.js web default :3000; BFF Fastify default :3001 (packages/api/src/config.ts:12)",
+    "USE_FIXTURES default false; L4_LIVE default false (packages/api/src/config.ts:57-60,113-116)",
+    "demoMode when live-configured L2 or L5 probe fails (packages/api/src/meta/upstreams.ts:116-118)",
+    "sanitizeClaimStatus demotes verified without billLineRefs (packages/web/src/lib/ledger.ts:18-23)",
+    "L5 events ingested via poll ingestL5Events not push webhook (packages/api/src/events/ingest.ts:47)",
+    "WHATSAPP_MODE auto \u2192 live when Meta credentials present (packages/api/src/whatsapp/client.ts:38-40)",
+    "WhatsApp inbound webhook verifies HMAC; Rx button mapping stub (packages/api/src/whatsapp/routes.ts:214-215)",
+    "pg-boss worker handles reports queue; webhooks.deliver queue has no worker handler (packages/worker/src/boss.ts:40-65)",
+    "Better Auth + Postgres required for product BFF boot (packages/api/src/index.ts:18-20)",
+    "L2_DATABASE_URL forbidden in L6 env (packages/api/src/config.ts:141-144)"
+  ],
+  "safety_scan": "clean",
+  "failures": null
+}
