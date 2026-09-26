@@ -56,13 +56,13 @@
       "file": "L6-03-ask-analyst-turn.html",
       "spec": "src/L6-03-ask-analyst-turn.json",
       "status_counts": {
-        "BUILT": 3,
-        "PARTIAL": 1,
+        "BUILT": 4,
+        "PARTIAL": 0,
         "DESIGNED": 0,
         "DEFERRED": 0
       },
-      "spec_sha256": "bb9ff8cadd782a98c96873e26317773ddfb980edc0c2bbe6224d9b786309ed6f",
-      "artifact_sha256": "cabe7e5f92ed07ff2ff37a7f4829d07978adcf466ebcf133a7ee311bde639125",
+      "spec_sha256": "80e83549ca22fc8df6ecd62f916a7a560c2c2b62a63133fe2e2f94ff794b880f",
+      "artifact_sha256": "5179a6804e57d4a5f46c1f65af0ca509818242571d90d530e3a13d5b8a145d1f",
       "validate": "9/9",
       "visual_check": "pass",
       "perceptual_review": "ok"
@@ -179,6 +179,11 @@
       "id": "new-SSE-ui",
       "summary": "SSE API exists; web UI does not subscribe yet",
       "evidence": "packages/api/src/events/routes.ts:67"
+    },
+    {
+      "id": "new-ask-retired",
+      "summary": "L4 Ask ReAct retired \u2014 503 ASK_MOVED when L4_LIVE on",
+      "evidence": "knowledge-reasoning stamped_l4/analyst/graph.py \u00b7 packages/api/src/analyst/routes.ts:287-294"
     }
   ],
   "key_facts": [
@@ -187,6 +192,7 @@
     "demoMode when live-configured L2 or L5 probe fails (packages/api/src/meta/upstreams.ts:116-118)",
     "sanitizeClaimStatus demotes verified without billLineRefs (packages/web/src/lib/ledger.ts:18-23)",
     "L5 events ingested via poll ingestL5Events not push webhook (packages/api/src/events/ingest.ts:47)",
+    "L4_LIVE on still gets 503 ASK_MOVED from L4 \u2014 no live SSE answer (L4 analyst/graph.py)",
     "WHATSAPP_MODE auto \u2192 live when Meta credentials present (packages/api/src/whatsapp/client.ts:38-40)",
     "WhatsApp inbound webhook verifies HMAC; Rx button mapping stub (packages/api/src/whatsapp/routes.ts:214-215)",
     "pg-boss worker handles reports queue; webhooks.deliver queue has no worker handler (packages/worker/src/boss.ts:40-65)",
