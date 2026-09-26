@@ -54,7 +54,7 @@ code{font-size:13px}nav a{margin-right:12px}
 <p class="mut">Start with the guided view "Browser to BFF".</p></div>
 <div class="card" id="L6-02"><h3><a href="L6-02-page-load-live-fixture-gates.html">L6-02 — Page load — Live vs Preview gates</a></h3>
 <p class="mut">sequence · answers: Live vs Preview on page load</p>
-<p>Route data loads through the BFF according to fixture and live flags; a separate upstream probe drives the connection pill. Live means the BFF reached configured L2/L5 (and L4 when <code>L4_LIVE</code>); Preview means fixtures or an upstream is down—not a live customer plant. The UI label “Live plant connected” can mislead.</p>
+<p>Route data loads through the BFF according to fixture and live flags; a separate upstream probe drives the connection pill. The pill node and return arrow spell out Live vs Preview; the UI still shows <code>Live plant connected</code> from <code>client-copy.ts:22</code> (gap L6-G8).</p>
 <p class="mut">Start with "Live vs Preview pill".</p></div>
 <div class="card" id="L6-03"><h3><a href="L6-03-ask-analyst-turn.html">L6-03 — Ask Analyst turn</a></h3>
 <p class="mut">sequence · answers: Ask Analyst request path</p>
@@ -80,6 +80,7 @@ code{font-size:13px}nav a{margin-right:12px}
 <h2 id="gaps">Doc ↔ code gaps found</h2>
 <table><thead><tr><th>ID</th><th>Docs say</th><th>Code on main does</th><th>Evidence</th><th>Shown in</th></tr></thead><tbody>
 <tr><td>L6-G7</td><td>Loop IA: Now · Card · Close · Autonomy · …</td><td>Overview · Live · Alarms · Prescriptions · …</td><td><code>packages/web/src/lib/navigation.ts:12-93</code></td><td>L6-06</td></tr>
+<tr><td>L6-G8</td><td>Pill copy: “Live data” (upstream reachability)</td><td><code>Live plant connected</code> in <code>connectionPillLabel</code></td><td><code>packages/web/src/lib/client-copy.ts:22</code></td><td>L6-02</td></tr>
 <tr><td>L6-gap-l5-push</td><td>L5 HMAC webhook → BFF</td><td>30s poll <code>ingestL5Events</code></td><td><code>packages/api/src/index.ts:74-88</code></td><td>L6-04a</td></tr>
 <tr><td>L6-gap-sse-ui</td><td>SSE drives UI</td><td>No web <code>EventSource</code> consumer</td><td><code>packages/api/src/events/routes.ts:67</code></td><td>L6-04b</td></tr>
 <tr><td>L6-gap-ask-retired</td><td>Live Ask via L4 ReAct SSE</td><td>L4 503 ASK_MOVED; Preview fixtures or error bubble</td><td><code>packages/api/src/analyst/routes.ts:287-294</code></td><td>L6-03</td></tr>

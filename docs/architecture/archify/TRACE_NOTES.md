@@ -68,6 +68,7 @@ Product BFF boot **requires** `DATABASE_URL` for auth (`packages/api/src/index.t
 | ID | Docs say | Code on main does | Evidence |
 |----|----------|-------------------|----------|
 | L6-G7 | SSOT loop nav: Now · Card · Close · Autonomy · Constraints · Evidence · Ask | As-built `NAV_ITEMS`: Overview, Live, Equipment, Alarms, Prescriptions, Ask, Evidence, Reports, … | `packages/web/src/lib/navigation.ts:12-93` vs `external/handoff/l6/stamped-l6-ui-ux-charter.md:53` |
+| L6-G8 | UI copy should say “Live data” (upstream reachability) | `connectionPillLabel` returns `Live plant connected` when telemetry+operations live | `packages/web/src/lib/client-copy.ts:22` |
 | L6-gap-l5-push | L5 HMAC webhook → BFF ingest (planner hint) | 30s poll `ingestL5Events`; no L5 webhook POST route | `packages/api/src/index.ts:74-88`; grep webhooks → only WhatsApp + outbound integrations |
 | L6-gap-sse-ui | Real-time card updates via SSE | SSE route + NOTIFY exist; web never subscribes | `packages/api/src/events/routes.ts:67`; no `EventSource` under `packages/web` |
 | L6-gap-ask-retired | Live Ask answered by L4 ReAct SSE | L4 main 503 ASK_MOVED; L6 Preview fixtures or error bubble | L4 `stamped_l4/analyst/graph.py` · `packages/api/src/analyst/routes.ts:287-294` |

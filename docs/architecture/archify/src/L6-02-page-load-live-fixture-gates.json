@@ -38,7 +38,7 @@
     { "id": "bff", "type": "backend", "label": "Fastify BFF", "sublabel": "BUILT · :3001" },
     { "id": "gates", "type": "security", "label": "Live gates", "sublabel": "BUILT · env defaults" },
     { "id": "source", "type": "cloud", "label": "Data source", "sublabel": "PARTIAL · live|fixture" },
-    { "id": "pill", "type": "frontend", "label": "Data pill", "sublabel": "BUILT · AppTopbar" }
+    { "id": "pill", "type": "frontend", "label": "Data pill — Live", "sublabel": "BUILT · upstreams · no plant" }
   ],
   "messages": [
     { "from": "browser", "to": "web", "y": 160, "label": "GET route (e.g. /alarms)", "variant": "emphasis" },
@@ -49,7 +49,7 @@
     { "from": "web", "to": "bff", "y": 300, "label": "GET /api/meta/upstreams", "variant": "emphasis" },
     { "from": "bff", "to": "web", "y": 328, "label": "demoMode + l2/l5/l4 status", "variant": "return" },
     { "from": "web", "to": "pill", "y": 356, "label": "connectionPillLabel", "variant": "default" },
-    { "from": "pill", "to": "browser", "y": 384, "label": "Live or Preview label", "variant": "return" }
+    { "from": "pill", "to": "browser", "y": 384, "label": "'Live' (L2/L5 reachable) or 'Preview' (fixtures / upstream down)", "variant": "return" }
   ],
   "cards": [
     {
@@ -66,8 +66,7 @@
       "title": "Gate truth table",
       "items": [
         "Live = BFF reached L2/L5 (L4 if L4_LIVE); Preview = fixtures or upstream down",
-        "Live does NOT mean a customer plant — no integration is live at any plant",
-        "UI copy Live plant connected (client-copy.ts) can mislead newcomers"
+        "Not a customer plant · L6-G8: UI says Live plant connected at client-copy.ts:22"
       ]
     }
   ]

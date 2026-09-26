@@ -42,8 +42,8 @@
         "DESIGNED": 0,
         "DEFERRED": 0
       },
-      "spec_sha256": "42666277e729668f1b2b561068fdf823a39c6de53f446bc0d53c474c34bcf637",
-      "artifact_sha256": "68c1dd3d413a7476d5ac9dfc7a112fa5933a211e0a6c4ea135b05d2c70d937a5",
+      "spec_sha256": "REPLACE_SPEC",
+      "artifact_sha256": "REPLACE_ART",
       "validate": "9/9",
       "visual_check": "pass",
       "perceptual_review": "ok"
@@ -169,6 +169,11 @@
       "id": "L6-G7",
       "summary": "As-built nav module grid \u2260 SSOT five-domain loop IA",
       "evidence": "packages/web/src/lib/navigation.ts:12-93"
+    },
+    {
+      "id": "L6-G8",
+      "summary": "UI copy Live plant connected overstates; rename to Live data",
+      "evidence": "packages/web/src/lib/client-copy.ts:22"
     },
     {
       "id": "L6-gap-l5-push",
