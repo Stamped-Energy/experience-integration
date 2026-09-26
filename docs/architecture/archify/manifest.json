@@ -113,13 +113,13 @@
       "file": "L6-07-whatsapp-action-loop.html",
       "spec": "src/L6-07-whatsapp-action-loop.json",
       "status_counts": {
-        "BUILT": 3,
+        "BUILT": 4,
         "PARTIAL": 2,
         "DESIGNED": 0,
         "DEFERRED": 0
       },
-      "spec_sha256": "8fffaed4530b7889babaf4183443c752f48a41fbc75892e82363aa7b09ab7530",
-      "artifact_sha256": "9ca7c1fa6c7efc459566f5c68f7d0049ca6c6947d48b629b7b35cb311ae88624",
+      "spec_sha256": "8e718b27d2a2daead4cc1bfbc73f7a10f8c96668e3d888309c74e7f80a631bb9",
+      "artifact_sha256": "d9810774503ad0bfaf6e4152bb39d853f7926763de19b3c9fce34a311e08e993",
       "validate": "9/9",
       "visual_check": "pass",
       "perceptual_review": "ok"
@@ -199,7 +199,7 @@
     "L5 events ingested via poll ingestL5Events not push webhook (packages/api/src/events/ingest.ts:47)",
     "L4_LIVE on still gets 503 ASK_MOVED from L4 \u2014 no live SSE answer (L4 analyst/graph.py)",
     "WHATSAPP_MODE auto \u2192 live when Meta credentials present (packages/api/src/whatsapp/client.ts:38-40)",
-    "WhatsApp inbound webhook verifies HMAC; Rx button mapping stub (packages/api/src/whatsapp/routes.ts:214-215)",
+    "WhatsApp inbound HMAC verify BUILT (client.ts:113-126); Rx button mapping PARTIAL stub (routes.ts:214-215)",
     "pg-boss worker handles reports queue; webhooks.deliver queue has no worker handler (packages/worker/src/boss.ts:40-65)",
     "Better Auth + Postgres required for product BFF boot (packages/api/src/index.ts:18-20)",
     "L2_DATABASE_URL forbidden in L6 env (packages/api/src/config.ts:141-144)"

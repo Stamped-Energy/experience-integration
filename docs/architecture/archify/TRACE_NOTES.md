@@ -60,8 +60,8 @@ Product BFF boot **requires** `DATABASE_URL` for auth (`packages/api/src/index.t
 ### WhatsApp loop
 
 1. **Outbound:** `POST /api/assignments/notify` → `enqueueWhatsAppNotification` (`packages/api/src/assignments/routes.ts:304`, `packages/api/src/whatsapp/service.ts:44-74`).
-2. **Inbound:** Meta `POST /api/webhooks/whatsapp` signature verify (`packages/api/src/whatsapp/routes.ts:158-175`).
-3. **Stub:** allowed buttons acknowledged; Rx mapping TODO (`packages/api/src/whatsapp/routes.ts:214-215`).
+2. **Inbound:** Meta `POST /api/webhooks/whatsapp` — `verifyMetaSignature` on `X-Hub-Signature-256` with `META_WA_APP_SECRET`; missing secret, bad header, or mismatch → **401** (`client.ts:113-126`, `routes.ts:172-174`).
+3. **Stub (PARTIAL):** allowlisted buttons → `{ ok: true, buttons }`; Rx ack/done/defer not mapped (`routes.ts:214-215`); unknown id → **400** (`routes.ts:206-207`).
 
 ## Doc ↔ code gaps
 

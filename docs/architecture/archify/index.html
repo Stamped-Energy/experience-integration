@@ -42,7 +42,7 @@ code{font-size:13px}nav a{margin-right:12px}
 <tr><td>3</td><td><a href="L6-03-ask-analyst-turn.html">L6-03 — Ask Analyst turn</a></td><td>sequence</td><td>How does the UI send a question and show the answer?</td><td><span class="tag B">4</span><span class="tag P">0</span><span class="tag D">0</span><span class="tag X">0</span></td></tr>
 <tr><td>4</td><td><a href="L6-04a-l5-events-ingest.html">L6-04a — L5 card events — ingest (a)</a></td><td>sequence</td><td>How do L5 events reach Postgres?</td><td><span class="tag B">3</span><span class="tag P">0</span><span class="tag D">0</span><span class="tag X">0</span></td></tr>
 <tr><td>5</td><td><a href="L6-04b-l5-events-ui-refresh.html">L6-04b — L5 card events — UI refresh (b)</a></td><td>sequence</td><td>How do card changes reach the screen?</td><td><span class="tag B">4</span><span class="tag P">1</span><span class="tag D">0</span><span class="tag X">0</span></td></tr>
-<tr><td>6</td><td><a href="L6-07-whatsapp-action-loop.html">L6-07 — WhatsApp owner action loop</a></td><td>workflow</td><td>How does an owner act on a card from WhatsApp?</td><td><span class="tag B">3</span><span class="tag P">2</span><span class="tag D">0</span><span class="tag X">0</span></td></tr>
+<tr><td>6</td><td><a href="L6-07-whatsapp-action-loop.html">L6-07 — WhatsApp owner action loop</a></td><td>workflow</td><td>How does an owner act on a card from WhatsApp?</td><td><span class="tag B">4</span><span class="tag P">2</span><span class="tag D">0</span><span class="tag X">0</span></td></tr>
 <tr><td>7</td><td><a href="L6-05-claim-label-sanitisation.html">L6-05 — Claim label sanitisation</a></td><td>dataflow</td><td>How does the UI avoid over-claiming savings?</td><td><span class="tag B">6</span><span class="tag P">0</span><span class="tag D">0</span><span class="tag X">0</span></td></tr>
 <tr><td>8</td><td><a href="L6-06-information-architecture.html">L6-06 — Information architecture</a></td><td>architecture</td><td>Which screens exist today and which are planned?</td><td><span class="tag B">7</span><span class="tag P">0</span><span class="tag D">5</span><span class="tag X">0</span></td></tr>
 </tbody></table>
@@ -74,7 +74,7 @@ code{font-size:13px}nav a{margin-right:12px}
 <p class="mut">Start with "As-built nav (main)".</p></div>
 <div class="card" id="L6-07"><h3><a href="L6-07-whatsapp-action-loop.html">L6-07 — WhatsApp owner action loop</a></h3>
 <p class="mut">workflow · answers: WhatsApp card actions</p>
-<p>Assignments enqueue WhatsApp templates; inbound webhooks verify Meta signatures. Rx state mapping from button taps is still a stub.</p>
+<p>Assignments enqueue WhatsApp templates; inbound webhooks verify Meta HMAC (BUILT — 401 on bad signature). Button → Rx ack/done/defer mapping is still a PARTIAL stub (<code>ok: true</code>).</p>
 <p class="mut">Start with "Notify owner".</p></div>
 
 <h2 id="gaps">Doc ↔ code gaps found</h2>

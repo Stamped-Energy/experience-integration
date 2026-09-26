@@ -19,7 +19,7 @@ Stamped’s L6 control-room is a Next.js web app (:3000) backed by a Fastify BFF
 | 3 | [L6-03 — Ask Analyst turn](L6-03-ask-analyst-turn.html) | sequence | How does the UI send a question and show the answer? | 4/0/0/0 |
 | 4 | [L6-04a — L5 card events — ingest (a)](L6-04a-l5-events-ingest.html) | sequence | How do L5 workflow events reach Postgres (poll path)? | 3/0/0/0 |
 | 5 | [L6-04b — L5 card events — UI refresh (b)](L6-04b-l5-events-ui-refresh.html) | sequence | How do card changes reach the operator screen today? | 4/1/0/0 |
-| 6 | [L6-07 — WhatsApp owner action loop](L6-07-whatsapp-action-loop.html) | workflow | How does an owner act on a card from WhatsApp? | 3/2/0/0 |
+| 6 | [L6-07 — WhatsApp owner action loop](L6-07-whatsapp-action-loop.html) | workflow | How does an owner act on a card from WhatsApp? | 4/2/0/0 |
 | 7 | [L6-05 — Claim label sanitisation](L6-05-claim-label-sanitisation.html) | dataflow | How does the UI avoid over-claiming savings? | 6/0/0/0 |
 | 8 | [L6-06 — Information architecture — as-built vs target](L6-06-information-architecture.html) | architecture | Which screens exist today and which are planned? | 7/0/5/0 |
 
@@ -43,7 +43,7 @@ Ledger statuses are sanitized before badges: bare `verified` becomes ops-confirm
 Top region is shippable nav from `navigation.ts`; lower dashed region is SSOT target loop screens still DESIGNED.
 
 ### L6-07 — WhatsApp action loop
-Assignments can enqueue template sends; Meta callbacks verify HMAC. Button payloads are validated but Rx mapping remains a stub (`ok: true`).
+Assignments can enqueue template sends; inbound webhooks **verify HMAC (BUILT)** via `verifyMetaSignature`. Button → Rx ack/done/defer mapping remains **PARTIAL** (`ok: true` stub).
 
 ## Doc ↔ code gaps found
 | ID | Docs say | Code on main does | Evidence | Shown in |
