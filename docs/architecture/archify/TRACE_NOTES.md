@@ -40,8 +40,9 @@ Product BFF boot **requires** `DATABASE_URL` for auth (`packages/api/src/index.t
 
 1. **Trigger:** user sends message from Mode A/B (`packages/web/src/lib/analyst-live.ts`).
 2. **BFF:** `POST /api/analyst/sessions/:id/messages/stream` with ADR-023 envelope (`packages/api/src/analyst/routes.ts:214+`).
-3. **L4:** live stream to `v1/chat/.../messages/stream` or fixture SSE (`packages/api/src/upstream/l4/client.ts:380-405`).
-4. **Output:** streamed answer + citations rendered in UI.
+3. **L4:** live stream to `v1/chat/.../messages/stream` or fixture SSE (`packages/api/src/upstream/l4/client.ts:380-397`).
+4. **L4 main (2026):** Ask ReAct orchestrator retired — unconditional `503 ASK_MOVED` when live (`knowledge-reasoning` `stamped_l4/analyst/graph.py`; BFF `UpstreamError` → `analyst/routes.ts:287-294`).
+5. **Output:** with `L4_LIVE` off, web `fixtureAnalystReply` + Preview; with `L4_LIVE` on, `Analyst unavailable: …` in the assistant bubble (`analyst-live.ts:256-266`, `ContextualAnalyst.tsx:235-244`) — not fixture fallback on 503.
 
 ### L5 card change → screen
 
@@ -69,4 +70,5 @@ Product BFF boot **requires** `DATABASE_URL` for auth (`packages/api/src/index.t
 | G7 | SSOT loop nav: Now · Card · Close · Autonomy · Constraints · Evidence · Ask | As-built `NAV_ITEMS`: Overview, Live, Equipment, Alarms, Prescriptions, Ask, Evidence, Reports, … | `packages/web/src/lib/navigation.ts:12-93` vs `external/handoff/l6/stamped-l6-ui-ux-charter.md:53` |
 | new-L5-push | L5 HMAC webhook → BFF ingest (planner hint) | 30s poll `ingestL5Events`; no L5 webhook POST route | `packages/api/src/index.ts:74-88`; grep webhooks → only WhatsApp + outbound integrations |
 | new-SSE-ui | Real-time card updates via SSE | SSE route + NOTIFY exist; web never subscribes | `packages/api/src/events/routes.ts:67`; no `EventSource` under `packages/web` |
+| new-ask-retired | Live Ask answered by L4 ReAct SSE | L4 main 503 ASK_MOVED; L6 Preview fixtures or error bubble | L4 `stamped_l4/analyst/graph.py` · `packages/api/src/analyst/routes.ts:287-294` |
 | new-pgboss-L5 | pg-boss drives L5 → UI | pg-boss queues: reports + outbound webhooks; not L5 ingest | `packages/worker/src/boss.ts:5-9`, `packages/worker/src/boss.ts:40-65` |

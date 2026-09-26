@@ -16,7 +16,7 @@ Stamped’s L6 control-room is a Next.js web app (:3000) backed by a Fastify BFF
 |---|---|---|---|---|
 | 1 | [L6-01 — L6 control-room components](L6-01-experience-integration-components.html) | architecture | How is the control-room app built? | 5/3/0/0 |
 | 2 | [L6-02 — Page load — Live vs Preview gates](L6-02-page-load-live-fixture-gates.html) | sequence | What happens when a user opens a page, and when is data Live vs Preview? | 5/1/0/0 |
-| 3 | [L6-03 — Ask Analyst turn](L6-03-ask-analyst-turn.html) | sequence | How does the UI send a question and show the answer? | 3/1/0/0 |
+| 3 | [L6-03 — Ask Analyst turn](L6-03-ask-analyst-turn.html) | sequence | How does the UI send a question and show the answer? | 4/0/0/0 |
 | 4 | [L6-04a — L5 card events — ingest (a)](L6-04a-l5-events-ingest.html) | sequence | How do L5 workflow events reach Postgres (poll path)? | 3/0/0/0 |
 | 5 | [L6-04b — L5 card events — UI refresh (b)](L6-04b-l5-events-ui-refresh.html) | sequence | How do card changes reach the operator screen today? | 4/1/0/0 |
 | 6 | [L6-07 — WhatsApp owner action loop](L6-07-whatsapp-action-loop.html) | workflow | How does an owner act on a card from WhatsApp? | 3/2/0/0 |
@@ -31,7 +31,7 @@ The architecture map shows the browser, Next.js web, Fastify BFF, Postgres, pg-b
 Opening a route triggers BFF fetches guarded by env gates, then a parallel upstream probe drives the Live/Preview pill. Preview is honest fixture or disconnected mode, not a silent lie. Start guided view “Probe upstream gates”.
 
 ### L6-03 — Ask Analyst turn
-Questions POST to `/api/analyst/.../stream` with removable context chips; the BFF proxies SSE from L4 when `L4_LIVE` is true. Fixture streams keep demos usable without an L4 deployment.
+Questions POST to `/api/analyst/.../stream` with removable context chips. With `L4_LIVE` off, the web uses `fixtureAnalystReply` and a Preview chip. With `L4_LIVE` on, L4 main returns `503 ASK_MOVED` (Ask retired); the BFF forwards the 503 problem and the UI shows an “Analyst unavailable” message—dashed arrows mark the designed live SSE path only.
 
 ### L6-04a / L6-04b — L5 events
 Split because push webhooks are not implemented: (a) 30s poll → Postgres + NOTIFY; (b) SSE API exists but the web UI refetches pages instead of subscribing.

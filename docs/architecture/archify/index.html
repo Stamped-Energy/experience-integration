@@ -39,7 +39,7 @@ code{font-size:13px}nav a{margin-right:12px}
 <table><thead><tr><th>#</th><th>Diagram</th><th>Type</th><th>Question it answers</th><th>Status</th></tr></thead><tbody>
 <tr><td>1</td><td><a href="L6-01-experience-integration-components.html">L6-01 — L6 control-room components</a></td><td>architecture</td><td>How is the control-room app built?</td><td><span class="tag B">5 BUILT</span><span class="tag P">3 PARTIAL</span><span class="tag D">0 DESIGNED</span><span class="tag X">0 DEFERRED</span></td></tr>
 <tr><td>2</td><td><a href="L6-02-page-load-live-fixture-gates.html">L6-02 — Page load — Live vs Preview gates</a></td><td>sequence</td><td>What happens when a user opens a page, and when is data Live vs Preview?</td><td><span class="tag B">5 BUILT</span><span class="tag P">1 PARTIAL</span><span class="tag D">0</span><span class="tag X">0</span></td></tr>
-<tr><td>3</td><td><a href="L6-03-ask-analyst-turn.html">L6-03 — Ask Analyst turn</a></td><td>sequence</td><td>How does the UI send a question and show the answer?</td><td><span class="tag B">3</span><span class="tag P">1</span><span class="tag D">0</span><span class="tag X">0</span></td></tr>
+<tr><td>3</td><td><a href="L6-03-ask-analyst-turn.html">L6-03 — Ask Analyst turn</a></td><td>sequence</td><td>How does the UI send a question and show the answer?</td><td><span class="tag B">4</span><span class="tag P">0</span><span class="tag D">0</span><span class="tag X">0</span></td></tr>
 <tr><td>4</td><td><a href="L6-04a-l5-events-ingest.html">L6-04a — L5 card events — ingest (a)</a></td><td>sequence</td><td>How do L5 events reach Postgres?</td><td><span class="tag B">3</span><span class="tag P">0</span><span class="tag D">0</span><span class="tag X">0</span></td></tr>
 <tr><td>5</td><td><a href="L6-04b-l5-events-ui-refresh.html">L6-04b — L5 card events — UI refresh (b)</a></td><td>sequence</td><td>How do card changes reach the screen?</td><td><span class="tag B">4</span><span class="tag P">1</span><span class="tag D">0</span><span class="tag X">0</span></td></tr>
 <tr><td>6</td><td><a href="L6-07-whatsapp-action-loop.html">L6-07 — WhatsApp owner action loop</a></td><td>workflow</td><td>How does an owner act on a card from WhatsApp?</td><td><span class="tag B">3</span><span class="tag P">2</span><span class="tag D">0</span><span class="tag X">0</span></td></tr>
@@ -58,8 +58,8 @@ code{font-size:13px}nav a{margin-right:12px}
 <p class="mut">Start with "Probe upstream gates".</p></div>
 <div class="card" id="L6-03"><h3><a href="L6-03-ask-analyst-turn.html">L6-03 — Ask Analyst turn</a></h3>
 <p class="mut">sequence · answers: Ask Analyst request path</p>
-<p>UI posts a streaming message with context envelope; BFF proxies L4 SSE when live. Default-off L4_LIVE keeps fixture answers for most dev environments.</p>
-<p class="mut">Start with "Stream from L4".</p></div>
+<p>UI posts a streaming message with a context envelope; when <code>L4_LIVE</code> is off the web layer uses <code>fixtureAnalystReply</code> and a Preview chip without calling the stream. When <code>L4_LIVE</code> is on, the BFF forwards to L4 but L4 main responds <code>503 ASK_MOVED</code> (Ask ReAct retired); the BFF returns a problem JSON and the UI shows an “Analyst unavailable” message—dashed arrows show the designed successful SSE path only.</p>
+<p class="mut">Start with "L4_LIVE on — as-built today".</p></div>
 <div class="card" id="L6-04"><h3><a href="L6-04a-l5-events-ingest.html">L6-04 — L5 card events (split a/b)</a></h3>
 <p class="mut">sequence · answers: L5 change data path</p>
 <p>Diagram (a) shows 30s poll ingest to Postgres; (b) shows SSE API plus today’s page refetch UI pattern. Inbound L5 webhooks are not implemented on main.</p>
@@ -82,6 +82,7 @@ code{font-size:13px}nav a{margin-right:12px}
 <tr><td>G7</td><td>Loop IA: Now · Card · Close · Autonomy · …</td><td>Overview · Live · Alarms · Prescriptions · …</td><td><code>packages/web/src/lib/navigation.ts:12-93</code></td><td>L6-06</td></tr>
 <tr><td>new-L5-push</td><td>L5 HMAC webhook → BFF</td><td>30s poll <code>ingestL5Events</code></td><td><code>packages/api/src/index.ts:74-88</code></td><td>L6-04a</td></tr>
 <tr><td>new-SSE-ui</td><td>SSE drives UI</td><td>No web <code>EventSource</code> consumer</td><td><code>packages/api/src/events/routes.ts:67</code></td><td>L6-04b</td></tr>
+<tr><td>new-ask-retired</td><td>Live Ask via L4 ReAct SSE</td><td>L4 503 ASK_MOVED; Preview fixtures or error bubble</td><td><code>packages/api/src/analyst/routes.ts:287-294</code></td><td>L6-03</td></tr>
 </tbody></table>
 
 <h2 id="glossary">Glossary (this repo)</h2>
