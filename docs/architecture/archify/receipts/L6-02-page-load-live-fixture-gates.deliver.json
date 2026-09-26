@@ -6,12 +6,12 @@
   "input": "/workspace/docs/architecture/archify/src/L6-02-page-load-live-fixture-gates.json",
   "output": "/workspace/docs/architecture/archify/L6-02-page-load-live-fixture-gates.html",
   "specification": {
-    "sha256": "162cbdd39176f0a85d3dec222a7d3cc175fb26f547dc50e780a68a19ea6fa44d",
-    "bytes": 3554
+    "sha256": "72cc1518804dc2f2ebbb6ca758940fce74585f8a3fdc6af492c165a79b4c2d41",
+    "bytes": 3385
   },
   "artifact": {
-    "sha256": "cd7cb17b896ce72ae31ade645d24d4b5a90592bf65b15ed5b955c933d983affc",
-    "bytes": 806132
+    "sha256": "65c7302254fea34315d710f9ef1402648810dc84154d97e33a08e7913065d8e5",
+    "bytes": 805933
   },
   "validation": {
     "checksPassed": 9,
