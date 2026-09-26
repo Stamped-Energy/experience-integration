@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Information architecture — as-built vs target",
+    "output": "L6-06-information-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "visual_preset": "classic",
+    "viewBox": [1180, 560],
+    "legend": { "mode": "hidden" },
+    "repository": {
+      "url": "https://github.com/Stamped-Energy/experience-integration",
+      "revision": "82df09ee87eb67b2e177f5d085dc83c171d85830"
+    },
+    "views": [
+      {
+        "id": "as-built",
+        "label": "As-built nav (main)",
+        "focus": ["overview", "live", "equipment", "alarms", "rx", "ask", "evidence"],
+        "note": "Shoppable routes from navigation.ts — Overview, Live plant, Equipment, Alarms, Prescriptions, Ask, Evidence/Reports."
+      },
+      {
+        "id": "target",
+        "label": "DESIGNED target loop",
+        "focus": ["now", "card", "close", "autonomy", "constraints"],
+        "note": "SSOT names Now·Card·Close·Autonomy·Constraints·Evidence·Ask — none of these target routes exist on main (no /now)."
+      }
+    ]
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 4,
+    "origin": [40, 56],
+    "gapX": 26,
+    "gapY": 32,
+    "cellW": 138,
+    "cellH": 54
+  },
+  "components": [
+    {
+      "id": "overview",
+      "type": "frontend",
+      "label": "Overview",
+      "sublabel": "BUILT · /",
+      "row": 0,
+      "col": 0,
+      "tag": "BUILT",
+      "sources": [{ "path": "packages/web/src/lib/navigation.ts", "line": 13, "label": "today" }]
+    },
+    {
+      "id": "live",
+      "type": "frontend",
+      "label": "Live plant",
+      "sublabel": "BUILT · /live",
+      "row": 0,
+      "col": 1,
+      "tag": "BUILT"
+    },
+    {
+      "id": "equipment",
+      "type": "frontend",
+      "label": "Equipment",
+      "sublabel": "BUILT · /equipment",
+      "row": 0,
+      "col": 2,
+      "tag": "BUILT"
+    },
+    {
+      "id": "alarms",
+      "type": "frontend",
+      "label": "Alarms",
+      "sublabel": "BUILT · /alarms",
+      "row": 0,
+      "col": 3,
+      "tag": "BUILT"
+    },
+    {
+      "id": "rx",
+      "type": "frontend",
+      "label": "Prescriptions",
+      "sublabel": "BUILT · /prescriptions",
+      "row": 1,
+      "col": 0,
+      "tag": "BUILT"
+    },
+    {
+      "id": "ask",
+      "type": "frontend",
+      "label": "Ask Analyst",
+      "sublabel": "BUILT · /analyst",
+      "row": 1,
+      "col": 1,
+      "tag": "BUILT"
+    },
+    {
+      "id": "evidence",
+      "type": "frontend",
+      "label": "Evidence / Reports",
+      "sublabel": "BUILT · /evidence",
+      "row": 1,
+      "col": 2,
+      "tag": "BUILT"
+    },
+    {
+      "id": "now",
+      "type": "frontend",
+      "label": "Now",
+      "sublabel": "DESIGNED · no /now",
+      "row": 2,
+      "col": 0,
+      "tag": "DESIGNED"
+    },
+    {
+      "id": "card",
+      "type": "frontend",
+      "label": "Card",
+      "sublabel": "DESIGNED · loop",
+      "row": 2,
+      "col": 1,
+      "tag": "DESIGNED"
+    },
+    {
+      "id": "close",
+      "type": "frontend",
+      "label": "Close",
+      "sublabel": "DESIGNED · verify",
+      "row": 2,
+      "col": 2,
+      "tag": "DESIGNED"
+    },
+    {
+      "id": "autonomy",
+      "type": "frontend",
+      "label": "Autonomy",
+      "sublabel": "DESIGNED · handoff",
+      "row": 2,
+      "col": 3,
+      "tag": "DESIGNED"
+    },
+    {
+      "id": "constraints",
+      "type": "frontend",
+      "label": "Constraints",
+      "sublabel": "DESIGNED · rules",
+      "row": 3,
+      "col": 0,
+      "tag": "DESIGNED"
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "As-built nav — Overview · Live plant · Equipment · Alarms · Prescriptions · Ask · Evidence/Reports",
+      "wraps": ["overview", "live", "equipment", "alarms", "rx", "ask", "evidence"],
+      "pad": 10
+    },
+    {
+      "kind": "region",
+      "label": "DESIGNED target — Now · Card · Close · Autonomy · Constraints · Evidence · Ask (no routes on main)",
+      "wraps": ["now", "card", "close", "autonomy", "constraints"],
+      "pad": 10
+    }
+  ],
+  "connections": [],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Status & sources",
+      "items": [
+        "experience-integration@82df09ee · packages/web/src/lib/navigation.ts",
+        "Gap L6-G7: module grid ≠ five-domain loop IA",
+        "Target Evidence · Ask screens named in handoff only — not separate routes yet"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Newcomer rule",
+      "items": [
+        "Solid BUILT region = routes you can open today",
+        "Lower dashed region = SSOT intent only",
+        "None of the target loop routes exist on main — there is no /now path"
+      ]
+    }
+  ]
+}

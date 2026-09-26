@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/workspace/docs/architecture/archify/src/L6-06-information-architecture.json",
+  "output": "/workspace/docs/architecture/archify/L6-06-information-architecture.html",
+  "specification": {
+    "sha256": "ccd62d3ec2907509e48475e09875ef3eedb131feede7044ed78a29f50da460d4",
+    "bytes": 4753
+  },
+  "artifact": {
+    "sha256": "1682f675578ceb6206b9cc3ce858b6e95a90cfa7f3190bccf1413607b75257b7",
+    "bytes": 814398
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  },
+  "evidence": {
+    "verified": true,
+    "repository": "https://github.com/Stamped-Energy/experience-integration",
+    "revision": "82df09ee87eb67b2e177f5d085dc83c171d85830",
+    "references": 1
+  }
+}

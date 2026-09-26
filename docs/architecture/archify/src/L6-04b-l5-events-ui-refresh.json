@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "L5 card events — UI refresh (b)",
+    "output": "L6-04b-l5-events-ui-refresh.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "visual_preset": "classic",
+    "viewBox": [980, 548],
+    "legend": { "mode": "hidden" },
+    "column_fit": "spread",
+    "views": [
+      {
+        "id": "ui-refetch",
+        "label": "As-built: page refetch",
+        "focus": ["browser", "web", "bff"],
+        "note": "After L6-04a poll fills Postgres, operators refetch Rx/alarms on navigation — no web EventSource."
+      },
+      {
+        "id": "sse-exists",
+        "label": "SSE API (no web client)",
+        "focus": ["bff", "sse"],
+        "note": "GET /api/events/stream exists; NOTIFY can push SSE in API process — PARTIAL: no packages/web consumer."
+      },
+      {
+        "id": "designed-push",
+        "label": "DESIGNED: HMAC ingest",
+        "focus": ["webhook"],
+        "note": "Future L5 push webhook endpoint — same DESIGNED gap as L6-04a; not primary path."
+      }
+    ]
+  },
+  "participants": [
+    { "id": "browser", "type": "external", "label": "Operator", "sublabel": "BUILT" },
+    { "id": "web", "type": "frontend", "label": "Rx / alarms UI", "sublabel": "BUILT · page fetch" },
+    { "id": "bff", "type": "backend", "label": "Fastify BFF", "sublabel": "BUILT · L5 or fixture" },
+    { "id": "sse", "type": "messagebus", "label": "SSE /events/stream", "sublabel": "PARTIAL · no web client" },
+    { "id": "webhook", "type": "security", "label": "HMAC ingest", "sublabel": "DESIGNED · no route" }
+  ],
+  "messages": [
+    { "from": "browser", "to": "web", "y": 160, "label": "open /prescriptions", "variant": "emphasis" },
+    { "from": "web", "to": "bff", "y": 188, "label": "GET /api/prescriptions", "variant": "emphasis" },
+    { "from": "bff", "to": "web", "y": 216, "label": "cards JSON (L5 or fixture)", "variant": "return" },
+    { "from": "web", "to": "browser", "y": 244, "label": "render queue", "variant": "return" },
+    { "from": "bff", "to": "sse", "y": 300, "label": "GET /api/events/stream", "variant": "dashed" },
+    { "from": "sse", "to": "bff", "y": 328, "label": "l5_event SSE (no web sub)", "variant": "dashed" },
+    { "from": "webhook", "to": "bff", "y": 384, "label": "POST verify HMAC", "variant": "dashed" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Status & sources",
+      "items": [
+        "experience-integration@82df09ee · prescriptions/page.tsx fetch · events/routes.ts:67",
+        "As-built UI path: poll ingest (L6-04a) + page GET — not live SSE subscription",
+        "SSE endpoint BUILT; web EventSource absent (tests only)"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Read order",
+      "items": [
+        "Start guided view As-built: page refetch",
+        "Then SSE exists, no web client (secondary)",
+        "DESIGNED HMAC ingest last — dashed, not on main"
+      ]
+    }
+  ]
+}

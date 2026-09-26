@@ -1,0 +1,209 @@
+{
+  "node": "B10",
+  "repo": "Stamped-Energy/experience-integration",
+  "base_sha": "82df09ee87eb67b2e177f5d085dc83c171d85830",
+  "branch": "cursor/archify-architecture-62cc",
+  "pr_url": "https://github.com/Stamped-Energy/experience-integration/pull/27",
+  "pr_state": "draft",
+  "archify": {
+    "commit": "9e35d2b0b39b155553ba9fcfe0b4f2a5198dd993",
+    "version": "2.17.0-dev.1"
+  },
+  "diagrams": [
+    {
+      "id": "L6-01",
+      "type": "architecture",
+      "title": "L6 control-room components",
+      "question": "How is the control-room app built?",
+      "file": "L6-01-experience-integration-components.html",
+      "spec": "src/L6-01-experience-integration-components.json",
+      "status_counts": {
+        "BUILT": 5,
+        "PARTIAL": 3,
+        "DESIGNED": 0,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "b2b1502c9481fe05932804d6fe9ec4a42f1bfdd15239080ece6d4625f1c5e033",
+      "artifact_sha256": "bca9f1c270dfcf9662e484c515590f07faa6b3a8e754f165f79485e6fde8363c",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    },
+    {
+      "id": "L6-02",
+      "type": "sequence",
+      "title": "Page load \u2014 Live vs Preview gates",
+      "question": "What happens when a user opens a page, and when is data Live vs Preview?",
+      "file": "L6-02-page-load-live-fixture-gates.html",
+      "spec": "src/L6-02-page-load-live-fixture-gates.json",
+      "status_counts": {
+        "BUILT": 5,
+        "PARTIAL": 1,
+        "DESIGNED": 0,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "72cc1518804dc2f2ebbb6ca758940fce74585f8a3fdc6af492c165a79b4c2d41",
+      "artifact_sha256": "65c7302254fea34315d710f9ef1402648810dc84154d97e33a08e7913065d8e5",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    },
+    {
+      "id": "L6-03",
+      "type": "sequence",
+      "title": "Ask Analyst turn",
+      "question": "How does the UI send a question and show the answer?",
+      "file": "L6-03-ask-analyst-turn.html",
+      "spec": "src/L6-03-ask-analyst-turn.json",
+      "status_counts": {
+        "BUILT": 4,
+        "PARTIAL": 0,
+        "DESIGNED": 0,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "80e83549ca22fc8df6ecd62f916a7a560c2c2b62a63133fe2e2f94ff794b880f",
+      "artifact_sha256": "5179a6804e57d4a5f46c1f65af0ca509818242571d90d530e3a13d5b8a145d1f",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    },
+    {
+      "id": "L6-04a",
+      "type": "sequence",
+      "title": "L5 card events \u2014 ingest (a)",
+      "question": "How do L5 workflow events reach Postgres (as-built poll path)?",
+      "file": "L6-04a-l5-events-ingest.html",
+      "spec": "src/L6-04a-l5-events-ingest.json",
+      "status_counts": {
+        "BUILT": 3,
+        "PARTIAL": 0,
+        "DESIGNED": 0,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "dcecc26e345455a54286060986e5cf4d3e6175e3477399f44dd1cbdfebafb60d",
+      "artifact_sha256": "953dbec853d31f70c7579b441289f5d4360c503aeb096505e96d6baaabdc3c30",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    },
+    {
+      "id": "L6-04b",
+      "type": "sequence",
+      "title": "L5 card events \u2014 UI refresh (b)",
+      "question": "How do card changes reach the operator screen today?",
+      "file": "L6-04b-l5-events-ui-refresh.html",
+      "spec": "src/L6-04b-l5-events-ui-refresh.json",
+      "status_counts": {
+        "BUILT": 4,
+        "PARTIAL": 1,
+        "DESIGNED": 0,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "7be9a64064b297c6de44f6a520d552fffa54c2aa7a5a26b70e238454f562b7f0",
+      "artifact_sha256": "e89fde0b37d91bf7aa22ebf6398e3a0f779e144cdaef65354356608a85f536b0",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    },
+    {
+      "id": "L6-07",
+      "type": "workflow",
+      "title": "WhatsApp owner action loop",
+      "question": "How does an owner act on a card from WhatsApp?",
+      "file": "L6-07-whatsapp-action-loop.html",
+      "spec": "src/L6-07-whatsapp-action-loop.json",
+      "status_counts": {
+        "BUILT": 4,
+        "PARTIAL": 2,
+        "DESIGNED": 0,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "8e718b27d2a2daead4cc1bfbc73f7a10f8c96668e3d888309c74e7f80a631bb9",
+      "artifact_sha256": "d9810774503ad0bfaf6e4152bb39d853f7926763de19b3c9fce34a311e08e993",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    },
+    {
+      "id": "L6-05",
+      "type": "dataflow",
+      "title": "Claim label sanitisation",
+      "question": "How does the UI avoid over-claiming savings?",
+      "file": "L6-05-claim-label-sanitisation.html",
+      "spec": "src/L6-05-claim-label-sanitisation.json",
+      "status_counts": {
+        "BUILT": 6,
+        "PARTIAL": 0,
+        "DESIGNED": 0,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "09029f9c23be726285696c22e42d45204a35ccc29324d74c034e762d457bb4ca",
+      "artifact_sha256": "90c5fb2ce1cb261b177a2b758f1761d7b202729ad440d93fe3a8283c579e325a",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    },
+    {
+      "id": "L6-06",
+      "type": "architecture",
+      "title": "Information architecture \u2014 as-built vs target",
+      "question": "Which screens exist today and which are planned?",
+      "file": "L6-06-information-architecture.html",
+      "spec": "src/L6-06-information-architecture.json",
+      "status_counts": {
+        "BUILT": 7,
+        "PARTIAL": 0,
+        "DESIGNED": 5,
+        "DEFERRED": 0
+      },
+      "spec_sha256": "ccd62d3ec2907509e48475e09875ef3eedb131feede7044ed78a29f50da460d4",
+      "artifact_sha256": "1682f675578ceb6206b9cc3ce858b6e95a90cfa7f3190bccf1413607b75257b7",
+      "validate": "9/9",
+      "visual_check": "pass",
+      "perceptual_review": "ok"
+    }
+  ],
+  "skipped": [],
+  "gaps": [
+    {
+      "id": "L6-G7",
+      "summary": "As-built nav module grid \u2260 SSOT five-domain loop IA",
+      "evidence": "packages/web/src/lib/navigation.ts:12-93"
+    },
+    {
+      "id": "L6-G8",
+      "summary": "UI copy Live plant connected overstates; rename to Live data",
+      "evidence": "packages/web/src/lib/client-copy.ts:22"
+    },
+    {
+      "id": "L6-gap-l5-push",
+      "summary": "No inbound L5 HMAC webhook; 30s poll ingest instead",
+      "evidence": "packages/api/src/index.ts:74-88"
+    },
+    {
+      "id": "L6-gap-sse-ui",
+      "summary": "SSE API exists; web UI does not subscribe yet",
+      "evidence": "packages/api/src/events/routes.ts:67"
+    },
+    {
+      "id": "L6-gap-ask-retired",
+      "summary": "L4 Ask ReAct retired \u2014 503 ASK_MOVED when L4_LIVE on",
+      "evidence": "knowledge-reasoning stamped_l4/analyst/graph.py \u00b7 packages/api/src/analyst/routes.ts:287-294"
+    }
+  ],
+  "key_facts": [
+    "Next.js web default :3000; BFF Fastify default :3001 (packages/api/src/config.ts:12)",
+    "USE_FIXTURES default false; L4_LIVE default false (packages/api/src/config.ts:57-60,113-116)",
+    "demoMode when live-configured L2 or L5 probe fails (packages/api/src/meta/upstreams.ts:116-118)",
+    "sanitizeClaimStatus demotes verified without billLineRefs (packages/web/src/lib/ledger.ts:18-23)",
+    "L5 events ingested via poll ingestL5Events not push webhook (packages/api/src/events/ingest.ts:47)",
+    "L4_LIVE on still gets 503 ASK_MOVED from L4 \u2014 no live SSE answer (L4 analyst/graph.py)",
+    "WHATSAPP_MODE auto \u2192 live when Meta credentials present (packages/api/src/whatsapp/client.ts:38-40)",
+    "WhatsApp inbound HMAC verify BUILT (client.ts:113-126); Rx button mapping PARTIAL stub (routes.ts:214-215)",
+    "pg-boss worker handles reports queue; webhooks.deliver queue has no worker handler (packages/worker/src/boss.ts:40-65)",
+    "Better Auth + Postgres required for product BFF boot (packages/api/src/index.ts:18-20)",
+    "L2_DATABASE_URL forbidden in L6 env (packages/api/src/config.ts:141-144)"
+  ],
+  "safety_scan": "clean",
+  "failures": null
+}

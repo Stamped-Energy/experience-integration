@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "deliver",
+  "type": "dataflow",
+  "input": "/workspace/docs/architecture/archify/src/L6-05-claim-label-sanitisation.json",
+  "output": "/workspace/docs/architecture/archify/L6-05-claim-label-sanitisation.html",
+  "specification": {
+    "sha256": "09029f9c23be726285696c22e42d45204a35ccc29324d74c034e762d457bb4ca",
+    "bytes": 3591
+  },
+  "artifact": {
+    "sha256": "90c5fb2ce1cb261b177a2b758f1761d7b202729ad440d93fe3a8283c579e325a",
+    "bytes": 803479
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  }
+}

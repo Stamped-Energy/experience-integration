@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Ask Analyst turn",
+    "output": "L6-03-ask-analyst-turn.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "visual_preset": "classic",
+    "viewBox": [980, 548],
+    "legend": { "mode": "hidden" },
+    "column_fit": "spread",
+    "views": [
+      {
+        "id": "compose",
+        "label": "Compose with context",
+        "focus": ["browser", "web", "bff"],
+        "note": "Mode A/B sends removable context envelope chips plus question text to the BFF (ADR-023)."
+      },
+      {
+        "id": "preview-off",
+        "label": "Preview when L4_LIVE off",
+        "focus": ["web", "browser"],
+        "note": "meta.live false → web fixtureAnalystReply + Preview chip (ContextualAnalyst.tsx:164-175); no BFF stream."
+      },
+      {
+        "id": "live-on-today",
+        "label": "L4_LIVE on — as-built today",
+        "focus": ["web", "bff", "l4"],
+        "note": "BFF forwards stream; L4 returns 503 ASK_MOVED; BFF problem JSON; UI Analyst unavailable bubble (not fixture replay)."
+      },
+      {
+        "id": "designed-success",
+        "label": "Designed live answer",
+        "focus": ["bff", "l4", "web"],
+        "note": "Dashed: SSE success when L4 restores ReAct — unavailable on L4 main today."
+      }
+    ]
+  },
+  "participants": [
+    { "id": "browser", "type": "external", "label": "Operator", "sublabel": "BUILT" },
+    { "id": "web", "type": "frontend", "label": "Ask UI", "sublabel": "BUILT · analyst-live" },
+    { "id": "bff", "type": "backend", "label": "BFF analyst", "sublabel": "BUILT · routes.ts" },
+    { "id": "l4", "type": "external", "label": "L4 analyst API", "sublabel": "BUILT · AskRetired 503" }
+  ],
+  "messages": [
+    { "from": "browser", "to": "web", "y": 160, "label": "question + context chips", "variant": "emphasis" },
+    { "from": "web", "to": "bff", "y": 188, "label": "POST .../messages/stream", "variant": "emphasis" },
+    { "from": "bff", "to": "l4", "y": 216, "label": "POST v1/chat/.../stream", "variant": "default" },
+    { "from": "l4", "to": "bff", "y": 244, "label": "503 ASK_MOVED", "variant": "return" },
+    { "from": "bff", "to": "web", "y": 272, "label": "503 problem+json", "variant": "return" },
+    { "from": "web", "to": "browser", "y": 300, "label": "Analyst unavailable: detail", "variant": "emphasis" },
+    { "from": "l4", "to": "bff", "y": 356, "label": "SSE tokens + citations", "variant": "dashed" },
+    { "from": "bff", "to": "web", "y": 384, "label": "forward SSE", "variant": "dashed" },
+    { "from": "web", "to": "browser", "y": 412, "label": "live answer render", "variant": "dashed" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Status & sources",
+      "items": [
+        "experience-integration@82df09ee · analyst/routes.ts:287-294 · upstream/l4/client.ts:424-430",
+        "L4 main: AskReAct retired — 503 ASK_MOVED (knowledge-reasoning analyst/graph.py)",
+        "L4_LIVE off: BFF fixture SSE; web fixtureAnalystReply + Preview chip"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "As-built vs designed",
+      "items": [
+        "Solid: L4_LIVE on still fails at L4 today — error bubble not fixture replay",
+        "Dashed: successful live stream when L4 restores Ask orchestrator",
+        "Browser never holds L4_AUTH_TOKEN"
+      ]
+    }
+  ]
+}
