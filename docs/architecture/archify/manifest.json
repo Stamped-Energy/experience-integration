@@ -80,8 +80,8 @@
         "DESIGNED": 0,
         "DEFERRED": 0
       },
-      "spec_sha256": "2493b10fcb7e1c786cb24a09817937f7eb486b18338881c8794f169984bb0e44",
-      "artifact_sha256": "4a19a9975dc085b6707bfc1b8a9ca43d8f1c0c6a72251460661ca80e9f258a68",
+      "spec_sha256": "dcecc26e345455a54286060986e5cf4d3e6175e3477399f44dd1cbdfebafb60d",
+      "artifact_sha256": "953dbec853d31f70c7579b441289f5d4360c503aeb096505e96d6baaabdc3c30",
       "validate": "9/9",
       "visual_check": "pass",
       "perceptual_review": "ok"
