@@ -51,6 +51,7 @@ Assignments can enqueue template sends; Meta callbacks verify HMAC. Button paylo
 | G7 | Loop IA: Now · Card · Close · Autonomy · … | Overview · Live · Alarms · Prescriptions · … | `packages/web/src/lib/navigation.ts:12-93` | L6-06 |
 | new-L5-push | L5 webhook push to L6 | 30s poll ingest | `packages/api/src/index.ts:74-88` | L6-04a |
 | new-SSE-ui | SSE drives UI refresh | No web EventSource consumer | `packages/api/src/events/routes.ts:67` | L6-04b |
+| new-ask-retired | Live Ask via L4 ReAct SSE | L4 503 ASK_MOVED; Preview fixtures or error bubble | `packages/api/src/analyst/routes.ts:287-294` | L6-03 |
 
 ## Glossary (this repo)
 - **BFF**: Fastify server between browser and L2/L4/L5; holds API keys (see L6-01).
