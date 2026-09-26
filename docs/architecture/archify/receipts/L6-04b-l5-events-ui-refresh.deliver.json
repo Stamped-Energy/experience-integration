@@ -6,12 +6,12 @@
   "input": "/workspace/docs/architecture/archify/src/L6-04b-l5-events-ui-refresh.json",
   "output": "/workspace/docs/architecture/archify/L6-04b-l5-events-ui-refresh.html",
   "specification": {
-    "sha256": "ed91ca86fd3ab0de81303c8052099950c91174a37159458c9eb7aefa84ba0e9a",
-    "bytes": 2517
+    "sha256": "7be9a64064b297c6de44f6a520d552fffa54c2aa7a5a26b70e238454f562b7f0",
+    "bytes": 2983
   },
   "artifact": {
-    "sha256": "ee930cb44f532b013525f57489c02c7e3fb38e58e84db0255ed2a3da8d0eb691",
-    "bytes": 801531
+    "sha256": "e89fde0b37d91bf7aa22ebf6398e3a0f779e144cdaef65354356608a85f536b0",
+    "bytes": 802576
   },
   "validation": {
     "checksPassed": 9,

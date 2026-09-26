@@ -7,44 +7,53 @@
     "quality_profile": "showcase",
     "locale": "en",
     "visual_preset": "classic",
-    "viewBox": [940, 520],
+    "viewBox": [980, 520],
     "legend": { "mode": "hidden" },
+    "column_fit": "spread",
     "views": [
       {
-        "id": "poll",
-        "label": "Poll L5 events",
+        "id": "poll-as-built",
+        "label": "As-built: poll ingest",
         "focus": ["bff", "l5", "postgres"],
-        "note": "When L5 live, API timer calls ingestL5Events every 30s — no inbound L5 HMAC webhook route on main."
+        "note": "Every 30s BFF calls L5 GET /v1/events, dedupes into l5_events (index.ts:74-88, ingest.ts)."
+      },
+      {
+        "id": "designed-push",
+        "label": "DESIGNED: HMAC push",
+        "focus": ["l5", "bff"],
+        "note": "ADR-style L5→L6 signed webhook ingest — not implemented on main; dashed only."
       }
     ]
   },
   "participants": [
-    { "id": "bff", "type": "backend", "label": "Fastify BFF", "sublabel": "BUILT · index.ts poll" },
-    { "id": "l5", "type": "external", "label": "L5 workflow", "sublabel": "BUILT · v1/events" },
-    { "id": "postgres", "type": "database", "label": "l5_events", "sublabel": "BUILT · dedupe" }
+    { "id": "bff", "type": "backend", "label": "Fastify BFF", "sublabel": "BUILT · 30s poll" },
+    { "id": "l5", "type": "external", "label": "L5 workflow", "sublabel": "BUILT · GET /v1/events" },
+    { "id": "postgres", "type": "database", "label": "l5_events", "sublabel": "BUILT · Postgres" }
   ],
   "messages": [
     { "from": "bff", "to": "l5", "y": 160, "label": "GET v1/events since cursor", "variant": "emphasis" },
     { "from": "l5", "to": "bff", "y": 188, "label": "WorkflowEvent batch", "variant": "return" },
     { "from": "bff", "to": "postgres", "y": 216, "label": "INSERT dedupe_key", "variant": "emphasis" },
-    { "from": "bff", "to": "postgres", "y": 244, "label": "NOTIFY l6_l5_events", "variant": "default" }
+    { "from": "bff", "to": "postgres", "y": 244, "label": "NOTIFY l6_l5_events", "variant": "default" },
+    { "from": "l5", "to": "bff", "y": 300, "label": "POST HMAC webhook ingest", "variant": "dashed" }
   ],
   "cards": [
     {
       "dot": "cyan",
       "title": "Status & sources",
       "items": [
-        "experience-integration@82df09ee · events/ingest.ts · sse.ts",
-        "Doc gap: L5→L6 HMAC push described in ADR; as-built is poll",
-        "DESIGNED dashed: future webhook ingest endpoint"
+        "experience-integration@82df09ee · events/ingest.ts · index.ts poll 30s",
+        "As-built: poll only — UI refresh is page refetch (see L6-04b)",
+        "Gap L6-gap-l5-push: HMAC push is DESIGNED (dashed), not on main"
       ]
     },
     {
-      "dot": "rose",
-      "title": "Not on this path",
+      "dot": "emerald",
+      "title": "As-built summary",
       "items": [
-        "pg-boss is for reports/outbound webhooks — not L5 ingest",
-        "Worker queue l6.webhooks.deliver has no handler yet"
+        "Leader path: BFF timer → L5 /v1/events → Postgres l5_events",
+        "NOTIFY channel exists for SSE API — web has no EventSource client",
+        "pg-boss is not on this L5 ingest path"
       ]
     }
   ]

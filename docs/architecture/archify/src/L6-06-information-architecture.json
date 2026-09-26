@@ -7,7 +7,7 @@
     "quality_profile": "showcase",
     "locale": "en",
     "visual_preset": "classic",
-    "viewBox": [1180, 520],
+    "viewBox": [1180, 560],
     "legend": { "mode": "hidden" },
     "repository": {
       "url": "https://github.com/Stamped-Energy/experience-integration",
@@ -16,26 +16,26 @@
     "views": [
       {
         "id": "as-built",
-        "label": "As-built nav",
+        "label": "As-built nav (main)",
         "focus": ["overview", "live", "equipment", "alarms", "rx", "ask", "evidence"],
-        "note": "packages/web/src/lib/navigation.ts primary routes operators see today."
+        "note": "Shoppable routes from navigation.ts — Overview, Live plant, Equipment, Alarms, Prescriptions, Ask, Evidence/Reports."
       },
       {
         "id": "target",
-        "label": "SSOT target loop",
-        "focus": ["now", "card", "close"],
-        "note": "Vision/handoff names decision-loop surfaces; dashed DESIGNED until routed in web."
+        "label": "DESIGNED target loop",
+        "focus": ["now", "card", "close", "autonomy", "constraints"],
+        "note": "SSOT names Now·Card·Close·Autonomy·Constraints·Evidence·Ask — none of these target routes exist on main (no /now)."
       }
     ]
   },
   "layout": {
     "mode": "grid",
     "cols": 4,
-    "origin": [40, 64],
-    "gapX": 28,
-    "gapY": 36,
-    "cellW": 140,
-    "cellH": 56
+    "origin": [40, 56],
+    "gapX": 26,
+    "gapY": 32,
+    "cellW": 138,
+    "cellH": 54
   },
   "components": [
     {
@@ -106,7 +106,7 @@
       "id": "now",
       "type": "frontend",
       "label": "Now",
-      "sublabel": "DESIGNED · loop",
+      "sublabel": "DESIGNED · no /now",
       "row": 2,
       "col": 0,
       "tag": "DESIGNED"
@@ -115,7 +115,7 @@
       "id": "card",
       "type": "frontend",
       "label": "Card",
-      "sublabel": "DESIGNED · card",
+      "sublabel": "DESIGNED · loop",
       "row": 2,
       "col": 1,
       "tag": "DESIGNED"
@@ -128,20 +128,38 @@
       "row": 2,
       "col": 2,
       "tag": "DESIGNED"
+    },
+    {
+      "id": "autonomy",
+      "type": "frontend",
+      "label": "Autonomy",
+      "sublabel": "DESIGNED · handoff",
+      "row": 2,
+      "col": 3,
+      "tag": "DESIGNED"
+    },
+    {
+      "id": "constraints",
+      "type": "frontend",
+      "label": "Constraints",
+      "sublabel": "DESIGNED · rules",
+      "row": 3,
+      "col": 0,
+      "tag": "DESIGNED"
     }
   ],
   "boundaries": [
     {
       "kind": "region",
-      "label": "As-built (main @ navigation.ts)",
+      "label": "As-built nav — Overview · Live plant · Equipment · Alarms · Prescriptions · Ask · Evidence/Reports",
       "wraps": ["overview", "live", "equipment", "alarms", "rx", "ask", "evidence"],
-      "pad": 12
+      "pad": 10
     },
     {
       "kind": "region",
-      "label": "SSOT target IA (handoff / ADR-030)",
-      "wraps": ["now", "card", "close"],
-      "pad": 12
+      "label": "DESIGNED target — Now · Card · Close · Autonomy · Constraints · Evidence · Ask (no routes on main)",
+      "wraps": ["now", "card", "close", "autonomy", "constraints"],
+      "pad": 10
     }
   ],
   "connections": [],
@@ -150,19 +168,18 @@
       "dot": "cyan",
       "title": "Status & sources",
       "items": [
-        "experience-integration@82df09ee · navigation.ts · external handoff l6 UI charter",
-        "Gap G7: as-built module grid ≠ five-domain loop nav",
-        "Target nodes DESIGNED — no dedicated /now route on main"
+        "experience-integration@82df09ee · packages/web/src/lib/navigation.ts",
+        "Gap L6-G7: module grid ≠ five-domain loop IA",
+        "Target Evidence · Ask screens named in handoff only — not separate routes yet"
       ]
     },
     {
       "dot": "emerald",
-      "title": "Reading the map",
+      "title": "Newcomer rule",
       "items": [
-        "Solid BUILT boxes are shippable routes",
-        "Dashed arrows are intent mapping only",
-        "Dashed target region = DESIGNED IA only",
-        "Autonomy · Constraints · Ask — DESIGNED (handoff only)"
+        "Solid BUILT region = routes you can open today",
+        "Lower dashed region = SSOT intent only",
+        "None of the target loop routes exist on main — there is no /now path"
       ]
     }
   ]

@@ -42,8 +42,8 @@
         "DESIGNED": 0,
         "DEFERRED": 0
       },
-      "spec_sha256": "39a848574c350dc4b4f60ae1dc72ede1487f8d3f2e5bf60fee7bb121fabe3589",
-      "artifact_sha256": "162dc8b91930f97a2b5796be12da497a893a4866ce101e43756abda6ea93ee6c",
+      "spec_sha256": "42666277e729668f1b2b561068fdf823a39c6de53f446bc0d53c474c34bcf637",
+      "artifact_sha256": "68c1dd3d413a7476d5ac9dfc7a112fa5933a211e0a6c4ea135b05d2c70d937a5",
       "validate": "9/9",
       "visual_check": "pass",
       "perceptual_review": "ok"
@@ -80,8 +80,8 @@
         "DESIGNED": 0,
         "DEFERRED": 0
       },
-      "spec_sha256": "244bf9fca2568f7af1566499eba224c9b3c03f574a9e5f2b6181a9c7202bd42e",
-      "artifact_sha256": "d0d2b6e63a5c3f272bc73533f0283f0cb15c016aa7245a81ba8b5dfbbb861fa4",
+      "spec_sha256": "2493b10fcb7e1c786cb24a09817937f7eb486b18338881c8794f169984bb0e44",
+      "artifact_sha256": "4a19a9975dc085b6707bfc1b8a9ca43d8f1c0c6a72251460661ca80e9f258a68",
       "validate": "9/9",
       "visual_check": "pass",
       "perceptual_review": "ok"
@@ -99,8 +99,8 @@
         "DESIGNED": 0,
         "DEFERRED": 0
       },
-      "spec_sha256": "ed91ca86fd3ab0de81303c8052099950c91174a37159458c9eb7aefa84ba0e9a",
-      "artifact_sha256": "ee930cb44f532b013525f57489c02c7e3fb38e58e84db0255ed2a3da8d0eb691",
+      "spec_sha256": "7be9a64064b297c6de44f6a520d552fffa54c2aa7a5a26b70e238454f562b7f0",
+      "artifact_sha256": "e89fde0b37d91bf7aa22ebf6398e3a0f779e144cdaef65354356608a85f536b0",
       "validate": "9/9",
       "visual_check": "pass",
       "perceptual_review": "ok"
@@ -153,11 +153,11 @@
       "status_counts": {
         "BUILT": 7,
         "PARTIAL": 0,
-        "DESIGNED": 3,
+        "DESIGNED": 5,
         "DEFERRED": 0
       },
-      "spec_sha256": "3d9d4f9e4686400c758818d4795b2b1b87aa763a81d233e8167765420d062dfc",
-      "artifact_sha256": "66ba60a2bcb9102c07b8eb1b809914959d56285e34c157ebd6c83d865c522823",
+      "spec_sha256": "ccd62d3ec2907509e48475e09875ef3eedb131feede7044ed78a29f50da460d4",
+      "artifact_sha256": "1682f675578ceb6206b9cc3ce858b6e95a90cfa7f3190bccf1413607b75257b7",
       "validate": "9/9",
       "visual_check": "pass",
       "perceptual_review": "ok"
@@ -166,22 +166,22 @@
   "skipped": [],
   "gaps": [
     {
-      "id": "G7",
+      "id": "L6-G7",
       "summary": "As-built nav module grid \u2260 SSOT five-domain loop IA",
       "evidence": "packages/web/src/lib/navigation.ts:12-93"
     },
     {
-      "id": "new-L5-push",
+      "id": "L6-gap-l5-push",
       "summary": "No inbound L5 HMAC webhook; 30s poll ingest instead",
       "evidence": "packages/api/src/index.ts:74-88"
     },
     {
-      "id": "new-SSE-ui",
+      "id": "L6-gap-sse-ui",
       "summary": "SSE API exists; web UI does not subscribe yet",
       "evidence": "packages/api/src/events/routes.ts:67"
     },
     {
-      "id": "new-ask-retired",
+      "id": "L6-gap-ask-retired",
       "summary": "L4 Ask ReAct retired \u2014 503 ASK_MOVED when L4_LIVE on",
       "evidence": "knowledge-reasoning stamped_l4/analyst/graph.py \u00b7 packages/api/src/analyst/routes.ts:287-294"
     }

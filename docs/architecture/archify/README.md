@@ -9,7 +9,7 @@ GitHub does not render these HTML files. Clone or download this folder and open 
 Status tags: **BUILT** (code on main, tested) · **PARTIAL** (not wired / flag off / in-memory) · **DESIGNED** (docs only, dashed) · **DEFERRED** (postponed, dashed).
 
 ## What this repo does at runtime
-Stamped’s L6 control-room is a Next.js web app (:3000) backed by a Fastify BFF (:3001) that owns sessions, upstream keys, and Postgres. Operators open Overview, Live, Alarms, Prescriptions, Ask Analyst, and Evidence routes; each page calls BFF `/api/*` endpoints that choose live L2/L4/L5 HTTP or fixtures based on `USE_FIXTURES` and `L*_LIVE` gates. The shell polls `/api/meta/upstreams` to label the connection Live vs Preview. Ask Analyst streams answers through the BFF with explicit context envelopes; ledger rows pass `sanitizeClaimStatus` before badges render. L5 workflow events are polled into `l5_events` and exposed via SSE; WhatsApp notify/inbound is implemented with button handling still stubbed for Rx state changes.
+Stamped’s L6 control-room is a Next.js web app (:3000) backed by a Fastify BFF (:3001) that owns sessions, upstream keys, and Postgres. Operators open Overview, Live, Alarms, Prescriptions, Ask Analyst, and Evidence routes; each page calls BFF `/api/*` endpoints that choose live L2/L4/L5 HTTP or fixtures based on `USE_FIXTURES` and `L*_LIVE` gates. The shell polls `/api/meta/upstreams` to label the connection Live vs Preview (upstream reachability, not a customer plant). Ask Analyst: with `L4_LIVE` off the UI shows a Preview fixture reply; with `L4_LIVE` on L4 returns `503 ASK_MOVED` and the UI shows Analyst unavailable (see L6-03). Ledger rows pass `sanitizeClaimStatus` before badges render. L5 workflow events are polled every 30s into `l5_events`; SSE exists on the BFF but the web app refetches pages instead of subscribing. WhatsApp notify/inbound is implemented with button handling still stubbed for Rx state changes.
 
 ## Reading order
 | # | Diagram | Type | Question it answers | Status (B/P/D/X) |
@@ -21,7 +21,7 @@ Stamped’s L6 control-room is a Next.js web app (:3000) backed by a Fastify BFF
 | 5 | [L6-04b — L5 card events — UI refresh (b)](L6-04b-l5-events-ui-refresh.html) | sequence | How do card changes reach the operator screen today? | 4/1/0/0 |
 | 6 | [L6-07 — WhatsApp owner action loop](L6-07-whatsapp-action-loop.html) | workflow | How does an owner act on a card from WhatsApp? | 3/2/0/0 |
 | 7 | [L6-05 — Claim label sanitisation](L6-05-claim-label-sanitisation.html) | dataflow | How does the UI avoid over-claiming savings? | 6/0/0/0 |
-| 8 | [L6-06 — Information architecture — as-built vs target](L6-06-information-architecture.html) | architecture | Which screens exist today and which are planned? | 7/0/3/0 |
+| 8 | [L6-06 — Information architecture — as-built vs target](L6-06-information-architecture.html) | architecture | Which screens exist today and which are planned? | 7/0/5/0 |
 
 ## The diagrams, explained
 ### L6-01 — L6 control-room components
@@ -48,10 +48,10 @@ Assignments can enqueue template sends; Meta callbacks verify HMAC. Button paylo
 ## Doc ↔ code gaps found
 | ID | Docs say | Code on main does | Evidence | Shown in |
 |---|---|---|---|---|
-| G7 | Loop IA: Now · Card · Close · Autonomy · … | Overview · Live · Alarms · Prescriptions · … | `packages/web/src/lib/navigation.ts:12-93` | L6-06 |
-| new-L5-push | L5 webhook push to L6 | 30s poll ingest | `packages/api/src/index.ts:74-88` | L6-04a |
-| new-SSE-ui | SSE drives UI refresh | No web EventSource consumer | `packages/api/src/events/routes.ts:67` | L6-04b |
-| new-ask-retired | Live Ask via L4 ReAct SSE | L4 503 ASK_MOVED; Preview fixtures or error bubble | `packages/api/src/analyst/routes.ts:287-294` | L6-03 |
+| L6-G7 | Loop IA: Now · Card · Close · Autonomy · … | Overview · Live · Alarms · Prescriptions · … | `packages/web/src/lib/navigation.ts:12-93` | L6-06 |
+| L6-gap-l5-push | L5 webhook push to L6 | 30s poll ingest | `packages/api/src/index.ts:74-88` | L6-04a |
+| L6-gap-sse-ui | SSE drives UI refresh | No web EventSource consumer | `packages/api/src/events/routes.ts:67` | L6-04b |
+| L6-gap-ask-retired | Live Ask via L4 ReAct SSE | L4 503 ASK_MOVED; Preview fixtures or error bubble | `packages/api/src/analyst/routes.ts:287-294` | L6-03 |
 
 ## Glossary (this repo)
 - **BFF**: Fastify server between browser and L2/L4/L5; holds API keys (see L6-01).

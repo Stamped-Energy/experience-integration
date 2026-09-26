@@ -67,8 +67,8 @@ Product BFF boot **requires** `DATABASE_URL` for auth (`packages/api/src/index.t
 
 | ID | Docs say | Code on main does | Evidence |
 |----|----------|-------------------|----------|
-| G7 | SSOT loop nav: Now · Card · Close · Autonomy · Constraints · Evidence · Ask | As-built `NAV_ITEMS`: Overview, Live, Equipment, Alarms, Prescriptions, Ask, Evidence, Reports, … | `packages/web/src/lib/navigation.ts:12-93` vs `external/handoff/l6/stamped-l6-ui-ux-charter.md:53` |
-| new-L5-push | L5 HMAC webhook → BFF ingest (planner hint) | 30s poll `ingestL5Events`; no L5 webhook POST route | `packages/api/src/index.ts:74-88`; grep webhooks → only WhatsApp + outbound integrations |
-| new-SSE-ui | Real-time card updates via SSE | SSE route + NOTIFY exist; web never subscribes | `packages/api/src/events/routes.ts:67`; no `EventSource` under `packages/web` |
-| new-ask-retired | Live Ask answered by L4 ReAct SSE | L4 main 503 ASK_MOVED; L6 Preview fixtures or error bubble | L4 `stamped_l4/analyst/graph.py` · `packages/api/src/analyst/routes.ts:287-294` |
+| L6-G7 | SSOT loop nav: Now · Card · Close · Autonomy · Constraints · Evidence · Ask | As-built `NAV_ITEMS`: Overview, Live, Equipment, Alarms, Prescriptions, Ask, Evidence, Reports, … | `packages/web/src/lib/navigation.ts:12-93` vs `external/handoff/l6/stamped-l6-ui-ux-charter.md:53` |
+| L6-gap-l5-push | L5 HMAC webhook → BFF ingest (planner hint) | 30s poll `ingestL5Events`; no L5 webhook POST route | `packages/api/src/index.ts:74-88`; grep webhooks → only WhatsApp + outbound integrations |
+| L6-gap-sse-ui | Real-time card updates via SSE | SSE route + NOTIFY exist; web never subscribes | `packages/api/src/events/routes.ts:67`; no `EventSource` under `packages/web` |
+| L6-gap-ask-retired | Live Ask answered by L4 ReAct SSE | L4 main 503 ASK_MOVED; L6 Preview fixtures or error bubble | L4 `stamped_l4/analyst/graph.py` · `packages/api/src/analyst/routes.ts:287-294` |
 | new-pgboss-L5 | pg-boss drives L5 → UI | pg-boss queues: reports + outbound webhooks; not L5 ingest | `packages/worker/src/boss.ts:5-9`, `packages/worker/src/boss.ts:40-65` |
