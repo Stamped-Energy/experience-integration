@@ -29,6 +29,14 @@ mobile Playwright tests. The next UI phase is human visual review followed by
 supporting-screen polish; live BFF/Postgres validation remains part of pilot
 cutover.
 
+## Fixture demo workspace (2026-09-27)
+
+**Status: Ready for UI exploration**
+
+The isolated `demo/control-room` worktree launches the existing Jaipur Works
+fixtures at `/demo` on port 3010. Approved UI changes can be ported to `main`
+after review.
+
 ## Phase status
 
 | Phase | Status | Exit gate |

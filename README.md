@@ -1,3 +1,35 @@
+# Stamped L6 Demo Workspace
+
+This folder is an isolated Git worktree on branch `demo/control-room`.
+It is the safe UI playground for the Jaipur Works fixture experience.
+
+## Run
+
+From this folder:
+
+```powershell
+pnpm install
+pnpm --filter @stamped/l6-web exec next dev --hostname 0.0.0.0 --port 3010
+```
+
+Open <http://localhost:3010/demo>.
+
+The `/demo` launcher enables the local fixture session and opens the normal
+L6 shell with populated Overview, Alarms, Prescriptions, and Analyst data.
+It does not require the API, Postgres, or upstream L1–L5 services.
+
+## UI work
+
+Edit files in this `demo` worktree while exploring. These changes stay on
+`demo/control-room`; the `main` checkout is separate. Once a UI change is
+approved, tell the agent to port it to `main`.
+
+The existing local fixture credentials remain available if needed:
+
+```text
+Email: demo@stamped.local
+Password: StampedDemo123!
+```
 # experience-integration — Stamped L6 Forge (customer experience)
 
 > Full internals (wiring, routes, freshness, package maps): [Extensive README](docs/EXTENSIVE.md)
