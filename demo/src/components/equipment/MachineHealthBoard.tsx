@@ -276,7 +276,7 @@ export function MachineHealthBoard({ data }: { data: MachineHealthBoardData }) {
               option={{
                 tooltip: { trigger: "axis" },
                 legend: { bottom: 0 },
-                grid: { left: 36, right: 12, top: 16, bottom: 36 },
+                grid: { left: 36, right: 12, top: 16, bottom: 52 },
                 xAxis: { type: "category", data: VIBRATION_TREND.map((p) => p.t) },
                 yAxis: { type: "value" },
                 series: [
@@ -324,7 +324,7 @@ export function MachineHealthBoard({ data }: { data: MachineHealthBoardData }) {
             option={{
               tooltip: { trigger: "axis" },
               legend: { bottom: 0 },
-              grid: { left: 40, right: 40, top: 16, bottom: 36 },
+              grid: { left: 40, right: 40, top: 16, bottom: 52 },
               xAxis: { type: "category", data: TEMP_TREND.map((p) => p.t) },
               yAxis: [{ type: "value", name: "Shell" }, { type: "value", name: "Bearing" }],
               series: [
