@@ -6,7 +6,7 @@
   width: min(440px, 92vw);
   background: var(--forge-surface-container-lowest);
   border-left: 1px solid var(--forge-outline-variant);
-  box-shadow: -12px 0 40px rgba(5, 31, 19, 0.12);
+  box-shadow: -4px 0 16px rgba(5, 31, 19, 0.1);
   z-index: 50;
   display: flex;
   flex-direction: column;
@@ -94,7 +94,7 @@
   place-items: center;
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: var(--forge-radius-md);
   border: 1px solid var(--forge-outline-variant);
   background: var(--forge-surface-container-low);
   color: var(--forge-on-surface-variant);
@@ -176,7 +176,7 @@
   display: inline-flex;
   align-items: center;
   padding: 7px 12px;
-  border-radius: var(--forge-radius-pill);
+  border-radius: var(--forge-radius-md);
   border: 1px solid var(--forge-outline-variant);
   background: var(--forge-surface-container-lowest);
   font-size: 12px;
@@ -235,7 +235,7 @@
 }
 
 .analyst-panel__compose .analyst-compose__box {
-  border-radius: 12px;
+  border-radius: var(--forge-radius-md);
 }
 
 .analyst-panel__disclaimer {
