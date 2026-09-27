@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Claim label sanitisation",
+    "output": "L6-05-claim-label-sanitisation.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "visual_preset": "classic",
+    "viewBox": [1068, 560],
+    "legend": { "mode": "hidden" },
+    "views": [
+      {
+        "id": "ingress",
+        "label": "Ledger row arrives",
+        "focus": ["l5", "bff", "row"],
+        "note": "L5 or L2 ledger read returns verificationStatus that may say verified without bill refs."
+      },
+      {
+        "id": "sanitize",
+        "label": "sanitizeClaimStatus",
+        "focus": ["row", "sanitize", "badge"],
+        "note": "Web ledger.ts demotes bare verified to ops_confirmed unless billLineRefs present."
+      }
+    ]
+  },
+  "stages": [
+    { "label": "Source" },
+    { "label": "BFF map" },
+    { "label": "Sanitise" },
+    { "label": "Label" },
+    { "label": "UI" }
+  ],
+  "nodes": [
+    {
+      "id": "l5",
+      "type": "external",
+      "label": "L5 ledger row",
+      "sublabel": "BUILT · row",
+      "stage": 0,
+      "row": 1
+    },
+    {
+      "id": "bff",
+      "type": "backend",
+      "label": "BFF / L2 read",
+      "sublabel": "BUILT · map",
+      "stage": 1,
+      "row": 1
+    },
+    {
+      "id": "row",
+      "type": "database",
+      "label": "LedgerEntry",
+      "sublabel": "BUILT · types",
+      "stage": 2,
+      "row": 0
+    },
+    {
+      "id": "sanitize",
+      "type": "security",
+      "label": "sanitizeClaimStatus",
+      "sublabel": "BUILT · ledger.ts",
+      "stage": 2,
+      "row": 2
+    },
+    {
+      "id": "badge",
+      "type": "backend",
+      "label": "claimBadgeLabel",
+      "sublabel": "BUILT · labels",
+      "stage": 3,
+      "row": 1
+    },
+    {
+      "id": "ui",
+      "type": "frontend",
+      "label": "Evidence UI",
+      "sublabel": "BUILT · badges",
+      "stage": 4,
+      "row": 1
+    }
+  ],
+  "flows": [
+    {
+      "id": "f1",
+      "from": "l5",
+      "to": "bff",
+      "label": "ledger JSON",
+      "classification": "read-only",
+      "variant": "emphasis"
+    },
+    {
+      "id": "f2",
+      "from": "bff",
+      "to": "row",
+      "label": "LedgerEntry",
+      "classification": "typed row",
+      "variant": "default"
+    },
+    {
+      "id": "f3",
+      "from": "row",
+      "to": "sanitize",
+      "label": "verificationStatus",
+      "classification": "may say verified",
+      "variant": "security",
+      "route": "vertical-channel"
+    },
+    {
+      "id": "f4",
+      "from": "sanitize",
+      "to": "badge",
+      "label": "safe status",
+      "classification": "ops or verified",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "via": [[650, 385], [650, 271]],
+      "labelAt": [638, 328]
+    },
+    {
+      "id": "f6",
+      "from": "badge",
+      "to": "ui",
+      "label": "badge text",
+      "classification": "displayClaim",
+      "variant": "default",
+      "labelAt": [853, 314]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Status & sources",
+      "items": [
+        "experience-integration@82df09ee · web/src/lib/ledger.ts · contracts/mappings.ts",
+        "ops_confirmed ≠ bill verified (ADR-020)",
+        "No integration live · verified savings ₹0 (product honesty on index)"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Reserved wording",
+      "items": [
+        "Bill-verified badge only when billLineRefs non-empty (DEFERRED DISCOM path in card)",
+        "Modeled savings stay modeled — never promoted by ops clearance"
+      ]
+    }
+  ]
+}

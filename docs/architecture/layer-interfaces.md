@@ -24,11 +24,11 @@
 
 | Record | Topic | Schema | Publishers |
 | --- | --- | --- | --- |
-| Measurement | `stamped/v1/{org_id}/{plant_id}/measurements` | `measurement.json` | connectors-edge, connectors-bill |
+| Measurement | `stamped/v1/{org_id}/{plant_id}/measurements` | `measurement.json` | connectors-edge, connectors-doc |
 | Measurement (backfill) | `stamped/v1/{org_id}/{plant_id}/measurements/backfill` | `measurement.json` | connectors-edge |
-| Event | `stamped/v1/{org_id}/{plant_id}/events` | `event.json` | connectors-edge, connectors-bill |
-| ProductionRecord | `stamped/v1/{org_id}/{plant_id}/production` | `production-record.json` | connectors-edge, connectors-bill |
-| BillLine | `stamped/v1/{org_id}/{plant_id}/bills` | `bill-line.json` | connectors-bill |
+| Event | `stamped/v1/{org_id}/{plant_id}/events` | `event.json` | connectors-edge, connectors-doc |
+| ProductionRecord | `stamped/v1/{org_id}/{plant_id}/production` | `production-record.json` | connectors-edge, connectors-doc |
+| BillLine | `stamped/v1/{org_id}/{plant_id}/bills` | `bill-line.json` | connectors-doc |
 | Health | `stamped/v1/{org_id}/{plant_id}/health` | `event.json` | connectors-edge |
 
 QoS **1**. Retain **false** for high-volume streams.
@@ -51,7 +51,7 @@ Field paths for measurement: `lineage.source_tag`, `metric.type` from `measureme
 ### 2.3 L1 publish rules
 
 - connectors-edge: quality gates applied before uplink; never silent repair
-- connectors-bill: only `extraction.validated=true` BillLines to MQTT
+- connectors-doc: only `extraction.validated=true` BillLines to MQTT
 - **P0 canonical:** one record per MQTT message (not batch array at L2)
 
 ---

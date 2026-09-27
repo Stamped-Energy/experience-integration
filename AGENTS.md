@@ -1,10 +1,10 @@
-﻿## Product vision (required)
+## Product vision (required)
 
 **Product:** Stamped (do not append Energy to the product name).
 
-**One sentence:** Stamped helps plant teams choose, assign, and verify the next operating action across energy, cost, time / throughput, continuity / flow, and short-horizon exceptions.
+**If you want to understand what Stamped is:** read [`external/Stamped_Master_Document.md`](external/Stamped_Master_Document.md) in the stamped-external submodule. Run `git submodule update --init` first. That file is the only company policy. On conflict with older memos, prefer it.
 
-**Authority (in `external/` after pin):** `external/research/plant-efficiency-exploration-2026-09/AGENT-START.md` → `09` → `10` → `external/decisions/028-032/ADR-030-five-domain-decision-loop.md`.
+**Supporting history (in `external/` after pin, does not override the master document):** `external/research/plant-efficiency-exploration-2026-09/AGENT-START.md` → `09` → `10` → `external/decisions/028-032/ADR-030-five-domain-decision-loop.md`.
 
 Prior product snapshot: platform tag `v2026.09.24`.
 
@@ -32,7 +32,7 @@ test -f external/VERSION
 
 ### Read first (L6 order)
 
-1. `external/technical/layers/L6-experience-and-integration.md` â€” architecture SSOT
+1. `external/technical/STAMPED_ARCHITECTURE.md` — architecture SSOT. The old `technical/layers/L6-experience-and-integration.md` is archived and is not the company.
 2. `external/handoff/stamped-l6-architecture-handoff.md`
 3. `external/handoff/stamped-l6-ui-ux-charter.md`
 4. `external/handoff/stamped-l6-build-plan.md`

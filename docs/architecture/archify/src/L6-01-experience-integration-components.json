@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "L6 control-room components",
+    "output": "L6-01-experience-integration-components.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "visual_preset": "classic",
+    "animation": "trace",
+    "viewBox": [1346, 580],
+    "legend": { "mode": "hidden" },
+    "repository": {
+      "url": "https://github.com/Stamped-Energy/experience-integration",
+      "revision": "82df09ee87eb67b2e177f5d085dc83c171d85830"
+    },
+    "views": [
+      {
+        "id": "browser-to-bff",
+        "label": "Browser to BFF",
+        "focus": ["operator", "web", "bff", "postgres"],
+        "note": "Operator opens Next.js; session cookies hit Fastify BFF :3001; Postgres stores auth and L5 event copies."
+      },
+      {
+        "id": "upstream-keys",
+        "label": "Upstream keys server-side",
+        "focus": ["bff", "l2", "l4", "l5"],
+        "note": "BFF holds L2 service key and L4/L5 tokens; USE_FIXTURES and L*_LIVE gates choose live HTTP vs fixtures."
+      },
+      {
+        "id": "async-worker",
+        "label": "Async worker",
+        "focus": ["bff", "postgres", "worker"],
+        "note": "pg-boss worker drains report and outbound webhook queues; L5 card events use poll+SSE in the API process."
+      }
+    ]
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 4,
+    "origin": [48, 72],
+    "gapX": 36,
+    "gapY": 44,
+    "cellW": 148,
+    "cellH": 64
+  },
+  "components": [
+    {
+      "id": "operator",
+      "type": "external",
+      "label": "Plant operator",
+      "sublabel": "browser session",
+      "row": 0,
+      "col": 0,
+      "tag": "BUILT"
+    },
+    {
+      "id": "web",
+      "type": "frontend",
+      "label": "Next.js web",
+      "sublabel": ":3000 App Router",
+      "row": 0,
+      "col": 1,
+      "tag": "BUILT",
+      "sources": [{ "path": "packages/web/package.json", "line": 7, "label": "next dev" }]
+    },
+    {
+      "id": "bff",
+      "type": "backend",
+      "label": "Fastify BFF",
+      "sublabel": ":3001 api/src/*",
+      "row": 0,
+      "col": 2,
+      "tag": "BUILT",
+      "sources": [{ "path": "packages/api/src/config.ts", "line": 12, "label": "PORT 3001" }]
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "auth · l5_events",
+      "row": 0,
+      "col": 3,
+      "tag": "BUILT",
+      "sources": [{ "path": "packages/api/drizzle/0005_l5_events.sql", "line": 11, "label": "l5_events" }]
+    },
+    {
+      "id": "l2",
+      "type": "external",
+      "label": "L2 query-api",
+      "sublabel": "L2_LIVE · service key",
+      "row": 1,
+      "col": 1,
+      "tag": "PARTIAL",
+      "sources": [{ "path": "packages/api/src/config.ts", "line": 94, "label": "L2_LIVE gate" }]
+    },
+    {
+      "id": "l4",
+      "type": "external",
+      "label": "L4 analyst",
+      "sublabel": "L4_LIVE default false",
+      "row": 1,
+      "col": 2,
+      "tag": "PARTIAL",
+      "sources": [{ "path": "packages/api/src/config.ts", "line": 113, "label": "L4_LIVE" }]
+    },
+    {
+      "id": "l5",
+      "type": "external",
+      "label": "L5 closure",
+      "sublabel": "alarms · Rx · events",
+      "row": 1,
+      "col": 3,
+      "tag": "BUILT",
+      "sources": [{ "path": "packages/api/src/index.ts", "line": 34, "label": "L5 client" }]
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "pg-boss worker",
+      "sublabel": "reports · webhooks Q",
+      "row": 2,
+      "col": 0,
+      "tag": "PARTIAL",
+      "sources": [{ "path": "packages/worker/src/boss.ts", "line": 5, "label": "queues" }]
+    }
+  ],
+  "connections": [
+    { "id": "op-web", "from": "operator", "to": "web", "label": "HTTPS pages", "variant": "emphasis" },
+    {
+      "id": "web-bff",
+      "from": "web",
+      "to": "bff",
+      "label": "session /api/*",
+      "variant": "emphasis",
+      "labelAt": [384, 146]
+    },
+    {
+      "id": "bff-pg",
+      "from": "bff",
+      "to": "postgres",
+      "label": "auth + l5_events",
+      "variant": "default",
+      "labelAt": [568, 146]
+    },
+    {
+      "id": "bff-l2",
+      "from": "bff",
+      "to": "l2",
+      "label": "GET /api/l2/*",
+      "variant": "default",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [320, 254]
+    },
+    {
+      "id": "bff-l4",
+      "from": "bff",
+      "to": "l4",
+      "label": "POST /api/analyst",
+      "variant": "default",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [470, 254]
+    },
+    {
+      "id": "bff-l5",
+      "from": "bff",
+      "to": "l5",
+      "label": "L5 alarms · Rx",
+      "variant": "default",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [640, 254]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Status & sources",
+      "items": [
+        "experience-integration@82df09ee · packages/web · packages/api · packages/worker",
+        "BUILT = on main with tests · PARTIAL = gate off or queue handler missing",
+        "Status legend: BUILT · PARTIAL · DESIGNED (dashed) · DEFERRED (dashed)"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "BFF route families",
+      "items": [
+        "/api/analyst · /api/prescriptions · /api/alarms · /api/cases",
+        "/api/l2 · /api/meta/upstreams · /api/events/stream",
+        "/api/webhooks/whatsapp · /api/integrations/*",
+        "Worker: packages/worker — l6.reports.generate · l6.webhooks.deliver"
+      ]
+    }
+  ]
+}

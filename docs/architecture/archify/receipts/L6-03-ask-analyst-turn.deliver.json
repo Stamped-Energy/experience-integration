@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/workspace/docs/architecture/archify/src/L6-03-ask-analyst-turn.json",
+  "output": "/workspace/docs/architecture/archify/L6-03-ask-analyst-turn.html",
+  "specification": {
+    "sha256": "80e83549ca22fc8df6ecd62f916a7a560c2c2b62a63133fe2e2f94ff794b880f",
+    "bytes": 3379
+  },
+  "artifact": {
+    "sha256": "5179a6804e57d4a5f46c1f65af0ca509818242571d90d530e3a13d5b8a145d1f",
+    "bytes": 803138
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  }
+}
