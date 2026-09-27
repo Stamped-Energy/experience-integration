@@ -30,6 +30,9 @@ and GitHub Actions cover quality / postgres / browser / infra jobs.
 1. Human: register Entra app + Power BI workspace; approve `cdk diff`.
 2. Replace CDK placeholder image with ECR; run smoke on Mumbai.
 3. Optional: axe Playwright project + self-hosted fonts.
+4. Implement the L3 → L6 handoff in
+   [`docs/L3_TO_L6_BUILD_GUIDE.md`](docs/L3_TO_L6_BUILD_GUIDE.md), starting
+   with the intentional platform-pin and contract compatibility check.
 
 ## Admin + WhatsApp wiring (2026-08-26)
 
