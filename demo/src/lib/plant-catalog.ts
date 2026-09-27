@@ -52,6 +52,20 @@ export function defaultPlantId(): string {
   return DEMO_PLANT.plantId;
 }
 
+/** Three 8-hour shifts in IST: A 06–14, B 14–22, C 22–06. */
+export function currentShift(now: Date = new Date()): string {
+  const hour = Number(
+    new Intl.DateTimeFormat("en-IN", {
+      hour: "numeric",
+      hourCycle: "h23",
+      timeZone: "Asia/Kolkata",
+    }).format(now),
+  );
+  if (hour >= 6 && hour < 14) return "A · 06:00–14:00 IST";
+  if (hour >= 14 && hour < 22) return "B · 14:00–22:00 IST";
+  return "C · 22:00–06:00 IST";
+}
+
 export function plantForId(plantId: string) {
   return PLANTS.find((p) => p.plantId === plantId) ?? DEMO_PLANT;
 }

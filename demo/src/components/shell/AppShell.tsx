@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { mobileDock, readCollapsed, readPins, writeCollapsed } from "@/lib/navigation";
 import { NAV_ICONS } from "@/lib/nav-icons";
+import { analystPlantSnapshot } from "@/lib/analyst-fixtures";
 import {
   PanelLeftClose,
   PanelLeftOpen,
@@ -182,8 +183,8 @@ export function AppShell({
               </div>
               <dl className="forge-shell__facility-stats">
                 <div>
-                  <dt>Peak load</dt>
-                  <dd>115 MW</dd>
+                  <dt>Peak demand</dt>
+                  <dd>{analystPlantSnapshot(shellPlantId).peakMdKva.toLocaleString("en-IN")} kVA</dd>
                 </div>
                 <div>
                   <dt>Critical</dt>

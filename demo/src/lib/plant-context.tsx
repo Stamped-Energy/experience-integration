@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { DEMO_PLANT, defaultPlant, PLANTS } from "@/lib/plant-catalog";
+import { currentShift, DEMO_PLANT, defaultPlant, PLANTS } from "@/lib/plant-catalog";
 
 const STORAGE_KEY = "l6.activePlantId";
 
@@ -92,6 +92,12 @@ export function PlantProvider({ children }: { children: ReactNode }) {
     [isDemoSession],
   );
 
+  const [shift, setShift] = useState(() => currentShift());
+  useEffect(() => {
+    const id = window.setInterval(() => setShift(currentShift()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
+
   const catalogPlants = isDemoSession ? [DEMO_PLANT] : PLANTS;
   const effectivePlantId = isDemoSession ? DEMO_PLANT.plantId : activePlantId;
 
@@ -99,11 +105,11 @@ export function PlantProvider({ children }: { children: ReactNode }) {
     () => ({
       plants: catalogPlants,
       activePlantId: effectivePlantId,
-      activePlant: resolvePlant(effectivePlantId),
+      activePlant: { ...resolvePlant(effectivePlantId), shift },
       plantEpoch,
       setActivePlantId,
     }),
-    [catalogPlants, effectivePlantId, plantEpoch, setActivePlantId],
+    [catalogPlants, effectivePlantId, plantEpoch, setActivePlantId, shift],
   );
 
   return <PlantContext.Provider value={value}>{children}</PlantContext.Provider>;
@@ -117,7 +123,7 @@ export function usePlant(): PlantContextValue {
   return {
     plants: PLANTS,
     activePlantId: fallback.plantId,
-    activePlant: fallback,
+    activePlant: { ...fallback, shift: currentShift() },
     plantEpoch: 0,
     setActivePlantId: () => {
       /* no-op outside PlantProvider */
