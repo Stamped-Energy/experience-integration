@@ -19,6 +19,7 @@ The main product must keep telling users when data is not live.
 
 ```powershell
 cd demo
+corepack enable   # pnpm 11; pnpm 9 ignores the pnpm-workspace.yaml overrides
 pnpm install
 pnpm dev
 ```
