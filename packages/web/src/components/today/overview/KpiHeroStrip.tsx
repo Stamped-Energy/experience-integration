@@ -3,7 +3,6 @@
 import { useCountUp } from "@/hooks/useCountUp";
 import { formatIndianNum, formatInr } from "@/lib/format";
 import { Gauge } from "@/components/charts/Gauge";
-import { Panel } from "@/components/ui/primitives";
 import { IconBadge, KPI_ICONS } from "@/components/ui/indicators";
 import { Sparkles, TrendingDown, TrendingUp } from "@/components/ui/icons";
 
@@ -25,11 +24,7 @@ export type OverviewLiveKpis = {
 };
 
 function HeroCard({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  return (
-    <Panel className="forge-kpi-hero-card" style={style}>
-      {children}
-    </Panel>
-  );
+  return <article className="forge-kpi-hero-card" style={style}>{children}</article>;
 }
 
 function EmDash() {

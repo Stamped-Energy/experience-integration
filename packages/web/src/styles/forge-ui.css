@@ -385,17 +385,28 @@
 .forge-kpi-hero-strip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
+  gap: 0;
   align-items: stretch;
   width: 100%;
   max-width: 100%;
+  border: 1px solid var(--forge-outline-variant);
+  border-radius: var(--forge-radius-card);
+  background: var(--forge-surface-container-low);
+  overflow: hidden;
 }
 
 .forge-kpi-hero-card {
   min-width: 0;
-  padding: 20px;
+  padding: 14px 16px;
   position: relative;
   height: 100%;
+  border-top: 2px solid var(--forge-outline-variant);
+  background: transparent;
+  box-shadow: none;
+}
+
+.forge-kpi-hero-card + .forge-kpi-hero-card {
+  border-left: 1px solid var(--forge-outline-variant);
 }
 
 @media (max-width: 899px) {
@@ -406,11 +417,15 @@
 
   .forge-kpi-hero-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    gap: 0;
   }
 
   .forge-kpi-hero-card {
     padding: 14px 12px;
+  }
+
+  .forge-kpi-hero-card:nth-child(odd) {
+    border-left: none;
   }
 }
 
