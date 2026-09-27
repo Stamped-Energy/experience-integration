@@ -113,11 +113,6 @@ export default function PlantMapPage() {
       <SourceIndicator source={source} loading={loading} detail={detail} />
       {hasData && levels ? (
         <div className="forge-page-stack">
-          <p className="forge-page-lede">
-            Process and single-line view of {activePlant.plantName}: power feeders,
-            material flow and waste-heat recovery, from the 33 kV incomer down to
-            each drive.
-          </p>
           <PlantSectionMap levels={levels} rootLevelId={rootLevelId} notes={notes} />
         </div>
       ) : (

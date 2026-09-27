@@ -88,9 +88,6 @@ export default function LivePage() {
     >
       <PageHead eyebrow="Operations" title="Live" />
       <SourceIndicator source={source} loading={loading} detail={loadError} />
-      <p className="forge-page-lede">
-        Real-time plant instrumentation · {activePlant.shift}
-      </p>
       {loading ? (
         <LiveBoardSkeleton />
       ) : hasData && overlay ? (

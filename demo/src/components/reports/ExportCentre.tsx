@@ -275,7 +275,6 @@ export function ExportCentre({
       `Report id: ${id}`,
       "Status: approved",
       `Ledger rows: ${ledger.length}`,
-      "Metrics marked not_measured_by_stamped were not invented.",
     ]);
     setStatus(`Downloaded DOCX ${id}`);
   }
@@ -296,9 +295,6 @@ export function ExportCentre({
             >
               Export centre
             </h2>
-            <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-              Generate → review → approve → download. Jobs are stored securely for {plantName}.
-            </p>
           </div>
           <div className="reports-export-head__actions">
             <PrimaryButton onClick={() => void generate()} disabled={busy}>

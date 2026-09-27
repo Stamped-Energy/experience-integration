@@ -45,23 +45,6 @@ export function PrescriptionsOverviewPanel({
         </span>
       </div>
 
-      <div style={{ background: "var(--forge-surface-container-low)", padding: "12px 16px", borderTop: "1px solid var(--forge-outline-variant)", borderBottom: "1px solid var(--forge-outline-variant)" }}>
-        <div style={{ color: "var(--forge-on-surface-variant)", fontSize: 13, lineHeight: 1.5 }}>
-          {pending > 0
-            ? `${pending} customer-visible actions need an owner decision. Review the action, impact tier, and proof before changing workflow state.`
-            : "No customer-visible action needs review right now."}
-        </div>
-        <div
-          style={{
-            color: "var(--forge-on-surface-variant)",
-            fontSize: 11,
-            marginTop: 6,
-          }}
-        >
-          Impact stays attached to each action; Stamped does not add separate effect wallets into one total.
-        </div>
-      </div>
-
       <div className="forge-scroll-thin" style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
         {top.length === 0 ? (
           <div

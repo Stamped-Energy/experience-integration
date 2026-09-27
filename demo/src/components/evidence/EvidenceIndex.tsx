@@ -26,10 +26,6 @@ export function EvidenceIndex({ samples }: { samples: readonly EvidenceSample[] 
         <h2 className="evd-full__issue" style={{ marginTop: 10 }}>
           Metered proof for every action
         </h2>
-        <p className="evd-full__index-lead">
-          Every prescription and alarm links to scoped SCADA tags, charts, and M&amp;V lineage.
-          Open a pack to review the metered signal behind the action.
-        </p>
       </Panel>
 
       <div className="evidence-index-grid">

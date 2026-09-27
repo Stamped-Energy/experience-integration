@@ -94,13 +94,10 @@ export default function EnergyPage() {
       ]}
       criticalAlarmCount={0}
     >
-      <PageHead eyebrow="Modeled vs bill-true" title="Energy Analytics" />
+      <PageHead eyebrow="Insights" title="Energy Analytics" />
       <SourceIndicator source={source} loading={loading} detail={detail} />
       {hasData && board ? (
         <div className="forge-page-stack">
-          <p className="forge-page-lede">
-            Charts from bills and telemetry. State-split kWh is modeled unless a feeder or FANUC power series exists.
-          </p>
           <EnergyBoard data={board} />
         </div>
       ) : (

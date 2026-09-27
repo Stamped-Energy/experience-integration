@@ -174,9 +174,6 @@ export default function OverviewPage() {
       criticalAlarmCount={critical}
     >
       <PageHead eyebrow={activePlant.plantName} title="Overview" />
-      <p className="forge-page-lede">
-        {activePlant.contractDemandNote} · {activePlant.tariff}
-      </p>
       <SourceIndicator
         source={source}
         loading={loading}

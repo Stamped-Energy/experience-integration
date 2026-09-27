@@ -14,6 +14,12 @@ import {
 } from "@/components/ui/indicators";
 import { EmptyUpstreamState } from "@/components/ui/SourceIndicator";
 import { formatIndianNum } from "@/lib/format";
+import {
+  MAINTENANCE_SCHEDULE,
+  TEMP_TREND,
+  VIB_SPECTRUM,
+  VIBRATION_TREND,
+} from "@/fixtures/machine-health";
 import { useCountUp } from "@/hooks/useCountUp";
 import {
   FORGE_ECHARTS_THEME,
@@ -174,24 +180,6 @@ export function MachineHealthBoard({ data }: { data: MachineHealthBoardData }) {
 
   return (
     <div data-machine-health data-mode="live" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div
-        role="status"
-        style={{
-          padding: "10px 14px",
-          borderRadius: 8,
-          border: "1px solid color-mix(in srgb, var(--forge-tertiary) 45%, transparent)",
-          background: "color-mix(in srgb, var(--forge-tertiary) 10%, transparent)",
-          fontSize: 13,
-          fontWeight: 600,
-          color: "var(--forge-tertiary)",
-        }}
-      >
-        Live load and health from plant telemetry
-        {data.derivedNotes?.length
-          ? ` · ${data.derivedNotes[0]}`
-          : " · vibration and thermal appear when condition monitoring is connected"}
-      </div>
-
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         {kpis.fleetHealth != null ? (
           <MiniKpi
@@ -228,9 +216,6 @@ export function MachineHealthBoard({ data }: { data: MachineHealthBoardData }) {
             <p className="forge-eyebrow">Live Instrumentation</p>
             <h3 className="forge-card-title">Asset load dials</h3>
           </div>
-          <span style={{ fontSize: 11, color: "var(--forge-on-surface-variant)" }}>
-            Energy-derived load %
-          </span>
         </div>
         <div
           style={{
@@ -283,22 +268,72 @@ export function MachineHealthBoard({ data }: { data: MachineHealthBoardData }) {
       <div className="forge-grid-38-62">
         <AssetDetail asset={asset} />
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <EmptyUpstreamState
-            title="Vibration trend"
-            detail="No vibration trend data for this asset yet."
-          />
-          <EmptyUpstreamState
-            title="Vibration FFT"
-            detail="Bearing spectrum requires on-machine sensors."
-          />
+          <Panel>
+            <p className="forge-eyebrow">Condition · 24 h</p>
+            <h3 className="forge-card-title">Vibration trend (mm/s RMS)</h3>
+            <ChartHost
+              height={190}
+              option={{
+                tooltip: { trigger: "axis" },
+                legend: { bottom: 0 },
+                grid: { left: 36, right: 12, top: 16, bottom: 36 },
+                xAxis: { type: "category", data: VIBRATION_TREND.map((p) => p.t) },
+                yAxis: { type: "value" },
+                series: [
+                  { name: "Kiln 1", type: "line", smooth: true, showSymbol: false, data: VIBRATION_TREND.map((p) => p.k1) },
+                  {
+                    name: "Cement Mill 1",
+                    type: "line",
+                    smooth: true,
+                    showSymbol: false,
+                    data: VIBRATION_TREND.map((p) => p.cm1),
+                    markLine: {
+                      silent: true,
+                      symbol: "none",
+                      label: { formatter: "ISO 10816 alert 4.5", position: "insideEndTop" },
+                      data: [{ yAxis: 4.5 }],
+                    },
+                  },
+                ],
+              }}
+            />
+          </Panel>
+          <Panel>
+            <p className="forge-eyebrow">Cement Mill 1 · DE bearing</p>
+            <h3 className="forge-card-title">Vibration spectrum (Hz)</h3>
+            <ChartHost
+              height={170}
+              option={{
+                tooltip: { trigger: "axis" },
+                grid: { left: 36, right: 12, top: 16, bottom: 28 },
+                xAxis: { type: "category", data: VIB_SPECTRUM.map((p) => p.freq) },
+                yAxis: { type: "value" },
+                series: [{ name: "Amplitude", type: "bar", barWidth: "60%", data: VIB_SPECTRUM.map((p) => p.amp) }],
+              }}
+            />
+          </Panel>
         </div>
       </div>
 
       <div className="forge-grid-60-40">
-        <EmptyUpstreamState
-          title="Temperature trend"
-          detail="Shell / bearing °C not published for this plant."
-        />
+        <Panel>
+          <p className="forge-eyebrow">Thermal · 24 h</p>
+          <h3 className="forge-card-title">Temperature trend (°C)</h3>
+          <ChartHost
+            height={200}
+            option={{
+              tooltip: { trigger: "axis" },
+              legend: { bottom: 0 },
+              grid: { left: 40, right: 40, top: 16, bottom: 36 },
+              xAxis: { type: "category", data: TEMP_TREND.map((p) => p.t) },
+              yAxis: [{ type: "value", name: "Shell" }, { type: "value", name: "Bearing" }],
+              series: [
+                { name: "Kiln shell", type: "line", smooth: true, showSymbol: false, data: TEMP_TREND.map((p) => p.kiln) },
+                { name: "CM1 bearing", type: "line", smooth: true, showSymbol: false, yAxisIndex: 1, data: TEMP_TREND.map((p) => p.bearing) },
+              ],
+            }}
+          />
+        </Panel>
         <Panel>
           <p className="forge-eyebrow">Fleet</p>
           <h3 className="forge-card-title">Health Distribution</h3>
@@ -416,10 +451,37 @@ export function MachineHealthBoard({ data }: { data: MachineHealthBoardData }) {
         </div>
       </Panel>
 
-      <EmptyUpstreamState
-        title="Maintenance schedule"
-        detail="Maintenance schedule unavailable until work-order integration is connected."
-      />
+      <Panel style={{ padding: 0, overflow: "hidden" }}>
+        <div style={{ padding: 20 }}>
+          <p className="forge-eyebrow">Work orders</p>
+          <h3 className="forge-card-title">Maintenance schedule</h3>
+        </div>
+        <div className="forge-scroll-thin" style={{ overflowX: "auto" }}>
+          <table className="forge-table">
+            <thead>
+              <tr style={{ background: "var(--forge-surface-container-low)" }}>
+                {["Date", "Asset", "Task", "Team", "Duration", "Priority"].map((h) => (
+                  <th key={h} style={{ textAlign: "left" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {MAINTENANCE_SCHEDULE.map((m) => (
+                <tr key={`${m.date}-${m.machine}`} style={{ borderBottom: "1px solid var(--forge-outline-variant)" }}>
+                  <td className="tabular">{m.date}</td>
+                  <td style={{ fontWeight: 600 }}>{m.machine}</td>
+                  <td>{m.task}</td>
+                  <td style={{ color: "var(--forge-on-surface-variant)" }}>{m.team}</td>
+                  <td className="tabular">{m.duration}</td>
+                  <td>
+                    <StatusBadgeByStatus status={m.priority === "ROUTINE" ? "GOOD" : m.priority} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Panel>
     </div>
   );
 }
@@ -448,10 +510,14 @@ function AssetDetail({ asset }: { asset: HealthAsset }) {
             {asset.type} · {asset.section}
           </div>
           <div style={{ fontSize: 12, marginTop: 6 }}>
-            Next service: <strong>—</strong>
+            Next service: <strong>{asset.next ?? "—"}</strong>
           </div>
           <div style={{ fontSize: 12, marginTop: 2 }}>
-            Runtime / MTBF: <strong>—</strong> (Class D)
+            Runtime / MTBF:{" "}
+            <strong>
+              {asset.runtime != null ? `${formatIndianNum(asset.runtime)} h` : "—"} /{" "}
+              {asset.mtbf != null ? `${asset.mtbf} h` : "—"}
+            </strong>
           </div>
         </div>
       </div>
@@ -470,9 +536,14 @@ function AssetDetail({ asset }: { asset: HealthAsset }) {
           bad={asset.load != null && asset.load > 100}
           tone="primary"
         />
-        <MetricInline icon={Activity} label="Vibration" value="—" />
-        <MetricInline icon={KPI_ICONS.temp} label="Temperature" value="—" />
-        <MetricInline icon={Zap} label="Current" value="—" tone="primary" />
+        <MetricInline
+          icon={Activity}
+          label="Vibration"
+          value={asset.vib != null ? `${asset.vib} mm/s` : "—"}
+          bad={asset.vib != null && asset.vib > 4.5}
+        />
+        <MetricInline icon={KPI_ICONS.temp} label="Temperature" value={asset.temp != null ? `${asset.temp} °C` : "—"} />
+        <MetricInline icon={Zap} label="Current" value={asset.current != null ? `${asset.current} A` : "—"} tone="primary" />
       </div>
     </Panel>
   );

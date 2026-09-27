@@ -232,10 +232,6 @@ export function AssignmentsBoard() {
         <h2 className="forge-card-title" style={{ fontSize: 18 }}>
           Alarm & prescription ownership
         </h2>
-        <p style={{ margin: "8px 0 0", fontSize: 14, color: "var(--forge-on-surface-variant)", maxWidth: 720 }}>
-          Decide who is responsible for each plant area or asset. Alarm WhatsApp alerts follow these
-          routes. Changes save to your plant immediately.
-        </p>
       </Panel>
 
       <div className="forge-grid-40-60">

@@ -27,28 +27,28 @@ const TOOLS = [
   {
     href: "/energy",
     title: "Energy Analytics",
-    blurb: "Trends, baselines, and cost views when billing data is connected.",
+    blurb: "Trends, baselines, and cost views.",
     Icon: BarChart3,
     badgeKey: null as string | null,
   },
   {
     href: "/equipment",
     title: "Machine Health",
-    blurb: "Asset load dials when plant telemetry is connected.",
+    blurb: "Asset load, vibration, and temperature.",
     Icon: Activity,
     badgeKey: null,
   },
   {
     href: "/plant-map",
     title: "Plant Map / Energy twin",
-    blurb: "Power hierarchy from plant topology when available.",
+    blurb: "Power, material, and heat flows by section.",
     Icon: Map,
     badgeKey: null,
   },
   {
     href: "/intensity",
     title: "Sustainability",
-    blurb: "Intensity and TOD bands from live energy data.",
+    blurb: "Energy intensity, emissions, and TOD bands.",
     Icon: Leaf,
     badgeKey: null,
   },
@@ -175,17 +175,6 @@ export default function ToolsPage() {
       criticalAlarmCount={0}
     >
       <PageHead eyebrow="Operations" title="Tools" />
-      <p
-        style={{
-          margin: 0,
-          fontSize: 14,
-          color: "var(--forge-on-surface-variant)",
-          maxWidth: 640,
-        }}
-      >
-        Open a specialized screen. Alarms and prescriptions stay in primary navigation.
-      </p>
-
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
         <StatusChip tone={counts.members != null ? "info" : "neutral"}>
           {counts.members != null ? `${counts.members} members` : "Members —"}

@@ -293,10 +293,6 @@ export function getDemoEnergyBoard(): EnergyBoardData {
     weekdayProfile: WEEKDAY_PROFILE,
     feederWise: FEEDER_WISE,
     loadHeatmap: LOAD_HEATMAP,
-    derivedNotes: [
-      "Billing figures reconcile against the monthly DISCOM statement.",
-      "State-split kWh is modeled unless a feeder or FANUC power series exists.",
-    ],
   };
 }
 
@@ -329,10 +325,6 @@ export function getDemoEquipmentBoard(): {
     })),
     kpis: HEALTH_KPIS,
     healthDistribution: HEALTH_DISTRIBUTION,
-    derivedNotes: [
-      "Health scores combine vibration, temperature, current, and runtime.",
-      "Dark assets (no OPERATE all window) sit on the long-stop watchlist, not a 6k card flood.",
-    ],
   };
   const mapMachines = OVERVIEW_MACHINES.map((m) => ({
     name: m.name,
@@ -352,11 +344,7 @@ export function getDemoPlantMap(): {
   return {
     levels: PLANT_LEVELS as PlantMapLevels,
     rootLevelId: "root",
-    notes: [
-      "Section loads roll up from 64 feeder meters",
-      "Power factor from MFM class 0.5S",
-      "Refreshed every 15 s",
-    ],
+    notes: [],
   };
 }
 
@@ -372,7 +360,6 @@ export function getDemoSustainabilityBoard(
   return {
     plantName,
     tariffLabel,
-    derivedNotes: ["Scope 2 uses the CEA grid emission factor."],
     secKwhPerUnit: Math.round(sec * 10) / 10,
     scope2Tco2e: Math.round(scope2),
     renewablePct: Math.round((renewable / grid) * 1000) / 10,

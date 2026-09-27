@@ -272,9 +272,6 @@ export function PrescriptionQueue({
                 </button>
               ))}
             </div>
-            <p className="rx-queue__facet-hint">
-              Maintenance = work that needs doing. Management = review and decide.
-            </p>
           </div>
         </div>
       </Panel>

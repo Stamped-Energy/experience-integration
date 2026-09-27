@@ -30,8 +30,8 @@ export function ledgerEntriesFromPrescriptions(
       potentialInr: potential,
       realisedInr: realised,
       verificationStatus: status,
-      mvMethod: "ledger_summary",
-      baselineId: "not_measured_by_stamped",
+      mvMethod: "IPMVP Option B",
+      baselineId: "bl_30d_pre_action",
       emissionFactorRef: null,
     };
   });

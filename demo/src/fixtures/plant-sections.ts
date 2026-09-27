@@ -304,7 +304,7 @@ function section(
 export const PLANT_ROOT_LEVEL: PlantSectionLevel = {
   id: "root",
   title: "Jaipur Works",
-  subtitle: "Integrated cement plant · 3,300 tpd clinker · 10 sections · click a section to explore",
+  subtitle: "Integrated cement plant · 3,300 tpd clinker · 11 sections",
   nodes: [
     section("section_crusher", "Limestone Crusher", "Impact crusher · stockpile", 66.4, 71, 0, 0,
       "#8a6d3b", "#f8f3ea", CRUSHER_CHILDREN, { tag: "SEC-CR", kind: "crusher", voltage: "6.6 kV", pf: 0.9 }),

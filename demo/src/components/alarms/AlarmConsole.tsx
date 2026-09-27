@@ -136,7 +136,7 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
             <p className="alm-console__summary-value">
               {open.length} open
             </p>
-            <p className="alm-console__summary-sub">{criticalCount} critical · j/k move · a acknowledge</p>
+            <p className="alm-console__summary-sub">{criticalCount} critical</p>
           </div>
         </div>
       </Panel>

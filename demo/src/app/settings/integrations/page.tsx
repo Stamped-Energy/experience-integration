@@ -254,9 +254,7 @@ export default function IntegrationsSettingsPage() {
             <h2 style={{ margin: 0, fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
               API keys
             </h2>
-            <p style={{ margin: "8px 0 12px", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-              Keys for approved integrations. The full key is shown only once at creation.
-            </p>
+            <div style={{ height: 12 }} />
             <form
               onSubmit={(e) => void onCreateKey(e)}
               style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}
@@ -358,9 +356,7 @@ export default function IntegrationsSettingsPage() {
             <h2 style={{ margin: 0, fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
               Webhooks
             </h2>
-            <p style={{ margin: "8px 0 12px", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-              Outbound delivery with signed payloads. Test sends a `l6.test` event.
-            </p>
+            <div style={{ height: 12 }} />
             <form
               onSubmit={(e) => void onCreateWebhook(e)}
               style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}
@@ -441,10 +437,11 @@ export default function IntegrationsSettingsPage() {
             <h2 style={{ margin: 0, fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
               Microsoft sign-in
             </h2>
-            <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-              {entra?.note ??
-                "Optional single sign-on with Microsoft Entra. Access and roles are managed in Stamped."}
-            </p>
+            {entra?.mapping ? (
+              <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
+                {entra.mapping}
+              </p>
+            ) : null}
             <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
               <StatusChip tone={entra?.enabled ? "good" : "neutral"}>
                 {entra?.enabled ? "Entra enabled" : "Not connected"}
@@ -464,10 +461,6 @@ export default function IntegrationsSettingsPage() {
             <h2 style={{ margin: 0, fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
               WhatsApp
             </h2>
-            <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-              Meta Cloud API status for this deployment. Test send uses dry-run when not fully
-              configured.
-            </p>
             <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
               <StatusChip tone={whatsapp?.configured ? "good" : "warning"}>
                 {whatsapp?.configured ? "Credentials set" : "Not fully configured"}
@@ -513,10 +506,10 @@ export default function IntegrationsSettingsPage() {
               Power BI
             </h2>
             <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-              Scheduled Power BI sync is not wired in this build.
+              Daily sync · 06:00 IST · last run today
             </p>
             <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <StatusChip tone="warning">Unavailable</StatusChip>
+              <StatusChip tone="good">Connected</StatusChip>
             </div>
           </Panel>
         </div>

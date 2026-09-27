@@ -215,9 +215,6 @@ export default function AdminSettingsPage() {
             <h2 style={{ margin: "4px 0 0", fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
               Jaipur Works
             </h2>
-            <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-              Plant membership, audit events, and responsibilities for this site.
-            </p>
           </Panel>
         ) : (
           <StaffPlantTools />

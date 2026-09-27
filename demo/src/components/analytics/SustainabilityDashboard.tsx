@@ -97,9 +97,6 @@ export function SustainabilityDashboard({ data }: { data: SustainabilityBoardDat
           {data.tariffLabel ? ` · ${data.tariffLabel}` : ""}
         </p>
         <h2 className="sust-dash__hero-title">Sustainability & intensity snapshot</h2>
-        <p className="sust-dash__hero-lead">
-          SEC, emissions, and demand metrics for this window.
-        </p>
         {data.derivedNotes?.length ? (
           <p className="sust-dash__hint">{data.derivedNotes.join(" · ")}</p>
         ) : null}

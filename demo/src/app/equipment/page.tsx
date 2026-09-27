@@ -149,7 +149,7 @@ export default function EquipmentPage() {
       ]}
       criticalAlarmCount={0}
     >
-      <PageHead eyebrow="Long-stop / dark assets" title="Machine Health" />
+      <PageHead eyebrow="Insights" title="Machine Health" />
       <SourceIndicator source={source} loading={loading} detail={detail} />
       {hasData && board ? (
         <div className="forge-page-stack">

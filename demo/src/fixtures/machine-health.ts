@@ -53,12 +53,12 @@ export const VIB_SPECTRUM = Array.from({ length: 32 }, (_, i) => {
 });
 
 export const MAINTENANCE_SCHEDULE = [
-  { date: "11 Jul", machine: "Cement Mill 1", task: "Bearing replacement (DE side)", team: "Mech-A", priority: "CRITICAL" as const, duration: "6h" },
-  { date: "12 Jul", machine: "Kiln 1", task: "Refractory inspection + load re-trim", team: "Process", priority: "CRITICAL" as const, duration: "8h" },
-  { date: "14 Jul", machine: "Air Compressor", task: "Valve plate + filter service", team: "Utilities", priority: "WARNING" as const, duration: "3h" },
-  { date: "17 Jul", machine: "Raw Mill A", task: "Gearbox vibration analysis", team: "Predictive", priority: "WARNING" as const, duration: "2h" },
-  { date: "21 Jul", machine: "Chiller Unit 1", task: "Condenser tube cleaning (anti-fouling)", team: "Utilities", priority: "WARNING" as const, duration: "4h" },
-  { date: "28 Jul", machine: "Cement Mill 2", task: "Routine lubrication + alignment", team: "Mech-B", priority: "ROUTINE" as const, duration: "2h" },
+  { date: "22 Jul", machine: "Cement Mill 1", task: "Bearing replacement (DE side)", team: "Mech-A", priority: "CRITICAL" as const, duration: "6h" },
+  { date: "23 Jul", machine: "Kiln 1", task: "Refractory inspection + load re-trim", team: "Process", priority: "CRITICAL" as const, duration: "8h" },
+  { date: "25 Jul", machine: "Air Compressor", task: "Valve plate + filter service", team: "Utilities", priority: "WARNING" as const, duration: "3h" },
+  { date: "27 Jul", machine: "Raw Mill A", task: "Gearbox vibration analysis", team: "Predictive", priority: "WARNING" as const, duration: "2h" },
+  { date: "30 Jul", machine: "Chiller Unit 1", task: "Condenser tube cleaning (anti-fouling)", team: "Utilities", priority: "WARNING" as const, duration: "4h" },
+  { date: "4 Aug", machine: "Cement Mill 2", task: "Routine lubrication + alignment", team: "Mech-B", priority: "ROUTINE" as const, duration: "2h" },
 ];
 
 export const HEALTH_DISTRIBUTION = [

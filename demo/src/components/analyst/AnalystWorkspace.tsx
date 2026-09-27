@@ -657,7 +657,7 @@ export function AnalystWorkspace() {
                 <EmptyState
                   icon={Sparkles}
                   title={`How can I help with ${snapshot.plantName}?`}
-                  description="Ask about alarms, prescriptions, peak demand, or savings closure. Every answer cites plant data and links to the relevant alarm or prescription when applicable."
+                  description="Ask about alarms, prescriptions, peak demand, or savings closure."
                   action={
                     <div className="analyst-quick">
                       {QUICK.map((q) => (

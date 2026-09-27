@@ -939,8 +939,7 @@ export function PlantSectionMap({
             <DetailRows node={focusNode} />
           ) : (
             <p className="forge-page-lede" style={{ marginTop: 12 }}>
-              Select an asset to view its tag, supply, load and power factor. Click{" "}
-              <strong>Explore →</strong> to drill into equipment and sub-flows.
+              Select an asset.
             </p>
           )}
         </Panel>
