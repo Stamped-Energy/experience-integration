@@ -114,8 +114,9 @@ export default function PlantMapPage() {
       {hasData && levels ? (
         <div className="forge-page-stack">
           <p className="forge-page-lede">
-            Hierarchy and live power for {activePlant.plantName}. Card positions are
-            auto-laid out from your plant hierarchy.
+            Process and single-line view of {activePlant.plantName}: power feeders,
+            material flow and waste-heat recovery, from the 33 kV incomer down to
+            each drive.
           </p>
           <PlantSectionMap levels={levels} rootLevelId={rootLevelId} notes={notes} />
         </div>

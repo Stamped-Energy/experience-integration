@@ -5,6 +5,28 @@
 
 export type SectionHealth = "calm" | "watch" | "hot";
 
+export type EquipmentKind =
+  | "substation"
+  | "transformer"
+  | "capacitor"
+  | "crusher"
+  | "mill"
+  | "kiln"
+  | "tower"
+  | "fan"
+  | "cooler"
+  | "silo"
+  | "filter"
+  | "boiler"
+  | "turbine"
+  | "solar"
+  | "compressor"
+  | "pump"
+  | "packer"
+  | "conveyor"
+  | "genset"
+  | "building";
+
 export type PlantSectionNode = {
   id: string;
   name: string;
@@ -18,6 +40,35 @@ export type PlantSectionNode = {
   y: number;
   children?: PlantSectionNode[];
   flowKw?: number;
+  tag?: string;
+  kind?: EquipmentKind;
+  voltage?: string;
+  pf?: number;
+  status?: "running" | "standby" | "tripped";
+  runHours?: number;
+};
+
+export type FlowPoint = { x: number; y: number };
+
+export type PlantEdge = {
+  from: string;
+  to: string;
+  kw: number;
+  kind?: "power" | "process" | "heat";
+  unit?: string;
+  /** Hand-routed waypoints (cable trench / conveyor gallery) between cards. */
+  via?: FlowPoint[];
+};
+
+export type PlantZone = { x: number; y: number; w: number; h: number; label: string };
+
+export type PlantFeature = {
+  kind: "silo" | "stack" | "cooling_tower" | "stockpile" | "pv" | "road" | "rail" | "fence";
+  x: number;
+  y: number;
+  w?: number;
+  h?: number;
+  label?: string;
 };
 
 export type PlantSectionLevel = {
@@ -25,7 +76,9 @@ export type PlantSectionLevel = {
   title: string;
   subtitle: string;
   nodes: PlantSectionNode[];
-  edges: Array<{ from: string; to: string; kw: number }>;
+  edges: PlantEdge[];
+  zones?: PlantZone[];
+  features?: PlantFeature[];
 };
 
 export const PLANT_CARD_W = 248;
@@ -75,12 +128,16 @@ export function viewBoxMetrics(
   let minY = Infinity;
   let maxX = -Infinity;
   let maxY = -Infinity;
-  for (const n of level.nodes) {
-    minX = Math.min(minX, n.x);
-    minY = Math.min(minY, n.y);
-    maxX = Math.max(maxX, n.x + cardW);
-    maxY = Math.max(maxY, n.y + cardH);
-  }
+  const grow = (x: number, y: number, w = 0, h = 0) => {
+    minX = Math.min(minX, x);
+    minY = Math.min(minY, y);
+    maxX = Math.max(maxX, x + w);
+    maxY = Math.max(maxY, y + h);
+  };
+  for (const n of level.nodes) grow(n.x, n.y, cardW, cardH);
+  for (const z of level.zones ?? []) grow(z.x, z.y, z.w, z.h);
+  for (const f of level.features ?? []) grow(f.x, f.y, f.w ?? 0, f.h ?? 0);
+  for (const e of level.edges) for (const p of e.via ?? []) grow(p.x, p.y);
   const totalPad = pad + labelPad;
   const w = maxX - minX + totalPad * 2;
   const h = maxY - minY + totalPad * 2;
@@ -90,104 +147,102 @@ export function viewBoxMetrics(
   };
 }
 
-export function cardAnchor(
-  node: { x: number; y: number },
-  toward: { x: number; y: number },
-  cardW = PLANT_CARD_W,
-  cardH = PLANT_CARD_H,
-): { x: number; y: number } {
-  const cx = node.x + cardW / 2;
-  const cy = node.y + cardH / 2;
-  const tx = toward.x + cardW / 2;
-  const ty = toward.y + cardH / 2;
-  const dx = tx - cx;
-  const dy = ty - cy;
-  const hw = cardW / 2 - 2;
-  const hh = cardH / 2 - 2;
-  if (Math.abs(dx) * hh > Math.abs(dy) * hw) {
-    const sx = dx > 0 ? hw : -hw;
-    const sy = dx !== 0 ? (dy / dx) * sx : 0;
-    return { x: cx + sx, y: cy + sy };
-  }
-  const sy = dy > 0 ? hh : -hh;
-  const sx = dy !== 0 ? (dx / dy) * sy : 0;
-  return { x: cx + sx, y: cy + sy };
-}
-
-type FlowPoint = { x: number; y: number };
-
-type FlowCurve =
-  | {
-      kind: "cubic";
-      p0: FlowPoint;
-      p1: FlowPoint;
-      p2: FlowPoint;
-      p3: FlowPoint;
-      nudge?: FlowPoint;
-    }
-  | {
-      kind: "quadratic";
-      p0: FlowPoint;
-      p1: FlowPoint;
-      p2: FlowPoint;
-      nudge?: FlowPoint;
+/** Point on the card edge facing `toward`, slid along that edge to line up with it. */
+function anchorToward(node: FlowPoint, toward: FlowPoint): FlowPoint {
+  const hw = PLANT_CARD_W / 2;
+  const hh = PLANT_CARD_H / 2;
+  const cx = node.x + hw;
+  const cy = node.y + hh;
+  const dx = toward.x - cx;
+  const dy = toward.y - cy;
+  const inset = 18;
+  const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+  if (Math.abs(dx) / hw > Math.abs(dy) / hh) {
+    return {
+      x: dx > 0 ? node.x + PLANT_CARD_W : node.x,
+      y: clamp(toward.y, node.y + inset, node.y + PLANT_CARD_H - inset),
     };
+  }
+  return {
+    x: clamp(toward.x, node.x + inset, node.x + PLANT_CARD_W - inset),
+    y: dy > 0 ? node.y + PLANT_CARD_H : node.y,
+  };
+}
 
-function cubicPoint(
-  p0: FlowPoint,
-  p1: FlowPoint,
-  p2: FlowPoint,
-  p3: FlowPoint,
-  t: number,
+function center(n: FlowPoint): FlowPoint {
+  return { x: n.x + PLANT_CARD_W / 2, y: n.y + PLANT_CARD_H / 2 };
+}
+
+function routePoints(from: PlantSectionNode, to: PlantSectionNode, via: FlowPoint[]): FlowPoint[] {
+  const first = via[0] ?? center(to);
+  const last = via[via.length - 1] ?? center(from);
+  return [anchorToward(from, first), ...via, anchorToward(to, last)];
+}
+
+function roundedPolyline(pts: FlowPoint[], radius = 14): string {
+  let d = `M ${pts[0]!.x} ${pts[0]!.y}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const a = pts[i - 1]!;
+    const p = pts[i]!;
+    const b = pts[i + 1]!;
+    const la = Math.hypot(p.x - a.x, p.y - a.y) || 1;
+    const lb = Math.hypot(b.x - p.x, b.y - p.y) || 1;
+    const r = Math.min(radius, la / 2, lb / 2);
+    d += ` L ${p.x - ((p.x - a.x) / la) * r} ${p.y - ((p.y - a.y) / la) * r}`;
+    d += ` Q ${p.x} ${p.y} ${p.x + ((b.x - p.x) / lb) * r} ${p.y + ((b.y - p.y) / lb) * r}`;
+  }
+  const end = pts[pts.length - 1]!;
+  return `${d} L ${end.x} ${end.y}`;
+}
+
+/** Orthogonal S-curve between facing card edges. */
+function sCurve(from: PlantSectionNode, to: PlantSectionNode) {
+  const p0 = anchorToward(from, center(to));
+  const p3 = anchorToward(to, center(from));
+  const horizontal = p0.x === from.x || p0.x === from.x + PLANT_CARD_W;
+  const mx = (p0.x + p3.x) / 2;
+  const my = (p0.y + p3.y) / 2;
+  const p1 = horizontal ? { x: mx, y: p0.y } : { x: p0.x, y: my };
+  const p2 = horizontal ? { x: mx, y: p3.y } : { x: p3.x, y: my };
+  return { p0, p1, p2, p3 };
+}
+
+/** Path between two section cards, anchored at card edges. */
+export function flowPathBetween(
+  from: PlantSectionNode,
+  to: PlantSectionNode,
+  via?: FlowPoint[],
+): string {
+  if (via?.length) return roundedPolyline(routePoints(from, to, via));
+  const { p0, p1, p2, p3 } = sCurve(from, to);
+  return `M ${p0.x} ${p0.y} C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${p3.x} ${p3.y}`;
+}
+
+/** Midpoint (by length) on a flow path for value labels. */
+export function flowLabelPoint(
+  from: PlantSectionNode,
+  to: PlantSectionNode,
+  via?: FlowPoint[],
 ): FlowPoint {
-  const u = 1 - t;
-  return {
-    x: u ** 3 * p0.x + 3 * u ** 2 * t * p1.x + 3 * u * t ** 2 * p2.x + t ** 3 * p3.x,
-    y: u ** 3 * p0.y + 3 * u ** 2 * t * p1.y + 3 * u * t ** 2 * p2.y + t ** 3 * p3.y,
-  };
-}
-
-function quadraticPoint(p0: FlowPoint, p1: FlowPoint, p2: FlowPoint, t: number): FlowPoint {
-  const u = 1 - t;
-  return {
-    x: u ** 2 * p0.x + 2 * u * t * p1.x + t ** 2 * p2.x,
-    y: u ** 2 * p0.y + 2 * u * t * p1.y + t ** 2 * p2.y,
-  };
-}
-
-function flowCurveBetween(from: PlantSectionNode, to: PlantSectionNode): FlowCurve {
-  const start = cardAnchor(from, to);
-  const end = cardAnchor(to, from);
-  const mx = (start.x + end.x) / 2;
-  const my = (start.y + end.y) / 2 - Math.abs(end.x - start.x) * 0.1 - 28;
-  return {
-    kind: "quadratic",
-    p0: start,
-    p1: { x: mx, y: my },
-    p2: end,
-  };
-}
-
-/** Curved path between two section cards, anchored at card edges. */
-export function flowPathBetween(from: PlantSectionNode, to: PlantSectionNode): string {
-  const curve = flowCurveBetween(from, to);
-  if (curve.kind === "cubic") {
-    const { p0, p1, p2, p3 } = curve;
-    return `M ${p0.x} ${p0.y} C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${p3.x} ${p3.y}`;
+  if (!via?.length) {
+    const { p0, p1, p2, p3 } = sCurve(from, to);
+    return {
+      x: (p0.x + 3 * p1.x + 3 * p2.x + p3.x) / 8,
+      y: (p0.y + 3 * p1.y + 3 * p2.y + p3.y) / 8,
+    };
   }
-  const { p0, p1, p2 } = curve;
-  return `M ${p0.x} ${p0.y} Q ${p1.x} ${p1.y} ${p2.x} ${p2.y}`;
-}
-
-/** Midpoint on a flow path for kW labels. */
-export function flowLabelPoint(from: PlantSectionNode, to: PlantSectionNode): FlowPoint {
-  const curve = flowCurveBetween(from, to);
-  const point =
-    curve.kind === "cubic"
-      ? cubicPoint(curve.p0, curve.p1, curve.p2, curve.p3, 0.5)
-      : quadraticPoint(curve.p0, curve.p1, curve.p2, 0.5);
-  if (curve.nudge) {
-    return { x: point.x + curve.nudge.x, y: point.y + curve.nudge.y };
+  const pts = routePoints(from, to, via);
+  const lens = pts.slice(1).map((p, i) => Math.hypot(p.x - pts[i]!.x, p.y - pts[i]!.y));
+  let remaining = lens.reduce((s, l) => s + l, 0) / 2;
+  for (let i = 0; i < lens.length; i++) {
+    const len = lens[i]!;
+    if (remaining <= len) {
+      const a = pts[i]!;
+      const b = pts[i + 1]!;
+      const t = len ? remaining / len : 0;
+      return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+    }
+    remaining -= len;
   }
-  return point;
+  return pts[pts.length - 1]!;
 }

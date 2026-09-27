@@ -352,7 +352,11 @@ export function getDemoPlantMap(): {
   return {
     levels: PLANT_LEVELS as PlantMapLevels,
     rootLevelId: "root",
-    notes: ["Section loads roll up from feeder meters."],
+    notes: [
+      "Section loads roll up from 64 feeder meters",
+      "Power factor from MFM class 0.5S",
+      "Refreshed every 15 s",
+    ],
   };
 }
 
