@@ -1,11 +1,9 @@
 .home {
   display: flex;
   flex-direction: column;
-  gap: 28px;
-  max-width: 1120px;
+  gap: 24px;
   width: 100%;
-  margin: 0 auto;
-  padding-top: clamp(12px, 3vw, 36px);
+  padding-top: clamp(8px, 2vw, 24px);
 }
 
 .home__greeting {
@@ -61,7 +59,8 @@
   width: 24px;
   height: 24px;
   border-radius: 7px;
-  background: var(--forge-secondary);
+  border: 1px solid color-mix(in srgb, var(--forge-primary) 28%, transparent);
+  background: var(--forge-primary-dim);
   color: var(--forge-primary);
 }
 

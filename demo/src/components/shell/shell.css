@@ -187,8 +187,8 @@
   padding: 0 16px 0 13px;
   border: none;
   border-radius: 999px;
-  background: var(--forge-secondary);
-  color: var(--forge-on-secondary);
+  background: var(--forge-primary);
+  color: var(--forge-on-primary);
   font-family: var(--forge-font-body);
   font-size: 13px;
   font-weight: 600;
@@ -198,12 +198,8 @@
   transition: background var(--forge-motion-fast) var(--forge-ease), transform var(--forge-motion-fast) var(--forge-ease);
 }
 
-.forge-shell__analyst-btn svg {
-  color: var(--forge-primary);
-}
-
 .forge-shell__analyst-btn:hover {
-  background: color-mix(in srgb, var(--forge-secondary) 82%, var(--forge-primary));
+  background: color-mix(in srgb, var(--forge-primary) 88%, #000);
 }
 
 .forge-shell__analyst-btn:active {

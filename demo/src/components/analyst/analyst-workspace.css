@@ -165,7 +165,8 @@
   border-radius: var(--forge-radius-md);
   display: grid;
   place-items: center;
-  background: var(--forge-secondary);
+  background: var(--forge-primary-dim);
+  border: 1px solid color-mix(in srgb, var(--forge-primary) 28%, transparent);
   color: var(--forge-primary);
 }
 
@@ -205,14 +206,15 @@
 }
 
 .analyst-empty .forge-empty {
-  max-width: 640px;
+  max-width: 880px;
   padding: 0;
 }
 
 .analyst-empty .forge-empty__icon {
   width: 52px;
   height: 52px;
-  background: var(--forge-secondary);
+  background: var(--forge-surface-container-lowest);
+  border: 1px solid color-mix(in srgb, var(--forge-primary) 28%, transparent);
   color: var(--forge-primary);
 }
 
@@ -374,7 +376,8 @@
 }
 
 .analyst-msg--assistant .analyst-msg__avatar {
-  background: var(--forge-secondary);
+  background: var(--forge-surface-container-lowest);
+  border: 1px solid color-mix(in srgb, var(--forge-primary) 28%, transparent);
   color: var(--forge-primary);
 }
 
