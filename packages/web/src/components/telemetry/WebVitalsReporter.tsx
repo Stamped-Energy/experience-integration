@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useAuth } from "@/lib/auth-context";
 
 const VITALS = new Set(["LCP", "INP", "CLS"]);
 
@@ -12,7 +13,10 @@ export function WebVitalsReporter({
   plantId?: string;
   role?: string;
 }) {
+  const { isDemoSession } = useAuth();
+
   useEffect(() => {
+    if (isDemoSession) return;
     if (typeof window === "undefined" || typeof PerformanceObserver === "undefined") {
       return;
     }
@@ -57,7 +61,7 @@ export function WebVitalsReporter({
     } catch {
       return;
     }
-  }, [plantId, role]);
+  }, [isDemoSession, plantId, role]);
 
   return null;
 }

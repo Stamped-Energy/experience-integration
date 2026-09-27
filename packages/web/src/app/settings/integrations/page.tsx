@@ -31,6 +31,8 @@ import {
 import { usePlant } from "@/lib/plant-context";
 import { connectionFromProbe, toShellRole } from "@/lib/shell-session";
 import { formatIstDateTime } from "@/lib/format";
+import { apiKeysFixture, webhooksFixture } from "@/fixtures/demo";
+import { connectionFixture } from "@/lib/plant-catalog";
 
 const SCOPE_LABELS: Record<string, string> = {
   "ledger:read": "Read savings data",
@@ -43,7 +45,7 @@ const DEFAULT_SCOPES = ["alarms:read", "events:read", "ledger:read"];
 
 export default function IntegrationsSettingsPage() {
   const { activePlant } = usePlant();
-  const { membershipRole } = useAuth();
+  const { isDemoSession, membershipRole } = useAuth();
   const { probe } = useDataSource();
 
   const [keys, setKeys] = useState<ApiKeyItem[]>([]);
@@ -70,6 +72,54 @@ export default function IntegrationsSettingsPage() {
   const reload = useCallback(async () => {
     setLoading(true);
     setLoadError(null);
+    if (isDemoSession) {
+      setKeys(
+        apiKeysFixture.map((key) => ({
+          id: key.id,
+          name: key.name,
+          prefix: key.prefix,
+          scopes: key.scopes,
+          created_at: key.createdAt,
+          last_used_at: key.lastUsedAt,
+          revoked_at: null,
+        })),
+      );
+      setWebhooks(
+        webhooksFixture.map((webhook) => ({
+          id: webhook.id,
+          url: webhook.url,
+          enabled: webhook.enabled,
+          event_filters: webhook.eventFilters,
+        })),
+      );
+      setEntra({
+        enabled: false,
+        tenant_id: null,
+        client_id: null,
+        mapping: "Plant head → admin · Energy manager → analyst",
+        note: "Fixture tenant — connect Entra in the live deployment.",
+        local_auth_coexists: true,
+      });
+      setWhatsapp({
+        mode: "dry_run",
+        configured: false,
+        phone_number_id_set: false,
+        verify_token_set: false,
+        app_secret_set: false,
+        recent: [
+          {
+            id: "wa_fixture_1",
+            template_id: "issue",
+            status: "delivered",
+            mode: "dry_run",
+            created_at: "2026-07-21T09:41:00+05:30",
+          },
+        ],
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const [k, w, e, wa] = await Promise.all([
         listApiKeys(),
@@ -92,7 +142,7 @@ export default function IntegrationsSettingsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isDemoSession]);
 
   useEffect(() => {
     void reload();
@@ -186,7 +236,7 @@ export default function IntegrationsSettingsPage() {
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
       role={toShellRole(membershipRole)}
-      connection={connectionFromProbe(probe)}
+      connection={isDemoSession ? connectionFixture : connectionFromProbe(probe)}
       screenTitle="Integrations"
       contextSummary={["Connections & exports", activePlant.plantName]}
       criticalAlarmCount={0}

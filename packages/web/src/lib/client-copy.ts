@@ -21,9 +21,3 @@ export function connectionPillLabel(probe: UpstreamProbe | null): string {
   if (live.length === 1) return `Live ${live[0]}`;
   return "Live plant connected";
 }
-
-export const DEMO_BANNER_COPY =
-  "Preview mode — live plant data is not available. Some views may appear empty until your site is connected.";
-
-export const DEMO_SESSION_BANNER_COPY =
-  "Jaipur demo — sample data only. Sign in with a real account for live plant data.";

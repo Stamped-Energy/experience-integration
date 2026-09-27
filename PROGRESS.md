@@ -33,9 +33,16 @@ cutover.
 
 **Status: Ready for UI exploration**
 
-The isolated `demo/control-room` worktree launches the existing Jaipur Works
-fixtures at `/demo` on port 3010. Approved UI changes can be ported to `main`
-after review.
+The isolated `demo/control-room` worktree launches a fully populated Jaipur
+Works fixture workspace at `/` on port 3010. Overview, alarms, prescriptions,
+evidence, Analyst, analytics, reports, assignments, administration,
+integrations, and tools all have local data without the API, Postgres, or
+upstream L1–L5 services. Approved UI changes can be ported to `main` after
+review.
+
+The demo intentionally keeps source labels claim-safe (`Preview`) and keeps
+mutations local to the fixture session. It does not represent live plant
+state.
 
 ## Phase status
 

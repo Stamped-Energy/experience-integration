@@ -6,7 +6,7 @@ const DEMO_LOGIN_PASSWORD = "StampedDemo123!";
 const DEMO_PLANT_ID = "plant_jaipur_01";
 
 test.describe("Jaipur demo session", () => {
-  test("sessionStorage demo flag shows Jaipur demo banner", async ({ page }) => {
+  test("sessionStorage demo flag opens a populated shell without the sample banner", async ({ page }) => {
     await page.addInitScript(
       ({ key, payload }) => {
         window.sessionStorage.setItem(key, JSON.stringify(payload));
@@ -24,7 +24,9 @@ test.describe("Jaipur demo session", () => {
     );
 
     await page.goto("/");
-    await expect(page.getByText(/Jaipur demo — sample data only/i)).toBeVisible();
+    await expect(page.getByText(/Jaipur demo — sample data only/i)).toHaveCount(0);
+    await expect(page.getByText("Jaipur Works").first()).toBeVisible();
+    await expect(page.getByText("Confirmed savings (MTD)")).toBeVisible();
     await expect(
       page.getByText(/Preview · not connected to plant/i).first(),
     ).toBeVisible();
@@ -35,5 +37,12 @@ test.describe("Jaipur demo session", () => {
     await page.getByLabel("Email").fill(DEMO_LOGIN_EMAIL);
     await page.getByLabel("Password").fill(DEMO_LOGIN_PASSWORD);
     await expect(page.getByRole("button", { name: /sign in/i })).toBeEnabled();
+  });
+
+  test("Evidence index renders proof-pack cards", async ({ page }) => {
+    await page.goto("/evidence");
+    await expect(page.getByRole("heading", { name: "Evidence index" })).toBeVisible();
+    await expect(page.getByText("Metered proof for every action")).toBeVisible();
+    await expect(page.getByRole("link", { name: /Open evidence:/ }).first()).toBeVisible();
   });
 });

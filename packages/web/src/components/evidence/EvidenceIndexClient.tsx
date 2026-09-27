@@ -2,6 +2,7 @@
 
 import { AppShell } from "@/components/shell/AppShell";
 import { PageHead } from "@/components/ui/primitives";
+import { SourceIndicator } from "@/components/ui/SourceIndicator";
 import { EvidenceIndex } from "@/components/evidence/EvidenceIndex";
 import {
   DEMO_SHELL_ROLE,
@@ -31,6 +32,7 @@ export function EvidenceIndexClient({ samples }: { samples: EvidenceSample[] }) 
       criticalAlarmCount={critical}
     >
       <PageHead eyebrow="Proof" title="Evidence index" />
+      <SourceIndicator source="preview" loading={false} />
       <EvidenceIndex samples={samples} />
     </AppShell>
   );

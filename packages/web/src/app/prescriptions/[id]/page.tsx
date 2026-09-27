@@ -10,6 +10,8 @@ import { PageHead } from "@/components/ui/primitives";
 import { OverviewBoardSkeleton } from "@/components/ui/PageSkeletons";
 import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
+import { getDemoCasePayload } from "@/lib/demo-data";
+import { useAuth } from "@/lib/auth-context";
 import { usePlant } from "@/lib/plant-context";
 import type { Alarm, Prescription, PrescriptionCaseDetail } from "@/lib/types";
 import type { EvidencePack } from "@/lib/evidence";
@@ -50,6 +52,7 @@ export default function PrescriptionDetailPage() {
   const routeParams = useParams<{ id: string }>();
   const rxId = typeof routeParams.id === "string" ? routeParams.id : "";
   const { activePlant, plants, setActivePlantId } = usePlant();
+  const { isDemoSession } = useAuth();
   const [source, setSource] = useState<DataSource>("unavailable");
   const [payload, setPayload] = useState<CasePayload | null>(null);
   const [loading, setLoading] = useState(true);
@@ -57,6 +60,15 @@ export default function PrescriptionDetailPage() {
 
   useEffect(() => {
     if (!rxId) return;
+    if (isDemoSession) {
+      const demo = getDemoCasePayload({ rxId });
+      setPayload(demo);
+      setSource(demo ? "preview" : "unavailable");
+      setDetail(demo ? null : "Prescription not found in the Jaipur fixture pack.");
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
     setLoading(true);
     void fetch(
@@ -87,7 +99,7 @@ export default function PrescriptionDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [activePlant.plantId, rxId]);
+  }, [activePlant.plantId, isDemoSession, rxId]);
 
   const rx = payload?.prescription
     ? {

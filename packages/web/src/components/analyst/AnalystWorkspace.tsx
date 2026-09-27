@@ -6,6 +6,7 @@ import type { AnalystContextEnvelope } from "@/lib/types";
 
 import {
   formatChatDate,
+  analystChatHistoryFixture,
   type AnalystChatSession,
 } from "@/fixtures/analyst-chat-history";
 
@@ -30,6 +31,7 @@ import {
 import { analystPlantSnapshot } from "@/lib/analyst-fixtures";
 
 import { usePlant } from "@/lib/plant-context";
+import { useAuth } from "@/lib/auth-context";
 
 import { formatInr, formatIstCompactDateTime, formatIstTime } from "@/lib/format";
 
@@ -220,6 +222,7 @@ function QuickPromptButton({
 /** Mode B - full-page analyst workspace with streaming replies. */
 export function AnalystWorkspace() {
   const { activePlant } = usePlant();
+  const { isDemoSession } = useAuth();
   const [liveMode, setLiveMode] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [sessions, setSessions] = useState<AnalystChatSession[]>(() => [
@@ -255,6 +258,21 @@ export function AnalystWorkspace() {
   );
 
   const refreshHistory = useCallback(async () => {
+    if (isDemoSession) {
+      const draft = localNewSession(
+        activePlant.plantName,
+        activePlant.plantId,
+        activePlant.demoAsOf,
+      );
+      const history = analystChatHistoryFixture;
+      setLiveMode(false);
+      setSessions([draft, ...history]);
+      setActiveSessionId(history[0]?.id ?? draft.id);
+      setMessages(history[0]?.messages ?? []);
+      setHistoryLoading(false);
+      return;
+    }
+
     const live = await fetchAnalystLive();
     setLiveMode(live);
     if (!live) {
@@ -285,7 +303,13 @@ export function AnalystWorkspace() {
     } finally {
       setHistoryLoading(false);
     }
-  }, [activePlant.orgId, activePlant.plantId, activePlant.plantName]);
+  }, [
+    activePlant.demoAsOf,
+    activePlant.orgId,
+    activePlant.plantId,
+    activePlant.plantName,
+    isDemoSession,
+  ]);
 
   useEffect(() => {
     resetAnalystLiveSession();
@@ -417,7 +441,7 @@ export function AnalystWorkspace() {
       );
     };
 
-    const live = await fetchAnalystLive();
+    const live = isDemoSession ? false : await fetchAnalystLive();
     setLiveMode(live);
     if (!live) {
       const reply = fixtureAnalystReply(envelope, q);

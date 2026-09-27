@@ -19,6 +19,9 @@ import { useDataSource } from "@/lib/data-source-context";
 import { getWhatsAppStatus, listWebhooks } from "@/lib/integrations-api";
 import { usePlant } from "@/lib/plant-context";
 import { connectionFromProbe, toShellRole } from "@/lib/shell-session";
+import { connectionFixture } from "@/lib/plant-catalog";
+import { membersFixture, webhooksFixture } from "@/fixtures/demo";
+import { notifyPeopleFixture } from "@/fixtures/assignments";
 
 const TOOLS = [
   {
@@ -74,7 +77,7 @@ type Counts = {
 
 export default function ToolsPage() {
   const { activePlant } = usePlant();
-  const { orgId, membershipRole } = useAuth();
+  const { isDemoSession, orgId, membershipRole } = useAuth();
   const { probe } = useDataSource();
   const [counts, setCounts] = useState<Counts>({
     members: null,
@@ -84,6 +87,16 @@ export default function ToolsPage() {
   });
 
   useEffect(() => {
+    if (isDemoSession) {
+      setCounts({
+        members: membersFixture.length,
+        people: notifyPeopleFixture.length,
+        webhooks: webhooksFixture.length,
+        whatsappConfigured: false,
+      });
+      return;
+    }
+
     let cancelled = false;
     async function load() {
       const next: Counts = {
@@ -138,7 +151,7 @@ export default function ToolsPage() {
     return () => {
       cancelled = true;
     };
-  }, [orgId, activePlant.plantId]);
+  }, [activePlant.plantId, isDemoSession, orgId]);
 
   const badgeFor = (key: string | null) => {
     if (key === "people" && counts.people != null) {
@@ -156,7 +169,7 @@ export default function ToolsPage() {
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
       role={toShellRole(membershipRole)}
-      connection={connectionFromProbe(probe)}
+      connection={isDemoSession ? connectionFixture : connectionFromProbe(probe)}
       screenTitle="Tools"
       contextSummary={["Specialized plant tools", activePlant.plantName]}
       criticalAlarmCount={0}

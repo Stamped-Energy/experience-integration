@@ -12,11 +12,13 @@ pnpm install
 pnpm --filter @stamped/l6-web exec next dev --hostname 0.0.0.0 --port 3010
 ```
 
-Open <http://localhost:3010/demo>.
+Open <http://localhost:3010/>.
 
-The `/demo` launcher enables the local fixture session and opens the normal
-L6 shell with populated Overview, Alarms, Prescriptions, and Analyst data.
-It does not require the API, Postgres, or upstream L1–L5 services.
+This checkout starts directly in the local fixture session. `/demo` remains
+available as a launcher alias. The normal L6 shell is populated across
+Overview, Alarms, Prescriptions, Evidence, Analyst, Analytics, Reports,
+Assignments, Admin, and Integrations. It does not require the API, Postgres,
+or upstream L1–L5 services.
 
 ## UI work
 

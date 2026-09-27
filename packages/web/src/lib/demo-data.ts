@@ -10,6 +10,17 @@ import type { L2Asset, L2MeasurementPoint } from "@/hooks/useL2Data";
 import type { LiveTelemetrySnapshot } from "@/lib/live-telemetry";
 import { DEMO_PLANT_ID } from "@/lib/demo-session";
 import {
+  buildEvidencePack,
+  resolveEvidenceScope,
+  type EvidencePack,
+} from "@/lib/evidence";
+import {
+  evidenceSamplesFixture,
+  findEvidenceSample,
+  resolvePrimaryEvidenceId,
+  type EvidenceSample,
+} from "@/fixtures/evidence-samples";
+import {
   alarmsForPlant,
   demoClosurePct,
   demoCriticalAlarmCount,
@@ -36,6 +47,7 @@ import {
   HEALTH_DISTRIBUTION,
   HEALTH_KPIS,
 } from "@/fixtures/machine-health";
+import { assetById, type DemoAsset } from "@/fixtures/demo";
 import {
   OVERVIEW_ALERTS,
   OVERVIEW_DEMAND_PROFILE,
@@ -52,75 +64,12 @@ import type { Alarm, Prescription } from "@/lib/types";
 
 export const DEMO_DATA_SOURCE = "preview" as const;
 
-/** Cap L6 worklist — historian template flood must never render here. */
+/** Cap L6 worklist — keep the full curated demo queue, not a historian flood. */
 export const WORKLIST_MAX = 10;
 
 /** Jaipur demo worklist — LNM-specific RX lives in `@/sites/lnm`. */
 export function getDemoConservationWorklist(): Prescription[] {
-  const plantId = DEMO_PLANT_ID;
-  const dueAt = "2026-09-18T18:00:00+05:30";
-  return [
-    {
-      id: "rx-demo-kiln-idle",
-      plantId,
-      title: "Named owner on kiln idle between batches",
-      why: "State-hours observation, not verified kWh",
-      impactInrPerMonth: 0,
-      confidence: 0.9,
-      lane: "needs_review",
-      ownerRole: "supervisor",
-      dueAt,
-      verificationStatus: "pending",
-    },
-    {
-      id: "rx-demo-cmd",
-      plantId,
-      title: "Review CMD vs peak MD headroom",
-      why: "Paperwork rupee from billed demand vs MDI",
-      impactInrPerMonth: 0,
-      confidence: 0.8,
-      lane: "needs_review",
-      ownerRole: "energy_manager",
-      dueAt,
-      verificationStatus: "pending",
-    },
-    {
-      id: "rx-demo-incomer",
-      plantId,
-      title: "Sunday quiet-hour incomer photo",
-      why: "Night residual is modeled until a feeder series exists",
-      impactInrPerMonth: 0,
-      confidence: 0.55,
-      lane: "needs_review",
-      ownerRole: "energy_manager",
-      dueAt,
-      verificationStatus: "modeled",
-    },
-    {
-      id: "rx-demo-compressor",
-      plantId,
-      title: "Confirm Compressor 2 standby vs fault",
-      why: "Dark or low-load asset needs an owner walk",
-      impactInrPerMonth: 0,
-      confidence: 0.85,
-      lane: "needs_review",
-      ownerRole: "supervisor",
-      dueAt,
-      verificationStatus: "pending",
-    },
-    {
-      id: "rx-demo-tod",
-      plantId,
-      title: "Review TOD peak shift opportunity",
-      why: "Tariff window vs load profile, sample demo",
-      impactInrPerMonth: 0,
-      confidence: 0.7,
-      lane: "needs_review",
-      ownerRole: "energy_manager",
-      dueAt,
-      verificationStatus: "pending",
-    },
-  ];
+  return getDemoPrescriptions();
 }
 
 export function getDemoAlarms(): Alarm[] {
@@ -129,6 +78,116 @@ export function getDemoAlarms(): Alarm[] {
 
 export function getDemoPrescriptions(): Prescription[] {
   return prescriptionsForPlant(DEMO_PLANT_ID);
+}
+
+export function getDemoEvidenceSamples(): EvidenceSample[] {
+  return evidenceSamplesFixture;
+}
+
+export type DemoCasePayload = {
+  source: "l5+l2";
+  prescription?: Prescription;
+  alarm?: Alarm;
+  evidence: {
+    pack: EvidencePack;
+    sample?: EvidenceSample;
+    series?: {
+      assetId: string;
+      metric: string;
+      from: string;
+      to: string;
+      granularity: string;
+      unit: string;
+      points: Array<{ ts: string; value: number }>;
+    };
+  };
+  asset?: DemoAsset;
+  links: {
+    evidenceHref?: string;
+    prescriptionHref?: string;
+    alarmHref?: string;
+  };
+};
+
+/** Build the same connected case payload that the BFF returns, from fixtures. */
+export function getDemoCasePayload(input: {
+  rxId?: string;
+  alarmId?: string;
+  evidenceId?: string;
+}): DemoCasePayload | null {
+  const alarms = getDemoAlarms();
+  const prescriptions = getDemoPrescriptions();
+  const requestedSample = input.evidenceId
+    ? findEvidenceSample(input.evidenceId)
+    : undefined;
+  const alarmId = input.alarmId ?? requestedSample?.alarmId;
+  const evidenceRxId =
+    input.evidenceId?.startsWith("evd_rx_") === true
+      ? input.evidenceId.slice(4)
+      : undefined;
+  const rxId = input.rxId ?? requestedSample?.rxId ?? evidenceRxId;
+  const alarm = alarmId
+    ? alarms.find((item) => item.id === alarmId)
+    : undefined;
+  const prescription = rxId
+    ? prescriptions.find((item) => item.id === rxId)
+    : alarm?.relatedPrescriptionId
+      ? prescriptions.find((item) => item.id === alarm.relatedPrescriptionId)
+      : undefined;
+
+  if (!alarm && !prescription) return null;
+
+  const scope = resolveEvidenceScope({
+    plantId: DEMO_PLANT_ID,
+    alarmId: alarm?.id,
+    rxId: prescription?.id,
+    alarms,
+    prescriptions,
+  });
+  const evidenceId = resolvePrimaryEvidenceId({
+    alarmId: alarm?.id,
+    rxId: prescription?.id,
+    findingId: alarm?.findingId,
+  }) ?? input.evidenceId;
+  const sample = evidenceId ? findEvidenceSample(evidenceId) : undefined;
+  const pack = buildEvidencePack(scope, { baselineAvailable: Boolean(sample) });
+  const series = sample
+    ? {
+        assetId: sample.assetId,
+        metric: sample.chart.kind === "line" ? "active_power_kw" : "energy_kwh",
+        from: pack.anomaly.from,
+        to: pack.anomaly.to,
+        granularity: "15m",
+        unit: sample.chart.yAxisLabel,
+        points:
+          sample.chart.kind === "line"
+            ? sample.chart.points.map((point) => ({
+                ts: new Date(
+                  new Date(pack.anomaly.from).getTime() + point.x * 900_000,
+                ).toISOString(),
+                value: point.y,
+              }))
+            : sample.chart.bars.map((bar, index) => ({
+                ts: new Date(
+                  new Date(pack.anomaly.from).getTime() + index * 900_000,
+                ).toISOString(),
+                value: bar.value,
+              })),
+      }
+    : undefined;
+
+  return {
+    source: "l5+l2",
+    prescription,
+    alarm,
+    evidence: { pack, sample, series },
+    asset: assetById(scope.assetId),
+    links: {
+      evidenceHref: sample ? `/evidence/${sample.id}` : undefined,
+      prescriptionHref: prescription ? `/prescriptions/${prescription.id}` : undefined,
+      alarmHref: alarm ? `/alarms/${alarm.id}` : undefined,
+    },
+  };
 }
 
 export type DemoOverviewData = {

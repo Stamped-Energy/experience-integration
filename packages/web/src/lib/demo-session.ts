@@ -44,7 +44,7 @@ export function enableDemoSession(): void {
     email: DEMO_LOGIN_EMAIL,
     plantId: DEMO_PLANT_ID,
     orgId: DEMO_PLANT.orgId,
-    role: "plant_head",
+    role: "admin",
     signedInAt: new Date().toISOString(),
   };
   window.sessionStorage.setItem(DEMO_SESSION_KEY, JSON.stringify(payload));
@@ -61,6 +61,6 @@ export function demoUser(): AuthUser {
     email: DEMO_LOGIN_EMAIL,
     name: "Jaipur Demo",
     emailVerified: true,
-    role: "plant_head",
+    role: "admin",
   };
 }

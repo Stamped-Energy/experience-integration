@@ -20,6 +20,8 @@ import { formatIstDateTime } from "@/lib/format";
 import { usePlant } from "@/lib/plant-context";
 import { connectionFromProbe, toShellRole } from "@/lib/shell-session";
 import type { Role } from "@/lib/types";
+import { auditEventsFixture, membersFixture } from "@/fixtures/demo";
+import { connectionFixture } from "@/lib/plant-catalog";
 
 const INVITE_ROLES: Role[] = [
   "operator",
@@ -46,6 +48,33 @@ export default function AdminSettingsPage() {
   const [inviteMsg, setInviteMsg] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
+    if (isDemoSession) {
+      setMembers(
+        membersFixture.map((member) => ({
+          id: `membership_${member.id}`,
+          userId: member.id,
+          orgId: activePlant.orgId,
+          role: member.role,
+          status: member.status,
+          plantIds: [activePlant.plantId],
+        })),
+      );
+      setAuditEvents(
+        auditEventsFixture.map((event) => ({
+          id: event.id,
+          action: event.action,
+          resourceType: "fixture",
+          resourceId: null,
+          actorUserId: event.actor,
+          metadata: { detail: event.detail },
+          createdAt: event.at,
+        })),
+      );
+      setLoadError(null);
+      setLoading(false);
+      return;
+    }
+
     if (!orgId) {
       setMembers([]);
       setAuditEvents([]);
@@ -69,7 +98,7 @@ export default function AdminSettingsPage() {
     } finally {
       setLoading(false);
     }
-  }, [orgId]);
+  }, [activePlant.orgId, activePlant.plantId, isDemoSession, orgId]);
 
   useEffect(() => {
     void reload();
@@ -115,7 +144,7 @@ export default function AdminSettingsPage() {
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
       role={toShellRole(membershipRole)}
-      connection={connectionFromProbe(probe)}
+      connection={isDemoSession ? connectionFixture : connectionFromProbe(probe)}
       screenTitle="Admin"
       contextSummary={[
         loading ? "Loading…" : `${members.length} members`,
@@ -124,12 +153,6 @@ export default function AdminSettingsPage() {
       criticalAlarmCount={0}
     >
       <PageHead eyebrow="Admin" title="Organization admin" />
-      {isDemoSession ? (
-        <EmptyUpstreamState
-          title="Admin requires a real account"
-          detail="The Jaipur demo login is read-only for product screens. Sign in with your organization email to manage members, plants, and integrations."
-        />
-      ) : (
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <Panel>
           <div
@@ -184,9 +207,23 @@ export default function AdminSettingsPage() {
           </div>
         </Panel>
 
-        <StaffPlantTools />
+        {isDemoSession ? (
+          <Panel>
+            <p className="forge-eyebrow" style={{ margin: 0 }}>
+              Plant context
+            </p>
+            <h2 style={{ margin: "4px 0 0", fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
+              Jaipur Works fixture
+            </h2>
+            <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
+              Plant membership, audit events, and responsibility data are preloaded for UI exploration.
+            </p>
+          </Panel>
+        ) : (
+          <StaffPlantTools />
+        )}
 
-        <Panel>
+        {!isDemoSession ? <Panel>
           <h2
             style={{
               margin: "0 0 12px",
@@ -254,7 +291,7 @@ export default function AdminSettingsPage() {
               </p>
             ) : null}
           </form>
-        </Panel>
+        </Panel> : null}
 
         <Panel>
           <h2
@@ -377,7 +414,6 @@ export default function AdminSettingsPage() {
           )}
         </Panel>
       </div>
-      )}
     </AppShell>
   );
 }

@@ -45,7 +45,9 @@ pnpm --filter @stamped/l6-web start
 
 ### Honesty rule
 
-Demo session screens show **Preview mode** and a Jaipur demo banner. Say in the room that this path shows product shape with sample data, not the customer's live plant.
+Demo session screens keep the **Preview mode** source label so fixture values
+cannot be mistaken for the customer's live plant. The workspace itself opens
+populated without a separate sample-data banner.
 
 ## Rollback
 

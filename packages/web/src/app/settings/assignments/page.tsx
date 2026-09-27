@@ -7,10 +7,11 @@ import { useAuth } from "@/lib/auth-context";
 import { useDataSource } from "@/lib/data-source-context";
 import { usePlant } from "@/lib/plant-context";
 import { connectionFromProbe, toShellRole } from "@/lib/shell-session";
+import { connectionFixture } from "@/lib/plant-catalog";
 
 export default function AssignmentsPage() {
   const { activePlant, plantEpoch } = usePlant();
-  const { membershipRole } = useAuth();
+  const { isDemoSession, membershipRole } = useAuth();
   const { probe } = useDataSource();
 
   return (
@@ -19,7 +20,7 @@ export default function AssignmentsPage() {
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
       role={toShellRole(membershipRole)}
-      connection={connectionFromProbe(probe)}
+      connection={isDemoSession ? connectionFixture : connectionFromProbe(probe)}
       screenTitle="Assignments"
       contextSummary={["Notify roster & routes", activePlant.plantName]}
       criticalAlarmCount={0}

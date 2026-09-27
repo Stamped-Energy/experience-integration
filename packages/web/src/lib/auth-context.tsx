@@ -25,6 +25,7 @@ import {
   isDemoSessionActive,
   readDemoSession,
 } from "@/lib/demo-session";
+import { DEMO_PLANT } from "@/lib/plant-catalog";
 
 type AuthContextValue = {
   user: AuthUser | null;
@@ -47,6 +48,8 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 const PUBLIC_PATHS = new Set(["/login", "/demo"]);
+// This checkout is the fixture-only UI lab; main retains normal auth.
+const DEMO_WORKSPACE = true;
 
 function applyDemoSession(setters: {
   setUser: (u: AuthUser | null) => void;
@@ -69,16 +72,25 @@ function applyDemoSession(setters: {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const [plantId, setPlantId] = useState<string | null>(null);
-  const [membershipRole, setMembershipRole] = useState<string | null>(null);
-  const [isDemoSession, setIsDemoSession] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(() =>
+    DEMO_WORKSPACE ? demoUser() : null,
+  );
+  const [orgId, setOrgId] = useState<string | null>(() =>
+    DEMO_WORKSPACE ? DEMO_PLANT.orgId : null,
+  );
+  const [plantId, setPlantId] = useState<string | null>(() =>
+    DEMO_WORKSPACE ? DEMO_PLANT_ID : null,
+  );
+  const [membershipRole, setMembershipRole] = useState<string | null>(() =>
+    DEMO_WORKSPACE ? "admin" : null,
+  );
+  const [isDemoSession, setIsDemoSession] = useState(DEMO_WORKSPACE);
   const [sessionError, setSessionError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!DEMO_WORKSPACE);
 
   const refresh = useCallback(async () => {
-    if (isDemoSessionActive()) {
+    if (DEMO_WORKSPACE || isDemoSessionActive()) {
+      if (DEMO_WORKSPACE) enableDemoSession();
       applyDemoSession({
         setUser,
         setOrgId,

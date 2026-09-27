@@ -16,8 +16,6 @@ import { WebVitalsReporter } from "@/components/telemetry/WebVitalsReporter";
 import { SidebarNav } from "@/components/shell/SidebarNav";
 import { AppTopbar } from "@/components/shell/AppTopbar";
 import { DEMO_PLANT, defaultPlant, PLANTS } from "@/lib/plant-catalog";
-import { DEMO_BANNER_COPY, DEMO_SESSION_BANNER_COPY } from "@/lib/client-copy";
-import { useAuth } from "@/lib/auth-context";
 import { usePlant } from "@/lib/plant-context";
 import { useDataSource } from "@/lib/data-source-context";
 
@@ -78,13 +76,7 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const plantCtx = usePlant();
-  const { isDemoSession } = useAuth();
-  const {
-    demoMode,
-    bannerDismissed,
-    dismissBanner,
-    probe,
-  } = useDataSource();
+  const { demoMode } = useDataSource();
   const [analystOpen, setAnalystOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [pins, setPins] = useState<NavKey[]>([]);
@@ -195,33 +187,9 @@ export function AppShell({
         </nav>
 
         <main id="forge-main" className="forge-shell__main" tabIndex={-1}>
-          {sse.banner ? (
+          {sse.banner && !demoMode ? (
             <div role="status" className="forge-shell__banner">
               {sse.banner}
-            </div>
-          ) : null}
-          {isDemoSession ? (
-            <div
-              role="status"
-              className="forge-shell__banner forge-shell__banner--demo"
-              data-demo-session-banner
-            >
-              <span>{DEMO_SESSION_BANNER_COPY}</span>
-            </div>
-          ) : demoMode && !bannerDismissed ? (
-            <div
-              role="status"
-              className="forge-shell__banner forge-shell__banner--demo"
-              data-demo-data-banner
-            >
-              <span>{DEMO_BANNER_COPY}</span>
-              <button
-                type="button"
-                className="forge-shell__banner-dismiss"
-                onClick={dismissBanner}
-              >
-                Dismiss
-              </button>
             </div>
           ) : null}
           <div className="forge-shell__content" key={contentKey}>

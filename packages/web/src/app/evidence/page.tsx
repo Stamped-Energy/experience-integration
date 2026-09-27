@@ -1,168 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState, Suspense } from "react";
+import { useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { AppShell } from "@/components/shell/AppShell";
-import { EmptyUpstreamState, SourceIndicator } from "@/components/ui/SourceIndicator";
-import { PageHead } from "@/components/ui/primitives";
-import { PrescriptionQueueSkeleton } from "@/components/ui/PageSkeletons";
-import { bffUrl, type DataSource } from "@/lib/bff";
-import { DEMO_DATA_SOURCE, getDemoPrescriptions } from "@/lib/demo-data";
-import { useProductShell } from "@/lib/product-shell";
-import type { Prescription } from "@/lib/types";
+import { EvidenceIndexClient } from "@/components/evidence/EvidenceIndexClient";
+import { getDemoEvidenceSamples } from "@/lib/demo-data";
 
 function EvidenceIndexInner() {
-  const {
-    activePlant,
-    plants,
-    onPlantChange,
-    role,
-    connection,
-    isDemoSession,
-  } = useProductShell();
-  const search = useSearchParams();
-  const rxId = search.get("rxId");
-  const [source, setSource] = useState<DataSource>("unavailable");
-  const [rows, setRows] = useState<Prescription[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [detail, setDetail] = useState<string | null>(null);
-
+  const rxId = useSearchParams().get("rxId");
   useEffect(() => {
-    if (isDemoSession) {
-      if (rxId) {
-        window.location.replace(`/evidence/evd_${rxId}`);
-        return;
-      }
-      setRows(getDemoPrescriptions());
-      setSource(DEMO_DATA_SOURCE);
-      setLoading(false);
-      setDetail(null);
-      return;
-    }
+    if (rxId) window.location.replace(`/evidence/evd_${rxId}`);
+  }, [rxId]);
 
-    if (rxId) {
-      let cancelled = false;
-      setLoading(true);
-      void fetch(
-        bffUrl(
-          `/api/evidence/by-rx?rxId=${encodeURIComponent(rxId)}&plantId=${encodeURIComponent(activePlant.plantId)}`,
-        ),
-        { credentials: "include", cache: "no-store" },
-      )
-        .then(async (res) => {
-          if (!res.ok) throw new Error(`evidence ${res.status}`);
-          return (await res.json()) as {
-            evidence?: { sample?: { id: string }; bundleId?: string };
-            links?: { evidenceHref?: string };
-          };
-        })
-        .then((body) => {
-          if (cancelled) return;
-          const href =
-            body.links?.evidenceHref ??
-            (rxId ? `/evidence/evd_${rxId}` : null) ??
-            (body.evidence?.sample?.id?.startsWith("evd_")
-              ? `/evidence/${body.evidence.sample.id}`
-              : null);
-          if (href && !href.includes("/eb-")) {
-            window.location.replace(href);
-            return;
-          }
-          if (rxId) {
-            window.location.replace(`/evidence/evd_${rxId}`);
-            return;
-          }
-          setDetail("No evidence sample for this prescription");
-          setSource("unavailable");
-          setLoading(false);
-        })
-        .catch((err) => {
-          if (!cancelled) {
-            setDetail(err instanceof Error ? err.message : "Unavailable");
-            setLoading(false);
-          }
-        });
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    let cancelled = false;
-    setLoading(true);
-    void fetch(
-      bffUrl(`/api/prescriptions?plantId=${encodeURIComponent(activePlant.plantId)}`),
-      { credentials: "include", cache: "no-store" },
-    )
-      .then(async (res) => {
-        if (!res.ok) throw new Error(`prescriptions ${res.status}`);
-        return (await res.json()) as { items?: Prescription[]; source?: string };
-      })
-      .then((body) => {
-        if (cancelled) return;
-        setRows(Array.isArray(body.items) ? body.items : []);
-        setSource(body.source === "l5" ? "l5" : "unavailable");
-        setLoading(false);
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setDetail(err instanceof Error ? err.message : "Unavailable");
-          setSource("unavailable");
-          setLoading(false);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [activePlant.plantId, rxId, isDemoSession]);
-
-  const withEvidence = useMemo(
-    () => rows.filter((r) => (r.evidenceRefs?.length ?? 0) > 0 || r.id),
-    [rows],
-  );
-  const hasData = source === "l5" || source === "preview";
-
-  return (
-    <AppShell
-      active="evidence"
-      plantName={activePlant.plantName}
-      plantId={activePlant.plantId}
-      plants={plants}
-      onPlantChange={onPlantChange}
-      role={role}
-      connection={connection}
-      screenTitle="Evidence"
-      contextSummary={["Evidence cases", activePlant.plantName]}
-      criticalAlarmCount={0}
-    >
-      <PageHead eyebrow="Operations" title="Evidence" />
-      <SourceIndicator source={source} loading={loading} detail={detail} />
-      {loading ? (
-        <PrescriptionQueueSkeleton count={3} />
-      ) : hasData && withEvidence.length > 0 ? (
-        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 12 }}>
-          {withEvidence.map((rx) => (
-            <li key={rx.id} className="forge-panel" style={{ padding: 14 }}>
-              <Link href={`/evidence/evd_${rx.id}`} style={{ fontWeight: 600 }}>
-                {rx.title}
-              </Link>
-              <p style={{ margin: "6px 0 0", fontSize: 13, opacity: 0.8 }}>{rx.why}</p>
-              <p style={{ margin: "8px 0 0", fontSize: 12 }}>
-                <Link href={`/prescriptions/${rx.id}`}>Open full case</Link>
-                {" · "}
-                <Link href={`/evidence/evd_${rx.id}`}>Evidence detail</Link>
-              </p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <EmptyUpstreamState
-          title="No evidence for this plant"
-          detail="Prescriptions with evidence will appear here once operations data is connected."
-        />
-      )}
-    </AppShell>
-  );
+  if (rxId) {
+    return <div className="forge-page-stack">Opening evidence case…</div>;
+  }
+  return <EvidenceIndexClient samples={getDemoEvidenceSamples()} />;
 }
 
 export default function EvidencePage() {

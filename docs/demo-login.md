@@ -18,7 +18,9 @@ These are **hardcoded in the web client** ([`packages/web/src/lib/demo-session.t
 3. `AuthContext` synthesizes a demo user and skips `/api/me`.
 4. Plant switcher locks to **Jaipur Works** (`plant_jaipur_01`).
 5. Product pages load from [`demo-data.ts`](../packages/web/src/lib/demo-data.ts) adapters (fixtures under `packages/web/src/fixtures/`).
-6. `SourceIndicator` shows **Preview mode**; shell banner: *Jaipur demo — sample data only*.
+6. `SourceIndicator` stays **Preview mode** so fixture values are never
+   mistaken for live plant data; the shell opens directly into the populated
+   workspace.
 
 ## Normal login (everyone else)
 

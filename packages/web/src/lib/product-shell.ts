@@ -13,7 +13,7 @@ export function useProductShell() {
   const { probe } = useDataSource();
 
   const role: Role = isDemoSession
-    ? "plant_head"
+    ? "admin"
     : toShellRole(membershipRole);
 
   const connection: ConnectionStatus = isDemoSession

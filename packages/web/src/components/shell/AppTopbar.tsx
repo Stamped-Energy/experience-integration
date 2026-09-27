@@ -30,9 +30,9 @@ export function AppTopbar({
   onPlantChange?: (plantId: string) => void;
 }) {
   const live = connection.sse === "live";
-  const connectionLabel = liveConnectionLabel(connection.sse);
   const plantShort = plantName.split(",")[0]?.trim() ?? plantName;
   const { probe, demoMode, loading: probeLoading } = useDataSource();
+  const connectionLabel = demoMode ? "Fixture session" : liveConnectionLabel(connection.sse);
   const dataLabel = probeLoading ? "Checking data…" : upstreamPillLabel(probe);
 
   return (
@@ -69,7 +69,7 @@ export function AppTopbar({
           data-demo-mode={demoMode ? "true" : "false"}
           title={
             demoMode
-              ? "Plant connection unavailable — some views may be empty"
+              ? "Local fixture data — not connected to live plant data"
               : "Connected to live plant data"
           }
         >
@@ -79,8 +79,14 @@ export function AppTopbar({
 
         <span
           aria-live="polite"
-          className={`forge-shell__conn${live ? " is-live" : " is-stale"}`}
-          title={live ? "Live updates connected" : `${connectionLabel} - updates paused`}
+          className={`forge-shell__conn${live && !demoMode ? " is-live" : " is-stale"}`}
+          title={
+            demoMode
+              ? "Fixture session — live updates are not enabled"
+              : live
+                ? "Live updates connected"
+                : `${connectionLabel} - updates paused`
+          }
         >
           <span className="forge-shell__conn-dot" aria-hidden />
           <span className="forge-shell__conn-label">{connectionLabel}</span>

@@ -12,6 +12,11 @@ import {
 } from "@/lib/assignments-api";
 import type { Role } from "@/lib/types";
 import { EmptyUpstreamState } from "@/components/ui/SourceIndicator";
+import { useAuth } from "@/lib/auth-context";
+import {
+  alarmRouteRulesFixture,
+  notifyPeopleFixture,
+} from "@/fixtures/assignments";
 import {
   GhostButton,
   Panel,
@@ -34,6 +39,7 @@ type LoadState = "loading" | "ready" | "unavailable";
 
 /** Admin screen: who owns which area/asset for alarm WhatsApp + Rx assign. */
 export function AssignmentsBoard() {
+  const { isDemoSession } = useAuth();
   const [rules, setRules] = useState<AlarmRouteDto[]>([]);
   const [people, setPeople] = useState<NotifyPersonDto[]>([]);
   const [loadState, setLoadState] = useState<LoadState>("loading");
@@ -61,6 +67,14 @@ export function AssignmentsBoard() {
   });
 
   const reload = useCallback(async () => {
+    if (isDemoSession) {
+      setPeople(notifyPeopleFixture);
+      setRules(alarmRouteRulesFixture);
+      setLoadState("ready");
+      setLoadError(null);
+      return;
+    }
+
     setLoadState("loading");
     setLoadError(null);
     try {
@@ -77,7 +91,7 @@ export function AssignmentsBoard() {
       setLoadState("unavailable");
       setLoadError(err instanceof Error ? err.message : "Failed to load");
     }
-  }, []);
+  }, [isDemoSession]);
 
   useEffect(() => {
     void reload();

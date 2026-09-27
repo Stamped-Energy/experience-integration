@@ -11,6 +11,8 @@ import { PageHead } from "@/components/ui/primitives";
 import { PrescriptionQueueSkeleton } from "@/components/ui/PageSkeletons";
 import { DEMO_SHELL_ROLE, connectionFixture } from "@/lib/plant-catalog";
 import { bffUrl, type DataSource } from "@/lib/bff";
+import { getDemoCasePayload } from "@/lib/demo-data";
+import { useAuth } from "@/lib/auth-context";
 import { usePlant } from "@/lib/plant-context";
 import type { EvidenceSample } from "@/lib/evidence";
 
@@ -50,6 +52,7 @@ export default function EvidenceDetailPage() {
   const routeParams = useParams<{ id: string }>();
   const evidenceId = typeof routeParams.id === "string" ? routeParams.id : "";
   const { activePlant, plants, setActivePlantId } = usePlant();
+  const { isDemoSession } = useAuth();
   const [source, setSource] = useState<DataSource>("unavailable");
   const [payload, setPayload] = useState<CasePayload | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,6 +72,15 @@ export default function EvidenceDetailPage() {
           : "Unrecognized evidence id",
       );
       setPayload(null);
+      return;
+    }
+
+    if (isDemoSession) {
+      const demo = getDemoCasePayload({ evidenceId });
+      setPayload(demo);
+      setSource(demo ? "preview" : "unavailable");
+      setDetail(demo ? null : "Evidence not found in the Jaipur fixture pack.");
+      setLoading(false);
       return;
     }
 
@@ -101,7 +113,7 @@ export default function EvidenceDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [activePlant.plantId, evidenceId, isLegacyBundleId, rxId]);
+  }, [activePlant.plantId, evidenceId, isDemoSession, isLegacyBundleId, rxId]);
 
   const sample = payload?.evidence?.sample;
   const showBaseline = !(payload?.evidence?.pack?.missing ?? []).includes("baseline");

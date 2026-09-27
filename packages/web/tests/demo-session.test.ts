@@ -12,7 +12,6 @@ import {
   readDemoSession,
 } from "../src/lib/demo-session.js";
 import {
-  WORKLIST_MAX,
   getDemoAlarms,
   getDemoConservationWorklist,
   getDemoOverview,
@@ -76,8 +75,8 @@ describe("demo-data", () => {
     assert.ok(getDemoAlarms().length > 0);
     assert.ok(getDemoPrescriptions().length > 0);
     const worklist = getDemoConservationWorklist();
-    assert.equal(worklist.length, 5);
-    assert.ok(worklist.length <= WORKLIST_MAX);
+    assert.equal(worklist.length, getDemoPrescriptions().length);
+    assert.ok(worklist.length > 0);
     assert.ok(overview.energyTrend30d.length >= 30);
   });
 });
