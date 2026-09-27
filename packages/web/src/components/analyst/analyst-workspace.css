@@ -1,14 +1,15 @@
 .analyst-workspace {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 
 /* ── Context hero ── */
 .analyst-hero {
-  padding: 16px 18px !important;
+  padding: 14px 16px !important;
   border-color: color-mix(in srgb, var(--forge-tertiary) 22%, var(--forge-outline-variant));
   background: color-mix(in srgb, var(--forge-tertiary) 4%, var(--forge-surface-container-lowest));
+  box-shadow: none !important;
 }
 
 .analyst-hero__head {
@@ -17,7 +18,7 @@
   align-items: flex-start;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .analyst-hero .forge-eyebrow {
@@ -51,20 +52,25 @@
 
 .analyst-kpi-strip {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--forge-outline-variant);
+  padding-top: 10px;
 }
 
 .analyst-kpi {
-  padding: 12px 14px;
-  border-radius: var(--forge-radius-md);
-  border: 1px solid var(--forge-outline-variant);
-  background: var(--forge-surface-container-lowest);
-  box-shadow: var(--forge-shadow-card);
+  padding: 4px 14px;
+  border-left: 1px solid var(--forge-outline-variant);
+  background: transparent;
+}
+
+.analyst-kpi:first-child {
+  border-left: none;
+  padding-left: 0;
 }
 
 .analyst-kpi--accent {
-  border-left: 3px solid var(--forge-tertiary);
+  border-left: 1px solid var(--forge-tertiary);
 }
 
 .analyst-kpi__head {
@@ -103,23 +109,25 @@
 /* ── Layout: chat + history ── */
 .analyst-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-areas: "history chat";
   gap: 0;
   min-height: 620px;
   border-radius: var(--forge-radius-card);
   border: 1px solid var(--forge-outline-variant);
   background: var(--forge-surface-container-lowest);
   overflow: hidden;
-  box-shadow: var(--forge-shadow-card);
+  box-shadow: none;
 }
 
 /* ── Chat shell ── */
 .analyst-chat-shell {
+  grid-area: chat;
   display: flex;
   flex-direction: column;
   min-height: 620px;
   background: var(--forge-surface-container-lowest);
-  border-right: 1px solid var(--forge-outline-variant);
+  border-left: 1px solid var(--forge-outline-variant);
 }
 
 .analyst-chat-header {
@@ -143,7 +151,7 @@
   flex-shrink: 0;
   width: 38px;
   height: 38px;
-  border-radius: 10px;
+  border-radius: var(--forge-radius-md);
   display: grid;
   place-items: center;
   background: color-mix(in srgb, var(--forge-tertiary) 12%, var(--forge-surface-container));
@@ -244,7 +252,7 @@
     border-color var(--forge-motion-fast),
     background var(--forge-motion-fast),
     box-shadow var(--forge-motion-fast);
-  box-shadow: var(--forge-shadow-card);
+  box-shadow: none;
 }
 
 .analyst-quick__btn:hover:not(:disabled) {
@@ -341,7 +349,7 @@
   flex-shrink: 0;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--forge-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -417,7 +425,7 @@
 
 .analyst-msg__bubble {
   padding: 14px 16px;
-  border-radius: 12px;
+  border-radius: var(--forge-radius-card);
   font-size: 14px;
   line-height: 1.55;
   word-break: break-word;
@@ -436,7 +444,7 @@
   border: 1px solid var(--forge-outline-variant);
   border-left: 3px solid var(--forge-tertiary);
   border-bottom-left-radius: 4px;
-  box-shadow: var(--forge-shadow-card);
+  box-shadow: none;
 }
 
 .analyst-msg__bubble p {
@@ -611,7 +619,7 @@
   gap: 10px;
   align-items: center;
   padding: 8px 8px 8px 16px;
-  border-radius: 12px;
+  border-radius: var(--forge-radius-md);
   border: 1px solid var(--forge-outline-variant);
   background: var(--forge-surface-container-low);
   transition: border-color var(--forge-motion-fast);
@@ -650,10 +658,12 @@
 
 /* ── History sidebar ── */
 .analyst-history {
+  grid-area: history;
   display: flex;
   flex-direction: column;
   background: color-mix(in srgb, var(--forge-secondary) 3%, var(--forge-surface-container-low));
   min-height: 620px;
+  border-right: 1px solid var(--forge-outline-variant);
 }
 
 .analyst-history__head {
@@ -694,7 +704,7 @@
   width: 100%;
   text-align: left;
   padding: 10px 12px;
-  border-radius: var(--forge-radius-md);
+  border-radius: var(--forge-radius-sm);
   border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
@@ -721,7 +731,7 @@
   flex-shrink: 0;
   width: 28px;
   height: 28px;
-  border-radius: 8px;
+  border-radius: var(--forge-radius-sm);
   display: grid;
   place-items: center;
   background: var(--forge-surface-container);
@@ -773,16 +783,20 @@
 @media (max-width: 1100px) {
   .analyst-layout {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "chat"
+      "history";
   }
 
   .analyst-history {
     min-height: 240px;
     max-height: 280px;
     border-top: 1px solid var(--forge-outline-variant);
+    border-right: none;
   }
 
   .analyst-chat-shell {
-    border-right: none;
+    border-left: none;
   }
 
   .analyst-kpi-strip {
