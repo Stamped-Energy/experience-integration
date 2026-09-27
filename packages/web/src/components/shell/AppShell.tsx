@@ -17,7 +17,7 @@ import { SidebarNav } from "@/components/shell/SidebarNav";
 import { AppTopbar } from "@/components/shell/AppTopbar";
 import { DEMO_PLANT, defaultPlant, PLANTS } from "@/lib/plant-catalog";
 import { DEMO_BANNER_COPY, DEMO_SESSION_BANNER_COPY } from "@/lib/client-copy";
-import { isDemoSessionActive } from "@/lib/demo-session";
+import { useAuth } from "@/lib/auth-context";
 import { usePlant } from "@/lib/plant-context";
 import { useDataSource } from "@/lib/data-source-context";
 
@@ -78,7 +78,7 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const plantCtx = usePlant();
-  const isDemoSession = isDemoSessionActive();
+  const { isDemoSession } = useAuth();
   const {
     demoMode,
     bannerDismissed,
@@ -89,7 +89,7 @@ export function AppShell({
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [pins, setPins] = useState<NavKey[]>([]);
   const [collapsed, setCollapsed] = useState(false);
-  const askAnalystRef = useRef<HTMLSpanElement>(null);
+  const askAnalystRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const storage = typeof window !== "undefined" ? window.localStorage : null;

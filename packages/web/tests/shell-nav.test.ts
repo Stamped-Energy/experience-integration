@@ -15,6 +15,7 @@ import {
   togglePin,
 } from "../src/lib/navigation.js";
 import { AppShell } from "../src/components/shell/AppShell.js";
+import { AuthProvider } from "../src/lib/auth-context.js";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const shellCss = readFileSync(
@@ -137,16 +138,20 @@ describe("responsive Forge shell", () => {
 
   it("renders landmarks, skip link, and truthful offline banner", () => {
     const html = renderToStaticMarkup(
-      createElement(AppShell, {
-        active: "today",
-        plantName: "Jaipur Works",
-        role: "cfo",
-        connection: { sse: "offline" },
-        screenTitle: "Today",
-        contextSummary: ["Bill risk"],
-        criticalAlarmCount: 0,
-        children: createElement("p", null, "body"),
-      }),
+      createElement(
+        AuthProvider,
+        null,
+        createElement(AppShell, {
+          active: "today",
+          plantName: "Jaipur Works",
+          role: "cfo",
+          connection: { sse: "offline" },
+          screenTitle: "Today",
+          contextSummary: ["Bill risk"],
+          criticalAlarmCount: 0,
+          children: createElement("p", null, "body"),
+        }),
+      ),
     );
     assert.match(html, /Skip to main content/);
     assert.match(html, /id="forge-main"/);

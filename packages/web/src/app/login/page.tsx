@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState, type FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { StampedLogo } from "@/components/shell/StampedLogo";
 import { useAuth } from "@/lib/auth-context";
 
@@ -13,7 +13,6 @@ function safeNext(raw: string | null): string {
 
 function LoginForm() {
   const { signIn } = useAuth();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +34,7 @@ function LoginForm() {
         setError(result.message);
         return;
       }
-      router.replace(safeNext(searchParams.get("next")));
+      window.location.assign(safeNext(searchParams.get("next")));
     } finally {
       setSubmitting(false);
     }

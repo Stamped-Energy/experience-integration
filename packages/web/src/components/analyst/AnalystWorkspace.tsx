@@ -112,12 +112,16 @@ function historyToSidebar(s: AnalystHistorySessionDto): AnalystChatSession {
   };
 }
 
-function localNewSession(plantName: string, plantId: string): AnalystChatSession {
+function localNewSession(
+  plantName: string,
+  plantId: string,
+  updatedAt = new Date().toISOString(),
+): AnalystChatSession {
   return {
     id: `chat_${plantId}_new`,
     title: "New conversation",
     preview: `Ask about ${plantName}…`,
-    updatedAt: new Date().toISOString(),
+    updatedAt,
     messages: [],
   };
 }
@@ -219,7 +223,7 @@ export function AnalystWorkspace() {
   const [liveMode, setLiveMode] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [sessions, setSessions] = useState<AnalystChatSession[]>(() => [
-    localNewSession(activePlant.plantName, activePlant.plantId),
+    localNewSession(activePlant.plantName, activePlant.plantId, activePlant.demoAsOf),
   ]);
   const [activeSessionId, setActiveSessionId] = useState(
     () => `chat_${activePlant.plantId}_new`,

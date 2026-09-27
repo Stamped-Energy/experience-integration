@@ -7,6 +7,28 @@
 Phases 0–H Auto + enterprise definitions are in place. `validate.sh`, Playwright,
 and GitHub Actions cover quality / postgres / browser / infra jobs.
 
+## L6 Control Room Redesign (2026-09-27)
+
+**Status: Complete**
+
+The first approved redesign slice is implemented and verified:
+
+- Overview now leads with seven decision signals, then next operating actions,
+  owner/proof links, and separate value/evidence context.
+- Overview, Alarms, Prescriptions, and Ask Analyst are the persistent operating
+  anchors; deeper insights and administration remain reveal/role-gated.
+- Analyst is a dedicated `/analyst` workspace with history, cited fixture/live
+  paths, related actions, and a responsive composer.
+- Contextual Analyst has removable context, keyboard containment, Escape close,
+  and return focus to the topbar trigger.
+- Shared Forge surfaces use tighter radii, flatter tonal layers, and reduced
+  shadows without lowering accessibility or touch-target floors.
+
+Validated with web typecheck, 114 unit tests, production build, and 38 desktop /
+mobile Playwright tests. The next UI phase is human visual review followed by
+supporting-screen polish; live BFF/Postgres validation remains part of pilot
+cutover.
+
 ## Phase status
 
 | Phase | Status | Exit gate |
