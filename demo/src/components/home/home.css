@@ -56,11 +56,6 @@
 .agent-card__mark {
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  border: 1px solid color-mix(in srgb, var(--forge-primary) 28%, transparent);
-  background: var(--forge-primary-dim);
   color: var(--forge-primary);
 }
 

@@ -165,8 +165,6 @@
   border-radius: var(--forge-radius-md);
   display: grid;
   place-items: center;
-  background: var(--forge-primary-dim);
-  border: 1px solid color-mix(in srgb, var(--forge-primary) 28%, transparent);
   color: var(--forge-primary);
 }
 
@@ -210,11 +208,15 @@
   padding: 0;
 }
 
+.analyst-panel__empty .forge-empty__icon {
+  background: transparent;
+  color: var(--forge-primary);
+}
+
 .analyst-empty .forge-empty__icon {
   width: 52px;
   height: 52px;
-  background: var(--forge-surface-container-lowest);
-  border: 1px solid color-mix(in srgb, var(--forge-primary) 28%, transparent);
+  background: transparent;
   color: var(--forge-primary);
 }
 
@@ -376,8 +378,6 @@
 }
 
 .analyst-msg--assistant .analyst-msg__avatar {
-  background: var(--forge-surface-container-lowest);
-  border: 1px solid color-mix(in srgb, var(--forge-primary) 28%, transparent);
   color: var(--forge-primary);
 }
 

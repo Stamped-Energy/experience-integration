@@ -5,7 +5,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { mobileDock, readCollapsed, readPins, writeCollapsed } from "@/lib/navigation";
 import { NAV_ICONS } from "@/lib/nav-icons";
 import {
-  Factory,
   PanelLeftClose,
   PanelLeftOpen,
 } from "@/components/ui/icons";
@@ -155,16 +154,39 @@ export function AppShell({
         >
           {!collapsed ? (
             <div className="forge-shell__facility">
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Factory size={18} color="var(--forge-primary)" aria-hidden />
-                <span className="forge-shell__facility-name">
-                  {shellPlantName.split(",")[0] ?? shellPlantName}
+              <div className="forge-shell__facility-head">
+                <span className="forge-shell__facility-avatar" aria-hidden>
+                  {shellPlantName
+                    .split(/\s+/)
+                    .slice(0, 2)
+                    .map((w) => w[0])
+                    .join("")}
                 </span>
+                <div className="forge-shell__facility-id">
+                  <span className="forge-shell__facility-name">
+                    {shellPlantName.split(",")[0] ?? shellPlantName}
+                  </span>
+                  <span className="forge-shell__facility-meta">
+                    Shift {plantCtx.activePlant.shift}
+                  </span>
+                </div>
+                <span
+                  className={`forge-shell__conn-dot${connection.sse === "live" ? " is-live" : ""}`}
+                  title={connection.sse === "live" ? "Live" : "Offline"}
+                />
               </div>
-              <p className="forge-shell__facility-meta">{shellPlantName}</p>
-              <span className="forge-chip forge-chip--primary" style={{ marginTop: 8 }}>
-                115 MW Peak Load
-              </span>
+              <dl className="forge-shell__facility-stats">
+                <div>
+                  <dt>Peak load</dt>
+                  <dd>115 MW</dd>
+                </div>
+                <div>
+                  <dt>Critical</dt>
+                  <dd className={criticalAlarmCount > 0 ? "is-critical" : undefined}>
+                    {criticalAlarmCount}
+                  </dd>
+                </div>
+              </dl>
             </div>
           ) : null}
 

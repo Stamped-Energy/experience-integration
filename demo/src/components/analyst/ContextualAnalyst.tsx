@@ -20,8 +20,6 @@ import { formatIstTime } from "@/lib/format";
 
 import { plantForId } from "@/fixtures/demo";
 
-import { IconBadge } from "@/components/ui/indicators";
-
 import { EmptyState } from "@/components/ui/empty";
 
 import { ForgeButton, StatusChip } from "@/components/ui/primitives";
@@ -292,7 +290,7 @@ export function ContextualAnalyst({
       >
         <header className="analyst-panel__header">
           <div className="analyst-panel__brand">
-            <IconBadge icon={StampedMark} tone="primary" size={38} iconSize={18} />
+            <StampedMark size={26} style={{ color: "var(--forge-primary)", flexShrink: 0 }} />
             <div className="analyst-panel__brand-copy">
               <h2 id={titleId} className="analyst-panel__title">
                 Stamped
