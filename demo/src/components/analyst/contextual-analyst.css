@@ -1,0 +1,266 @@
+.analyst-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100dvh;
+  width: min(440px, 92vw);
+  background: var(--forge-surface-container-lowest);
+  border-left: 1px solid var(--forge-outline-variant);
+  box-shadow: -4px 0 16px rgba(5, 31, 19, 0.1);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  animation: analyst-panel-in 220ms var(--forge-ease) both;
+}
+
+@keyframes analyst-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.analyst-panel__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 31, 19, 0.42);
+  z-index: 40;
+  animation: analyst-backdrop-in 180ms ease both;
+}
+
+@keyframes analyst-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.analyst-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--forge-outline-variant);
+  background: var(--forge-surface-container-lowest);
+  flex-shrink: 0;
+}
+
+.analyst-panel__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.analyst-panel__brand-copy {
+  min-width: 0;
+}
+
+.analyst-panel__title {
+  margin: 0;
+  font-family: var(--forge-font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--forge-on-surface);
+}
+
+.analyst-panel__subtitle {
+  margin: 3px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--forge-on-surface-variant);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.analyst-panel__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.analyst-panel__close {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--forge-radius-md);
+  border: 1px solid var(--forge-outline-variant);
+  background: var(--forge-surface-container-low);
+  color: var(--forge-on-surface-variant);
+  cursor: pointer;
+  transition:
+    border-color var(--forge-motion-fast),
+    color var(--forge-motion-fast),
+    background var(--forge-motion-fast);
+}
+
+.analyst-panel__close:hover {
+  border-color: color-mix(in srgb, var(--forge-tertiary) 40%, var(--forge-outline-variant));
+  color: var(--forge-tertiary);
+  background: color-mix(in srgb, var(--forge-tertiary) 6%, var(--forge-surface-container-low));
+}
+
+.analyst-panel__close:focus-visible {
+  outline: 2px solid var(--forge-secondary);
+  outline-offset: 2px;
+}
+
+.analyst-panel__context {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--forge-outline-variant);
+  background: color-mix(in srgb, var(--forge-tertiary) 4%, var(--forge-surface-container-low));
+  flex-shrink: 0;
+}
+
+.analyst-panel__context-label {
+  margin: 0 0 10px;
+  color: var(--forge-tertiary);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.analyst-panel__context-empty {
+  font-size: 12px;
+  color: var(--forge-on-surface-variant);
+}
+
+.analyst-panel__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.analyst-panel__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: var(--forge-radius-pill);
+  border: 1px solid var(--forge-outline-variant);
+  background: var(--forge-surface-container-lowest);
+  color: var(--forge-on-surface);
+  cursor: pointer;
+  transition:
+    border-color var(--forge-motion-fast),
+    background var(--forge-motion-fast),
+    color var(--forge-motion-fast);
+}
+
+.analyst-panel__chip:hover {
+  border-color: color-mix(in srgb, var(--forge-error) 35%, var(--forge-outline-variant));
+  color: var(--forge-error);
+  background: color-mix(in srgb, var(--forge-error) 6%, var(--forge-surface-container-lowest));
+}
+
+.analyst-panel__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.analyst-panel__suggestion {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: var(--forge-radius-md);
+  border: 1px solid var(--forge-outline-variant);
+  background: var(--forge-surface-container-lowest);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--forge-on-surface-variant);
+  cursor: pointer;
+  transition:
+    border-color var(--forge-motion-fast),
+    color var(--forge-motion-fast),
+    background var(--forge-motion-fast);
+}
+
+.analyst-panel__suggestion:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--forge-tertiary) 40%, var(--forge-outline-variant));
+  color: var(--forge-tertiary);
+  background: color-mix(in srgb, var(--forge-tertiary) 6%, var(--forge-surface-container-lowest));
+}
+
+.analyst-panel__suggestion:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.analyst-panel__thread {
+  flex: 1;
+  padding: 16px 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: var(--forge-surface-container-low);
+}
+
+.analyst-panel__empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 12px;
+}
+
+.analyst-panel__empty .forge-empty {
+  padding: 0;
+}
+
+.analyst-panel__empty .forge-empty__icon {
+  background: color-mix(in srgb, var(--forge-tertiary) 12%, var(--forge-surface-container));
+  color: var(--forge-tertiary);
+}
+
+.analyst-panel__compose {
+  padding: 12px 18px calc(14px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--forge-outline-variant);
+  background: var(--forge-surface-container-lowest);
+  flex-shrink: 0;
+}
+
+.analyst-panel__compose .analyst-compose__box {
+  border-radius: var(--forge-radius-md);
+}
+
+.analyst-panel__disclaimer {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--forge-on-surface-variant);
+  text-align: center;
+}
+
+.analyst-panel__history-link {
+  color: var(--forge-primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.analyst-panel__history-link:hover {
+  color: var(--forge-primary);
+  opacity: 0.9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .analyst-panel,
+  .analyst-panel__backdrop {
+    animation: none;
+  }
+}
