@@ -2,7 +2,6 @@
 
 import { AnalystWorkspace } from "@/components/analyst/AnalystWorkspace";
 import { AppShell } from "@/components/shell/AppShell";
-import { PageHead } from "@/components/ui/primitives";
 import { alarmsForPlant, investigationsFixture } from "@/fixtures/demo";
 import { useProductShell } from "@/lib/product-shell";
 import { usePlant } from "@/lib/plant-context";
@@ -31,7 +30,7 @@ export default function AnalystPage() {
       ]}
       criticalAlarmCount={critical}
     >
-      <PageHead eyebrow="Intelligence" title="Ask Stamped" />
+      <h1 className="sr-only">Ask Stamped</h1>
       <AnalystWorkspace />
     </AppShell>
   );

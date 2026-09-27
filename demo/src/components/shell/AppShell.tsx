@@ -42,6 +42,9 @@ function sseMeta(connection: ConnectionStatus): {
   };
 }
 
+/** Survives page remounts so client navigations don't flash the expanded sidebar. */
+let collapsedCache: boolean | null = null;
+
 export function AppShell({
   active,
   plantName,
@@ -79,13 +82,14 @@ export function AppShell({
   const [analystOpen, setAnalystOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [pins, setPins] = useState<NavKey[]>([]);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => collapsedCache ?? false);
   const askAnalystRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const storage = typeof window !== "undefined" ? window.localStorage : null;
     setPins(readPins(storage));
-    setCollapsed(readCollapsed(storage));
+    collapsedCache = readCollapsed(storage);
+    setCollapsed(collapsedCache);
   }, []);
 
   // Facility label follows active plant (client is single-plant; staff switch is under Admin).
@@ -100,6 +104,7 @@ export function AppShell({
 
   function onToggleCollapse() {
     const next = !collapsed;
+    collapsedCache = next;
     setCollapsed(next);
     writeCollapsed(typeof window !== "undefined" ? window.localStorage : null, next);
   }

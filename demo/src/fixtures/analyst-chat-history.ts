@@ -200,7 +200,7 @@ export function formatChatDate(iso: string): string {
   const d = new Date(iso);
   const now = new Date("2026-07-21T10:15:00+05:30");
   const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000);
-  if (diffDays === 0) return "Today";
+  if (diffDays <= 0) return "Today";
   if (diffDays === 1) return "Yesterday";
   if (diffDays < 7) return `${diffDays}d ago`;
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });

@@ -33,7 +33,7 @@ import { analystPlantSnapshot } from "@/lib/analyst-fixtures";
 import { usePlant } from "@/lib/plant-context";
 import { useAuth } from "@/lib/auth-context";
 
-import { formatInr, formatIstCompactDateTime, formatIstTime } from "@/lib/format";
+import { formatIstTime } from "@/lib/format";
 
 import {
   AnalystRichBlock,
@@ -46,22 +46,15 @@ import { MessageSources } from "@/components/analyst/MessageSources";
 
 import { IconBadge } from "@/components/ui/indicators";
 
-import { EmptyState } from "@/components/ui/empty";
+import { StatusChip } from "@/components/ui/primitives";
 
 import {
-  ForgeButton,
-  Panel,
-  StatusChip,
-} from "@/components/ui/primitives";
-
-import {
-  Activity,
   AlertTriangle,
+  ArrowUp,
   BarChart3,
   CheckCircle,
   ClipboardList,
-  IndianRupee,
-  MessageSquare,
+  SquarePen,
   StampedMark,
 } from "@/components/ui/icons";
 
@@ -104,6 +97,14 @@ const QUICK = [
   },
 ] as const;
 
+const CHAT_GROUPS = ["Today", "Yesterday", "Previous 7 days", "Older"] as const;
+
+function chatGroup(iso: string): (typeof CHAT_GROUPS)[number] {
+  const label = formatChatDate(iso);
+  if (label === "Today" || label === "Yesterday") return label;
+  return label.endsWith("d ago") ? "Previous 7 days" : "Older";
+}
+
 function historyToSidebar(s: AnalystHistorySessionDto): AnalystChatSession {
   return {
     id: s.id,
@@ -121,7 +122,7 @@ function localNewSession(
 ): AnalystChatSession {
   return {
     id: `chat_${plantId}_new`,
-    title: "New conversation",
+    title: "New chat",
     preview: `Ask about ${plantName}…`,
     updatedAt,
     messages: [],
@@ -369,7 +370,7 @@ export function AnalystWorkspace({ compact = false }: { compact?: boolean }) {
   }
 
   async function startNewChat() {
-    if (streaming) return;
+    if (streaming || isEmpty) return;
     resetAnalystLiveSession();
     if (!liveMode) {
       const session = {
@@ -390,7 +391,7 @@ export function AnalystWorkspace({ compact = false }: { compact?: boolean }) {
       bindAnalystLiveSession(envelope, sessionId);
       const session: AnalystChatSession = {
         id: sessionId,
-        title: "New conversation",
+        title: "New chat",
         preview: `Ask about ${activePlant.plantName}…`,
         updatedAt: new Date().toISOString(),
         messages: [],
@@ -434,7 +435,7 @@ export function AnalystWorkspace({ compact = false }: { compact?: boolean }) {
             ? {
                 ...s,
                 messages: next,
-                title: s.title === "New conversation" ? q.slice(0, 42) : s.title,
+                title: s.title === "New chat" ? q.slice(0, 42) : s.title,
                 preview: q.slice(0, 72),
                 updatedAt: new Date().toISOString(),
               }
@@ -583,112 +584,93 @@ export function AnalystWorkspace({ compact = false }: { compact?: boolean }) {
     }
   }
 
-  return (
-    <div className="analyst-workspace" data-analyst-mode="B">
-      {compact ? null : (
-      <Panel className="analyst-hero">
-        <div className="analyst-hero__head">
-          <div>
-            <p className="forge-eyebrow">Plant context for answers</p>
-            <p className="analyst-hero__title">{snapshot.plantName}</p>
-          </div>
-          <div className="analyst-hero__badges">
-            <StatusChip tone="good">Source citations</StatusChip>
-            <StatusChip tone="good">Saved history</StatusChip>
-            <StatusChip tone="neutral">{sessions.length} conversations</StatusChip>
-          </div>
-        </div>
+  const historyGroups = CHAT_GROUPS.map((label) => ({
+    label,
+    items: sessions.filter(
+      (s) =>
+        chatGroup(s.updatedAt) === label && !(s.id.startsWith("chat_") && s.messages.length === 0),
+    ),
+  })).filter((g) => g.items.length > 0);
 
-        <div className="analyst-kpi-strip" role="list" aria-label="Plant signals for analyst context">
-          <div className="analyst-kpi" role="listitem">
-            <div className="analyst-kpi__head">
-              <IconBadge icon={AlertTriangle} tone="critical" size={30} iconSize={15} />
-              <p className="analyst-kpi__label">Critical alarms</p>
-            </div>
-            <p className="analyst-kpi__value tabular">{snapshot.criticalAlarms}</p>
-          </div>
-          <div className="analyst-kpi" role="listitem">
-            <div className="analyst-kpi__head">
-              <IconBadge icon={Activity} tone="warning" size={30} iconSize={15} />
-              <p className="analyst-kpi__label">Open alarms</p>
-            </div>
-            <p className="analyst-kpi__value tabular">{snapshot.openAlarms}</p>
-          </div>
-          <div className="analyst-kpi analyst-kpi--accent" role="listitem">
-            <div className="analyst-kpi__head">
-              <IconBadge icon={IndianRupee} tone="good" size={30} iconSize={15} />
-              <p className="analyst-kpi__label">Needs review</p>
-            </div>
-            <p className="analyst-kpi__value tabular">{formatInr(snapshot.needsReviewInr)}</p>
-            <p className="analyst-kpi__hint">{snapshot.needsReview} prescriptions</p>
-          </div>
-          <div className="analyst-kpi" role="listitem">
-            <div className="analyst-kpi__head">
-              <IconBadge icon={CheckCircle} tone="good" size={30} iconSize={15} />
-              <p className="analyst-kpi__label">Closure (30d)</p>
-            </div>
-            <p className="analyst-kpi__value tabular">{snapshot.closurePct}%</p>
-          </div>
-        </div>
-      </Panel>
+  return (
+    <div className={`analyst-gpt${compact ? " analyst-gpt--compact" : ""}`} data-analyst-mode="B">
+      {compact ? null : (
+        <aside className="analyst-gpt__side" aria-label="Chat history">
+          <button
+            type="button"
+            className="analyst-gpt__new"
+            onClick={() => void startNewChat()}
+            disabled={streaming}
+          >
+            <SquarePen size={16} aria-hidden />
+            New chat
+          </button>
+          <nav className="analyst-gpt__history forge-scroll-thin">
+            {historyGroups.map((group) => (
+              <div key={group.label} className="analyst-gpt__group">
+                <p className="analyst-gpt__group-label">{group.label}</p>
+                <ul>
+                  {group.items.map((session) => (
+                    <li key={session.id}>
+                      <button
+                        type="button"
+                        className="analyst-gpt__item"
+                        onClick={() => void selectSession(session.id)}
+                        aria-current={activeSessionId === session.id ? "true" : undefined}
+                        title={session.preview}
+                      >
+                        {session.title}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
+        </aside>
       )}
 
-      <div className={`analyst-layout${compact ? " analyst-layout--compact" : ""}`}>
-        <div className="analyst-chat-shell">
-          <header className="analyst-chat-header">
-            <div className="analyst-chat-header__body">
-              <div className="analyst-chat-header__icon" aria-hidden>
-                <StampedMark size={18} />
-              </div>
-              <div>
-                <h2 className="analyst-chat-header__title">
-                  {activeSession?.title ?? "Ask Stamped"}
-                </h2>
-                <p className="analyst-chat-header__sub">
-                  {snapshot.plantName} · Linked to alarms & prescriptions
-                  {activeSession?.updatedAt
-                    ? ` · ${formatIstCompactDateTime(activeSession.updatedAt)}`
-                    : ""}
-                </p>
-              </div>
-            </div>
+      <section className="analyst-gpt__main">
+        {compact ? null : (
+          <header className="analyst-gpt__bar">
+            <h2 className="analyst-gpt__bar-title">{activeSession?.title ?? "New chat"}</h2>
             {streaming ? <StatusChip tone="info">Analyzing…</StatusChip> : null}
           </header>
+        )}
 
-          <div className="analyst-chat-body">
-            {isEmpty ? (
-              <div className="analyst-empty">
-                <EmptyState
-                  icon={StampedMark}
-                  title={`How can I help with ${snapshot.plantName}?`}
-                  description="Ask about alarms, prescriptions, peak demand, or savings closure."
-                  action={
-                    <div className="analyst-quick">
-                      {QUICK.map((q) => (
-                        <QuickPromptButton
-                          key={q.id}
-                          item={q}
-                          variant="card"
-                          disabled={streaming}
-                          onClick={() => send(q.prompt)}
-                        />
-                      ))}
-                    </div>
-                  }
-                />
-              </div>
-            ) : (
-              <div className="analyst-thread forge-scroll-thin" aria-live="polite">
-                {messages.map((m) => (
-                  <ChatMessage key={m.id} message={m} onStreamComplete={onStreamComplete} />
+        <div className="analyst-gpt__scroll forge-scroll-thin" aria-live="polite">
+          {isEmpty ? (
+            <div className="analyst-gpt__welcome">
+              <StampedMark size={36} className="analyst-gpt__welcome-mark" />
+              <h2 className="analyst-gpt__welcome-title">What can I help with?</h2>
+              <p className="analyst-gpt__welcome-sub">
+                Ask about {snapshot.plantName}: alarms, prescriptions, peak demand or savings.
+              </p>
+              <div className="analyst-quick">
+                {QUICK.map((q) => (
+                  <QuickPromptButton
+                    key={q.id}
+                    item={q}
+                    variant="card"
+                    disabled={streaming}
+                    onClick={() => send(q.prompt)}
+                  />
                 ))}
-                <div ref={chatEndRef} />
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="analyst-gpt__thread">
+              {messages.map((m) => (
+                <ChatMessage key={m.id} message={m} onStreamComplete={onStreamComplete} />
+              ))}
+              <div ref={chatEndRef} />
+            </div>
+          )}
+        </div>
 
+        <footer className="analyst-gpt__composer">
           {!isEmpty ? (
-            <div className="analyst-quick analyst-quick--inline">
+            <div className="analyst-gpt__followups">
               {QUICK.map((q) => (
                 <QuickPromptButton
                   key={q.id}
@@ -700,91 +682,36 @@ export function AnalystWorkspace({ compact = false }: { compact?: boolean }) {
               ))}
             </div>
           ) : null}
-
-          <footer className="analyst-compose">
-            <div className="analyst-compose__box">
-              <textarea
-                aria-label="Ask analyst"
-                placeholder="Ask about alarms, demand, prescriptions, or savings…"
-                value={draft}
-                rows={1}
-                disabled={streaming}
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
-              />
-              <ForgeButton
-                type="button"
-                size="sm"
-                disabled={streaming || !draft.trim()}
-                onClick={() => send()}
-                icon={<StampedMark size={15} />}
-                aria-label={streaming ? "Analyzing" : "Send message"}
-              >
-                {streaming ? "…" : "Send"}
-              </ForgeButton>
-            </div>
-            <p className="analyst-footnote">
-              Stamped can make mistakes. Verify cited sources before plant actions.
-            </p>
-          </footer>
-        </div>
-
-        {compact ? null : (
-        <aside className="analyst-history">
-          <div className="analyst-history__head">
-            <div>
-              <h2 className="analyst-history__title">Conversations</h2>
-              <p className="analyst-history__sub">
-                {historyLoading
-                  ? "Loading…"
-                  : liveMode
-                    ? `${sessions.filter((s) => !s.id.startsWith("chat_")).length} saved · IST`
-                    : `${sessions.length} local`}
-              </p>
-            </div>
-            <ForgeButton
+          <div className="analyst-gpt__box">
+            <textarea
+              aria-label="Ask analyst"
+              placeholder="Message Stamped"
+              value={draft}
+              rows={1}
+              disabled={streaming}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
+            />
+            <button
               type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => void startNewChat()}
-              icon={<MessageSquare size={15} />}
+              className="analyst-gpt__send"
+              disabled={streaming || !draft.trim()}
+              onClick={() => send()}
+              aria-label={streaming ? "Analyzing" : "Send message"}
             >
-              New
-            </ForgeButton>
+              <ArrowUp size={18} strokeWidth={2.4} />
+            </button>
           </div>
-          <ul className="analyst-history__list forge-scroll-thin">
-            {sessions.map((session) => (
-              <li key={session.id}>
-                <button
-                  type="button"
-                  className={`analyst-history__item${activeSessionId === session.id ? " analyst-history__item--active" : ""}`}
-                  onClick={() => void selectSession(session.id)}
-                  aria-current={activeSessionId === session.id ? "true" : undefined}
-                >
-                  <span className="analyst-history__item-icon" aria-hidden>
-                    <MessageSquare size={14} />
-                  </span>
-                  <span className="analyst-history__item-body">
-                    <span className="analyst-history__item-title">{session.title}</span>
-                    <span className="analyst-history__item-preview">{session.preview}</span>
-                    <span className="analyst-history__item-date">
-                      {liveMode && !session.id.startsWith("chat_")
-                        ? formatIstCompactDateTime(session.updatedAt)
-                        : formatChatDate(session.updatedAt)}
-                    </span>
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </aside>
-        )}
-      </div>
+          <p className="analyst-gpt__foot">
+            Stamped can make mistakes. Verify cited sources before plant actions.
+          </p>
+        </footer>
+      </section>
     </div>
   );
 }

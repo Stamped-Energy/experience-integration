@@ -43,6 +43,22 @@ export function Home(p: IconProps) {
     </Icon>
   );
 }
+export function SquarePen(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z" />
+    </Icon>
+  );
+}
+export function ArrowUp(p: IconProps) {
+  return (
+    <Icon {...p}>
+      <path d="m5 12 7-7 7 7" />
+      <path d="M12 19V5" />
+    </Icon>
+  );
+}
 export function BarChart3(p: IconProps) {
   return (
     <Icon {...p}>
