@@ -48,7 +48,6 @@ export default function HomePage() {
       connection={connection}
       screenTitle="Home"
       contextSummary={[`${critical.length} critical alarms`, activePlant.plantName, activePlant.shift]}
-      criticalAlarmCount={critical.length}
     >
       <div className="home">
         <header className="home__hello">

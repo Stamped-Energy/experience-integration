@@ -149,7 +149,6 @@ describe("responsive Forge shell", () => {
           connection: { sse: "offline" },
           screenTitle: "Today",
           contextSummary: ["Bill risk"],
-          criticalAlarmCount: 0,
           children: createElement("p", null, "body"),
         }),
       ),

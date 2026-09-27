@@ -2,16 +2,13 @@
 
 import { AnalystWorkspace } from "@/components/analyst/AnalystWorkspace";
 import { AppShell } from "@/components/shell/AppShell";
-import { alarmsForPlant, investigationsFixture } from "@/fixtures/demo";
+import { investigationsFixture } from "@/fixtures/demo";
 import { useProductShell } from "@/lib/product-shell";
 import { usePlant } from "@/lib/plant-context";
 
 export default function AnalystPage() {
   const { activePlant, plants, setActivePlantId } = usePlant();
   const { role, connection } = useProductShell();
-  const critical = alarmsForPlant(activePlant.plantId).filter(
-    (a) => a.severity === "critical" && a.state !== "cleared",
-  ).length;
 
   return (
     <AppShell
@@ -28,7 +25,6 @@ export default function AnalystPage() {
         "Answers include source citations",
         activePlant.plantName,
       ]}
-      criticalAlarmCount={critical}
     >
       <h1 className="sr-only">Ask Stamped</h1>
       <AnalystWorkspace />

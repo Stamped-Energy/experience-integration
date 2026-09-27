@@ -5,7 +5,6 @@ import { AppShell } from "@/components/shell/AppShell";
 import { ForgeButton, PageHead } from "@/components/ui/primitives";
 import {
   DEMO_SHELL_ROLE,
-  alarmsForPlant,
   connectionFixture,
 } from "@/fixtures/demo";
 import type { EvidenceSample } from "@/fixtures/evidence-samples";
@@ -30,9 +29,6 @@ export function AlarmDetailShell({
   prescriptionHref?: string;
 }) {
   const { activePlant, plants, setActivePlantId } = usePlant();
-  const critical = alarmsForPlant(activePlant.plantId).filter(
-    (a) => a.severity === "critical" && a.state !== "cleared",
-  ).length;
 
   return (
     <AppShell
@@ -46,7 +42,6 @@ export function AlarmDetailShell({
       screenTitle={`Alarm ${alarm.assetLabel}`}
       contextSummary={[alarm.summary, activePlant.plantName]}
       focusEntity={{ type: "alarm", id: alarm.id }}
-      criticalAlarmCount={critical}
     >
       <PageHead
         eyebrow="Alarm · Full detail"

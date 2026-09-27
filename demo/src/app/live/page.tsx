@@ -84,7 +84,6 @@ export default function LivePage() {
         hasData ? `${overlay?.machines.length ?? 0} assets tracked` : "Waiting for connection",
         activePlant.shift,
       ]}
-      criticalAlarmCount={0}
     >
       <PageHead eyebrow="Operations" title="Live" />
       <SourceIndicator source={source} loading={loading} detail={loadError} />

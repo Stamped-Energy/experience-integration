@@ -110,7 +110,6 @@ export default function AlarmsPage() {
         hasData ? "Alarms loaded" : "No alarm data",
       ]}
       focusEntity={alarms[0] ? { type: "alarm", id: alarms[0].id } : undefined}
-      criticalAlarmCount={critical}
     >
       <PageHead eyebrow="Operations" title="Alarm console" />
       <SourceIndicator source={source} loading={loading} detail={detail} />

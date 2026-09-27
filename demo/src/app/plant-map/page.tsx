@@ -107,7 +107,6 @@ export default function PlantMapPage() {
         hasData ? "Plant map loaded" : "Plant map unavailable",
         activePlant.plantName,
       ]}
-      criticalAlarmCount={0}
     >
       <PageHead eyebrow="Operations" title="Plant Map" />
       <SourceIndicator source={source} loading={loading} detail={detail} />

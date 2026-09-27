@@ -137,7 +137,6 @@ export default function ReportsPage() {
         `${ledger.length} ledger entries`,
         activePlant.plantName,
       ]}
-      criticalAlarmCount={0}
     >
       <PageHead eyebrow="Value" title="Reports & ledger" />
       <SourceIndicator source={source} loading={loading} detail={detail} />

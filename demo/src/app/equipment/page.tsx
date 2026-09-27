@@ -147,7 +147,6 @@ export default function EquipmentPage() {
         "Vibration data when sensors are connected",
         activePlant.plantName,
       ]}
-      criticalAlarmCount={0}
     >
       <PageHead eyebrow="Insights" title="Machine Health" />
       <SourceIndicator source={source} loading={loading} detail={detail} />

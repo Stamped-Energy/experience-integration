@@ -57,7 +57,6 @@ export function AppShell({
   screenTitle,
   contextSummary,
   focusEntity,
-  criticalAlarmCount,
   children,
 }: {
   active: NavKey;
@@ -75,7 +74,6 @@ export function AppShell({
     type: "alarm" | "prescription" | "asset" | "ledger_entry";
     id: string;
   };
-  criticalAlarmCount: number;
   children: React.ReactNode;
 }) {
   const plantCtx = usePlant();
@@ -98,6 +96,8 @@ export function AppShell({
   const shellPlantName =
     plants && plants.length > 0 ? plantName : plantCtx.activePlant.plantName;
   const contentKey = `${shellPlantId}:${plantCtx.plantEpoch}`;
+  const plantSnapshot = useMemo(() => analystPlantSnapshot(shellPlantId), [shellPlantId]);
+  const criticalAlarmCount = plantSnapshot.criticalAlarms;
 
   const dock = useMemo(() => mobileDock(role, pins), [role, pins]);
   const sse = useMemo(() => sseMeta(connection), [connection]);
@@ -184,7 +184,7 @@ export function AppShell({
               <dl className="forge-shell__facility-stats">
                 <div>
                   <dt>Peak demand</dt>
-                  <dd>{analystPlantSnapshot(shellPlantId).peakMdKva.toLocaleString("en-IN")} kVA</dd>
+                  <dd>{plantSnapshot.peakMdKva.toLocaleString("en-IN")} kVA</dd>
                 </div>
                 <div>
                   <dt>Critical</dt>

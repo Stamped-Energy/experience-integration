@@ -109,7 +109,6 @@ export default function AlarmDetailPage() {
       connection={connectionFixture}
       screenTitle="Alarm"
       contextSummary={[alarmId, activePlant.plantName]}
-      criticalAlarmCount={0}
     >
       <PageHead
         eyebrow="Alarm"

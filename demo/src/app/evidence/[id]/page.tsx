@@ -129,7 +129,6 @@ export default function EvidenceDetailPage() {
       connection={connectionFixture}
       screenTitle="Evidence"
       contextSummary={[evidenceId, activePlant.plantName]}
-      criticalAlarmCount={0}
     >
       <PageHead
         eyebrow="Evidence"

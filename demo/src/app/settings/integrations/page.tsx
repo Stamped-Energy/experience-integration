@@ -239,7 +239,6 @@ export default function IntegrationsSettingsPage() {
       connection={isDemoSession ? connectionFixture : connectionFromProbe(probe)}
       screenTitle="Integrations"
       contextSummary={["Connections & exports", activePlant.plantName]}
-      criticalAlarmCount={0}
     >
       <PageHead eyebrow="Admin" title="Integrations" />
       {loading ? (

@@ -5,7 +5,6 @@ import { PageHead } from "@/components/ui/primitives";
 import { EvidenceDetail } from "@/components/evidence/EvidenceDetail";
 import {
   DEMO_SHELL_ROLE,
-  alarmsForPlant,
   connectionFixture,
 } from "@/fixtures/demo";
 import type { EvidenceSample } from "@/fixtures/evidence-samples";
@@ -13,9 +12,6 @@ import { usePlant } from "@/lib/plant-context";
 
 export function EvidenceDetailClient({ sample }: { sample: EvidenceSample }) {
   const { activePlant, plants, setActivePlantId } = usePlant();
-  const critical = alarmsForPlant(activePlant.plantId).filter(
-    (a) => a.severity === "critical" && a.state !== "cleared",
-  ).length;
 
   return (
     <AppShell
@@ -35,7 +31,6 @@ export function EvidenceDetailClient({ sample }: { sample: EvidenceSample }) {
             ? { type: "alarm", id: sample.alarmId }
             : undefined
       }
-      criticalAlarmCount={critical}
     >
       <PageHead
         eyebrow="Evidence"

@@ -99,7 +99,6 @@ export default function IntensityPage() {
         hasData ? "Sustainability metrics loaded" : "No sustainability data",
         activePlant.plantName,
       ]}
-      criticalAlarmCount={0}
     >
       <PageHead eyebrow="Analytics" title="Sustainability" />
       <SourceIndicator source={source} loading={loading} detail={detail} />

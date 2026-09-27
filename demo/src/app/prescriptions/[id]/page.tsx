@@ -123,7 +123,6 @@ export default function PrescriptionDetailPage() {
       connection={connectionFixture}
       screenTitle="Prescription"
       contextSummary={[rxId, activePlant.plantName]}
-      criticalAlarmCount={0}
     >
       <PageHead
         eyebrow="Prescription"

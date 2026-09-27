@@ -92,7 +92,6 @@ export default function EnergyPage() {
         hasData ? "Energy analytics loaded" : "Energy data unavailable",
         activePlant.plantName,
       ]}
-      criticalAlarmCount={0}
     >
       <PageHead eyebrow="Insights" title="Energy Analytics" />
       <SourceIndicator source={source} loading={loading} detail={detail} />

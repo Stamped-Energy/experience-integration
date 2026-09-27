@@ -23,7 +23,6 @@ export default function AssignmentsPage() {
       connection={isDemoSession ? connectionFixture : connectionFromProbe(probe)}
       screenTitle="Assignments"
       contextSummary={["Notify roster & routes", activePlant.plantName]}
-      criticalAlarmCount={0}
     >
       <PageHead eyebrow="Admin" title="Assignments & notification routing" />
       <AssignmentsBoard key={`${activePlant.plantId}:${plantEpoch}`} />

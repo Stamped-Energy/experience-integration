@@ -171,7 +171,6 @@ export default function OverviewPage() {
         `${formatInr(needsReviewInr)} open prescriptions`,
         activePlant.shift,
       ]}
-      criticalAlarmCount={critical}
     >
       <PageHead eyebrow={activePlant.plantName} title="Overview" />
       <SourceIndicator

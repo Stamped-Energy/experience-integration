@@ -172,7 +172,6 @@ export default function ToolsPage() {
       connection={isDemoSession ? connectionFixture : connectionFromProbe(probe)}
       screenTitle="Tools"
       contextSummary={["Specialized plant tools", activePlant.plantName]}
-      criticalAlarmCount={0}
     >
       <PageHead eyebrow="Operations" title="Tools" />
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>

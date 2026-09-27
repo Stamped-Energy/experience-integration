@@ -123,7 +123,6 @@ export default function PrescriptionsPage() {
         contextLine,
       ]}
       focusEntity={rows[0] ? { type: "prescription", id: rows[0].id } : undefined}
-      criticalAlarmCount={0}
     >
       <PageHead
         eyebrow="Ranked worklist · max 10"

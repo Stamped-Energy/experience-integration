@@ -150,7 +150,6 @@ export default function AdminSettingsPage() {
         loading ? "Loading…" : `${members.length} members`,
         activePlant.orgName,
       ]}
-      criticalAlarmCount={0}
     >
       <PageHead eyebrow="Admin" title="Organization admin" />
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
