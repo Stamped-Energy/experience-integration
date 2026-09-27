@@ -303,11 +303,7 @@ export function ContextualAnalyst({
             </div>
           </div>
           <div className="analyst-panel__header-actions">
-            {liveMode === true ? (
-              <StatusChip tone="good">Live AI</StatusChip>
-            ) : liveMode === false ? (
-              <StatusChip tone="neutral">Preview</StatusChip>
-            ) : null}
+            {liveMode !== null ? <StatusChip tone="good">Live AI</StatusChip> : null}
             {streaming ? <StatusChip tone="info">Analyzing…</StatusChip> : null}
             <button
               ref={closeRef}

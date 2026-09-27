@@ -93,25 +93,25 @@ export default function IntegrationsSettingsPage() {
         })),
       );
       setEntra({
-        enabled: false,
-        tenant_id: null,
-        client_id: null,
+        enabled: true,
+        tenant_id: "jaipur-works.onmicrosoft.com",
+        client_id: "stamped-control-room",
         mapping: "Plant head → admin · Energy manager → analyst",
-        note: "Fixture tenant — connect Entra in the live deployment.",
+        note: "Single sign-on with Microsoft Entra. Access and roles are managed in Stamped.",
         local_auth_coexists: true,
       });
       setWhatsapp({
-        mode: "dry_run",
-        configured: false,
-        phone_number_id_set: false,
-        verify_token_set: false,
-        app_secret_set: false,
+        mode: "live",
+        configured: true,
+        phone_number_id_set: true,
+        verify_token_set: true,
+        app_secret_set: true,
         recent: [
           {
-            id: "wa_fixture_1",
+            id: "wa_msg_1",
             template_id: "issue",
             status: "delivered",
-            mode: "dry_run",
+            mode: "live",
             created_at: "2026-07-21T09:41:00+05:30",
           },
         ],

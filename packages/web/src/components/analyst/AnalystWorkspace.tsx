@@ -591,11 +591,7 @@ export function AnalystWorkspace() {
           </div>
           <div className="analyst-hero__badges">
             <StatusChip tone="good">Source citations</StatusChip>
-            {liveMode ? (
-              <StatusChip tone="good">Saved history</StatusChip>
-            ) : (
-              <StatusChip tone="neutral">Demo history</StatusChip>
-            )}
+            <StatusChip tone="good">Saved history</StatusChip>
             <StatusChip tone="neutral">{sessions.length} conversations</StatusChip>
           </div>
         </div>

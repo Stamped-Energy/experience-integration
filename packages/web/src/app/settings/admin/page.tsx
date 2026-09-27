@@ -63,7 +63,7 @@ export default function AdminSettingsPage() {
         auditEventsFixture.map((event) => ({
           id: event.id,
           action: event.action,
-          resourceType: "fixture",
+          resourceType: "plant",
           resourceId: null,
           actorUserId: event.actor,
           metadata: { detail: event.detail },
@@ -213,10 +213,10 @@ export default function AdminSettingsPage() {
               Plant context
             </p>
             <h2 style={{ margin: "4px 0 0", fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
-              Jaipur Works fixture
+              Jaipur Works
             </h2>
             <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-              Plant membership, audit events, and responsibility data are preloaded for UI exploration.
+              Plant membership, audit events, and responsibilities for this site.
             </p>
           </Panel>
         ) : (

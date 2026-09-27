@@ -25,7 +25,7 @@ export default function DemoLaunchPage() {
         fontFamily: "var(--forge-font-body)",
       }}
     >
-      Opening the Jaipur Works fixture workspace…
+      Opening Jaipur Works…
     </main>
   );
 }

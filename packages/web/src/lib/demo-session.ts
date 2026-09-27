@@ -58,8 +58,8 @@ export function clearDemoSession(): void {
 export function demoUser(): AuthUser {
   return {
     id: "user_demo_jaipur",
-    email: DEMO_LOGIN_EMAIL,
-    name: "Jaipur Demo",
+    email: "asha.verma@jaipurworks.in",
+    name: "Asha Verma",
     emailVerified: true,
     role: "admin",
   };

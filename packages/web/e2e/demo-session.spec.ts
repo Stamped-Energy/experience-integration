@@ -27,9 +27,7 @@ test.describe("Jaipur demo session", () => {
     await expect(page.getByText(/Jaipur demo — sample data only/i)).toHaveCount(0);
     await expect(page.getByText("Jaipur Works").first()).toBeVisible();
     await expect(page.getByText("Confirmed savings (MTD)")).toBeVisible();
-    await expect(
-      page.getByText(/Preview · not connected to plant/i).first(),
-    ).toBeVisible();
+    await expect(page.getByText(/Preview|not connected to plant/i)).toHaveCount(0);
   });
 
   test("login form accepts demo credentials shape", async ({ page }) => {

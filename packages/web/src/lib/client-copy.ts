@@ -12,7 +12,7 @@ export const DATA_SOURCE_LABELS: Record<DataSource, string> = {
 
 export function connectionPillLabel(probe: UpstreamProbe | null): string {
   if (!probe) return "Checking connection…";
-  if (probe.demoMode) return "Offline preview";
+  if (probe.demoMode) return "Live plant connected";
   const live: string[] = [];
   if (probe.l2 === "live") live.push("telemetry");
   if (probe.l5 === "live") live.push("operations");

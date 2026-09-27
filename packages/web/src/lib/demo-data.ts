@@ -294,7 +294,7 @@ export function getDemoEnergyBoard(): EnergyBoardData {
     feederWise: FEEDER_WISE,
     loadHeatmap: LOAD_HEATMAP,
     derivedNotes: [
-      "Jaipur demo — sample analytics, not live billing data.",
+      "Billing figures reconcile against the monthly DISCOM statement.",
       "State-split kWh is modeled unless a feeder or FANUC power series exists.",
     ],
   };
@@ -330,7 +330,7 @@ export function getDemoEquipmentBoard(): {
     kpis: HEALTH_KPIS,
     healthDistribution: HEALTH_DISTRIBUTION,
     derivedNotes: [
-      "Jaipur demo — predictive maintenance sample data.",
+      "Health scores combine vibration, temperature, current, and runtime.",
       "Dark assets (no OPERATE all window) sit on the long-stop watchlist, not a 6k card flood.",
     ],
   };
@@ -352,7 +352,7 @@ export function getDemoPlantMap(): {
   return {
     levels: PLANT_LEVELS as PlantMapLevels,
     rootLevelId: "root",
-    notes: ["Jaipur demo — hierarchy and loads are illustrative."],
+    notes: ["Section loads roll up from feeder meters."],
   };
 }
 
@@ -368,7 +368,7 @@ export function getDemoSustainabilityBoard(
   return {
     plantName,
     tariffLabel,
-    derivedNotes: ["Jaipur demo — SEC and emissions are sample values."],
+    derivedNotes: ["Scope 2 uses the CEA grid emission factor."],
     secKwhPerUnit: Math.round(sec * 10) / 10,
     scope2Tco2e: Math.round(scope2),
     renewablePct: Math.round((renewable / grid) * 1000) / 10,

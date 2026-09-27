@@ -6,6 +6,8 @@ import { downloadTextFile, toCsv } from "@/lib/csv-download";
 import { downloadDocx } from "@/lib/docx-download";
 import { sanitizeClaimStatus } from "@/lib/ledger";
 import { bffUrl } from "@/lib/bff";
+import { useAuth } from "@/lib/auth-context";
+import { reportJobsFixture } from "@/fixtures/demo";
 import { periodLabelForNow } from "@/lib/ledger-from-prescriptions";
 import {
   GhostButton,
@@ -129,12 +131,18 @@ export function ExportCentre({
   ledger: LedgerEntry[];
   prescriptions: Prescription[];
 }) {
+  const { isDemoSession } = useAuth();
   const [reports, setReports] = useState<ReportJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const loadJobs = useCallback(async () => {
+    if (isDemoSession) {
+      setReports(reportJobsFixture.map((job) => ({ ...job, hasArtifact: job.state === "approved" })));
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch(
@@ -151,7 +159,7 @@ export function ExportCentre({
     } finally {
       setLoading(false);
     }
-  }, [plantId]);
+  }, [plantId, isDemoSession]);
 
   useEffect(() => {
     void loadJobs();
@@ -328,7 +336,7 @@ export function ExportCentre({
         ) : reports.length === 0 ? (
           <EmptyUpstreamState
             title="No report jobs yet"
-            detail="Generate a sustainability pack for this plant. Fixture report rows are not seeded."
+            detail="Generate a sustainability pack for this plant."
           />
         ) : (
           <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 10 }}>

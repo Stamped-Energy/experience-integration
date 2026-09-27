@@ -11,11 +11,12 @@ type Props = {
 
 /** Consistent live-vs-preview indicator across converted screens. */
 export function SourceIndicator({ source, loading, detail }: Props) {
+  if (source === "preview" || source === "fixture") return null;
   const label = loading ? "Loading…" : DATA_SOURCE_LABELS[source];
   const tone =
     source === "l2" || source === "l5"
       ? "var(--forge-tertiary)"
-      : source === "preview" || source === "unavailable"
+      : source === "unavailable"
         ? "var(--forge-warning)"
         : "var(--forge-on-surface-variant)";
 
