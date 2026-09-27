@@ -2,11 +2,9 @@
 
 **Product:** Stamped (do not append Energy to the product name).
 
-**If you want to understand what Stamped is:** read [`Stamped_Master_Document.md`](Stamped_Master_Document.md) first — company policy (identity, product, ICP, commercial motion, speech rules).
+**If you want to understand what Stamped is:** read [`external/Stamped_Master_Document.md`](external/Stamped_Master_Document.md) in the stamped-external submodule. Run `git submodule update --init` first. That file is the only company policy. On conflict with older memos, prefer it.
 
-**One sentence:** Stamped helps plant teams choose, assign, and verify the next operating action across energy, cost, time / throughput, continuity / flow, and short-horizon exceptions.
-
-**Authority (in `external/` after pin):** `external/research/plant-efficiency-exploration-2026-09/AGENT-START.md` → `09` → `10` → `external/decisions/028-032/ADR-030-five-domain-decision-loop.md`. On company identity, prefer [`Stamped_Master_Document.md`](Stamped_Master_Document.md).
+**Supporting history (in `external/` after pin, does not override the master document):** `external/research/plant-efficiency-exploration-2026-09/AGENT-START.md` → `09` → `10` → `external/decisions/028-032/ADR-030-five-domain-decision-loop.md`.
 
 Prior product snapshot: platform tag `v2026.09.24`.
 
