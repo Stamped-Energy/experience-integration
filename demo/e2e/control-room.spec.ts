@@ -14,6 +14,7 @@ test.describe("control-room production smoke", () => {
   });
 
   test("prioritises Overview actions and keeps the seven-signal cap", async ({ page }) => {
+    await page.goto("/overview");
     await expect(page.locator("[data-overview-board]")).toBeVisible();
     await expect(page.locator("[data-overview-board] [data-signal-id]")).toHaveCount(7);
     await expect(page.getByRole("heading", { name: "Next operating actions" })).toBeVisible();
@@ -22,10 +23,10 @@ test.describe("control-room production smoke", () => {
   });
 
   test("opens and closes contextual Analyst with keyboard focus return", async ({ page }) => {
-    const askAnalyst = page.getByRole("button", { name: "Ask Analyst" });
+    const askAnalyst = page.getByRole("button", { name: "Ask Stamped" });
     await askAnalyst.click();
 
-    const dialog = page.getByRole("dialog", { name: "Stamped Analyst" });
+    const dialog = page.getByRole("dialog", { name: "Stamped" });
     await expect(dialog).toBeVisible();
     await expect(dialog.getByText("Attached context")).toBeVisible();
     await expect(dialog.getByTitle("Remove from context").first()).toBeVisible();
@@ -37,14 +38,14 @@ test.describe("control-room production smoke", () => {
 
   test("renders fixture Analyst answers with source controls", async ({ page }) => {
     await page.goto("/analyst");
-    await expect(page.getByRole("heading", { name: "Ask Analyst" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Ask Stamped" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Conversations" })).toBeVisible();
 
     await page
       .getByRole("button", { name: /Summarize open alarms/ })
       .click();
 
-    await expect(page.getByText("Stamped Analyst").last()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("Stamped").last()).toBeVisible({ timeout: 10_000 });
     await expect(page.getByRole("button", { name: /source/ }).last()).toBeVisible({
       timeout: 10_000,
     });

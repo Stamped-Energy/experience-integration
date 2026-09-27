@@ -62,7 +62,7 @@ import {
   ClipboardList,
   IndianRupee,
   MessageSquare,
-  Sparkles,
+  StampedMark,
 } from "@/components/ui/icons";
 
 import type { StatusTone } from "@/components/ui/primitives";
@@ -144,11 +144,11 @@ function ChatMessage({
   return (
     <article className={`analyst-msg ${isUser ? "analyst-msg--user" : "analyst-msg--assistant"}`}>
       <div className="analyst-msg__avatar" aria-hidden>
-        {isUser ? "You" : <Sparkles size={16} />}
+        {isUser ? "You" : <StampedMark size={20} />}
       </div>
       <div className="analyst-msg__content">
         <header className="analyst-msg__head">
-          <span className="analyst-msg__role">{isUser ? "You" : "Stamped Analyst"}</span>
+          <span className="analyst-msg__role">{isUser ? "You" : "Stamped"}</span>
           {timeLabel ? (
             <time className="analyst-msg__time" dateTime={message.createdAt}>
               {timeLabel}
@@ -219,8 +219,8 @@ function QuickPromptButton({
   );
 }
 
-/** Mode B - full-page analyst workspace with streaming replies. */
-export function AnalystWorkspace() {
+/** Mode B - full-page analyst workspace with streaming replies. `compact` = fresh chat only (Home). */
+export function AnalystWorkspace({ compact = false }: { compact?: boolean }) {
   const { activePlant } = usePlant();
   const { isDemoSession } = useAuth();
   const [liveMode, setLiveMode] = useState(false);
@@ -251,7 +251,7 @@ export function AnalystWorkspace() {
       userId: "user_demo",
       role: "energy_manager",
       routeId: "analyst",
-      screenTitle: "Ask Analyst",
+      screenTitle: "Ask Stamped",
       visibleSummary: [activePlant.plantName, "Cited answers from plant data"],
     }),
     [activePlant],
@@ -267,8 +267,9 @@ export function AnalystWorkspace() {
       const history = analystChatHistoryFixture;
       setLiveMode(false);
       setSessions([draft, ...history]);
-      setActiveSessionId(history[0]?.id ?? draft.id);
-      setMessages(history[0]?.messages ?? []);
+      const opened = compact ? undefined : history[0];
+      setActiveSessionId(opened?.id ?? draft.id);
+      setMessages(opened?.messages ?? []);
       setHistoryLoading(false);
       return;
     }
@@ -308,6 +309,7 @@ export function AnalystWorkspace() {
     activePlant.orgId,
     activePlant.plantId,
     activePlant.plantName,
+    compact,
     isDemoSession,
   ]);
 
@@ -491,7 +493,7 @@ export function AnalystWorkspace() {
           {
             id: assistantId,
             role: "assistant",
-            content: `Analyst unavailable: ${message}`,
+            content: `Stamped unavailable: ${message}`,
             createdAt: nowIso,
           },
         ]);
@@ -565,7 +567,7 @@ export function AnalystWorkspace() {
           },
           onError: (message) => {
             patchAssistant({
-              content: `Analyst error: ${message}`,
+              content: `Stamped error: ${message}`,
             });
             setStreaming(false);
           },
@@ -575,7 +577,7 @@ export function AnalystWorkspace() {
     } catch (err) {
       const message = err instanceof Error ? err.message : "stream failed";
       patchAssistant({
-        content: `Analyst unavailable: ${message}`,
+        content: `Stamped unavailable: ${message}`,
       });
       setStreaming(false);
     }
@@ -583,6 +585,7 @@ export function AnalystWorkspace() {
 
   return (
     <div className="analyst-workspace" data-analyst-mode="B">
+      {compact ? null : (
       <Panel className="analyst-hero">
         <div className="analyst-hero__head">
           <div>
@@ -628,17 +631,18 @@ export function AnalystWorkspace() {
           </div>
         </div>
       </Panel>
+      )}
 
-      <div className="analyst-layout">
+      <div className={`analyst-layout${compact ? " analyst-layout--compact" : ""}`}>
         <div className="analyst-chat-shell">
           <header className="analyst-chat-header">
             <div className="analyst-chat-header__body">
               <div className="analyst-chat-header__icon" aria-hidden>
-                <Sparkles size={18} />
+                <StampedMark size={18} />
               </div>
               <div>
                 <h2 className="analyst-chat-header__title">
-                  {activeSession?.title ?? "Ask Analyst"}
+                  {activeSession?.title ?? "Ask Stamped"}
                 </h2>
                 <p className="analyst-chat-header__sub">
                   {snapshot.plantName} · Linked to alarms & prescriptions
@@ -655,7 +659,7 @@ export function AnalystWorkspace() {
             {isEmpty ? (
               <div className="analyst-empty">
                 <EmptyState
-                  icon={Sparkles}
+                  icon={StampedMark}
                   title={`How can I help with ${snapshot.plantName}?`}
                   description="Ask about alarms, prescriptions, peak demand, or savings closure."
                   action={
@@ -718,18 +722,19 @@ export function AnalystWorkspace() {
                 size="sm"
                 disabled={streaming || !draft.trim()}
                 onClick={() => send()}
-                icon={<Sparkles size={15} />}
+                icon={<StampedMark size={15} />}
                 aria-label={streaming ? "Analyzing" : "Send message"}
               >
                 {streaming ? "…" : "Send"}
               </ForgeButton>
             </div>
             <p className="analyst-footnote">
-              Stamped Analyst can make mistakes. Verify cited sources before plant actions.
+              Stamped can make mistakes. Verify cited sources before plant actions.
             </p>
           </footer>
         </div>
 
+        {compact ? null : (
         <aside className="analyst-history">
           <div className="analyst-history__head">
             <div>
@@ -778,6 +783,7 @@ export function AnalystWorkspace() {
             ))}
           </ul>
         </aside>
+        )}
       </div>
     </div>
   );

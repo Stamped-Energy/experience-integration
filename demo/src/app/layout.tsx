@@ -13,7 +13,7 @@ import "@/components/alarms/alarm-full-case.css";
 import "@/components/prescriptions/prescription-full-case.css";
 
 export const metadata: Metadata = {
-  title: "Stamped Energy",
+  title: "Stamped",
   description: "Energy operations dashboard for your plant",
 };
 

@@ -26,7 +26,7 @@ import { EmptyState } from "@/components/ui/empty";
 
 import { ForgeButton, StatusChip } from "@/components/ui/primitives";
 
-import { Sparkles, X } from "@/components/ui/icons";
+import { StampedMark, X } from "@/components/ui/icons";
 
 import {
   AnalystRichBlock,
@@ -55,11 +55,11 @@ function PanelMessage({
   return (
     <article className={`analyst-msg ${isUser ? "analyst-msg--user" : "analyst-msg--assistant"}`}>
       <div className="analyst-msg__avatar" aria-hidden>
-        {isUser ? "You" : <Sparkles size={14} />}
+        {isUser ? "You" : <StampedMark size={17} />}
       </div>
       <div className="analyst-msg__content">
         <header className="analyst-msg__head">
-          <span className="analyst-msg__role">{isUser ? "You" : "Stamped Analyst"}</span>
+          <span className="analyst-msg__role">{isUser ? "You" : "Stamped"}</span>
           {timeLabel ? (
             <time className="analyst-msg__time" dateTime={message.createdAt}>
               {timeLabel}
@@ -248,7 +248,7 @@ export function ContextualAnalyst({
               m.id === assistantId
                 ? {
                     ...m,
-                    content: m.content || `Analyst error: ${message}`,
+                    content: m.content || `Stamped error: ${message}`,
                   }
                 : m,
             ),
@@ -261,7 +261,7 @@ export function ContextualAnalyst({
       setMessages((prev) =>
         prev.map((m) =>
           m.id === assistantId
-            ? { ...m, content: `Analyst unavailable: ${message}` }
+            ? { ...m, content: `Stamped unavailable: ${message}` }
             : m,
         ),
       );
@@ -292,10 +292,10 @@ export function ContextualAnalyst({
       >
         <header className="analyst-panel__header">
           <div className="analyst-panel__brand">
-            <IconBadge icon={Sparkles} tone="primary" size={38} iconSize={18} />
+            <IconBadge icon={StampedMark} tone="primary" size={38} iconSize={18} />
             <div className="analyst-panel__brand-copy">
               <h2 id={titleId} className="analyst-panel__title">
-                Stamped Analyst
+                Stamped
               </h2>
               <p className="analyst-panel__subtitle">
                 {plantLabel} · {envelope.screenTitle} · Cited answers from this screen
@@ -358,7 +358,7 @@ export function ContextualAnalyst({
           {messages.length === 0 ? (
             <div className="analyst-panel__empty">
               <EmptyState
-                icon={Sparkles}
+                icon={StampedMark}
                 title="Ask about this screen"
                 description="Answers cite plant data and evidence scoped to what you are viewing. Irreversible actions always need your confirmation."
               />
@@ -372,7 +372,7 @@ export function ContextualAnalyst({
 
         <footer className="analyst-panel__compose">
           <label className="sr-only" htmlFor="analyst-input">
-            Ask Stamped Analyst
+            Ask Stamped
           </label>
           <div className="analyst-compose__box">
             <textarea
@@ -392,7 +392,7 @@ export function ContextualAnalyst({
             <ForgeButton
               type="button"
               size="sm"
-              icon={<Sparkles size={15} />}
+              icon={<StampedMark size={15} />}
               disabled={streaming || !draft.trim()}
               onClick={() => send(draft)}
             >

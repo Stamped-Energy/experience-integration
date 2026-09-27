@@ -1,200 +1,120 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { AnalystWorkspace } from "@/components/analyst/AnalystWorkspace";
+import { AgentCard } from "@/components/home/AgentCard";
 import { AppShell } from "@/components/shell/AppShell";
-import { OverviewBoard } from "@/components/today/OverviewBoard";
-import { SourceIndicator } from "@/components/ui/SourceIndicator";
-import { OverviewBoardSkeleton } from "@/components/ui/PageSkeletons";
-import { PageHead } from "@/components/ui/primitives";
-import { bffUrl, type DataSource } from "@/lib/bff";
-import { DEMO_DATA_SOURCE, getDemoOverview } from "@/lib/demo-data";
-import { formatInr } from "@/lib/format";
+import { alarmsForPlant, prescriptionsForPlant } from "@/fixtures/demo";
+import { formatInr, formatIstTime } from "@/lib/format";
+import { usePlant } from "@/lib/plant-context";
 import { useProductShell } from "@/lib/product-shell";
-import type { OverviewLiveKpis } from "@/components/today/overview/KpiHeroStrip";
+import "@/components/home/home.css";
 
-type OverviewResponse = {
-  plantId: string;
-  source: { l2: "l2" | "unavailable"; l5: "l5" | "unavailable" };
-  generatedAt: string;
-  confirmedSavingsMtdInr: number | null;
-  closureRate30d: number | null;
-  criticalAlarmCount: number | null;
-  needsReviewCount: number | null;
-  needsReviewInr: number | null;
-  mdHeadroomPct: number | null;
-  mdPeakKva: number | null;
-  mdCmdKva: number | null;
-  vsBaseline7dPct: number | null;
-  telemetryFreshnessSec: number | null;
-  totalEnergyKwhMtd: number | null;
-  stampedSavingsMonthInr: number | null;
-  aiScore: number | null;
-  co2Tco2e: number | null;
-  energyTrend30d: Array<{
-    day: number;
-    date: string;
-    actualKwh: number;
-    baselineKwh: number;
-    savedKwh: number;
-    costActualInr: number;
-    costBaselineInr: number;
-    co2Actual: number;
-    co2Baseline: number;
-  }> | null;
-  topConsumers: Array<{
-    rank: number;
-    name: string;
-    section: string;
-    avgLoadKw: number;
-    monthlyKwh: number;
-    monthlyCostInr: number;
-    vsBenchmarkPct: number | null;
-  }> | null;
-  sectionShare: Array<{ name: string; kwh: number }> | null;
-  energyInrPerKwh: number | null;
-  prescriptions: Array<{
-    id: string;
-    plantId: string;
-    title: string;
-    why: string;
-    impactInrPerMonth: number;
-    confidence: number;
-    lane: string;
-    ownerRole: string;
-    dueAt: string;
-  }>;
-  detail: { l2?: string; l5?: string };
-};
+const IST = "Asia/Kolkata";
 
-function overviewSource(data: OverviewResponse | null, demo: boolean): DataSource {
-  if (demo) return DEMO_DATA_SOURCE;
-  if (!data) return "unavailable";
-  if (data.source.l2 === "l2" || data.source.l5 === "l5") {
-    return data.source.l5 === "l5" ? "l5" : "l2";
-  }
-  return "unavailable";
+function greeting(now: Date): string {
+  const hour = Number(
+    new Intl.DateTimeFormat("en-IN", { hour: "numeric", hourCycle: "h23", timeZone: IST }).format(now),
+  );
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
 }
 
-export default function OverviewPage() {
-  const {
-    activePlant,
-    plants,
-    onPlantChange,
-    role,
-    connection,
-    isDemoSession,
-  } = useProductShell();
-  const [data, setData] = useState<OverviewResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function HomePage() {
+  const { activePlant, plants, setActivePlantId } = usePlant();
+  const { role, connection } = useProductShell();
+  const now = new Date();
 
-  useEffect(() => {
-    if (isDemoSession) {
-      const demo = getDemoOverview();
-      setData({
-        ...demo,
-        source: { l2: "unavailable", l5: "unavailable" },
-        detail: {},
-      });
-      setLoading(false);
-      setError(null);
-      return;
-    }
+  const alarms = alarmsForPlant(activePlant.plantId).filter((a) => a.state !== "cleared");
+  const critical = alarms.filter((a) => a.severity === "critical");
+  const topAlarm = [...(critical.length ? critical : alarms)].sort((a, b) =>
+    b.raisedAt.localeCompare(a.raisedAt),
+  )[0];
 
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-    setData(null);
-    const url = bffUrl(
-      `/api/overview?plantId=${encodeURIComponent(activePlant.plantId)}`,
-    );
-    void fetch(url, { credentials: "include", cache: "no-store" })
-      .then(async (res) => {
-        if (res.status === 401) {
-          throw new Error("Sign in required to load the overview.");
-        }
-        if (!res.ok) throw new Error(`overview ${res.status}`);
-        return (await res.json()) as OverviewResponse;
-      })
-      .then((json) => {
-        if (!cancelled) {
-          setData(json);
-          setLoading(false);
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setData(null);
-          setError(err instanceof Error ? err.message : "Overview unavailable");
-          setLoading(false);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [activePlant.plantId, isDemoSession]);
-
-  const critical = data?.criticalAlarmCount ?? 0;
-  const needsReviewInr = data?.needsReviewInr ?? 0;
-  const source = overviewSource(data, isDemoSession);
-  const hasData = source !== "unavailable";
-
-  const liveKpis: OverviewLiveKpis = {
-    stampedSavingsMonthInr: data?.stampedSavingsMonthInr ?? null,
-    totalEnergyKwhMtd: data?.totalEnergyKwhMtd ?? null,
-    aiScore: data?.aiScore ?? null,
-    co2Tco2e: data?.co2Tco2e ?? null,
-    confirmedSavingsMtdInr: data?.confirmedSavingsMtdInr ?? null,
-    closureRate30d: data?.closureRate30d ?? null,
-    mdHeadroomPct: data?.mdHeadroomPct ?? null,
-    mdPeakKva: data?.mdPeakKva ?? null,
-    mdCmdKva: data?.mdCmdKva ?? null,
-    vsBaseline7dPct: data?.vsBaseline7dPct ?? null,
-    telemetryFreshnessSec: data?.telemetryFreshnessSec ?? null,
-    needsReviewCount: data?.needsReviewCount ?? null,
-    needsReviewInr: data?.needsReviewInr ?? null,
-    criticalAlarmCount: data?.criticalAlarmCount ?? null,
-  };
+  const prescriptions = prescriptionsForPlant(activePlant.plantId);
+  const alarmRx = prescriptions.find((p) => p.id === topAlarm?.relatedPrescriptionId);
+  const topRx = [...prescriptions]
+    .filter((p) => p.lane === "needs_review" && p.id !== alarmRx?.id)
+    .sort((a, b) => b.impactInrPerMonth - a.impactInrPerMonth)[0];
 
   return (
     <AppShell
-      active="today"
+      active="home"
       plantName={activePlant.plantName}
       plantId={activePlant.plantId}
-      plants={plants}
-      onPlantChange={onPlantChange}
+      plants={plants.map((p) => ({ id: p.plantId, name: p.plantName }))}
+      onPlantChange={setActivePlantId}
       role={role}
       connection={connection}
-      screenTitle="Overview"
-      contextSummary={[
-        `${critical} critical alarms`,
-        `${formatInr(needsReviewInr)} open prescriptions`,
-        activePlant.shift,
-      ]}
-      criticalAlarmCount={critical}
+      screenTitle="Home"
+      contextSummary={[`${critical.length} critical alarms`, activePlant.plantName, activePlant.shift]}
+      criticalAlarmCount={critical.length}
     >
-      <PageHead eyebrow={activePlant.plantName} title="Overview" />
-      <SourceIndicator
-        source={source}
-        loading={loading}
-        detail={
-          error ??
-          ([data?.detail.l2, data?.detail.l5].filter(Boolean).join(" · ") || null)
-        }
-      />
-      {loading ? (
-        <OverviewBoardSkeleton />
-      ) : (
-        <OverviewBoard
-          liveKpis={hasData ? liveKpis : null}
-          energyTrend30d={hasData ? data?.energyTrend30d : null}
-          topConsumers={hasData ? data?.topConsumers : null}
-          sectionShare={hasData ? data?.sectionShare : null}
-          energyInrPerKwh={data?.energyInrPerKwh ?? null}
-          closurePct={data?.closureRate30d ?? null}
-          prescriptions={(data?.prescriptions ?? []) as never}
-        />
-      )}
+      <div className="home">
+        <header className="home__hello">
+          <h1 className="home__greeting" suppressHydrationWarning>
+            {greeting(now)}
+            <span className="home__dot">.</span>
+          </h1>
+          <p className="home__date" suppressHydrationWarning>
+            {new Intl.DateTimeFormat("en-IN", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              timeZone: IST,
+            }).format(now)}{" "}
+            · {activePlant.plantName}
+          </p>
+        </header>
+
+        <section className="home__agent" aria-label="Stamped Agent">
+          {topAlarm ? (
+            <AgentCard
+              kind={topAlarm.severity === "critical" ? "Critical" : "Watch"}
+              tone="critical"
+              context="Threshold crossed this shift"
+              time={formatIstTime(topAlarm.raisedAt)}
+              message={
+                <>
+                  <strong>{topAlarm.assetLabel}</strong>: {topAlarm.summary}.
+                </>
+              }
+              recommendation={
+                alarmRx ? (
+                  <>
+                    {alarmRx.title}. Worth <strong>{formatInr(alarmRx.impactInrPerMonth)}/month</strong>.
+                  </>
+                ) : (
+                  "Acknowledge and assign an owner before the next TOD peak."
+                )
+              }
+              href={`/alarms/${topAlarm.id}`}
+            />
+          ) : null}
+          {topRx ? (
+            <AgentCard
+              kind="Opportunity"
+              tone="primary"
+              context={`${topRx.category ?? "Prescription"} · ${topRx.dueLabel ?? "This week"}`}
+              message={
+                <>
+                  <strong>{topRx.title}</strong>. {topRx.why}. Worth{" "}
+                  <strong>{formatInr(topRx.impactInrPerMonth)}/month</strong>.
+                </>
+              }
+              recommendation={topRx.actions?.[0] ?? topRx.why}
+              href={`/prescriptions/${topRx.id}`}
+            />
+          ) : null}
+        </section>
+
+        <section className="home__ask" aria-labelledby="home-ask-title">
+          <h2 id="home-ask-title" className="home__ask-title">
+            Ask Stamped
+          </h2>
+          <AnalystWorkspace compact />
+        </section>
+      </div>
     </AppShell>
   );
 }

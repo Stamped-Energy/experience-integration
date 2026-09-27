@@ -10,7 +10,8 @@ export type NavItem = {
 
 /** Nav order keeps the action loop visible before reveal-tier analytics. */
 export const NAV_ITEMS: NavItem[] = [
-  { key: "today", href: "/", label: "Overview", permission: "route:today", tier: "primary" },
+  { key: "home", href: "/", label: "Home", permission: "route:today", tier: "primary" },
+  { key: "today", href: "/overview", label: "Overview", permission: "route:today", tier: "primary" },
   { key: "alarms", href: "/alarms", label: "Alarms", permission: "route:alarms", tier: "primary" },
   {
     key: "prescriptions",
@@ -22,7 +23,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     key: "analyst",
     href: "/analyst",
-    label: "Ask Analyst",
+    label: "Ask Stamped",
     permission: "route:analyst",
     tier: "primary",
   },
@@ -176,7 +177,7 @@ export const NAV_COLLAPSE_STORAGE_KEY = "stamped.l6.nav.collapsed";
 export const NAV_GROUPS_STORAGE_KEY = "stamped.l6.nav.groups";
 
 /** Top-level links - always visible, never tucked in a group. */
-export const STANDALONE_NAV_KEYS: readonly NavKey[] = ["today", "analyst"];
+export const STANDALONE_NAV_KEYS: readonly NavKey[] = ["home", "today", "analyst"];
 
 export type NavGroupId = "operations" | "insights" | "reports" | "administration";
 

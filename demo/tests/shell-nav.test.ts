@@ -47,8 +47,9 @@ describe("role-aware navigation", () => {
   it("keeps proof attached to Reports while action routes stay primary", () => {
     const { primary, reveal } = navForRole("plant_head");
     assert.equal(primary.some((i) => i.key === "evidence"), false);
-    assert.ok(primary.some((i) => i.key === "today" && i.label === "Overview"));
-    assert.ok(primary.some((i) => i.key === "analyst" && i.label === "Ask Analyst"));
+    assert.ok(primary.some((i) => i.key === "home" && i.href === "/"));
+    assert.ok(primary.some((i) => i.key === "today" && i.href === "/overview"));
+    assert.ok(primary.some((i) => i.key === "analyst" && i.label === "Ask Stamped"));
     assert.ok(primary.some((i) => i.key === "alarms" && i.label === "Alarms"));
     assert.ok(
       primary.some((i) => i.key === "prescriptions" && i.label === "Prescriptions"),

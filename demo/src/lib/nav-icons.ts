@@ -7,12 +7,13 @@ import {
   BarChart3,
   ClipboardList,
   FileText,
+  Home,
   LayoutDashboard,
   Leaf,
   Map,
-  MessageSquare,
   Radio,
   Settings,
+  StampedMark,
   Users,
   Wrench,
 } from "@/components/ui/icons";
@@ -21,6 +22,7 @@ type IconComp = ComponentType<SVGProps<SVGSVGElement> & { size?: number; strokeW
 
 /** Icon map for primary shell navigation. */
 export const NAV_ICONS: Record<NavKey, IconComp> = {
+  home: Home,
   today: LayoutDashboard,
   live: Radio,
   energy: BarChart3,
@@ -30,7 +32,7 @@ export const NAV_ICONS: Record<NavKey, IconComp> = {
   plant_map: Map,
   reports: FileText,
   intensity: Leaf,
-  analyst: MessageSquare,
+  analyst: StampedMark,
   tools: Wrench,
   assignments: Users,
   evidence: ClipboardList,

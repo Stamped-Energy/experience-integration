@@ -23,7 +23,7 @@ export default function AnalystPage() {
       onPlantChange={setActivePlantId}
       role={role}
       connection={connection}
-      screenTitle="Ask Analyst"
+      screenTitle="Ask Stamped"
       contextSummary={[
         `${investigationsFixture.length} saved investigations`,
         "Answers include source citations",
@@ -31,7 +31,7 @@ export default function AnalystPage() {
       ]}
       criticalAlarmCount={critical}
     >
-      <PageHead eyebrow="Intelligence" title="Ask Analyst" />
+      <PageHead eyebrow="Intelligence" title="Ask Stamped" />
       <AnalystWorkspace />
     </AppShell>
   );

@@ -269,7 +269,7 @@ export function ExportCentre({
     }
     const label = periodLabelFromJob(report);
     downloadDocx(`sustainability_${id}.docx`, [
-      "Stamped Energy - Sustainability pack",
+      "Stamped - Sustainability pack",
       `Plant: ${plantName} (${plantId})`,
       `Period: ${label}`,
       `Report id: ${id}`,

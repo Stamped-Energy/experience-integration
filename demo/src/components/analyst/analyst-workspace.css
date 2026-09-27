@@ -120,6 +120,17 @@
   box-shadow: none;
 }
 
+.analyst-layout--compact {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "chat";
+  min-height: 520px;
+}
+
+.analyst-layout--compact .analyst-chat-shell {
+  min-height: 520px;
+  border-left: none;
+}
+
 /* ── Chat shell ── */
 .analyst-chat-shell {
   grid-area: chat;
@@ -154,9 +165,8 @@
   border-radius: var(--forge-radius-md);
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--forge-tertiary) 12%, var(--forge-surface-container));
-  color: var(--forge-tertiary);
-  border: 1px solid color-mix(in srgb, var(--forge-tertiary) 22%, var(--forge-outline-variant));
+  background: var(--forge-secondary);
+  color: var(--forge-primary);
 }
 
 .analyst-chat-header__title {
@@ -202,8 +212,8 @@
 .analyst-empty .forge-empty__icon {
   width: 52px;
   height: 52px;
-  background: color-mix(in srgb, var(--forge-tertiary) 12%, var(--forge-surface-container));
-  color: var(--forge-tertiary);
+  background: var(--forge-secondary);
+  color: var(--forge-primary);
 }
 
 .analyst-empty .forge-empty__title {
@@ -359,14 +369,13 @@
 }
 
 .analyst-msg--user .analyst-msg__avatar {
-  background: var(--forge-secondary);
-  color: var(--forge-inverse-on-surface);
+  background: var(--forge-surface-container-high);
+  color: var(--forge-on-surface);
 }
 
 .analyst-msg--assistant .analyst-msg__avatar {
-  background: color-mix(in srgb, var(--forge-tertiary) 14%, var(--forge-surface-container));
-  color: var(--forge-tertiary);
-  border: 1px solid color-mix(in srgb, var(--forge-tertiary) 25%, transparent);
+  background: var(--forge-secondary);
+  color: var(--forge-primary);
 }
 
 .analyst-msg__content {

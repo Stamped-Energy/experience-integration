@@ -1,4 +1,4 @@
-/** Browser helpers for live Ask Analyst (BFF → L4 SSE). */
+/** Browser helpers for live Ask Stamped (BFF → L4 SSE). */
 
 import { bffUrl } from "./bff";
 import type { AnalystContextEnvelope } from "./types";
@@ -215,7 +215,7 @@ function parseSseChunk(
         status: data.status ? String(data.status) : undefined,
       });
     } else if (event === "error") {
-      handlers.onError?.(String(data.message ?? "Analyst stream error"));
+      handlers.onError?.(String(data.message ?? "Stamped stream error"));
     }
   }
   return rest;

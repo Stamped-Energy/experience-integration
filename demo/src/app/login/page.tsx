@@ -47,7 +47,7 @@ function LoginForm() {
           <StampedLogo size={40} />
           <div>
             <p className="forge-eyebrow" style={{ margin: 0 }}>
-              Stamped Energy
+              Stamped
             </p>
             <h1 className="forge-login__title">Sign in</h1>
           </div>

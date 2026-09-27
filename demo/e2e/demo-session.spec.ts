@@ -23,7 +23,7 @@ test.describe("Jaipur demo session", () => {
       },
     );
 
-    await page.goto("/");
+    await page.goto("/overview");
     await expect(page.getByText(/Jaipur demo — sample data only/i)).toHaveCount(0);
     await expect(page.getByText("Jaipur Works").first()).toBeVisible();
     await expect(page.getByText("Confirmed savings (MTD)")).toBeVisible();

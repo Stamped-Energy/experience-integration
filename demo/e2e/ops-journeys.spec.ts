@@ -6,10 +6,10 @@ import { expect, test } from "@playwright/test";
  * fixture-era detail copy as optional.
  */
 test.describe("operational journeys", () => {
-  test("Today shell loads with Ask Analyst", async ({ page }) => {
+  test("Today shell loads with Ask Stamped", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator("main#forge-main, main").first()).toBeVisible();
-    await expect(page.getByRole("button", { name: /Ask Analyst/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Ask Stamped/i })).toBeVisible();
   });
 
   test("alarms console renders shell (live or empty upstream)", async ({ page }) => {
@@ -64,7 +64,7 @@ test.describe("operational journeys", () => {
 
   test("analyst Mode A opens and closes with Escape", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("button", { name: /Ask Analyst/i }).click();
+    await page.getByRole("button", { name: /Ask Stamped/i }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(page.getByRole("dialog")).toHaveCount(0);
