@@ -84,12 +84,12 @@
   --forge-sidebar-width: 260px;
   --forge-sidebar-collapsed: 60px;
 
-  /* Radius - dashboard craft: cards 12px, controls 8px */
+  /* Radius - industrial control room: cards 6px, controls 6px */
   --forge-radius-sm: 0.25rem;
-  --forge-radius-md: 0.5rem;
-  --forge-radius-card: 12px;
-  --forge-radius-lg: 12px;
-  --forge-radius-xl: 1.5rem;
+  --forge-radius-md: 0.375rem;
+  --forge-radius-card: 6px;
+  --forge-radius-lg: 8px;
+  --forge-radius-xl: 12px;
   --forge-radius-pill: 999px;
 
   /* Motion - calm, reduce under prefers-reduced-motion */
@@ -99,10 +99,10 @@
   --forge-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   /* Elevation - restrained; no multi-layer glow */
-  --forge-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --forge-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
   --forge-shadow-panel: var(--forge-shadow-card);
-  --forge-shadow-sheet: 0 -4px 24px rgba(25, 28, 26, 0.12);
-  --forge-shadow-hero: 0 8px 32px rgba(247, 84, 64, 0.14);
+  --forge-shadow-sheet: 0 -2px 16px rgba(25, 28, 26, 0.12);
+  --forge-shadow-hero: 0 4px 16px rgba(247, 84, 64, 0.1);
 
   /* Status text labels (charter: never color-only) */
   --forge-status-critical-label: "Critical";

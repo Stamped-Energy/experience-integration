@@ -158,7 +158,7 @@ const btnBase: CSSProperties = {
   minHeight: TOUCH_MIN_PX,
   minWidth: TOUCH_MIN_PX,
   padding: "0 18px",
-  borderRadius: 10,
+  borderRadius: "var(--forge-radius-md)",
   fontFamily: "var(--forge-font-display)",
   fontWeight: 700,
   fontSize: 15,
@@ -249,7 +249,13 @@ function variantStyle(
 
 function sizeStyle(size: ForgeButtonSize): CSSProperties {
   if (size === "sm") {
-    return { minHeight: 40, minWidth: 40, padding: "0 12px", fontSize: 13, borderRadius: 8 };
+    return {
+      minHeight: 40,
+      minWidth: 40,
+      padding: "0 12px",
+      fontSize: 13,
+      borderRadius: "var(--forge-radius-sm)",
+    };
   }
   if (size === "icon") {
     return { minHeight: TOUCH_MIN_PX, minWidth: TOUCH_MIN_PX, padding: 0, width: TOUCH_MIN_PX };
