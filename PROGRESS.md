@@ -9,7 +9,7 @@ and GitHub Actions cover quality / postgres / browser / infra jobs.
 
 ## Four-outcome prescription system (2026-09-28)
 
-**Phase B complete — four-outcome decision surfaces**
+**Phase C complete — validation and deployment**
 
 - Added optional live-compatible outcome and mixed-value fields.
 - Classified all demo prescription, alarm, and evidence chains across the four
@@ -23,7 +23,13 @@ and GitHub Actions cover quality / postgres / browser / infra jobs.
 - Moved the Energy Analytics legend below the chart so Baseline, Actual, and
   Cost labels no longer overlap the histogram.
 - Demo typecheck and 119 unit tests pass.
-- Phase C validation remains: production build, browser routes, and deployment.
+- Production build passed, local production browser smoke covered the four
+  outcome labels and latest alarm/evidence links, `main` was pushed, and the
+  demo was deployed to Vercel.
+- Workspace-wide validation still has pre-existing `@stamped/l6-agent-cli`
+  executable failures; the full E2E suite has 29 passes and 11 existing
+  auth-fixture failures. Details are recorded in
+  `PHASE_FOUR_OUTCOME_C_COMPLETION.md`.
 
 ## L6 Control Room Redesign (2026-09-27)
 
