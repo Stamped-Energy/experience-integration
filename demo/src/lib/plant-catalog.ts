@@ -21,7 +21,7 @@ export const DEMO_PLANT = {
   cmdKva: 5000,
   contractDemandNote: "CMD 5,000 kVA · billing window Jul 2026",
   shift: "A · 06:00–14:00 IST",
-  demoAsOf: "2026-07-21T10:15:00+05:30",
+  demoAsOf: "2026-07-21T10:50:00+05:30",
 };
 
 export const VINAYAK_PLANT = {

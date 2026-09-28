@@ -6,12 +6,12 @@ const SEVERITY_RANK: Record<AlarmSeverity, number> = {
   info: 2,
 };
 
-/** Severity first, then oldest raised first. Cleared excluded by caller. */
+/** Severity first, then newest raised first. Cleared excluded by caller. */
 export function sortAlarms(alarms: readonly Alarm[]): Alarm[] {
   return [...alarms].sort((a, b) => {
     const sev = SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity];
     if (sev !== 0) return sev;
-    return Date.parse(a.raisedAt) - Date.parse(b.raisedAt);
+    return Date.parse(b.raisedAt) - Date.parse(a.raisedAt);
   });
 }
 

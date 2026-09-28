@@ -7,6 +7,8 @@ import type {
   VerificationStatus,
   Role,
 } from "../lib/types";
+import { sortAlarms } from "../lib/alarms";
+import { sortPrescriptions } from "../lib/prescriptions";
 import { LNM_PLANT } from "../sites/lnm/catalog";
 
 export { LNM_PLANT };
@@ -22,7 +24,7 @@ export const DEMO_PLANT = {
   cmdKva: 5000,
   contractDemandNote: "CMD 5,000 kVA · billing window Jul 2026",
   shift: "A · 06:00–14:00 IST",
-  demoAsOf: "2026-07-21T10:15:00+05:30",
+  demoAsOf: "2026-07-21T10:50:00+05:30",
 };
 
 /** Vinayak Plant - C-L6a live path default plant. */
@@ -289,9 +291,85 @@ export const vinayakAlarmsFixture: Alarm[] = [
   },
 ];
 
+/** Latest Jaipur shift events, written in plant-floor language and linked end-to-end. */
+const latestJaipurAlarmsFixture: Alarm[] = [
+  {
+    id: "alm_1010",
+    plantId: DEMO_PLANT.plantId,
+    assetId: "incomer",
+    assetLabel: "Main incomer",
+    severity: "critical",
+    state: "raised",
+    summary:
+      "Rolling 15-min MD reached 4,820 kVA while Kiln 1 ramp and Packing Line 1 restart overlapped; only 3.6% headroom to CMD",
+    raisedAt: "2026-07-21T10:22:00+05:30",
+    ownerRole: "supervisor",
+    relatedPrescriptionId: "rx_9012",
+    findingId: "fnd_4415",
+  },
+  {
+    id: "alm_1011",
+    plantId: DEMO_PLANT.plantId,
+    assetId: "comp_2",
+    assetLabel: "Compressor 2",
+    severity: "warning",
+    state: "raised",
+    summary:
+      "Specific power is 14% above the matched baseline for 9 days at normal header pressure",
+    raisedAt: "2026-07-21T10:28:00+05:30",
+    ownerRole: "supervisor",
+    relatedPrescriptionId: "rx_9013",
+    findingId: "fnd_4416",
+  },
+  {
+    id: "alm_1012",
+    plantId: DEMO_PLANT.plantId,
+    assetId: "kiln_1",
+    assetLabel: "Kiln 1",
+    severity: "warning",
+    state: "acked",
+    summary:
+      "ID fan warm-up draw stayed 11% above the matched 14-day band before stable draft",
+    raisedAt: "2026-07-21T10:34:00+05:30",
+    ownerRole: "operator",
+    relatedPrescriptionId: "rx_9014",
+    findingId: "fnd_4417",
+  },
+  {
+    id: "alm_1013",
+    plantId: DEMO_PLANT.plantId,
+    assetId: "pack_1",
+    assetLabel: "Packing line 1",
+    severity: "warning",
+    state: "raised",
+    summary:
+      "Packaging auxiliaries stayed on for 26 minutes while line output was zero",
+    raisedAt: "2026-07-21T10:41:00+05:30",
+    ownerRole: "operator",
+    relatedPrescriptionId: "rx_9015",
+    findingId: "fnd_4418",
+  },
+  {
+    id: "alm_1014",
+    plantId: DEMO_PLANT.plantId,
+    assetId: "hvac_admin",
+    assetLabel: "Admin HVAC",
+    severity: "info",
+    state: "silenced",
+    summary:
+      "Admin HVAC ran through an unoccupied off-peak window while the occupancy signal was zero for 38 minutes",
+    raisedAt: "2026-07-21T10:48:00+05:30",
+    ownerRole: "energy_manager",
+    relatedPrescriptionId: "rx_9016",
+    findingId: "fnd_4419",
+  },
+];
+
 /** Alarms for the active live-path plant - Vinayak or Jaipur offline. */
 export function alarmsForPlant(plantId: string): Alarm[] {
-  return plantId === VINAYAK_PLANT.plantId ? vinayakAlarmsFixture : alarmsFixture;
+  return plantId === VINAYAK_PLANT.plantId
+    ? sortAlarms(vinayakAlarmsFixture)
+    : sortAlarms([...alarmsFixture, ...latestJaipurAlarmsFixture]);
 }
 
 export const prescriptionsFixture: Prescription[] = [
@@ -785,15 +863,195 @@ export const vinayakPrescriptionsFixture: Prescription[] = [
   },
 ];
 
+/** Latest Jaipur prescriptions, based on the practical floor-action playbook. */
+const latestJaipurPrescriptionsFixture: Prescription[] = [
+  {
+    id: "rx_9012",
+    plantId: DEMO_PLANT.plantId,
+    title: "Hold Packing Line 1 restart until the incomer settles",
+    why:
+      "Kiln 1 ramp and Packing Line 1 restart overlapped at 4,820 kVA, leaving only 3.6% CMD headroom",
+    impactInrPerMonth: 96000,
+    confidence: 0.9,
+    lane: "needs_review",
+    ownerRole: "supervisor",
+    whoLabel: "Electrical lead + area supervisor",
+    dueAt: "2026-07-21T14:00:00+05:30",
+    firstRecommendedAt: "2026-07-21T10:24:00+05:30",
+    dueLabel: "Before the next ramp",
+    category: "Demand management",
+    priority: "high",
+    billLine: "MD (kVA) + peak demand risk",
+    effort: "Sequence change · no new equipment",
+    ruleId: "physics/md_softland@v2.5",
+    relatedAlarmId: "alm_1010",
+    decisionClass: "mgmt_capacity",
+    valueDomain: "energy_efficiency",
+    wasteCategory: 1,
+    tradeoff: {
+      energyBenefitInrMonthly: 96000,
+      throughputRisk: "Packing restart waits only while Kiln 1 completes its ramp",
+      orderContext: "partial",
+      recommendedWindow: "Release Packing Line 1 after MD headroom returns above 8%",
+      alternatives: ["Hold non-critical HVAC for 15 minutes if packing must restart"],
+      departmentOwners: ["electrical_supervisor", "packing_supervisor"],
+      oeeImpact: "Protects the kiln ramp and keeps one contractual packing slot available",
+    },
+    actions: [
+      "Hold Packing Line 1 restart until Kiln 1 settles below 95% load or rolling MD headroom returns above 8%.",
+      "Keep one contractual dispatch slot protected; shift the next non-urgent packing slot outside the MD window.",
+      "Record the accept or override in the shift log and compare the next 15-minute MD window.",
+    ],
+    risks: [
+      "Dispatch delay → protect the named contractual slot and release the line when headroom recovers.",
+      "Operator restarts early → log the override and require supervisor confirmation before the next co-start.",
+    ],
+  },
+  {
+    id: "rx_9013",
+    plantId: DEMO_PLANT.plantId,
+    title: "Inspect Compressor 2 inlet filter and unload valve",
+    why:
+      "Compressor 2 is using 14% more power than its matched baseline at the same header pressure",
+    impactInrPerMonth: 58000,
+    confidence: 0.87,
+    lane: "needs_review",
+    ownerRole: "supervisor",
+    whoLabel: "Utilities lead + mechanical maintenance",
+    dueAt: "2026-07-22T14:00:00+05:30",
+    firstRecommendedAt: "2026-07-21T10:30:00+05:30",
+    dueLabel: "Next approved low-load window",
+    category: "Compressed air",
+    priority: "high",
+    billLine: "Energy (kWh)",
+    effort: "About 2 hours · isolation and permit required",
+    ruleId: "equipment/compressor_specific_power@v1.2",
+    relatedAlarmId: "alm_1011",
+    decisionClass: "maint",
+    valueDomain: "equipment_health",
+    wasteCategory: 4,
+    actions: [
+      "Confirm standby air capacity and obtain the isolation permit before opening Compressor 2.",
+      "Inspect the inlet filter and unload valve during the next approved low-load window.",
+      "After the inspection, record kW, header pressure, and run hours for one matched shift.",
+    ],
+    risks: [
+      "Standby capacity not confirmed → do not isolate Compressor 2; move the job to the next approved window.",
+      "Header pressure dips → keep the standby unit armed and stop the trial if the header leaves its safe band.",
+    ],
+  },
+  {
+    id: "rx_9014",
+    plantId: DEMO_PLANT.plantId,
+    title: "Tighten Kiln 1 ID fan warm-up band",
+    why:
+      "Warm-up draw stayed 11% above the matched band even though kiln draft was already stable",
+    impactInrPerMonth: 27000,
+    confidence: 0.82,
+    lane: "active",
+    ownerRole: "supervisor",
+    whoLabel: "Pyro supervisor + electrical operator",
+    dueAt: "2026-07-22T06:30:00+05:30",
+    firstRecommendedAt: "2026-07-21T10:36:00+05:30",
+    dueLabel: "Next kiln warm-up",
+    category: "Process tune",
+    priority: "med",
+    billLine: "Energy (kWh)",
+    effort: "Set-point change · production sign-off",
+    ruleId: "process/id_fan_warmup@v1.3",
+    relatedAlarmId: "alm_1012",
+    decisionClass: "maint",
+    valueDomain: "energy_efficiency",
+    wasteCategory: 2,
+    actions: [
+      "Confirm draft and O₂ are stable before narrowing the warm-up band.",
+      "Use the lower warm-up set-point for the next kiln start; restore the production band after stable draft.",
+      "Compare warm-up kWh with the 14-day matched baseline before marking the prescription done.",
+    ],
+    risks: [
+      "Draft or O₂ leaves the approved band → restore the prior set-point immediately and log the event.",
+      "Production start slips → keep the production release time protected; tune warm-up only.",
+    ],
+  },
+  {
+    id: "rx_9015",
+    plantId: DEMO_PLANT.plantId,
+    title: "Switch off Packing Line 1 auxiliaries after 20 minutes idle",
+    why:
+      "Conveyors and idle fans stayed on for 26 minutes while the line produced nothing",
+    impactInrPerMonth: 46000,
+    confidence: 0.84,
+    lane: "needs_review",
+    ownerRole: "operator",
+    whoLabel: "Packing area supervisor",
+    dueAt: "2026-07-21T18:00:00+05:30",
+    firstRecommendedAt: "2026-07-21T10:43:00+05:30",
+    dueLabel: "Next idle window of 20+ min",
+    category: "Idle cutback",
+    priority: "high",
+    billLine: "Energy (kWh)",
+    effort: "Idle SOP · keep safety loads on the protect list",
+    ruleId: "idle/packing_aux@v1.1",
+    relatedAlarmId: "alm_1013",
+    decisionClass: "maint",
+    valueDomain: "energy_efficiency",
+    wasteCategory: 3,
+    actions: [
+      "When output is zero for 20 minutes, check that no truck or batch release is due and apply the approved auxiliary cut list.",
+      "Keep safety, dust-control, and quality loads on the protect list; restart auxiliaries on the next production pulse.",
+      "Log idle minutes and feeder kWh before and after the cut for the next five events.",
+    ],
+    risks: [
+      "A protected load is switched off → stop and restore it; review the protect list with the area supervisor.",
+      "Restart delay → keep the warm-ready floor and use the supervisor override for a committed truck slot.",
+    ],
+  },
+  {
+    id: "rx_9016",
+    plantId: DEMO_PLANT.plantId,
+    title: "Apply an occupancy setback to Admin HVAC",
+    why:
+      "Admin HVAC stayed at full schedule during an empty off-peak window for 38 minutes",
+    impactInrPerMonth: 14000,
+    confidence: 0.79,
+    lane: "active",
+    ownerRole: "energy_manager",
+    whoLabel: "Facilities coordinator + energy manager",
+    dueAt: "2026-07-22T21:00:00+05:30",
+    firstRecommendedAt: "2026-07-21T10:50:00+05:30",
+    dueLabel: "Tonight's off-peak window",
+    category: "HVAC idle",
+    priority: "med",
+    billLine: "Energy (kWh)",
+    effort: "Schedule change · occupancy override stays available",
+    ruleId: "hvac/admin_occupancy@v1.2",
+    relatedAlarmId: "alm_1014",
+    decisionClass: "maint",
+    valueDomain: "energy_efficiency",
+    wasteCategory: 5,
+    actions: [
+      "Apply the setback only after the last occupied room is clear and the override contact is posted.",
+      "Keep the occupied schedule available for late work; return to normal control when occupancy resumes.",
+      "Review HVAC kWh across the next five off-peak windows and keep the setting only if comfort stays in band.",
+    ],
+    risks: [
+      "Late work or safety need → use the posted occupancy override; never block an occupied room.",
+      "Comfort complaint → restore the prior schedule and review the setback window with Facilities.",
+    ],
+  },
+];
+
 /** Prescriptions for the active live-path plant - Vinayak or Jaipur offline. */
 export function prescriptionsForPlant(plantId: string): Prescription[] {
-  return plantId === VINAYAK_PLANT.plantId ? vinayakPrescriptionsFixture : prescriptionsFixture;
+  return plantId === VINAYAK_PLANT.plantId
+    ? sortPrescriptions(vinayakPrescriptionsFixture)
+    : sortPrescriptions([...prescriptionsFixture, ...latestJaipurPrescriptionsFixture]);
 }
 
 /** Lookup across both plant catalogs (detail routes, evidence links). */
 export function findPrescription(id: string): Prescription | undefined {
   return (
-    prescriptionsFixture.find((p) => p.id === id) ??
+    [...prescriptionsFixture, ...latestJaipurPrescriptionsFixture].find((p) => p.id === id) ??
     vinayakPrescriptionsFixture.find((p) => p.id === id)
   );
 }
@@ -1200,16 +1458,17 @@ export const auditEventsFixture = [
 
 /** Derived demo counts - keep Today / shell banners consistent. */
 export function demoCriticalAlarmCount(): number {
-  return alarmsFixture.filter((a) => a.severity === "critical" && a.state !== "cleared")
+  return alarmsForPlant(DEMO_PLANT.plantId)
+    .filter((a) => a.severity === "critical" && a.state !== "cleared")
     .length;
 }
 
 export function demoNeedsReviewCount(): number {
-  return prescriptionsFixture.filter((p) => p.lane === "needs_review").length;
+  return prescriptionsForPlant(DEMO_PLANT.plantId).filter((p) => p.lane === "needs_review").length;
 }
 
 export function demoNeedsReviewInr(): number {
-  return prescriptionsFixture
+  return prescriptionsForPlant(DEMO_PLANT.plantId)
     .filter((p) => p.lane === "needs_review")
     .reduce((s, p) => s + p.impactInrPerMonth, 0);
 }
@@ -1221,8 +1480,9 @@ export function demoOpsConfirmedInr(): number {
 }
 
 export function demoClosurePct(): number {
-  const closed = prescriptionsFixture.filter((p) => p.lane === "closed").length;
-  return Math.round((closed / prescriptionsFixture.length) * 100);
+  const prescriptions = prescriptionsForPlant(DEMO_PLANT.plantId);
+  const closed = prescriptions.filter((p) => p.lane === "closed").length;
+  return Math.round((closed / prescriptions.length) * 100);
 }
 
 export function assetById(id: string): DemoAsset | undefined {

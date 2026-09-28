@@ -5,6 +5,7 @@ import { AgentCard } from "@/components/home/AgentCard";
 import { AppShell } from "@/components/shell/AppShell";
 import { alarmsForPlant, prescriptionsForPlant } from "@/fixtures/demo";
 import { formatInr, formatIstTime } from "@/lib/format";
+import { sortPrescriptions } from "@/lib/prescriptions";
 import { usePlant } from "@/lib/plant-context";
 import { useProductShell } from "@/lib/product-shell";
 import "@/components/home/home.css";
@@ -33,9 +34,9 @@ export default function HomePage() {
 
   const prescriptions = prescriptionsForPlant(activePlant.plantId);
   const alarmRx = prescriptions.find((p) => p.id === topAlarm?.relatedPrescriptionId);
-  const topRx = [...prescriptions]
-    .filter((p) => p.lane === "needs_review" && p.id !== alarmRx?.id)
-    .sort((a, b) => b.impactInrPerMonth - a.impactInrPerMonth)[0];
+  const topRx = sortPrescriptions(
+    prescriptions.filter((p) => p.lane === "needs_review" && p.id !== alarmRx?.id),
+  )[0];
 
   return (
     <AppShell

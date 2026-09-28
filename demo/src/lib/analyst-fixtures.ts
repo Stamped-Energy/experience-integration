@@ -6,6 +6,7 @@ import {
   alarmsForPlant,
   prescriptionsForPlant,
 } from "@/fixtures/demo";
+import { sortPrescriptions } from "@/lib/prescriptions";
 import type { Alarm, AnalystContextEnvelope, Prescription } from "@/lib/types";
 import type { AnalystCitation, AnalystFixtureCatalog } from "./analyst-context";
 
@@ -103,9 +104,9 @@ function prescriptionReply(
   catalog?: AnalystFixtureCatalog,
 ): string {
   const catalogRx = resolvePrescriptions(envelope.plantId, catalog);
-  const top = catalogRx
-    .filter((p) => p.lane === "needs_review" || p.lane === "active")
-    .sort((a, b) => b.impactInrPerMonth * b.confidence - a.impactInrPerMonth * a.confidence)[0];
+  const top = sortPrescriptions(
+    catalogRx.filter((p) => p.lane === "needs_review" || p.lane === "active"),
+  )[0];
 
   if (!top) {
     return `No open high-impact prescriptions for **${plantNameOf(envelope)}** in the fixture catalog.`;

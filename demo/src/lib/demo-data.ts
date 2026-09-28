@@ -20,6 +20,7 @@ import {
   resolvePrimaryEvidenceId,
   type EvidenceSample,
 } from "@/fixtures/evidence-samples";
+import { prescriptionCaseDetailOverrides } from "@/fixtures/prescription-case-details";
 import {
   alarmsForPlant,
   demoClosurePct,
@@ -81,7 +82,11 @@ export function getDemoPrescriptions(): Prescription[] {
 }
 
 export function getDemoEvidenceSamples(): EvidenceSample[] {
-  return evidenceSamplesFixture;
+  return [...evidenceSamplesFixture].sort(
+    (a, b) =>
+      Date.parse(b.capturedAt ?? "1970-01-01") -
+      Date.parse(a.capturedAt ?? "1970-01-01"),
+  );
 }
 
 export type DemoCasePayload = {
@@ -136,17 +141,25 @@ export function getDemoCasePayload(input: {
       : undefined;
 
   if (!alarm && !prescription) return null;
+  const resolvedPrescription = prescription
+    ? {
+        ...prescription,
+        caseDetail:
+          prescription.caseDetail ??
+          prescriptionCaseDetailOverrides[prescription.id],
+      }
+    : undefined;
 
   const scope = resolveEvidenceScope({
     plantId: DEMO_PLANT_ID,
     alarmId: alarm?.id,
-    rxId: prescription?.id,
+    rxId: resolvedPrescription?.id,
     alarms,
     prescriptions,
   });
   const evidenceId = resolvePrimaryEvidenceId({
     alarmId: alarm?.id,
-    rxId: prescription?.id,
+    rxId: resolvedPrescription?.id,
     findingId: alarm?.findingId,
   }) ?? input.evidenceId;
   const sample = evidenceId ? findEvidenceSample(evidenceId) : undefined;
@@ -178,7 +191,7 @@ export function getDemoCasePayload(input: {
 
   return {
     source: "l5+l2",
-    prescription,
+    prescription: resolvedPrescription,
     alarm,
     evidence: { pack, sample, series },
     asset: assetById(scope.assetId),

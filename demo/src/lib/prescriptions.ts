@@ -14,6 +14,13 @@ export type ClassFacet = "all" | "maintenance" | "management";
 
 export function sortPrescriptions(rows: readonly Prescription[]): Prescription[] {
   return [...rows].sort((a, b) => {
+    const latestA = a.firstRecommendedAt ? Date.parse(a.firstRecommendedAt) : null;
+    const latestB = b.firstRecommendedAt ? Date.parse(b.firstRecommendedAt) : null;
+    if (latestA !== null || latestB !== null) {
+      if (latestA === null) return 1;
+      if (latestB === null) return -1;
+      if (latestA !== latestB) return latestB - latestA;
+    }
     const score =
       b.impactInrPerMonth * b.confidence - a.impactInrPerMonth * a.confidence;
     if (score !== 0) return score;

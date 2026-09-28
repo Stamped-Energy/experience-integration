@@ -9,12 +9,12 @@ import {
 } from "../src/lib/alarms.js";
 
 describe("EMS alarm helpers", () => {
-  it("sorts critical before warning and older first within severity", () => {
+  it("sorts critical before warning and newest first within severity", () => {
     const sorted = sortAlarms(sampleAlarms.filter((a) => a.state !== "cleared"));
     assert.equal(sorted[0]?.severity, "critical");
-    assert.equal(sorted[0]?.id, "alm_1001");
+    assert.equal(sorted[0]?.id, "alm_1005");
     assert.equal(sorted[1]?.severity, "critical");
-    assert.equal(sorted[1]?.id, "alm_1005");
+    assert.equal(sorted[1]?.id, "alm_1001");
     assert.equal(sorted[2]?.severity, "warning");
   });
 
