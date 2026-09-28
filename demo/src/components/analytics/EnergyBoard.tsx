@@ -283,8 +283,13 @@ export function EnergyBoard({ data }: { data: EnergyBoardData }) {
     const rows = data.monthlyComparison;
     return {
       tooltip: { trigger: "axis" },
-      legend: { data: ["Baseline", "Actual", "Cost"], top: 0, left: "center" },
-      grid: { left: 48, right: 48, top: 56, bottom: 28 },
+      legend: {
+        data: ["Baseline", "Actual", "Cost"],
+        bottom: 0,
+        left: "center",
+        itemGap: 16,
+      },
+      grid: { left: 56, right: 56, top: 24, bottom: 52 },
       xAxis: { type: "category", data: rows.map((d) => d.m) },
       yAxis: [
         { type: "value", name: "k kWh" },

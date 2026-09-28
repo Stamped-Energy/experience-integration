@@ -56,10 +56,10 @@ const SIGNAL_SLOTS: Array<{
     href: "/prescriptions",
     tone: "warning",
     fill: (live) =>
-      live?.needsReviewInr != null
+      live?.needsReviewCount != null
         ? {
-            value: formatInr(live.needsReviewInr),
-            hint: `${live.needsReviewCount ?? 0} prescriptions`,
+            value: `${live.needsReviewCount} open`,
+            hint: "Mixed operating signals",
           }
         : null,
   },
@@ -135,50 +135,86 @@ export function OverviewBoard({
         data-today-board
         data-overview-board
         data-signal-count={SIGNAL_SLOTS.length}
-        className="forge-page-stack"
+        className="forge-page-stack forge-overview"
       >
-        <div className="forge-signal-strip" role="list" aria-label="Decision signals">
-          {SIGNAL_SLOTS.map((slot) => {
-            const filled = slot.fill(liveKpis);
-            return (
-              <Link
-                key={slot.id}
-                href={slot.href}
-                role="listitem"
-                data-signal-id={slot.id}
-                className="forge-signal-card-link"
-              >
-                <SignalCard
-                  label={slot.label}
-                  value={filled?.value ?? "—"}
-                  hint={filled?.hint ?? "No data yet"}
-                  tone={filled ? slot.tone : "neutral"}
-                />
-              </Link>
-            );
-          })}
-        </div>
-
-        <PrescriptionsOverviewPanel prescriptions={prescriptions} />
-
-        <KpiHeroStrip live={liveKpis} />
-
-        <EnergyTrendPanel rows={energyTrend30d} />
-
-        <div className="forge-grid-2">
-          <TopConsumersTable rows={topConsumers} />
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 20,
-              minWidth: 0,
-              maxWidth: "100%",
-            }}
-          >
-            <SectionDonut rows={sectionShare} tariffInrPerKwh={energyInrPerKwh} />
+        <section className="forge-overview__signals" aria-labelledby="overview-signals-title">
+          <div className="forge-overview__section-head">
+            <div>
+              <p className="forge-eyebrow">Decision signals</p>
+              <h2 id="overview-signals-title" className="forge-section-heading">
+                What needs attention now
+              </h2>
+            </div>
+            <span className="forge-overview__section-meta">7 linked views</span>
           </div>
-        </div>
+          <div className="forge-signal-strip" role="list" aria-label="Decision signals">
+            {SIGNAL_SLOTS.map((slot) => {
+              const filled = slot.fill(liveKpis);
+              return (
+                <Link
+                  key={slot.id}
+                  href={slot.href}
+                  role="listitem"
+                  data-signal-id={slot.id}
+                  className="forge-signal-card-link"
+                >
+                  <SignalCard
+                    label={slot.label}
+                    value={filled?.value ?? "—"}
+                    hint={filled?.hint ?? "No data yet"}
+                    tone={filled ? slot.tone : "neutral"}
+                  />
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="forge-overview__decision" aria-labelledby="overview-decision-title">
+          <div className="forge-overview__section-head">
+            <div>
+              <p className="forge-eyebrow">Primary work surface</p>
+              <h2 id="overview-decision-title" className="forge-section-heading">
+                Choose the next operating action
+              </h2>
+            </div>
+            <span className="forge-overview__section-meta">Review, assign, prove</span>
+          </div>
+          <PrescriptionsOverviewPanel prescriptions={prescriptions} />
+        </section>
+
+        <section className="forge-overview__pulse" aria-labelledby="overview-pulse-title">
+          <div className="forge-overview__section-head">
+            <div>
+              <p className="forge-eyebrow">Plant pulse</p>
+              <h2 id="overview-pulse-title" className="forge-section-heading">
+                The numbers behind the queue
+              </h2>
+            </div>
+            <span className="forge-overview__section-meta">Month to date</span>
+          </div>
+          <KpiHeroStrip live={liveKpis} />
+        </section>
+
+        <section className="forge-overview__trend" aria-labelledby="overview-trend-title">
+          <div className="forge-overview__section-head">
+            <div>
+              <p className="forge-eyebrow">Performance context</p>
+              <h2 id="overview-trend-title" className="forge-section-heading">
+                Is the plant moving in the right direction?
+              </h2>
+            </div>
+            <Link className="forge-overview__section-link" href="/energy">
+              Energy detail →
+            </Link>
+          </div>
+          <EnergyTrendPanel rows={energyTrend30d} />
+        </section>
+
+        <section className="forge-overview__support" aria-label="Supporting plant detail">
+          <TopConsumersTable rows={topConsumers} />
+          <SectionDonut rows={sectionShare} tariffInrPerKwh={energyInrPerKwh} />
+        </section>
       </div>
     </RouteStateView>
   );

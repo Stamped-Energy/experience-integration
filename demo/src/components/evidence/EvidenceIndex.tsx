@@ -2,6 +2,7 @@ import Link from "next/link";
 import { EvidenceMiniChart } from "@/components/evidence/EvidenceMiniChart";
 import { ForgeButton, ForgeButtonGroup, Panel, StatusChip } from "@/components/ui/primitives";
 import type { EvidenceSample } from "@/fixtures/evidence-samples";
+import { outcomeLabel } from "@/lib/prescriptions";
 import "./evidence.css";
 
 const categoryTone = {
@@ -41,6 +42,9 @@ export function EvidenceIndex({ samples }: { samples: readonly EvidenceSample[] 
                 <StatusChip tone={categoryTone[sample.categoryBadge.tone]}>
                   {sample.categoryBadge.label}
                 </StatusChip>
+                {sample.outcome ? (
+                  <StatusChip tone="info">{outcomeLabel(sample.outcome)}</StatusChip>
+                ) : null}
               </div>
               <h3 className="evidence-index-card__issue">{sample.issueTitle}</h3>
               <p className="evidence-card__asset">

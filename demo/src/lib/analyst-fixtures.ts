@@ -6,7 +6,8 @@ import {
   alarmsForPlant,
   prescriptionsForPlant,
 } from "@/fixtures/demo";
-import { sortPrescriptions } from "@/lib/prescriptions";
+import { outcomeLabel, sortPrescriptions } from "@/lib/prescriptions";
+import { formatInr, formatValueSignal } from "@/lib/format";
 import type { Alarm, AnalystContextEnvelope, Prescription } from "@/lib/types";
 import type { AnalystCitation, AnalystFixtureCatalog } from "./analyst-context";
 
@@ -44,12 +45,10 @@ function openAlarms(plantId: string, catalog?: AnalystFixtureCatalog) {
   return resolveAlarms(plantId, catalog).filter((a) => a.state !== "cleared");
 }
 
-function fmtInr(n: number): string {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
+function primaryValue(rx: Prescription): string {
+  return rx.valueSignal
+    ? `${rx.valueSignal.label}: ${formatValueSignal(rx.valueSignal)}`
+    : `${formatInr(rx.impactInrPerMonth)}/mo modeled`;
 }
 
 function matchQuestion(q: string): string | null {
@@ -115,8 +114,9 @@ function prescriptionReply(
   return [
     `**Highest-impact open prescription: ${top.title}**`,
     "",
+    `• **Outcome:** ${top.outcome ? outcomeLabel(top.outcome) : "Not classified"}`,
     `• **Why:** ${top.why}`,
-    `• **Addressable:** ${fmtInr(top.impactInrPerMonth)}/mo at **${Math.round(top.confidence * 100)}%** confidence`,
+    `• **Primary value:** ${primaryValue(top)} at **${Math.round(top.confidence * 100)}%** confidence`,
     `• **Owner:** ${top.ownerRole.replaceAll("_", " ")} · **Due:** ${top.dueLabel ?? top.dueAt.slice(0, 10)}`,
     `• **Bill line:** ${top.billLine ?? "Energy (kWh)"} · **Effort:** ${top.effort ?? "Ops change"}`,
     "",
@@ -153,7 +153,6 @@ function closureReply(
   const closed = catalogRx.filter((p) => p.lane === "closed").length;
   const verifying = catalogRx.filter((p) => p.lane === "verifying").length;
   const needsReview = catalogRx.filter((p) => p.lane === "needs_review");
-  const needsReviewInr = needsReview.reduce((s, p) => s + p.impactInrPerMonth, 0);
   const closure =
     catalogRx.length === 0 ? 0 : Math.round((closed / catalogRx.length) * 100);
 
@@ -161,7 +160,7 @@ function closureReply(
     `**Prescription closure - ${plantNameOf(envelope)}**`,
     "",
     `• **Closure rate (30d):** ${closure}% (${closed}/${catalogRx.length} closed)`,
-    `• **Needs review:** ${needsReview.length} prescriptions · **${fmtInr(needsReviewInr)}/mo** addressable`,
+    `• **Needs review:** ${needsReview.length} prescriptions with mixed operating value signals`,
     `• **Verifying:** ${verifying} prescriptions awaiting savings verification`,
     "",
     "**Bottleneck:** keep owners assigned on needs-review items before the billing cycle closes.",
@@ -287,7 +286,7 @@ export function fixtureAnalystReplyRich(
     citations.push({
       id: `cite_${focus.id}`,
       title: rx?.title ?? focus.id,
-      snippet: rx ? fmtInr(rx.impactInrPerMonth) + "/mo" : undefined,
+      snippet: rx ? primaryValue(rx) : undefined,
       path: "H",
     });
   }

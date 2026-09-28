@@ -21,6 +21,7 @@ export const OUTCOME_LABELS: Record<PlantOutcome, string> = {
 
 /** Optional facet over decision_class. */
 export type ClassFacet = "all" | "maintenance" | "management";
+export type PrescriptionFacet = ClassFacet | OutcomeFacet;
 
 export function sortPrescriptions(rows: readonly Prescription[]): Prescription[] {
   return [...rows].sort((a, b) => {
@@ -119,6 +120,16 @@ export function matchesClassFacet(rx: Prescription, facet: ClassFacet): boolean 
   return !isManagementClass(rx);
 }
 
+export function matchesPrescriptionFacet(
+  rx: Prescription,
+  facet: PrescriptionFacet,
+): boolean {
+  if (facet === "maintenance" || facet === "management") {
+    return matchesClassFacet(rx, facet);
+  }
+  return matchesOutcomeFacet(rx, facet);
+}
+
 /**
  * Needs attention = needs_review.
  * Acknowledged = active + verifying; closed only when includeDone.
@@ -126,13 +137,13 @@ export function matchesClassFacet(rx: Prescription, facet: ClassFacet): boolean 
 export function filterInbox(
   rows: readonly Prescription[],
   section: InboxSection,
-  facet: ClassFacet = "all",
+  facet: PrescriptionFacet = "all",
   opts?: { includeDone?: boolean },
 ): Prescription[] {
   const includeDone = opts?.includeDone ?? false;
   return sortPrescriptions(
     rows.filter((r) => {
-      if (!matchesClassFacet(r, facet)) return false;
+      if (!matchesPrescriptionFacet(r, facet)) return false;
       if (section === "needs_attention") return r.lane === "needs_review";
       if (r.lane === "active" || r.lane === "verifying") return true;
       return includeDone && r.lane === "closed";

@@ -6,6 +6,7 @@ import { ForgeButton, StatusChip } from "@/components/ui/primitives";
 import type { EvidenceSample } from "@/fixtures/evidence-samples";
 import type { EvidencePack } from "@/lib/evidence";
 import { formatBaselineLabel, formatIstDateRange } from "@/lib/format";
+import { outcomeLabel } from "@/lib/prescriptions";
 
 const chartAccent = {
   critical: "critical",
@@ -72,6 +73,9 @@ export function PrescriptionEvidencePreview({
         }));
   const dialSize = compact ? 108 : 122;
   const contextRows = [
+    ...(sample?.outcome || pack.scope.outcome
+      ? [{ label: "Outcome", value: outcomeLabel(sample?.outcome ?? pack.scope.outcome!) }]
+      : []),
     { label: "Metric", value: pack.scope.metric.replaceAll("_", " ") },
     { label: "Baseline", value: formatBaselineLabel(pack.scope.baselineId) },
     {

@@ -4,8 +4,8 @@ import { AnalystWorkspace } from "@/components/analyst/AnalystWorkspace";
 import { AgentCard } from "@/components/home/AgentCard";
 import { AppShell } from "@/components/shell/AppShell";
 import { alarmsForPlant, prescriptionsForPlant } from "@/fixtures/demo";
-import { formatInr, formatIstTime } from "@/lib/format";
-import { sortPrescriptions } from "@/lib/prescriptions";
+import { formatInr, formatIstTime, formatValueSignal } from "@/lib/format";
+import { outcomeLabel, sortPrescriptions } from "@/lib/prescriptions";
 import { usePlant } from "@/lib/plant-context";
 import { useProductShell } from "@/lib/product-shell";
 import "@/components/home/home.css";
@@ -19,6 +19,15 @@ function greeting(now: Date): string {
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
   return "Good evening";
+}
+
+function primaryValue(rx: {
+  valueSignal?: Parameters<typeof formatValueSignal>[0];
+  impactInrPerMonth: number;
+}): string {
+  return rx.valueSignal
+    ? `${rx.valueSignal.label}: ${formatValueSignal(rx.valueSignal)}`
+    : `${formatInr(rx.impactInrPerMonth)}/month modeled`;
 }
 
 export default function HomePage() {
@@ -82,7 +91,11 @@ export default function HomePage() {
               recommendation={
                 alarmRx ? (
                   <>
-                    {alarmRx.title}. Worth <strong>{formatInr(alarmRx.impactInrPerMonth)}/month</strong>.
+                    {alarmRx.title}.{" "}
+                    <strong>
+                      {alarmRx.outcome ? `${outcomeLabel(alarmRx.outcome)} · ` : ""}
+                      {primaryValue(alarmRx)}
+                    </strong>
                   </>
                 ) : (
                   "Acknowledge and assign an owner before the next TOD peak."
@@ -95,11 +108,11 @@ export default function HomePage() {
             <AgentCard
               kind="Opportunity"
               tone="primary"
-              context={`${topRx.category ?? "Prescription"} · ${topRx.dueLabel ?? "This week"}`}
+              context={`${topRx.outcome ? outcomeLabel(topRx.outcome) : topRx.category ?? "Prescription"} · ${topRx.dueLabel ?? "This week"}`}
               message={
                 <>
-                  <strong>{topRx.title}</strong>. {topRx.why}. Worth{" "}
-                  <strong>{formatInr(topRx.impactInrPerMonth)}/month</strong>.
+                  <strong>{topRx.title}</strong>. {topRx.why}.{" "}
+                  <strong>{primaryValue(topRx)}</strong>.
                 </>
               }
               recommendation={topRx.actions?.[0] ?? topRx.why}

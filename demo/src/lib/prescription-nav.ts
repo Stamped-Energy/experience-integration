@@ -2,15 +2,30 @@ import type { Prescription } from "@/lib/types";
 import {
   type ClassFacet,
   type InboxSection,
+  type OutcomeFacet,
+  type PrescriptionFacet,
   filterInbox,
   inboxSectionOf,
   neighborsInList,
 } from "@/lib/prescriptions";
 
-export type { ClassFacet, InboxSection };
+export type { ClassFacet, InboxSection, OutcomeFacet, PrescriptionFacet };
+export { outcomeLabel as getOutcomeLabel } from "@/lib/prescriptions";
 
 export function parseClassFacet(raw: string | null | undefined): ClassFacet {
   if (raw === "maintenance" || raw === "management") return raw;
+  return "all";
+}
+
+export function parseOutcomeFacet(raw: string | null | undefined): OutcomeFacet {
+  if (
+    raw === "dynamic_production_planning" ||
+    raw === "quality_yield" ||
+    raw === "energy_waste" ||
+    raw === "uptime"
+  ) {
+    return raw;
+  }
   return "all";
 }
 
@@ -25,12 +40,19 @@ export function parseInboxSection(
 export function prescriptionDetailHref(
   id: string,
   section: InboxSection,
-  facet: ClassFacet,
+  facet: PrescriptionFacet,
 ): string {
   const q = new URLSearchParams({
     section,
-    class: facet,
   });
+  if (
+    facet === "maintenance" ||
+    facet === "management"
+  ) {
+    q.set("class", facet);
+  } else {
+    q.set("outcome", facet);
+  }
   return `/prescriptions/${id}?${q.toString()}`;
 }
 
@@ -38,7 +60,7 @@ export function navForPrescription(
   rows: readonly Prescription[],
   currentId: string,
   section: InboxSection,
-  facet: ClassFacet,
+  facet: PrescriptionFacet,
   opts?: { includeDone?: boolean },
 ): {
   prevHref: string | null;

@@ -14,6 +14,7 @@ import {
 import { AlertTriangle, CheckCircle, ClipboardList, FileText } from "@/components/ui/icons";
 import { RouteStateView } from "@/components/states/RouteStateView";
 import { resolveRouteState } from "@/lib/route-state";
+import { resolvePrimaryEvidenceId } from "@/fixtures/evidence-samples";
 import {
   actionsForState,
   applyAlarmAction,
@@ -22,6 +23,7 @@ import {
   type AlarmAction,
 } from "@/lib/alarms";
 import { formatAlarmState, formatIstDateTime, formatIstTime } from "@/lib/format";
+import { outcomeLabel } from "@/lib/prescriptions";
 
 const severityTone = {
   critical: "critical",
@@ -54,6 +56,12 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
   );
   const current = open[selected] ?? open[0];
   const actions = current ? actionsForState(current.state) : [];
+  const currentEvidenceId = current
+    ? resolvePrimaryEvidenceId({
+        alarmId: current.id,
+        findingId: current.findingId,
+      })
+    : undefined;
 
   const evidenceRows = useMemo(() => {
     if (!current) return [];
@@ -160,6 +168,11 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
                     <StatusChip tone="neutral" compact>
                       {formatAlarmState(a.state)}
                     </StatusChip>
+                    {a.outcome ? (
+                      <StatusChip tone="info" compact>
+                        {outcomeLabel(a.outcome)}
+                      </StatusChip>
+                    ) : null}
                   </div>
                   <p className="alm-console__list-title">{a.assetLabel}</p>
                   <p className="alm-console__list-meta">
@@ -177,6 +190,9 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
               <div className="alm-full-case__chips">
                 <StatusChip tone={severityTone[current.severity]}>{current.severity}</StatusChip>
                 <StatusChip tone="neutral">{formatAlarmState(current.state)}</StatusChip>
+                {current.outcome ? (
+                  <StatusChip tone="info">{outcomeLabel(current.outcome)}</StatusChip>
+                ) : null}
               </div>
               <h2 className="alm-full-case__prose alm-full-case__prose--lead" style={{ marginTop: 10 }}>
                 {current.assetLabel}
@@ -239,11 +255,11 @@ export function AlarmConsole({ initial }: { initial: Alarm[] }) {
                   Prescription
                 </ForgeButton>
               ) : null}
-              {current.relatedPrescriptionId ? (
+              {currentEvidenceId || current.relatedPrescriptionId ? (
                 <ForgeButton
                   variant="secondary"
                   icon={<FileText size={16} />}
-                  href={`/evidence/evd_${current.relatedPrescriptionId}`}
+                  href={`/evidence/${currentEvidenceId ?? `evd_${current.relatedPrescriptionId}`}`}
                 >
                   Evidence
                 </ForgeButton>

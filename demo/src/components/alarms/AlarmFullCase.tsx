@@ -17,6 +17,7 @@ import {
   formatIstDateTime,
   formatIstTime,
 } from "@/lib/format";
+import { outcomeLabel } from "@/lib/prescriptions";
 import type { Alarm } from "@/lib/types";
 import type { DemoAsset } from "@/fixtures/demo";
 
@@ -111,6 +112,10 @@ export function AlarmFullCase({
       value: alarm.ownerRole ? alarm.ownerRole.replaceAll("_", " ") : "Unassigned",
     },
     { label: "Finding", value: alarm.findingId ?? "-" },
+    {
+      label: "Outcome",
+      value: alarm.outcome ? outcomeLabel(alarm.outcome) : "Not classified",
+    },
     { label: "Rule", value: pack.lineage.ruleId.replaceAll("_", " ") },
   ];
 
@@ -148,7 +153,7 @@ export function AlarmFullCase({
   const renderWorkflow = () => (
     <Panel className="alm-full-case__panel alm-full-case__panel--wide alm-full-case__panel--workflow">
       <CompactSection title="Workflow">
-        <CompactMeta rows={workflowRows.slice(0, 4)} />
+        <CompactMeta rows={workflowRows.slice(0, 6)} />
       </CompactSection>
 
       <div className="alm-full-case__actions-bar">
@@ -219,6 +224,9 @@ export function AlarmFullCase({
               <StatusChip tone={severityTone[alarm.severity]}>{alarm.severity}</StatusChip>
               <StatusChip tone="neutral">{formatAlarmState(alarm.state)}</StatusChip>
               <StatusChip tone="neutral">{alarm.assetLabel}</StatusChip>
+              {alarm.outcome ? (
+                <StatusChip tone="info">{outcomeLabel(alarm.outcome)}</StatusChip>
+              ) : null}
               {alarm.findingId ? (
                 <StatusChip tone="info">Finding · {alarm.findingId}</StatusChip>
               ) : null}

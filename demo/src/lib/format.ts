@@ -1,5 +1,7 @@
 /** Indian-locale formatters for client-facing surfaces. */
 
+import type { PrescriptionValueSignal } from "@/lib/types";
+
 const IST = "Asia/Kolkata";
 const MISSING = "-";
 
@@ -119,6 +121,14 @@ export function formatInr(amount: number): string {
     currency: "INR",
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+export function formatValueSignal(signal?: PrescriptionValueSignal): string {
+  if (!signal) return "Value not available";
+  if (signal.unit.toLowerCase().startsWith("inr")) {
+    return formatInr(signal.value);
+  }
+  return `${formatIndianNum(signal.value, signal.value % 1 === 0 ? 0 : 1)} ${signal.unit}`;
 }
 
 export function formatIndianNum(n: number, digits = 0): string {

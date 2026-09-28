@@ -8,7 +8,6 @@ import { PrescriptionQueueSkeleton } from "@/components/ui/PageSkeletons";
 import { PageHead } from "@/components/ui/primitives";
 import { bffUrl, type DataSource } from "@/lib/bff";
 import { DEMO_DATA_SOURCE, WORKLIST_MAX, getDemoConservationWorklist } from "@/lib/demo-data";
-import { formatInr } from "@/lib/format";
 import { useProductShell } from "@/lib/product-shell";
 import type { Prescription } from "@/lib/types";
 
@@ -94,10 +93,6 @@ export default function PrescriptionsPage() {
   }, [activePlant.plantId, isDemoSession]);
 
   const needsReview = rows.filter((p) => p.lane === "needs_review");
-  const needsReviewInr = needsReview.reduce(
-    (s, p) => s + p.impactInrPerMonth,
-    0,
-  );
   const hasData = source === "l5" || source === "preview";
 
   const contextLine = loading
@@ -119,7 +114,7 @@ export default function PrescriptionsPage() {
       connection={connection}
       screenTitle="Prescription queue"
       contextSummary={[
-        `${needsReview.length} need attention · ${formatInr(needsReviewInr)}/mo`,
+        `${needsReview.length} need attention`,
         contextLine,
       ]}
       focusEntity={rows[0] ? { type: "prescription", id: rows[0].id } : undefined}

@@ -3,7 +3,7 @@ import {
   resolvePrimaryEvidenceId,
   type EvidenceSample,
 } from "@/fixtures/evidence-samples";
-import type { Alarm, Prescription } from "@/lib/types";
+import type { Alarm, PlantOutcome, Prescription } from "@/lib/types";
 import { resolveRouteState, type RouteStateModel } from "@/lib/route-state";
 
 export type { EvidenceSample } from "@/fixtures/evidence-samples";
@@ -26,6 +26,8 @@ export type EvidenceScope = {
   baselineId: string | null;
   alarmId?: string;
   rxId?: string;
+  findingId?: string;
+  outcome?: PlantOutcome;
   title: string;
 };
 
@@ -79,6 +81,8 @@ export function resolveEvidenceScope(input: {
       baselineId: sample?.baselineId ?? "bl_kiln_1_7d",
       alarmId: alarm.id,
       rxId: rx?.id ?? alarm.relatedPrescriptionId,
+      findingId: alarm.findingId,
+      outcome: rx?.outcome ?? alarm.outcome ?? sample?.outcome,
       title: `Proof · ${alarm.assetLabel}`,
     };
   }
@@ -97,6 +101,8 @@ export function resolveEvidenceScope(input: {
       to: "2026-07-21T00:00:00+05:30",
       baselineId: sample?.baselineId ?? "bl_kiln_1_7d",
       rxId: rx.id,
+      findingId: linkedAlarm?.findingId,
+      outcome: rx.outcome ?? sample?.outcome,
       title: `Proof · ${rx.title}`,
     };
   }
@@ -122,14 +128,44 @@ export function buildEvidencePack(
   const missing: string[] = [];
   if (!baselineAvailable) missing.push("baseline");
 
+  const lineageByOutcome: Record<
+    PlantOutcome,
+    { ruleId: string; ruleLabel: string; tariffId: string; tariffLabel: string }
+  > = {
+    dynamic_production_planning: {
+      ruleId: "schedule/near_term_sequence_v1",
+      ruleLabel: "Near-term sequence constraint",
+      tariffId: "not_primary",
+      tariffLabel: "Financial effect not primary",
+    },
+    quality_yield: {
+      ruleId: "quality/process_stability_v1",
+      ruleLabel: "Process stability and first-off check",
+      tariffId: "not_primary",
+      tariffLabel: "Financial effect not primary",
+    },
+    energy_waste: {
+      ruleId: "rule_md_coincidence_v3",
+      ruleLabel: "Energy and waste baseline comparison",
+      tariffId: "tariff_rvpnl_ht_2026",
+      tariffLabel: "Rajasthan HT industrial TOD",
+    },
+    uptime: {
+      ruleId: "uptime/availability_pattern_v1",
+      ruleLabel: "Availability and stop-duration pattern",
+      tariffId: "not_primary",
+      tariffLabel: "Financial effect not primary",
+    },
+  };
+  const lineage = scope.outcome
+    ? lineageByOutcome[scope.outcome]
+    : lineageByOutcome.energy_waste;
+
   return {
     scope,
     lineage: {
-      ruleId: "rule_md_coincidence_v3",
-      ruleLabel: "MD coincidence · peak TOD window",
-      tariffId: "tariff_rvpnl_ht_2026",
-      tariffLabel: "Rajasthan HT industrial TOD",
-      findingId: scope.alarmId ? "fnd_4401" : undefined,
+      ...lineage,
+      findingId: scope.findingId,
       sources: ["Detection rule", "Meter readings", ...(baselineAvailable ? ["Baseline comparison"] : [])],
     },
     anomaly: {

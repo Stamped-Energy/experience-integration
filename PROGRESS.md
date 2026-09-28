@@ -9,14 +9,21 @@ and GitHub Actions cover quality / postgres / browser / infra jobs.
 
 ## Four-outcome prescription system (2026-09-28)
 
-**Phase A complete — model and fixtures**
+**Phase B complete — four-outcome decision surfaces**
 
 - Added optional live-compatible outcome and mixed-value fields.
 - Classified all demo prescription, alarm, and evidence chains across the four
   Stamped outcomes while preserving existing IDs and historical records.
-- Typecheck and 119 unit tests pass.
-- Phase B is replacing Maintenance/Management filters and INR-first decision
-  presentation across the linked experience.
+- Replaced prescription Maintenance/Management filters with the four plant
+  outcomes, while retaining legacy class behavior for negotiation workflows.
+- Added mixed value signals to queue, Today, Overview, Analyst, detail, and
+  export surfaces without removing existing modeled financial fields.
+- Added outcome context and canonical evidence links to alarm and evidence
+  index/detail surfaces, including outcome-specific evidence lineage.
+- Moved the Energy Analytics legend below the chart so Baseline, Actual, and
+  Cost labels no longer overlap the histogram.
+- Demo typecheck and 119 unit tests pass.
+- Phase C validation remains: production build, browser routes, and deployment.
 
 ## L6 Control Room Redesign (2026-09-27)
 

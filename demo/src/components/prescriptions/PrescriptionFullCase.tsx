@@ -19,9 +19,10 @@ import {
   formatIstCompactDateTimeRange,
   formatIstDate,
   formatIstDateRange,
+  formatValueSignal,
 } from "@/lib/format";
 import { buildPrescriptionCaseDetail } from "@/lib/prescription-case";
-import { classLabel, isManagementClass } from "@/lib/prescriptions";
+import { outcomeLabel } from "@/lib/prescriptions";
 import type { Alarm, LedgerEntry, Prescription } from "@/lib/types";
 import type { DemoAsset } from "@/fixtures/demo";
 import "./prescription-full-case.css";
@@ -239,8 +240,8 @@ export function PrescriptionFullCase({
         <div className="rx-full-case__hero-grid">
           <div className="rx-full-case__hero-left">
             <div className="rx-full-case__chips">
-              <StatusChip tone={isManagementClass(rx) ? "warning" : "info"}>
-                {classLabel(rx)}
+              <StatusChip tone="info">
+                {rx.outcome ? outcomeLabel(rx.outcome) : "Outcome pending"}
               </StatusChip>
               {rx.category ? <StatusChip tone="neutral">{rx.category}</StatusChip> : null}
               {rx.priority ? (
@@ -264,14 +265,20 @@ export function PrescriptionFullCase({
             <Prose lead>{detail.description}</Prose>
           </div>
           <div className="rx-full-case__hero-savings rx-full-case__stat-box">
-            <p className="forge-eyebrow">Potential savings</p>
+            <p className="forge-eyebrow">{rx.valueSignal?.label ?? "Potential value"}</p>
             <p className="rx-full-case__savings-amount tabular">
-              {formatInr(rx.impactInrPerMonth)}
+              {rx.valueSignal
+                ? formatValueSignal(rx.valueSignal)
+                : formatInr(rx.impactInrPerMonth)}
             </p>
-            <p className="rx-full-case__savings-period">per month</p>
-            <p className="rx-full-case__savings-range tabular">
-              {formatInr(rx.impactInrPerMonth * 12)} / yr modeled
+            <p className="rx-full-case__savings-period">
+              {rx.valueSignal?.basis ?? "modeled"} operating signal
             </p>
+            {!rx.valueSignal ? (
+              <p className="rx-full-case__savings-range tabular">
+                {formatInr(rx.impactInrPerMonth * 12)} / yr modeled
+              </p>
+            ) : null}
           </div>
         </div>
       </Panel>
@@ -309,7 +316,7 @@ export function PrescriptionFullCase({
             ]}
           />
         </CompactSection>
-        <CompactSection title="Money">
+        <CompactSection title="Financial model (optional)">
           <CompactMeta
             rows={[
               {

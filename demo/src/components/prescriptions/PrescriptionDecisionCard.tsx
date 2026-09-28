@@ -1,7 +1,7 @@
 "use client";
 
 import type { Prescription } from "@/lib/types";
-import { formatInr, formatIstDate } from "@/lib/format";
+import { formatInr, formatIstDate, formatValueSignal } from "@/lib/format";
 import { emphasizeNumbers } from "@/components/prescriptions/prescription-formatting";
 import { pillarBadges } from "@/lib/prescriptions";
 
@@ -58,7 +58,11 @@ export function PrescriptionDecisionCard({ rx }: { rx: Prescription }) {
           </div>
           <div className="rx-decision__field">
             <dt>Impact</dt>
-            <dd className="tabular">{formatInr(rx.impactInrPerMonth)}/mo</dd>
+            <dd className="tabular">
+              {rx.valueSignal
+                ? formatValueSignal(rx.valueSignal)
+                : `${formatInr(rx.impactInrPerMonth)}/mo modeled`}
+            </dd>
           </div>
           <div className="rx-decision__field">
             <dt>Effort</dt>

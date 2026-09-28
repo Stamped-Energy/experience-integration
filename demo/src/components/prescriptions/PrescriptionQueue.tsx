@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Prescription, PrescriptionFeedback } from "@/lib/types";
 import { hydrateRxFeedback, saveRxFeedback } from "@/lib/rx-feedback-store";
-import { claimBadgeLabel, formatInr } from "@/lib/format";
+import { claimBadgeLabel, formatValueSignal } from "@/lib/format";
 import {
   notifyAssignee,
   type NotifyPersonDto,
@@ -23,11 +23,11 @@ import {
 import { PrescriptionDecisionCard } from "@/components/prescriptions/PrescriptionDecisionCard";
 import { prescriptionDetailHref } from "@/lib/prescription-nav";
 import {
-  type ClassFacet,
   type InboxSection,
-  classLabel,
+  type OutcomeFacet,
+  OUTCOME_LABELS,
   filterInbox,
-  isManagementClass,
+  outcomeLabel,
   optimisticRxFeedback,
   optimisticRxUpdate,
   requiresReason,
@@ -42,15 +42,20 @@ const sectionLabel: Record<InboxSection, string> = {
   acknowledged: "Acknowledged",
 };
 
-const FACETS: ClassFacet[] = ["all", "maintenance", "management"];
+const FACETS: OutcomeFacet[] = [
+  "all",
+  "dynamic_production_planning",
+  "quality_yield",
+  "energy_waste",
+  "uptime",
+];
 
-const facetLabel: Record<ClassFacet, string> = {
+const facetLabel: Record<OutcomeFacet, string> = {
   all: "All",
-  maintenance: "Maintenance",
-  management: "Management",
+  ...OUTCOME_LABELS,
 };
 
-const outcomeLabel: Record<NonNullable<PrescriptionFeedback["outcome"]>, string> = {
+const FEEDBACK_OUTCOME_LABEL: Record<NonNullable<PrescriptionFeedback["outcome"]>, string> = {
   helped: "Helped",
   didnt_help: "Didn't help",
   needs_follow_up: "Needs follow-up",
@@ -98,7 +103,7 @@ export function PrescriptionQueue({
 }) {
   const [rows, setRows] = useState(initial);
   const [section, setSection] = useState<InboxSection>("needs_attention");
-  const [facet, setFacet] = useState<ClassFacet>("all");
+  const [facet, setFacet] = useState<OutcomeFacet>("all");
   const [includeDone, setIncludeDone] = useState(false);
   const [assignFor, setAssignFor] = useState<Prescription | null>(null);
   const [pendingAction, setPendingAction] = useState<{
@@ -127,22 +132,6 @@ export function PrescriptionQueue({
   const ackCount = filterInbox(rows, "acknowledged", facet, { includeDone }).length;
 
   const openRows = rows.filter((r) => r.lane === "needs_review" || r.lane === "active");
-  const openNonMd = openRows.filter((r) => !r.isMdDemand);
-  const openMd = openRows.filter((r) => r.isMdDemand);
-  const nonMdInr = openNonMd.reduce((s, r) => s + r.impactInrPerMonth, 0);
-  // Interim MD honesty: one exposure figure — max per episode id (or max overall)
-  const mdByEpisode = new Map<string, number>();
-  for (const r of openMd) {
-    const key = r.mdEpisodeId ?? `solo:${r.id}`;
-    const cap =
-      typeof r.mdEpisode?.episode_inr_cap === "number"
-        ? r.mdEpisode.episode_inr_cap
-        : r.impactInrPerMonth;
-    mdByEpisode.set(key, Math.max(mdByEpisode.get(key) ?? 0, cap));
-  }
-  const mdExposureInr = [...mdByEpisode.values()].reduce((s, n) => s + n, 0);
-  const openInr = nonMdInr + mdExposureInr;
-
   const openCount = openRows.length;
 
   function run(id: string, action: RxAction) {
@@ -228,17 +217,17 @@ export function PrescriptionQueue({
       <Panel className="rx-queue__hero">
         <div className="rx-queue__hero-grid">
           <div className="rx-queue__hero-summary">
-            <p className="forge-eyebrow">Addressable (modeled)</p>
-            <p className="rx-queue__summary-value tabular">{formatInr(openInr)}/mo</p>
-            {openMd.length > 0 ? (
-              <p className="rx-queue__summary-hint" style={{ fontSize: 12, marginTop: 4 }}>
-                Includes MD exposure {formatInr(mdExposureInr)}/mo (non-additive across{" "}
-                {openMd.length} MD card{openMd.length === 1 ? "" : "s"})
-              </p>
-            ) : null}
+            <p className="forge-eyebrow">Open decisions</p>
+            <p className="rx-queue__summary-value tabular">{openCount}</p>
             <p className="rx-queue__summary-sub">
               {openCount} open · {needsCount} need attention
             </p>
+            {sorted[0]?.valueSignal ? (
+              <p className="rx-queue__summary-hint" style={{ fontSize: 12, marginTop: 4 }}>
+                Latest value: {sorted[0].valueSignal.label} ·{" "}
+                {formatValueSignal(sorted[0].valueSignal)}
+              </p>
+            ) : null}
           </div>
           <div className="rx-queue__hero-controls">
             <div className="forge-tabs" role="tablist" aria-label="Inbox section">
@@ -305,7 +294,6 @@ export function PrescriptionQueue({
             const badge = claimBadgeLabel(rx.verificationStatus);
             const evidenceHref = `/evidence?rxId=${rx.id}`;
             const detailHref = prescriptionDetailHref(rx.id, section, facet);
-            const klass = classLabel(rx);
             const isNeeds = rx.lane === "needs_review";
             const isAcked = !isNeeds && rx.lane !== "closed";
 
@@ -314,8 +302,8 @@ export function PrescriptionQueue({
                 <Panel className="rx-queue__card">
                   <div className="rx-queue__card-body">
                     <div className="rx-queue__chips">
-                      <StatusChip tone={isManagementClass(rx) ? "warning" : "info"}>
-                        {klass}
+                      <StatusChip tone="info">
+                        {rx.outcome ? outcomeLabel(rx.outcome) : "Outcome pending"}
                       </StatusChip>
                       {rx.lane === "closed" ? (
                         <StatusChip tone="neutral">Done</StatusChip>
@@ -334,7 +322,7 @@ export function PrescriptionQueue({
                       <p className="rx-queue__feedback-preview">
                         Feedback
                         {rx.feedback.outcome
-                          ? ` · ${outcomeLabel[rx.feedback.outcome]}`
+                          ? ` · ${FEEDBACK_OUTCOME_LABEL[rx.feedback.outcome]}`
                           : ""}
                         : {truncateNote(rx.feedback.note)}
                       </p>

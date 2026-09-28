@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/primitives";
 import type { EvidenceSample } from "@/fixtures/evidence-samples";
 import { formatBaselineLabel, formatRuleLabel } from "@/lib/format";
+import { outcomeLabel } from "@/lib/prescriptions";
 import "./evidence.css";
 
 const categoryTone = {
@@ -85,6 +86,10 @@ export function EvidenceDetail({
 
   const contextRows = [
     { label: "Asset", value: sample.assetLabel },
+    {
+      label: "Outcome",
+      value: sample.outcome ? outcomeLabel(sample.outcome) : "Not classified",
+    },
     { label: "Finding", value: sample.findingId ?? "-" },
     { label: "Baseline", value: formatBaselineLabel(sample.baselineId) },
     { label: "Rule", value: formatRuleLabel(sample.findingId) },
@@ -223,6 +228,9 @@ export function EvidenceDetail({
               <StatusChip tone={categoryTone[sample.categoryBadge.tone]}>
                 {sample.categoryBadge.label}
               </StatusChip>
+              {sample.outcome ? (
+                <StatusChip tone="info">{outcomeLabel(sample.outcome)}</StatusChip>
+              ) : null}
             </div>
             <h2 className="evd-full__issue">{sample.issueTitle}</h2>
             <p className="evd-full__lead evd-full__lead--mobile-clamp">

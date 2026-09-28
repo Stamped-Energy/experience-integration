@@ -5,7 +5,8 @@ import type { Prescription } from "@/lib/types";
 import { Panel } from "@/components/ui/primitives";
 import { IconBadge, StatusBadgeByStatus } from "@/components/ui/indicators";
 import { AlertTriangle, Sparkles, Zap } from "@/components/ui/icons";
-import { formatInr } from "@/lib/format";
+import { formatInr, formatValueSignal } from "@/lib/format";
+import { outcomeLabel } from "@/lib/prescriptions";
 
 const LANE_ICON = {
   needs_review: { icon: AlertTriangle, tone: "critical" as const },
@@ -93,6 +94,11 @@ export function PrescriptionsOverviewPanel({
                 </span>
                 <StatusBadgeByStatus status={rx.lane === "needs_review" ? "HIGH" : rx.lane === "active" ? "MEDIUM" : "GOOD"} variant="dot" />
               </div>
+              {rx.outcome ? (
+                <p style={{ fontSize: 11, color: "var(--forge-tertiary)", margin: "0 0 8px" }}>
+                  {outcomeLabel(rx.outcome)}
+                </p>
+              ) : null}
 
               <p style={{ fontSize: 12.5, lineHeight: 1.45, margin: "0 0 10px", color: "var(--forge-on-surface-variant)" }}>{rx.why}</p>
 
@@ -103,8 +109,12 @@ export function PrescriptionsOverviewPanel({
                     className="tabular"
                     style={{ fontFamily: "var(--forge-font-display)", fontWeight: 700, fontSize: 16, color: borderColor }}
                   >
-                    {formatInr(rx.impactInrPerMonth)}
-                    <span style={{ fontSize: 10, fontWeight: 600, color: "var(--forge-on-surface-variant)" }}> /mo modeled impact</span>
+                    {rx.valueSignal
+                      ? formatValueSignal(rx.valueSignal)
+                      : `${formatInr(rx.impactInrPerMonth)} /mo modeled`}
+                    <span style={{ fontSize: 10, fontWeight: 600, color: "var(--forge-on-surface-variant)" }}>
+                      {rx.valueSignal ? ` · ${rx.valueSignal.label}` : " impact"}
+                    </span>
                   </div>
                   <div style={{ fontSize: 10, color: "var(--forge-tertiary)", marginTop: 2 }}>
                     {Math.round(rx.confidence * 100)}% confidence

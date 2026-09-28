@@ -1,11 +1,17 @@
 import type { EvidencePack } from "@/lib/evidence";
-import { formatBaselineLabel, formatInr, formatMetricLabel } from "@/lib/format";
+import {
+  formatBaselineLabel,
+  formatInr,
+  formatMetricLabel,
+  formatValueSignal,
+} from "@/lib/format";
 import type {
   Alarm,
   LedgerEntry,
   Prescription,
   PrescriptionCaseDetail,
 } from "@/lib/types";
+import { outcomeLabel } from "@/lib/prescriptions";
 
 function ownerLabel(role: string): string {
   return role.replaceAll("_", " ");
@@ -29,10 +35,18 @@ export function buildPrescriptionCaseDetail(input: {
   const derived: PrescriptionCaseDetail = {
     createdAt: rx.dueAt.slice(0, 10),
     description: rx.why,
-    savingsRange: `${formatInr(rx.impactInrPerMonth)} / mo · ${annualFromMonthly(rx.impactInrPerMonth)} / yr modeled`,
+    savingsRange: rx.valueSignal
+      ? `${rx.valueSignal.label}: ${formatValueSignal(rx.valueSignal)}`
+      : `${formatInr(rx.impactInrPerMonth)} / mo · ${annualFromMonthly(rx.impactInrPerMonth)} / yr modeled`,
     metadata: [
       { label: "Case", value: rx.title },
       { label: "Plant", value: rx.plantId },
+      ...(rx.outcome
+        ? [{ label: "Outcome", value: outcomeLabel(rx.outcome) }]
+        : []),
+      ...(rx.valueSignal
+        ? [{ label: "Primary value", value: formatValueSignal(rx.valueSignal) }]
+        : []),
       { label: "Category", value: rx.category ?? "-" },
       { label: "Priority", value: rx.priority ?? "-" },
       { label: "Status", value: rx.lane.replaceAll("_", " ") },
@@ -74,7 +88,9 @@ export function buildPrescriptionCaseDetail(input: {
     },
     rootCause: [rx.why],
     costBenefit: {
-      wasteIdentified: `Modeled addressable: ${formatInr(rx.impactInrPerMonth)}/mo based on ${pack.lineage.ruleLabel}.`,
+      wasteIdentified: rx.valueSignal
+        ? `${rx.valueSignal.label}: ${formatValueSignal(rx.valueSignal)} based on ${pack.lineage.ruleLabel}.`
+        : `Modeled addressable: ${formatInr(rx.impactInrPerMonth)}/mo based on ${pack.lineage.ruleLabel}.`,
       capexNote: rx.effort ?? "See recommended actions for effort estimate.",
     },
     risksTable: rx.risks?.length
@@ -119,7 +135,9 @@ export function buildPrescriptionCaseDetail(input: {
       "Assign an owner from the Assignments matrix.",
       "Mark done when operations confirm completion.",
     ],
-    managerTakeaway: `${rx.title}. ${rx.why} Addressable ${formatInr(rx.impactInrPerMonth)}/mo at ${Math.round(rx.confidence * 100)}% confidence.`,
+    managerTakeaway: rx.valueSignal
+      ? `${rx.title}. ${rx.why} ${rx.valueSignal.label}: ${formatValueSignal(rx.valueSignal)} at ${Math.round(rx.confidence * 100)}% confidence.`
+      : `${rx.title}. ${rx.why} Addressable ${formatInr(rx.impactInrPerMonth)}/mo at ${Math.round(rx.confidence * 100)}% confidence.`,
   };
 
   if (ledger) {
