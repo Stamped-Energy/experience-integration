@@ -241,6 +241,14 @@ export type DemoOverviewData = {
     vsBenchmarkPct: number | null;
   }>;
   sectionShare: Array<{ name: string; kwh: number }>;
+  alerts: Array<{
+    id: string;
+    time: string;
+    severity: "CRITICAL" | "WARNING" | "INFO" | "RESOLVED";
+    machine: string;
+    message: string;
+    alarmId?: string;
+  }>;
   energyInrPerKwh: number;
   prescriptions: Prescription[];
 };
@@ -288,6 +296,14 @@ export function getDemoOverview(): DemoOverviewData {
     sectionShare: OVERVIEW_SECTION_BREAKDOWN.map((s) => ({
       name: s.name,
       kwh: s.kwh,
+    })),
+    alerts: OVERVIEW_ALERTS.map((alert) => ({
+      id: alert.id,
+      time: alert.time,
+      severity: alert.severity,
+      machine: alert.machine,
+      message: alert.message,
+      alarmId: alert.alarmId,
     })),
     energyInrPerKwh: OVERVIEW_TARIFF,
     prescriptions: getDemoPrescriptions().slice(0, 6),

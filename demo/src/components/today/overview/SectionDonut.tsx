@@ -105,7 +105,24 @@ export function SectionDonut({
           No section breakdown yet
         </div>
       ) : (
-        <div ref={hostRef} style={{ height: 220, width: "100%" }} role="img" aria-label="Section energy share" />
+        <>
+          <div
+            ref={hostRef}
+            style={{ height: 220, width: "100%" }}
+            role="img"
+            aria-label="Section energy share"
+          />
+          <div className="forge-section-breakdown__rows" aria-label="Energy by section details">
+            {data.map((row) => (
+              <div key={row.name} className="forge-section-breakdown__row">
+                <span>{row.name}</span>
+                <strong className="tabular">
+                  {formatIndianNum(row.kwh)} kWh · {formatInr(Math.round(row.kwh * rate))}
+                </strong>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </Panel>
   );

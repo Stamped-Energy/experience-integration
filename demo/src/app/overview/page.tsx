@@ -51,6 +51,14 @@ type OverviewResponse = {
     vsBenchmarkPct: number | null;
   }> | null;
   sectionShare: Array<{ name: string; kwh: number }> | null;
+  alerts?: Array<{
+    id: string;
+    time: string;
+    severity: "CRITICAL" | "WARNING" | "INFO" | "RESOLVED";
+    machine: string;
+    message: string;
+    alarmId?: string;
+  }> | null;
   energyInrPerKwh: number | null;
   prescriptions: Array<{
     id: string;
@@ -189,6 +197,7 @@ export default function OverviewPage() {
           energyTrend30d={hasData ? data?.energyTrend30d : null}
           topConsumers={hasData ? data?.topConsumers : null}
           sectionShare={hasData ? data?.sectionShare : null}
+          alerts={hasData ? data?.alerts : null}
           energyInrPerKwh={data?.energyInrPerKwh ?? null}
           closurePct={data?.closureRate30d ?? null}
           prescriptions={(data?.prescriptions ?? []) as never}

@@ -1499,6 +1499,55 @@ a.forge-btn {
   margin-top: 2px;
 }
 
+.forge-chart-data {
+  margin-top: 8px;
+  border-top: 1px solid var(--forge-outline-variant);
+}
+
+.forge-chart-data summary {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--forge-primary);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  list-style: none;
+}
+
+.forge-chart-data summary::-webkit-details-marker {
+  display: none;
+}
+
+.forge-chart-data summary::before {
+  content: "+";
+  display: inline-grid;
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+  place-items: center;
+  border: 1px solid var(--forge-outline-variant);
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.forge-chart-data[open] summary::before {
+  content: "−";
+}
+
+.forge-chart-data summary:focus-visible {
+  outline: 2px solid var(--forge-secondary);
+  outline-offset: 2px;
+}
+
+.forge-chart-data__scroll {
+  max-height: 260px;
+  overflow: auto;
+  border: 1px solid var(--forge-outline-variant);
+  border-radius: var(--forge-radius-sm);
+}
+
 .forge-live-status__row {
   display: flex;
   justify-content: space-between;
@@ -1777,6 +1826,11 @@ a.forge-btn {
   box-shadow: none;
 }
 
+.forge-overview .forge-signal-card-link:focus-visible {
+  outline: 2px solid var(--forge-secondary);
+  outline-offset: 3px;
+}
+
 .forge-overview .forge-signal-card__value {
   font-size: 1.35rem;
 }
@@ -1962,10 +2016,15 @@ a.forge-btn {
   margin: 0;
   font-size: 12px;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .forge-overview-action__actions {
   flex-wrap: wrap;
+}
+
+.forge-overview-action__actions .forge-btn--sm {
+  min-height: 44px;
 }
 
 .forge-overview-actions__empty {
@@ -1981,8 +2040,26 @@ a.forge-btn {
 }
 
 .forge-overview__pulse .forge-kpi-hero-strip {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--forge-outline-variant);
   border-radius: var(--forge-radius-card);
   background: var(--forge-surface-container-lowest);
+}
+
+.forge-overview__pulse .forge-kpi-hero-card {
+  min-height: 142px;
+  padding: 18px;
+  border-top: 0;
+  background: transparent;
+}
+
+.forge-overview__pulse .forge-kpi-hero-card + .forge-kpi-hero-card {
+  border-left: 1px solid var(--forge-outline-variant);
+}
+
+.forge-overview__pulse .forge-kpi-hero-card .forge-eyebrow {
+  max-width: 18ch;
+  line-height: 1.35;
 }
 
 .forge-overview__support {
@@ -1992,6 +2069,43 @@ a.forge-btn {
   align-items: stretch;
 }
 
+.forge-section-breakdown__rows {
+  display: grid;
+  gap: 8px;
+  padding: 0 20px 18px;
+}
+
+.forge-section-breakdown__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--forge-on-surface-variant);
+  font-size: 12px;
+}
+
+.forge-section-breakdown__row strong {
+  color: var(--forge-on-surface);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.forge-overview-consumers__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 20px 14px;
+}
+
+.forge-overview-consumers__subtitle {
+  max-width: 42ch;
+  margin: 5px 0 0;
+  color: var(--forge-on-surface-variant);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 @media (max-width: 1100px) {
   .forge-overview .forge-signal-strip {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1999,6 +2113,18 @@ a.forge-btn {
 
   .forge-overview__support {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .forge-overview__pulse .forge-kpi-hero-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .forge-overview__pulse .forge-kpi-hero-card:nth-child(odd) {
+    border-left: 0;
+  }
+
+  .forge-overview__pulse .forge-kpi-hero-card:nth-child(n + 3) {
+    border-top: 1px solid var(--forge-outline-variant);
   }
 }
 
@@ -2039,11 +2165,15 @@ a.forge-btn {
     flex-direction: column;
     gap: 5px;
   }
+
+  .forge-overview__pulse .forge-kpi-hero-card {
+    padding: 14px 12px;
+  }
 }
 
 @media (max-width: 420px) {
   .forge-overview .forge-signal-strip {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .forge-overview-actions__header {

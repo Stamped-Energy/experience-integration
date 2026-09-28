@@ -30,8 +30,14 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "co2", label: "CO₂" },
 ];
 
+function displayValue(tab: TabId, row: LiveTrendDay): string {
+  if (tab === "cost") return formatInr(row.costActualInr);
+  if (tab === "co2") return `${row.co2Actual.toFixed(2)} tCO₂e`;
+  return `${formatIndianNum(row.actualKwh)} kWh`;
+}
+
 function toOption(tab: TabId, rows: LiveTrendDay[]): EChartsCoreOption {
-  const labels = rows.map((d) => d.date.slice(5)); // MM-DD
+  const labels = rows.map((d) => d.date);
   const actual =
     tab === "kwh"
       ? rows.map((d) => d.actualKwh)
@@ -254,6 +260,38 @@ export function EnergyTrendPanel({ rows }: { rows?: LiveTrendDay[] | null }) {
             aria-label="Area chart comparing actual energy consumption against Stamped baseline"
             style={{ height: 300, marginTop: 12, width: "100%" }}
           />
+          <details className="forge-chart-data">
+            <summary>View {TABS.find((item) => item.id === tab)?.label} data</summary>
+            <div className="forge-chart-data__scroll forge-scroll-thin">
+              <table className="forge-table">
+                <caption className="sr-only">
+                  Daily {TABS.find((item) => item.id === tab)?.label} values
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Day</th>
+                    <th scope="col">Actual</th>
+                    <th scope="col">Baseline</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.map((row) => (
+                    <tr key={row.day}>
+                      <td>{row.date}</td>
+                      <td className="tabular">{displayValue(tab, row)}</td>
+                      <td className="tabular">
+                        {tab === "cost"
+                          ? formatInr(row.costBaselineInr)
+                          : tab === "co2"
+                            ? `${row.co2Baseline.toFixed(2)} tCO₂e`
+                            : `${formatIndianNum(row.baselineKwh)} kWh`}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
           <ChartStatRow
             items={[
               { label: "Avg daily saving", value: avgSaving },

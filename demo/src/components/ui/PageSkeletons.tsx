@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/primitives";
 /** Overview: signal strip + KPI strip + trend + queue/side panels. */
 export function OverviewBoardSkeleton() {
   return (
-    <div className="forge-page-stack" aria-busy="true" aria-label="Loading overview">
+    <div className="forge-page-stack forge-overview" aria-busy="true" aria-label="Loading overview">
       <div className="forge-signal-strip" role="list" aria-label="Loading decision signals">
         {Array.from({ length: 7 }).map((_, i) => (
           <div key={i} role="listitem" className="forge-signal-card-link">

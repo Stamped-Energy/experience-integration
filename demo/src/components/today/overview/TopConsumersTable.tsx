@@ -17,12 +17,18 @@ export function TopConsumersTable({ rows }: { rows?: LiveConsumerRow[] | null })
   const data = rows && rows.length > 0 ? rows : null;
 
   return (
-    <Panel style={{ display: "flex", flexDirection: "column", overflow: "hidden", padding: 0 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: 20 }}>
+    <Panel className="forge-overview-consumers" style={{ display: "flex", flexDirection: "column", overflow: "hidden", padding: 0 }}>
+      <div className="forge-overview-consumers__header">
         <div>
           <p className="forge-eyebrow">Consumption Breakdown</p>
-          <h3 className="forge-card-title">Top Energy Consumers</h3>
+          <h3 className="forge-card-title">Largest energy loads</h3>
+          <p className="forge-overview-consumers__subtitle">
+            The equipment contributing most to the current period.
+          </p>
         </div>
+        <span className="forge-overview__section-meta">
+          {data ? `${data.length} shown` : "Awaiting data"}
+        </span>
       </div>
 
       {!data ? (
@@ -54,6 +60,7 @@ export function TopConsumersTable({ rows }: { rows?: LiveConsumerRow[] | null })
                 <th>Section</th>
                 <th style={{ textAlign: "right" }}>Avg Load</th>
                 <th style={{ textAlign: "right" }}>Period kWh</th>
+                <th style={{ textAlign: "right" }}>vs benchmark</th>
                 <th style={{ textAlign: "right" }}>Cost</th>
               </tr>
             </thead>
@@ -74,6 +81,11 @@ export function TopConsumersTable({ rows }: { rows?: LiveConsumerRow[] | null })
                   </td>
                   <td style={{ textAlign: "right" }} className="tabular">
                     {formatIndianNum(r.monthlyKwh)}
+                  </td>
+                  <td style={{ textAlign: "right" }} className="tabular">
+                    {r.vsBenchmarkPct == null
+                      ? "—"
+                      : `${r.vsBenchmarkPct > 0 ? "+" : ""}${r.vsBenchmarkPct}%`}
                   </td>
                   <td style={{ textAlign: "right" }} className="tabular">
                     {formatInr(r.monthlyCostInr)}

@@ -1,0 +1,157 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - link "Skip to main content" [ref=e3] [cursor=pointer]:
+      - /url: "#forge-main"
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - img [ref=e7]
+          - generic [ref=e20]: Stamped
+        - generic "Jaipur Works · Live" [ref=e21]: Jaipur Works
+      - button "Ask Stamped" [active] [ref=e23] [cursor=pointer]:
+        - img [ref=e24] [cursor=pointer]
+        - generic [ref=e37] [cursor=pointer]: Ask Stamped
+    - generic [ref=e38]:
+      - navigation "Primary" [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - generic [ref=e42]: JW
+            - generic [ref=e43]:
+              - generic [ref=e44]: Jaipur Works
+              - generic [ref=e45]: Shift A · 06:00–14:00 IST
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - term [ref=e49]: Peak demand
+              - definition [ref=e50]: 4,680 kVA
+            - generic [ref=e51]:
+              - term [ref=e52]: Critical
+              - definition [ref=e53]: "3"
+        - generic [ref=e54]:
+          - link "Home" [ref=e55] [cursor=pointer]:
+            - /url: /
+            - img [ref=e57] [cursor=pointer]
+            - generic [ref=e61] [cursor=pointer]: Home
+          - link "Overview" [ref=e62] [cursor=pointer]:
+            - /url: /overview
+            - img [ref=e64] [cursor=pointer]
+            - generic [ref=e69] [cursor=pointer]: Overview
+          - link "Ask Stamped" [ref=e70] [cursor=pointer]:
+            - /url: /analyst
+            - img [ref=e72] [cursor=pointer]
+            - generic [ref=e85] [cursor=pointer]: Ask Stamped
+          - paragraph [ref=e86]: Workspace
+          - generic [ref=e87]:
+            - button "Operations" [expanded] [ref=e88] [cursor=pointer]:
+              - img [ref=e89] [cursor=pointer]
+              - generic [ref=e91] [cursor=pointer]: Operations
+              - img [ref=e93] [cursor=pointer]
+            - generic [ref=e95]:
+              - link "Alarms 3 critical" [ref=e96] [cursor=pointer]:
+                - /url: /alarms
+                - img [ref=e98] [cursor=pointer]
+                - generic [ref=e100] [cursor=pointer]: Alarms
+                - generic "3 critical" [ref=e101] [cursor=pointer]: "3"
+              - link "Prescriptions" [ref=e102] [cursor=pointer]:
+                - /url: /prescriptions
+                - img [ref=e104] [cursor=pointer]
+                - generic [ref=e107] [cursor=pointer]: Prescriptions
+          - button "Insights" [ref=e109] [cursor=pointer]:
+            - img [ref=e110] [cursor=pointer]
+            - generic [ref=e112] [cursor=pointer]: Insights
+            - img [ref=e114] [cursor=pointer]
+          - button "Reports" [ref=e117] [cursor=pointer]:
+            - img [ref=e118] [cursor=pointer]
+            - generic [ref=e121] [cursor=pointer]: Reports
+            - img [ref=e123] [cursor=pointer]
+          - button "Administration" [ref=e126] [cursor=pointer]:
+            - img [ref=e127] [cursor=pointer]
+            - generic [ref=e130] [cursor=pointer]: Administration
+            - img [ref=e132] [cursor=pointer]
+        - button "Minimize navigation" [ref=e134] [cursor=pointer]:
+          - img [ref=e135] [cursor=pointer]
+          - generic [ref=e138] [cursor=pointer]: Minimize
+        - paragraph [ref=e139]: "Role: admin"
+      - main [ref=e140]:
+        - generic [ref=e142]:
+          - generic [ref=e143]:
+            - heading "Good morning." [level=1] [ref=e144]:
+              - text: Good morning
+              - generic [ref=e145]: .
+            - paragraph [ref=e146]: Monday, 28 September · Jaipur Works
+          - region "Stamped Agent" [ref=e147]:
+            - article [ref=e148]:
+              - generic [ref=e149]:
+                - img [ref=e151]
+                - generic [ref=e164]: Stamped Agent
+                - generic [ref=e165]: Critical
+                - generic [ref=e166]: Threshold crossed this shift
+                - time [ref=e167]: 10:22 am IST
+              - paragraph [ref=e168]:
+                - strong [ref=e169]: Main incomer
+                - text: ": Rolling 15-min MD reached 4,820 kVA while Kiln 1 ramp and Packing Line 1 restart overlapped; only 3.6% headroom to CMD."
+              - generic [ref=e170]:
+                - paragraph [ref=e171]: Recommendation
+                - paragraph [ref=e172]:
+                  - text: Hold Packing Line 1 restart until the incomer settles.
+                  - strong [ref=e173]: "Dynamic production planning · Contractual dispatch slot protected: 1 slot"
+              - link "View the investigation" [ref=e174] [cursor=pointer]:
+                - /url: /alarms/alm_1010
+                - text: View the investigation
+                - img [ref=e175] [cursor=pointer]
+            - article [ref=e177]:
+              - generic [ref=e178]:
+                - img [ref=e180]
+                - generic [ref=e193]: Stamped Agent
+                - generic [ref=e194]: Opportunity
+                - generic [ref=e195]: Energy & waste · Next idle window of 20+ min
+              - paragraph [ref=e196]:
+                - strong [ref=e197]: Switch off Packing Line 1 auxiliaries after 20 minutes idle
+                - text: . Conveyors and idle fans stayed on for 26 minutes while the line produced nothing.
+                - strong [ref=e198]: "Idle minutes exposed: 26 min"
+                - text: .
+              - generic [ref=e199]:
+                - paragraph [ref=e200]: Recommendation
+                - paragraph [ref=e201]: When output is zero for 20 minutes, check that no truck or batch release is due and apply the approved auxiliary cut list.
+              - link "View the investigation" [ref=e202] [cursor=pointer]:
+                - /url: /prescriptions/rx_9015
+                - text: View the investigation
+                - img [ref=e203] [cursor=pointer]
+          - region "Ask Stamped" [ref=e205]:
+            - heading "Ask Stamped" [level=2] [ref=e206]
+            - generic [ref=e208]:
+              - generic [ref=e210]:
+                - img [ref=e211]
+                - heading "What can I help with?" [level=2] [ref=e224]
+                - paragraph [ref=e225]: "Ask about Jaipur Works: alarms, prescriptions, peak demand or savings."
+                - generic [ref=e226]:
+                  - button "Summarize open alarms Critical and warning counts with owners" [ref=e227] [cursor=pointer]:
+                    - img [ref=e229] [cursor=pointer]
+                    - generic [ref=e231] [cursor=pointer]:
+                      - generic [ref=e232] [cursor=pointer]: Summarize open alarms
+                      - generic [ref=e233] [cursor=pointer]: Critical and warning counts with owners
+                  - button "Explain top prescription Impact, evidence, and next step" [ref=e234] [cursor=pointer]:
+                    - img [ref=e236] [cursor=pointer]
+                    - generic [ref=e239] [cursor=pointer]:
+                      - generic [ref=e240] [cursor=pointer]: Explain top prescription
+                      - generic [ref=e241] [cursor=pointer]: Impact, evidence, and next step
+                  - button "Peak demand last week Drivers versus contracted MD" [ref=e242] [cursor=pointer]:
+                    - img [ref=e244] [cursor=pointer]
+                    - generic [ref=e246] [cursor=pointer]:
+                      - generic [ref=e247] [cursor=pointer]: Peak demand last week
+                      - generic [ref=e248] [cursor=pointer]: Drivers versus contracted MD
+                  - button "Closure status Savings verification this cycle" [ref=e249] [cursor=pointer]:
+                    - img [ref=e251] [cursor=pointer]
+                    - generic [ref=e254] [cursor=pointer]:
+                      - generic [ref=e255] [cursor=pointer]: Closure status
+                      - generic [ref=e256] [cursor=pointer]: Savings verification this cycle
+              - generic [ref=e257]:
+                - generic [ref=e258]:
+                  - textbox "Ask analyst" [ref=e259]
+                  - button "Send message" [disabled] [ref=e260]:
+                    - img [ref=e261]
+                - paragraph [ref=e263]: Stamped can make mistakes. Verify cited sources before plant actions.
+  - alert [ref=e264]
+```

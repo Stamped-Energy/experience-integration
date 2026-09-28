@@ -9,6 +9,7 @@ import { PrescriptionsOverviewPanel } from "@/components/today/overview/Prescrip
 import { EnergyTrendPanel, type LiveTrendDay } from "@/components/today/overview/EnergyTrendPanel";
 import { TopConsumersTable, type LiveConsumerRow } from "@/components/today/overview/TopConsumersTable";
 import { SectionDonut, type LiveSectionRow } from "@/components/today/overview/SectionDonut";
+import { AlertFeedPanel, type AlertRow } from "@/components/today/overview/AlertFeedPanel";
 import { SignalCard } from "@/components/today/SignalCard";
 import { formatInr } from "@/lib/format";
 
@@ -112,6 +113,7 @@ export function OverviewBoard({
   energyTrend30d,
   topConsumers,
   sectionShare,
+  alerts,
   energyInrPerKwh,
   prescriptions,
   state = { kind: "default" },
@@ -121,6 +123,7 @@ export function OverviewBoard({
   energyTrend30d?: LiveTrendDay[] | null;
   topConsumers?: LiveConsumerRow[] | null;
   sectionShare?: LiveSectionRow[] | null;
+  alerts?: AlertRow[] | null;
   energyInrPerKwh?: number | null;
   closurePct?: number | null;
   alarms?: Alarm[];
@@ -214,6 +217,21 @@ export function OverviewBoard({
         <section className="forge-overview__support" aria-label="Supporting plant detail">
           <TopConsumersTable rows={topConsumers} />
           <SectionDonut rows={sectionShare} tariffInrPerKwh={energyInrPerKwh} />
+        </section>
+
+        <section className="forge-overview__exceptions" aria-labelledby="overview-exceptions-title">
+          <div className="forge-overview__section-head">
+            <div>
+              <p className="forge-eyebrow">Short-horizon exceptions</p>
+              <h2 id="overview-exceptions-title" className="forge-section-heading">
+                What changed recently?
+              </h2>
+            </div>
+            <Link className="forge-overview__section-link" href="/alarms">
+              Alarm console →
+            </Link>
+          </div>
+          <AlertFeedPanel alerts={alerts ?? []} />
         </section>
       </div>
     </RouteStateView>
