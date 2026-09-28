@@ -8,9 +8,11 @@ import {
   applyRxAction,
   classLabel,
   evidenceRowsFromRefs,
+  filterOutcome,
   filterInbox,
   filterLane,
   isManagementClass,
+  outcomeLabel,
   optimisticRxFeedback,
   optimisticRxUpdate,
   pillarBadges,
@@ -41,6 +43,7 @@ const sampleRx: Prescription[] = [
     ownerRole: "energy_manager",
     dueAt: "2026-08-01T10:00:00+05:30",
     decisionClass: "mgmt_schedule",
+    outcome: "dynamic_production_planning",
     valueDomain: "energy_efficiency",
     wasteCategory: 1,
   },
@@ -55,6 +58,7 @@ const sampleRx: Prescription[] = [
     ownerRole: "operator",
     dueAt: "2026-08-02T10:00:00+05:30",
     decisionClass: "maint",
+    outcome: "uptime",
   },
   {
     id: "rx_done",
@@ -66,6 +70,7 @@ const sampleRx: Prescription[] = [
     lane: "closed",
     ownerRole: "supervisor",
     dueAt: "2026-07-01T10:00:00+05:30",
+    outcome: "energy_waste",
   },
 ];
 
@@ -120,6 +125,21 @@ describe("prescription triage", () => {
     assert.ok(
       sorted[0]!.impactInrPerMonth * sorted[0]!.confidence >=
         sorted[1]!.impactInrPerMonth * sorted[1]!.confidence,
+    );
+  });
+
+  it("filters by the four plant outcomes", () => {
+    assert.equal(
+      outcomeLabel("dynamic_production_planning"),
+      "Dynamic production planning",
+    );
+    assert.equal(
+      filterOutcome(sampleRx, "uptime").map((row) => row.id).join(","),
+      "rx_maint",
+    );
+    assert.equal(
+      filterOutcome(sampleRx, "quality_yield").length,
+      0,
     );
   });
 

@@ -18,6 +18,28 @@ export type AlarmState =
 
 export type AlarmSeverity = "critical" | "warning" | "info";
 
+export type PlantOutcome =
+  | "dynamic_production_planning"
+  | "quality_yield"
+  | "energy_waste"
+  | "uptime";
+
+export type ValueSignalKind =
+  | "dispatch_protected"
+  | "planned_hours"
+  | "quality_guard"
+  | "energy_avoided"
+  | "idle_minutes"
+  | "cost_avoided";
+
+export interface PrescriptionValueSignal {
+  kind: ValueSignalKind;
+  label: string;
+  value: number;
+  unit: string;
+  basis: "observed" | "modeled" | "planned";
+}
+
 export type VerificationStatus =
   | "pending"
   | "ops_confirmed"
@@ -43,6 +65,7 @@ export interface Alarm {
   ownerRole?: Role;
   relatedPrescriptionId?: string;
   findingId?: string;
+  outcome?: PlantOutcome;
 }
 
 export interface Prescription {
@@ -101,6 +124,10 @@ export interface Prescription {
   whoLabel?: string;
   /** Two-pillar value domain from linked finding. */
   valueDomain?: "energy_efficiency" | "equipment_health";
+  /** Primary operating outcome; optional for live payload compatibility. */
+  outcome?: PlantOutcome;
+  /** Primary value shown on decision surfaces; optional for live payload compatibility. */
+  valueSignal?: PrescriptionValueSignal;
   /** L3 waste category 1–6 for pillar badge. */
   wasteCategory?: number;
   /** Wire evidence refs for evidence pack / full case. */

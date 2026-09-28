@@ -7,6 +7,17 @@
 Phases 0–H Auto + enterprise definitions are in place. `validate.sh`, Playwright,
 and GitHub Actions cover quality / postgres / browser / infra jobs.
 
+## Four-outcome prescription system (2026-09-28)
+
+**Phase A complete — model and fixtures**
+
+- Added optional live-compatible outcome and mixed-value fields.
+- Classified all demo prescription, alarm, and evidence chains across the four
+  Stamped outcomes while preserving existing IDs and historical records.
+- Typecheck and 119 unit tests pass.
+- Phase B is replacing Maintenance/Management filters and INR-first decision
+  presentation across the linked experience.
+
 ## L6 Control Room Redesign (2026-09-27)
 
 **Status: Complete**

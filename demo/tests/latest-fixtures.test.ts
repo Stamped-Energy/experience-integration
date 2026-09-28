@@ -5,6 +5,7 @@ import {
   DEMO_PLANT,
   findPrescription,
   prescriptionsForPlant,
+  VINAYAK_PLANT,
 } from "../src/fixtures/demo.js";
 import {
   findEvidenceSample,
@@ -12,6 +13,8 @@ import {
   resolveEvidenceIdForRx,
 } from "../src/fixtures/evidence-samples.js";
 import { getDemoCasePayload, getDemoEvidenceSamples } from "../src/lib/demo-data.js";
+import type { PlantOutcome } from "../src/lib/types.js";
+import { getLnmConservationWorklist } from "../src/sites/lnm/worklist.js";
 
 const latestChains = [
   ["alm_1010", "rx_9012", "evd_4415"],
@@ -22,6 +25,39 @@ const latestChains = [
 ] as const;
 
 describe("latest demo decision chains", () => {
+  it("classifies every demo prescription with one outcome and value signal", () => {
+    const prescriptions = [
+      ...prescriptionsForPlant(DEMO_PLANT.plantId),
+      ...prescriptionsForPlant(VINAYAK_PLANT.plantId),
+      ...getLnmConservationWorklist(),
+    ];
+    const outcomes = new Set<PlantOutcome>();
+
+    for (const prescription of prescriptions) {
+      assert.ok(prescription.outcome, `${prescription.id} should have an outcome`);
+      assert.ok(
+        prescription.valueSignal,
+        `${prescription.id} should have a primary value signal`,
+      );
+      outcomes.add(prescription.outcome!);
+    }
+
+    assert.deepEqual([...outcomes].sort(), [
+      "dynamic_production_planning",
+      "energy_waste",
+      "quality_yield",
+      "uptime",
+    ]);
+  });
+
+  it("classifies every demo alarm, including unlinked operational signals", () => {
+    for (const plantId of [DEMO_PLANT.plantId, VINAYAK_PLANT.plantId]) {
+      for (const alarm of alarmsForPlant(plantId)) {
+        assert.ok(alarm.outcome, `${alarm.id} should have an outcome`);
+      }
+    }
+  });
+
   it("keeps every new alarm, prescription, evidence pack, and case linked", () => {
     const alarms = alarmsForPlant(DEMO_PLANT.plantId);
     const prescriptions = prescriptionsForPlant(DEMO_PLANT.plantId);
@@ -36,9 +72,10 @@ describe("latest demo decision chains", () => {
       assert.equal(rx?.plantId, DEMO_PLANT.plantId);
       assert.equal(alarm?.relatedPrescriptionId, rxId);
       assert.equal(rx?.relatedAlarmId, alarmId);
+      assert.equal(alarm?.outcome, rx?.outcome);
       assert.equal(resolveEvidenceIdForAlarm(alarmId), evidenceId);
       assert.equal(resolveEvidenceIdForRx(rxId), evidenceId);
-      assert.ok(findEvidenceSample(evidenceId), `${evidenceId} should exist`);
+      assert.equal(findEvidenceSample(evidenceId)?.outcome, rx?.outcome);
 
       const casePayload = getDemoCasePayload({ rxId });
       assert.equal(casePayload?.prescription?.id, rxId);

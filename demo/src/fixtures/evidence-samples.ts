@@ -1,5 +1,7 @@
 /** Rich per-item evidence samples - each opens at `/evidence/[id]`. */
 
+import type { PlantOutcome } from "@/lib/types";
+
 export type EvidenceTagRow = {
   tag: string;
   value: string;
@@ -57,6 +59,7 @@ export type EvidenceSample = {
   alarmId?: string;
   rxId?: string;
   findingId?: string;
+  outcome?: PlantOutcome;
   baselineId?: string;
   assetLabel: string;
   assetId: string;
@@ -74,6 +77,7 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
     findingId: "fnd_4401",
     alarmId: "alm_1001",
     rxId: "rx_9001",
+    outcome: "dynamic_production_planning",
     baselineId: "bl_kiln_1_7d",
     chartTitle: "SIGNAL WINDOW · MON 07:00–07:15",
     categoryBadge: { label: "MD window", tone: "critical" },
@@ -123,6 +127,7 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
     findingId: "fnd_4410",
     alarmId: "alm_1005",
     rxId: "rx_9001",
+    outcome: "dynamic_production_planning",
     baselineId: "bl_kiln_1_7d",
     chartTitle: "ROLLING MD · 15-MIN WINDOW",
     categoryBadge: { label: "MD window", tone: "critical" },
@@ -166,6 +171,7 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
     findingId: "fnd_4411",
     alarmId: "alm_1006",
     rxId: "rx_9005",
+    outcome: "energy_waste",
     baselineId: "bl_mill_2_night",
     chartTitle: "IDLE SUITE WINDOWS · LAST 6 EVENTS",
     categoryBadge: { label: "Idle kWh", tone: "good" },
@@ -204,6 +210,7 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
     assetId: "comp_2",
     assetLabel: "Compressor bank",
     rxId: "rx_9011",
+    outcome: "uptime",
     baselineId: "bl_comp_vfd_30d",
     chartTitle: "COMPRESSOR kW · 06:30 SNAPSHOT",
     categoryBadge: { label: "Part-load", tone: "warning" },
@@ -242,6 +249,7 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
     findingId: "fnd_4402",
     alarmId: "alm_1002",
     rxId: "rx_9002",
+    outcome: "energy_waste",
     baselineId: "bl_mill_1_pf",
     chartTitle: "PF DRIFT · BILLING WINDOW",
     categoryBadge: { label: "PF slab", tone: "warning" },
@@ -285,6 +293,7 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
     findingId: "fnd_4415",
     alarmId: "alm_1010",
     rxId: "rx_9012",
+    outcome: "dynamic_production_planning",
     baselineId: "bl_incomer_md_14d",
     chartTitle: "ROLLING MD · 15-MINUTE WINDOW",
     categoryBadge: { label: "CMD headroom", tone: "critical" },
@@ -330,6 +339,7 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
     findingId: "fnd_4416",
     alarmId: "alm_1011",
     rxId: "rx_9013",
+    outcome: "uptime",
     baselineId: "bl_comp_2_specific_power_8w",
     chartTitle: "SPECIFIC POWER · MATCHED RUNS",
     categoryBadge: { label: "Equipment drift", tone: "warning" },
@@ -374,6 +384,7 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
     findingId: "fnd_4417",
     alarmId: "alm_1012",
     rxId: "rx_9014",
+    outcome: "quality_yield",
     baselineId: "bl_kiln_1_warmup_14d",
     chartTitle: "WARM-UP DRAW · NEXT START",
     categoryBadge: { label: "Warm-up kWh", tone: "warning" },
@@ -418,6 +429,7 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
     findingId: "fnd_4418",
     alarmId: "alm_1013",
     rxId: "rx_9015",
+    outcome: "energy_waste",
     baselineId: "bl_pack_1_idle_5events",
     chartTitle: "IDLE EVENT · AUXILIARY LOAD",
     categoryBadge: { label: "Idle kWh", tone: "good" },
@@ -458,6 +470,7 @@ export const evidenceSamplesFixture: EvidenceSample[] = [
     findingId: "fnd_4419",
     alarmId: "alm_1014",
     rxId: "rx_9016",
+    outcome: "energy_waste",
     baselineId: "bl_admin_hvac_5windows",
     chartTitle: "OCCUPANCY VS HVAC · OFF-PEAK",
     categoryBadge: { label: "HVAC idle", tone: "info" },

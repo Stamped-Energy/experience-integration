@@ -1,4 +1,5 @@
 import type {
+  PlantOutcome,
   Prescription,
   PrescriptionFeedback,
   PrescriptionLane,
@@ -8,6 +9,15 @@ export type RxAction = "assign" | "ack" | "defer" | "reject" | "done";
 
 /** Client inbox sections - maps backend lanes without inventing a second product. */
 export type InboxSection = "needs_attention" | "acknowledged";
+
+export type OutcomeFacet = "all" | PlantOutcome;
+
+export const OUTCOME_LABELS: Record<PlantOutcome, string> = {
+  dynamic_production_planning: "Dynamic production planning",
+  quality_yield: "Quality & yield",
+  energy_waste: "Energy & waste",
+  uptime: "Uptime",
+};
 
 /** Optional facet over decision_class. */
 export type ClassFacet = "all" | "maintenance" | "management";
@@ -24,8 +34,28 @@ export function sortPrescriptions(rows: readonly Prescription[]): Prescription[]
     const score =
       b.impactInrPerMonth * b.confidence - a.impactInrPerMonth * a.confidence;
     if (score !== 0) return score;
-    return Date.parse(a.dueAt) - Date.parse(b.dueAt);
+    const dueOrder = Date.parse(a.dueAt) - Date.parse(b.dueAt);
+    if (dueOrder !== 0) return dueOrder;
+    return a.id.localeCompare(b.id);
   });
+}
+
+export function outcomeLabel(outcome: PlantOutcome): string {
+  return OUTCOME_LABELS[outcome];
+}
+
+export function matchesOutcomeFacet(
+  rx: Prescription,
+  facet: OutcomeFacet,
+): boolean {
+  return facet === "all" || rx.outcome === facet;
+}
+
+export function filterOutcome(
+  rows: readonly Prescription[],
+  facet: OutcomeFacet,
+): Prescription[] {
+  return sortPrescriptions(rows.filter((row) => matchesOutcomeFacet(row, facet)));
 }
 
 export function requiresReason(action: RxAction): boolean {

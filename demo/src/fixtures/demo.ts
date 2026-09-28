@@ -2,7 +2,9 @@ import type {
   Alarm,
   ConnectionStatus,
   LedgerEntry,
+  PlantOutcome,
   Prescription,
+  PrescriptionValueSignal,
   TodaySignal,
   VerificationStatus,
   Role,
@@ -368,8 +370,8 @@ const latestJaipurAlarmsFixture: Alarm[] = [
 /** Alarms for the active live-path plant - Vinayak or Jaipur offline. */
 export function alarmsForPlant(plantId: string): Alarm[] {
   return plantId === VINAYAK_PLANT.plantId
-    ? sortAlarms(vinayakAlarmsFixture)
-    : sortAlarms([...alarmsFixture, ...latestJaipurAlarmsFixture]);
+    ? sortAlarms(enrichDemoAlarms(vinayakAlarmsFixture))
+    : sortAlarms(enrichDemoAlarms([...alarmsFixture, ...latestJaipurAlarmsFixture]));
 }
 
 export const prescriptionsFixture: Prescription[] = [
@@ -1041,19 +1043,286 @@ const latestJaipurPrescriptionsFixture: Prescription[] = [
   },
 ];
 
+type DemoPrescriptionClassification = {
+  outcome: PlantOutcome;
+  valueSignal: PrescriptionValueSignal;
+};
+
+const DEMO_PRESCRIPTION_CLASSIFICATIONS: Record<
+  string,
+  DemoPrescriptionClassification
+> = {
+  rx_9001: {
+    outcome: "dynamic_production_planning",
+    valueSignal: {
+      kind: "dispatch_protected",
+      label: "Dispatch slot protected",
+      value: 1,
+      unit: "slot",
+      basis: "planned",
+    },
+  },
+  rx_9002: {
+    outcome: "energy_waste",
+    valueSignal: {
+      kind: "cost_avoided",
+      label: "Modeled PF exposure",
+      value: 38000,
+      unit: "INR/month",
+      basis: "modeled",
+    },
+  },
+  rx_9003: {
+    outcome: "dynamic_production_planning",
+    valueSignal: {
+      kind: "planned_hours",
+      label: "Peak sequence moved",
+      value: 1,
+      unit: "hour",
+      basis: "planned",
+    },
+  },
+  rx_9004: {
+    outcome: "energy_waste",
+    valueSignal: {
+      kind: "idle_minutes",
+      label: "Idle HVAC window",
+      value: 38,
+      unit: "min",
+      basis: "observed",
+    },
+  },
+  rx_9005: {
+    outcome: "energy_waste",
+    valueSignal: {
+      kind: "idle_minutes",
+      label: "Idle minutes exposed",
+      value: 47,
+      unit: "min",
+      basis: "observed",
+    },
+  },
+  rx_9006: {
+    outcome: "dynamic_production_planning",
+    valueSignal: {
+      kind: "planned_hours",
+      label: "Peak production moved",
+      value: 1.5,
+      unit: "hours",
+      basis: "planned",
+    },
+  },
+  rx_9007: {
+    outcome: "quality_yield",
+    valueSignal: {
+      kind: "quality_guard",
+      label: "Next kiln batch protected",
+      value: 1,
+      unit: "batch",
+      basis: "planned",
+    },
+  },
+  rx_9008: {
+    outcome: "uptime",
+    valueSignal: {
+      kind: "planned_hours",
+      label: "Air-system inspection window",
+      value: 2,
+      unit: "hours",
+      basis: "planned",
+    },
+  },
+  rx_9009: {
+    outcome: "energy_waste",
+    valueSignal: {
+      kind: "cost_avoided",
+      label: "Modeled PF exposure",
+      value: 19000,
+      unit: "INR/month",
+      basis: "modeled",
+    },
+  },
+  rx_9010: {
+    outcome: "dynamic_production_planning",
+    valueSignal: {
+      kind: "dispatch_protected",
+      label: "Peak dispatch slot protected",
+      value: 1,
+      unit: "slot",
+      basis: "planned",
+    },
+  },
+  rx_9011: {
+    outcome: "uptime",
+    valueSignal: {
+      kind: "planned_hours",
+      label: "Compressor availability protected",
+      value: 2,
+      unit: "hours",
+      basis: "planned",
+    },
+  },
+  rx_9012: {
+    outcome: "dynamic_production_planning",
+    valueSignal: {
+      kind: "dispatch_protected",
+      label: "Contractual dispatch slot protected",
+      value: 1,
+      unit: "slot",
+      basis: "planned",
+    },
+  },
+  rx_9013: {
+    outcome: "uptime",
+    valueSignal: {
+      kind: "planned_hours",
+      label: "Compressor availability protected",
+      value: 2,
+      unit: "hours",
+      basis: "planned",
+    },
+  },
+  rx_9014: {
+    outcome: "quality_yield",
+    valueSignal: {
+      kind: "quality_guard",
+      label: "Next kiln batch quality guard",
+      value: 1,
+      unit: "batch",
+      basis: "planned",
+    },
+  },
+  rx_9015: {
+    outcome: "energy_waste",
+    valueSignal: {
+      kind: "idle_minutes",
+      label: "Idle minutes exposed",
+      value: 26,
+      unit: "min",
+      basis: "observed",
+    },
+  },
+  rx_9016: {
+    outcome: "energy_waste",
+    valueSignal: {
+      kind: "idle_minutes",
+      label: "Unoccupied HVAC minutes",
+      value: 38,
+      unit: "min",
+      basis: "observed",
+    },
+  },
+  rx_v001: {
+    outcome: "dynamic_production_planning",
+    valueSignal: {
+      kind: "dispatch_protected",
+      label: "Shift buffer protected",
+      value: 1,
+      unit: "dispatch slot",
+      basis: "planned",
+    },
+  },
+  rx_v002: {
+    outcome: "energy_waste",
+    valueSignal: {
+      kind: "cost_avoided",
+      label: "Modeled PF exposure",
+      value: 33000,
+      unit: "INR/month",
+      basis: "modeled",
+    },
+  },
+  rx_v003: {
+    outcome: "dynamic_production_planning",
+    valueSignal: {
+      kind: "planned_hours",
+      label: "Peak packing moved",
+      value: 1.5,
+      unit: "hours",
+      basis: "planned",
+    },
+  },
+  rx_v004: {
+    outcome: "energy_waste",
+    valueSignal: {
+      kind: "idle_minutes",
+      label: "Idle minutes exposed",
+      value: 47,
+      unit: "min",
+      basis: "observed",
+    },
+  },
+  rx_v005: {
+    outcome: "uptime",
+    valueSignal: {
+      kind: "planned_hours",
+      label: "Compressor availability protected",
+      value: 2,
+      unit: "hours",
+      basis: "planned",
+    },
+  },
+  rx_v006: {
+    outcome: "dynamic_production_planning",
+    valueSignal: {
+      kind: "dispatch_protected",
+      label: "Critical path protected",
+      value: 1,
+      unit: "dispatch slot",
+      basis: "planned",
+    },
+  },
+};
+
+const DEMO_STANDALONE_ALARM_OUTCOMES: Record<string, PlantOutcome> = {
+  alm_1003: "uptime",
+  alm_1007: "dynamic_production_planning",
+  alm_v3: "dynamic_production_planning",
+};
+
+function enrichDemoPrescriptions(rows: readonly Prescription[]): Prescription[] {
+  return rows.map((row) => {
+    const classification = DEMO_PRESCRIPTION_CLASSIFICATIONS[row.id];
+    if (!classification) {
+      throw new Error(`Missing four-outcome classification for ${row.id}`);
+    }
+    return {
+      ...row,
+      outcome: row.outcome ?? classification.outcome,
+      valueSignal: row.valueSignal ?? classification.valueSignal,
+    };
+  });
+}
+
+function enrichDemoAlarms(rows: readonly Alarm[]): Alarm[] {
+  return rows.map((row) => ({
+    ...row,
+    outcome:
+      row.outcome ??
+      (row.relatedPrescriptionId
+        ? DEMO_PRESCRIPTION_CLASSIFICATIONS[row.relatedPrescriptionId]?.outcome
+        : DEMO_STANDALONE_ALARM_OUTCOMES[row.id]),
+  }));
+}
+
 /** Prescriptions for the active live-path plant - Vinayak or Jaipur offline. */
 export function prescriptionsForPlant(plantId: string): Prescription[] {
   return plantId === VINAYAK_PLANT.plantId
-    ? sortPrescriptions(vinayakPrescriptionsFixture)
-    : sortPrescriptions([...prescriptionsFixture, ...latestJaipurPrescriptionsFixture]);
+    ? sortPrescriptions(enrichDemoPrescriptions(vinayakPrescriptionsFixture))
+    : sortPrescriptions(
+        enrichDemoPrescriptions([
+          ...prescriptionsFixture,
+          ...latestJaipurPrescriptionsFixture,
+        ]),
+      );
 }
 
 /** Lookup across both plant catalogs (detail routes, evidence links). */
 export function findPrescription(id: string): Prescription | undefined {
-  return (
+  const row =
     [...prescriptionsFixture, ...latestJaipurPrescriptionsFixture].find((p) => p.id === id) ??
-    vinayakPrescriptionsFixture.find((p) => p.id === id)
-  );
+    vinayakPrescriptionsFixture.find((p) => p.id === id);
+  return row ? enrichDemoPrescriptions([row])[0] : undefined;
 }
 
 export function plantForId(plantId: string) {
