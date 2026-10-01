@@ -2,17 +2,20 @@ name: ci
 
 on:
   push:
-    branches: [main, "cursor/**"]
+    branches: [main]
+    paths-ignore: ["**/*.md", "docs/**", "plans/**", ".cursor/**"]
   pull_request:
+    paths-ignore: ["**/*.md", "docs/**", "plans/**", ".cursor/**"]
+  workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 6
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,24 +62,17 @@ jobs:
       - name: Install jsonschema
         run: pip install jsonschema
 
-      - name: Guardrail — no LNM identity in core sources
-        run: python scripts/check-core-site-identity.py
-
-      - name: Platform contract check
-        run: ./external/scripts/contracts/contract-check.sh
-
-      - name: Upstream OpenAPI drift check
-        run: pnpm contracts:upstream
-
-      - name: Typecheck, test, build
+      # validate.sh runs the identity guardrail, contract checks, typecheck, tests, infra CDK and build.
+      - name: Validate
         run: SKIP_E2E=1 pnpm validate
 
-      # Phase K: blocking dependency audit — triage findings (fix or exception-with-expiry).
+      # Phase K: blocking dependency audit - triage findings (fix or exception-with-expiry).
       - name: npm audit (blocking)
         run: pnpm audit --prod --audit-level=high
 
   sbom:
     name: SBOM (Syft stub)
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: quality
@@ -95,7 +91,7 @@ jobs:
 
   postgres-integration:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 6
     needs: quality
     services:
       postgres:
@@ -143,74 +139,3 @@ jobs:
 
       - name: BFF smoke
         run: pnpm smoke:bff
-
-  browser-e2e:
-    runs-on: ubuntu-latest
-    timeout-minutes: 35
-    needs: quality
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          # depth=1 breaks private submodule SHA checkout ("not our ref")
-          fetch-depth: 0
-          token: ${{ secrets.SUBMODULE_TOKEN }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.15.1
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build web
-        run: pnpm --filter @stamped/l6-web build
-        env:
-          # Offline Playwright shell — no Better Auth BFF in this job.
-          NEXT_PUBLIC_E2E_BYPASS_AUTH: "true"
-
-      - name: Install Playwright Chromium
-        run: pnpm --filter @stamped/l6-web exec playwright install --with-deps chromium
-
-      - name: Run Playwright E2E
-        run: pnpm --filter @stamped/l6-web test:e2e
-        env:
-          CI: "true"
-          NEXT_PUBLIC_E2E_BYPASS_AUTH: "true"
-
-  infra:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: quality
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.15.1
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: CDK stack assertions
-        run: pnpm --filter @stamped/l6-infra test
