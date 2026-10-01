@@ -15,7 +15,7 @@ concurrency:
 jobs:
   quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 6
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -91,7 +91,7 @@ jobs:
 
   postgres-integration:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 6
     needs: quality
     services:
       postgres:
