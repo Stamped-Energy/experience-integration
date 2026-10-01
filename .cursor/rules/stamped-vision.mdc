@@ -1,0 +1,30 @@
+---
+description: Stamped product identity lock. Company policy is the stamped-external master document.
+alwaysApply: true
+---
+
+# Stamped vision (always on)
+
+Product name: **Stamped**. Never present the product as Stamped Energy.
+
+**Company source of truth:** `external/Stamped_Master_Document.md` in the stamped-external submodule. To understand what Stamped is, read that file after `git submodule update --init`. On conflict with older memos, this rule, or any one-sentence elsewhere, prefer that document.
+
+Supporting history in this repo's `external/` pin. These do not override the master document:
+
+1. `external/research/plant-efficiency-exploration-2026-09/AGENT-START.md`
+2. `external/research/plant-efficiency-exploration-2026-09/09-stamped-founder-vision.md`
+3. `external/research/plant-efficiency-exploration-2026-09/10-stamped-vision-agent-alignment.md`
+4. `external/decisions/028-032/ADR-030-five-domain-decision-loop.md`
+5. `external/technical/STAMPED_ARCHITECTURE.md`
+
+Cursor loads rules from this repo's `.cursor/rules/`, not from `external/.cursor/rules/`. This file points at the master document for that reason.
+
+Energy and waste is one outcome and a practical entry. Maximum demand, power factor, time-of-day tariffs, and DISCOM bill intake are mechanisms inside that outcome. They are not the company, and they are not a verified-savings product promise.
+
+Hard stops in the master document bind: no silent safety or critical-equipment control; no quality hold release, conformance sign-off, or process acceptance; no maintenance authorization or lockout bypass; no silent change to customer priority, promise dates, routing, master data, or the full dispatch sequence. A quality correction and a near-term sequence are allowed when a named person accepts them before any write-back.
+
+Do not teach: two pillars, 15–20% savings as identity, an energy-only company, verified savings on the DISCOM bill as what Stamped is, an OpEx suite, MES/APS/QMS/CMMS replacement, a plant OS, silent control, or the agent stack as the company.
+
+Do not take product identity from `external/archive/` or from `Stamped_Energy_Master_Document_v1.4.md`. Pre-overhaul layer specs (`technical/layers/L*-*.md`, `archive/cleanup-2026-09/technical/`) and the marketing copy pack (`archive/external-marketing-2026-09/copy/`) are withdrawn. Do not adopt the archived 15–20% bill story because a search hit it.
+
+Do not invent savings, customers, or revenue. Do not update external marketing unless the human explicitly asked.

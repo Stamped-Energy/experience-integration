@@ -1,6 +1,6 @@
 ---
-name: Stamped Energy
-description: AI-powered energy intelligence for industrial plants. rupee-scored prescriptions. Verified with evidence.
+name: Stamped
+description: Choose, assign, and verify the next operating action across energy, cost, time / throughput, continuity / flow, and short-horizon exceptions. Energy is one domain, not the company.
 colors:
   primary: "#F75440"
   on-primary: "#ffffff"

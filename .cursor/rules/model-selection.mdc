@@ -1,0 +1,37 @@
+---
+description: Default Cursor model tiers - Composer 2.5 (+ fast) small, Grok 4.7 high for plan/orchestrate
+alwaysApply: true
+---
+
+# Model selection (default)
+
+Without the user **manually selecting** a model in the UI or **explicitly naming** a model in the prompt, use **only Cursor models**. Do not pick Claude, GPT, Gemini, or any other non-Cursor model on your own.
+
+## Default tiers
+
+| Task class | Allowed models | Slugs |
+|------------|----------------|-------|
+| Simple / small | Composer 2.5 **or** Composer 2.5 Fast | `composer-2.5`, `composer-2.5-fast` |
+| High-value (planning, orchestration, multi-phase design) | Cursor Grok 4.7 High **only** (never Fast) | `cursor-grok-4.7-high` |
+
+### Simple / small
+
+Both variants are allowed. Prefer by latency need:
+
+- **Speed matters** (quick lookup, tiny edit, status check) → `composer-2.5-fast`
+- **Speed does not matter** (careful small change, short reasoning) → `composer-2.5`
+
+### High-value
+
+Plan mode / nawab-plans, architecture, multi-repo orchestration, long-horizon agent design, trade-off-heavy decisions, coordinating multiple subagents → **`cursor-grok-4.7-high` only**. Do **not** use `cursor-grok-4.7-high-fast` (or any Fast variant) for this class.
+
+When spawning subagents, pass a slug from the matching row. Default to Composer 2.5 (non-fast) if unsure; escalate to Grok 4.7 High only when the work is clearly high-value.
+
+## Overrides
+
+Allowed only when the user:
+
+1. Selects a different model in the Cursor UI for this chat, or
+2. Explicitly asks in the prompt (e.g. "use Claude", "use GPT", a specific slug)
+
+Do not infer permission from past chats, defaults elsewhere, or "best model for X" habit. If they ask which model to use, recommend from the table - do not switch until they confirm.
