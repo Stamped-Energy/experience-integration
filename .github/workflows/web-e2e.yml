@@ -1,0 +1,65 @@
+name: web-e2e
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/web/**"
+      - "packages/contracts/**"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/web-e2e.yml"
+  pull_request:
+    paths:
+      - "packages/web/**"
+      - "packages/contracts/**"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/web-e2e.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          # depth=1 breaks private submodule SHA checkout ("not our ref")
+          fetch-depth: 0
+          token: ${{ secrets.SUBMODULE_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.15.1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web
+        run: pnpm --filter @stamped/l6-web build
+        env:
+          # Offline Playwright shell - no Better Auth BFF in this job.
+          NEXT_PUBLIC_E2E_BYPASS_AUTH: "true"
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter @stamped/l6-web exec playwright install --with-deps chromium
+
+      - name: Run Playwright E2E
+        run: pnpm --filter @stamped/l6-web test:e2e
+        env:
+          CI: "true"
+          NEXT_PUBLIC_E2E_BYPASS_AUTH: "true"
