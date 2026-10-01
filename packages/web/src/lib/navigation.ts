@@ -8,24 +8,9 @@ export type NavItem = {
   tier: "primary" | "reveal";
 };
 
-/** Nav order mirrors stamped-energy-dashboard ops + insights surfaces. */
+/** Nav order keeps the action loop visible before reveal-tier analytics. */
 export const NAV_ITEMS: NavItem[] = [
   { key: "today", href: "/", label: "Overview", permission: "route:today", tier: "primary" },
-  { key: "live", href: "/live", label: "Live", permission: "route:live", tier: "primary" },
-  {
-    key: "energy",
-    href: "/energy",
-    label: "Energy Analytics",
-    permission: "route:energy",
-    tier: "primary",
-  },
-  {
-    key: "equipment",
-    href: "/equipment",
-    label: "Machine Health",
-    permission: "route:equipment",
-    tier: "primary",
-  },
   { key: "alarms", href: "/alarms", label: "Alarms", permission: "route:alarms", tier: "primary" },
   {
     key: "prescriptions",
@@ -35,11 +20,33 @@ export const NAV_ITEMS: NavItem[] = [
     tier: "primary",
   },
   {
+    key: "analyst",
+    href: "/analyst",
+    label: "Ask Analyst",
+    permission: "route:analyst",
+    tier: "primary",
+  },
+  { key: "live", href: "/live", label: "Live", permission: "route:live", tier: "reveal" },
+  {
+    key: "energy",
+    href: "/energy",
+    label: "Energy Analytics",
+    permission: "route:energy",
+    tier: "reveal",
+  },
+  {
+    key: "equipment",
+    href: "/equipment",
+    label: "Machine Health",
+    permission: "route:equipment",
+    tier: "reveal",
+  },
+  {
     key: "plant_map",
     href: "/plant-map",
     label: "Plant Map",
     permission: "route:equipment",
-    tier: "primary",
+    tier: "reveal",
   },
   {
     key: "reports",
@@ -53,13 +60,6 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/intensity",
     label: "Sustainability",
     permission: "route:intensity",
-    tier: "primary",
-  },
-  {
-    key: "analyst",
-    href: "/analyst",
-    label: "Ask Analyst",
-    permission: "route:analyst",
     tier: "reveal",
   },
   {
@@ -88,7 +88,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/evidence",
     label: "Evidence",
     permission: "route:evidence",
-    tier: "primary",
+    tier: "reveal",
   },
 ];
 
@@ -175,8 +175,8 @@ export const NAV_PIN_STORAGE_KEY = "stamped.l6.nav.pins";
 export const NAV_COLLAPSE_STORAGE_KEY = "stamped.l6.nav.collapsed";
 export const NAV_GROUPS_STORAGE_KEY = "stamped.l6.nav.groups";
 
-/** Top-level links - always visible, never tucked in a group. Ask Analyst lives in the topbar. */
-export const STANDALONE_NAV_KEYS: readonly NavKey[] = ["today", "live"];
+/** Top-level links - always visible, never tucked in a group. */
+export const STANDALONE_NAV_KEYS: readonly NavKey[] = ["today", "analyst"];
 
 export type NavGroupId = "operations" | "insights" | "reports" | "administration";
 
@@ -186,13 +186,13 @@ export const NAV_GROUP_DEFS: readonly {
   label: string;
   keys: readonly NavKey[];
 }[] = [
-  { id: "operations", label: "Operations", keys: ["alarms", "prescriptions", "evidence"] },
+  { id: "operations", label: "Operations", keys: ["alarms", "prescriptions"] },
   {
     id: "insights",
     label: "Insights",
-    keys: ["energy", "equipment", "plant_map", "intensity"],
+    keys: ["live", "energy", "equipment", "plant_map", "intensity"],
   },
-  { id: "reports", label: "Reports", keys: ["reports"] },
+  { id: "reports", label: "Reports", keys: ["reports", "evidence"] },
   {
     id: "administration",
     label: "Administration",
@@ -357,7 +357,8 @@ export function composeNavTree(
       forceOpen.has(def.id) ||
       hasActive ||
       hasPinned ||
-      persistedOpen.has(def.id);
+    persistedOpen.has(def.id) ||
+    def.id === "operations";
 
     groups.push({ id: def.id, label: def.label, items, defaultOpen });
   }

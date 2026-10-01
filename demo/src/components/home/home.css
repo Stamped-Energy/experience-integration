@@ -1,0 +1,171 @@
+.home {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  padding-top: clamp(8px, 2vw, 24px);
+}
+
+.home__greeting {
+  margin: 0;
+  font-family: var(--forge-font-display);
+  font-size: clamp(2.5rem, 5.4vw, 4.25rem);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  color: var(--forge-on-surface);
+}
+
+.home__dot {
+  color: var(--forge-primary);
+}
+
+.home__date {
+  margin: 10px 0 0;
+  font-family: var(--forge-font-body);
+  font-size: 15px;
+  color: color-mix(in srgb, var(--forge-on-surface) 58%, transparent);
+}
+
+.home__agent {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 16px;
+}
+
+.agent-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 20px 20px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--forge-on-surface) 9%, transparent);
+  background: var(--forge-surface-container-lowest);
+  box-shadow: 0 1px 2px rgba(0, 10, 7, 0.04), 0 8px 24px -16px rgba(0, 10, 7, 0.18);
+}
+
+.agent-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--forge-font-body);
+  font-size: 13px;
+}
+
+.agent-card__mark {
+  display: grid;
+  place-items: center;
+  color: var(--forge-primary);
+}
+
+.agent-card__who {
+  font-weight: 700;
+  color: var(--forge-on-surface);
+}
+
+.agent-card__kind {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.agent-card__kind--critical {
+  background: var(--forge-error-container);
+  color: var(--forge-on-error-container);
+}
+
+.agent-card__kind--primary {
+  background: var(--forge-primary-fixed);
+  color: var(--forge-on-primary-fixed-variant);
+}
+
+.agent-card__context {
+  color: color-mix(in srgb, var(--forge-on-surface) 60%, transparent);
+}
+
+.agent-card__time {
+  margin-left: auto;
+  font-family: var(--forge-font-mono);
+  font-size: 12px;
+  color: color-mix(in srgb, var(--forge-on-surface) 50%, transparent);
+}
+
+.agent-card__message {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--forge-on-surface) 82%, transparent);
+}
+
+.agent-card__message strong,
+.agent-card__rec-body strong {
+  font-weight: 700;
+  color: var(--forge-on-surface);
+}
+
+.agent-card__rec {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--forge-primary) 7%, var(--forge-surface-container-lowest));
+  border: 1px solid color-mix(in srgb, var(--forge-primary) 18%, transparent);
+}
+
+.agent-card__rec-label {
+  margin: 0 0 4px;
+  font-family: var(--forge-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--forge-on-primary-fixed-variant);
+}
+
+.agent-card__rec-body {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--forge-on-surface) 82%, transparent);
+}
+
+.agent-card__cta {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--forge-on-surface) 14%, transparent);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--forge-on-surface);
+  text-decoration: none;
+  transition: background var(--forge-motion-fast) var(--forge-ease), border-color var(--forge-motion-fast) var(--forge-ease);
+}
+
+.agent-card__cta:hover {
+  background: var(--forge-surface-container-low);
+  border-color: color-mix(in srgb, var(--forge-on-surface) 24%, transparent);
+}
+
+.agent-card__cta:focus-visible {
+  outline: 2px solid var(--forge-primary);
+  outline-offset: 2px;
+}
+
+.home__ask {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.home__ask-title {
+  margin: 0;
+  font-family: var(--forge-font-display);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}

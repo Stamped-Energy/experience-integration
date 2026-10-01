@@ -23,7 +23,7 @@ export function AppTopbar({
   mobileNavOpen: boolean;
   onOpenNav: () => void;
   onAskAnalyst: () => void;
-  askAnalystRef?: RefObject<HTMLSpanElement | null>;
+  askAnalystRef?: RefObject<HTMLButtonElement | null>;
   /** @deprecated Plant switching is staff-only under Settings → Admin. */
   plants?: Array<{ id: string; name: string }>;
   activePlantId?: string;
@@ -86,8 +86,9 @@ export function AppTopbar({
           <span className="forge-shell__conn-label">{connectionLabel}</span>
         </span>
 
-        <span ref={askAnalystRef} tabIndex={-1}>
+        <span>
           <button
+            ref={askAnalystRef}
             type="button"
             className="forge-shell__analyst-btn"
             onClick={onAskAnalyst}

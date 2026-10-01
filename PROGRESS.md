@@ -7,6 +7,52 @@
 Phases 0–H Auto + enterprise definitions are in place. `validate.sh`, Playwright,
 and GitHub Actions cover quality / postgres / browser / infra jobs.
 
+## Four-outcome prescription system (2026-09-28)
+
+**Phase C complete — validation and deployment**
+
+- Added optional live-compatible outcome and mixed-value fields.
+- Classified all demo prescription, alarm, and evidence chains across the four
+  Stamped outcomes while preserving existing IDs and historical records.
+- Replaced prescription Maintenance/Management filters with the four plant
+  outcomes, while retaining legacy class behavior for negotiation workflows.
+- Added mixed value signals to queue, Today, Overview, Analyst, detail, and
+  export surfaces without removing existing modeled financial fields.
+- Added outcome context and canonical evidence links to alarm and evidence
+  index/detail surfaces, including outcome-specific evidence lineage.
+- Moved the Energy Analytics legend below the chart so Baseline, Actual, and
+  Cost labels no longer overlap the histogram.
+- Demo typecheck and 119 unit tests pass.
+- Production build passed, local production browser smoke covered the four
+  outcome labels and latest alarm/evidence links, `main` was pushed, and the
+  demo was deployed to Vercel.
+- Workspace-wide validation still has pre-existing `@stamped/l6-agent-cli`
+  executable failures; the full E2E suite has 29 passes and 11 existing
+  auth-fixture failures. Details are recorded in
+  `PHASE_FOUR_OUTCOME_C_COMPLETION.md`.
+
+## L6 Control Room Redesign (2026-09-27)
+
+**Status: Complete**
+
+The first approved redesign slice is implemented and verified:
+
+- Overview now leads with seven decision signals, then next operating actions,
+  owner/proof links, and separate value/evidence context.
+- Overview, Alarms, Prescriptions, and Ask Analyst are the persistent operating
+  anchors; deeper insights and administration remain reveal/role-gated.
+- Analyst is a dedicated `/analyst` workspace with history, cited fixture/live
+  paths, related actions, and a responsive composer.
+- Contextual Analyst has removable context, keyboard containment, Escape close,
+  and return focus to the topbar trigger.
+- Shared Forge surfaces use tighter radii, flatter tonal layers, and reduced
+  shadows without lowering accessibility or touch-target floors.
+
+Validated with web typecheck, 114 unit tests, production build, and 38 desktop /
+mobile Playwright tests. The next UI phase is human visual review followed by
+supporting-screen polish; live BFF/Postgres validation remains part of pilot
+cutover.
+
 ## Phase status
 
 | Phase | Status | Exit gate |
@@ -30,6 +76,9 @@ and GitHub Actions cover quality / postgres / browser / infra jobs.
 1. Human: register Entra app + Power BI workspace; approve `cdk diff`.
 2. Replace CDK placeholder image with ECR; run smoke on Mumbai.
 3. Optional: axe Playwright project + self-hosted fonts.
+4. Implement the L3 → L6 handoff in
+   [`docs/L3_TO_L6_BUILD_GUIDE.md`](docs/L3_TO_L6_BUILD_GUIDE.md), starting
+   with the intentional platform-pin and contract compatibility check.
 
 ## Admin + WhatsApp wiring (2026-08-26)
 

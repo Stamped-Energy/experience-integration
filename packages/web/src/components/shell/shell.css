@@ -263,9 +263,9 @@
   min-width: 36px;
   padding: 0 14px;
   border: none;
-  border-radius: 8px;
-  background: var(--forge-tertiary);
-  color: #fff;
+  border-radius: var(--forge-radius-md);
+  background: var(--forge-primary);
+  color: var(--forge-on-primary);
   font-family: var(--forge-font-body);
   font-size: 13px;
   font-weight: 600;
@@ -276,7 +276,7 @@
 }
 
 .forge-shell__analyst-btn:hover {
-  background: color-mix(in srgb, var(--forge-tertiary) 88%, #fff);
+  background: color-mix(in srgb, var(--forge-primary) 88%, #fff);
 }
 
 .forge-shell__analyst-btn:active {
@@ -391,8 +391,8 @@
 
 .forge-shell__nav-link {
   padding: 0 12px;
-  height: 40px;
-  border-radius: 8px;
+  height: 42px;
+  border-radius: var(--forge-radius-sm);
   font-family: var(--forge-font-body);
   font-weight: 500;
   font-size: 13.5px;
@@ -503,8 +503,8 @@
 .forge-shell__nav-group-trigger {
   width: 100%;
   padding: 0 12px;
-  height: 40px;
-  border-radius: 8px;
+  height: 42px;
+  border-radius: var(--forge-radius-sm);
   font-weight: 600;
   font-size: 13.5px;
   color: var(--forge-on-surface);

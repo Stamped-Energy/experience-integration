@@ -15,6 +15,7 @@ import {
   togglePin,
 } from "../src/lib/navigation.js";
 import { AppShell } from "../src/components/shell/AppShell.js";
+import { AuthProvider } from "../src/lib/auth-context.js";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const shellCss = readFileSync(
@@ -43,14 +44,16 @@ describe("role-aware navigation", () => {
     assert.ok(navForRole("admin").reveal.some((i) => i.key === "integrations"));
   });
 
-  it("keeps Evidence in Operations primary (not Reports)", () => {
-    const { primary } = navForRole("plant_head");
-    assert.ok(primary.some((i) => i.key === "evidence" && i.label === "Evidence"));
+  it("keeps proof attached to Reports while action routes stay primary", () => {
+    const { primary, reveal } = navForRole("plant_head");
+    assert.equal(primary.some((i) => i.key === "evidence"), false);
     assert.ok(primary.some((i) => i.key === "today" && i.label === "Overview"));
-    assert.ok(primary.some((i) => i.key === "energy" && i.label === "Energy Analytics"));
+    assert.ok(primary.some((i) => i.key === "analyst" && i.label === "Ask Analyst"));
+    assert.ok(primary.some((i) => i.key === "alarms" && i.label === "Alarms"));
     assert.ok(
       primary.some((i) => i.key === "prescriptions" && i.label === "Prescriptions"),
     );
+    assert.ok(reveal.some((i) => i.key === "energy" && i.label === "Energy Analytics"));
   });
 
   it("exposes Assignments to admin under reveal", () => {
@@ -58,10 +61,11 @@ describe("role-aware navigation", () => {
     assert.equal(navForRole("admin").primary.some((i) => i.key === "assignments"), false);
   });
 
-  it("keeps Plant Map as its own primary route", () => {
-    const { primary } = navForRole("energy_manager");
-    assert.ok(primary.some((i) => i.key === "plant_map" && i.href === "/plant-map"));
-    assert.ok(primary.some((i) => i.key === "equipment" && i.label === "Machine Health"));
+  it("keeps plant insights in the reveal tier", () => {
+    const { primary, reveal } = navForRole("energy_manager");
+    assert.equal(primary.some((i) => i.key === "plant_map"), false);
+    assert.ok(reveal.some((i) => i.key === "plant_map" && i.href === "/plant-map"));
+    assert.ok(reveal.some((i) => i.key === "equipment" && i.label === "Machine Health"));
   });
 
   it("keeps mobile dock to three primary destinations", () => {
@@ -72,24 +76,24 @@ describe("role-aware navigation", () => {
     const { primary } = composeNav("plant_head", []);
     assert.ok(primary.some((i) => i.key === "alarms"));
     assert.ok(primary.some((i) => i.key === "prescriptions"));
-    assert.ok(primary.some((i) => i.key === "energy"));
+    assert.ok(primary.some((i) => i.key === "analyst"));
     assert.deepEqual(togglePin("supervisor", [], "alarms"), []);
     assert.deepEqual(sanitizePins("cfo", ["alarms", "energy"]), []);
   });
 
   it("promotes sanitized pins and drops unauthorized keys", () => {
-    const pins = sanitizePins("plant_head", ["analyst", "admin", "alarms", "analyst"]);
-    assert.deepEqual(pins, ["analyst"]);
+    const pins = sanitizePins("plant_head", ["energy", "admin", "alarms", "energy"]);
+    assert.deepEqual(pins, ["energy"]);
     const { primary, reveal } = composeNav("plant_head", pins);
-    assert.ok(primary.some((i) => i.key === "analyst"));
-    assert.equal(reveal.some((i) => i.key === "analyst"), false);
+    assert.ok(primary.some((i) => i.key === "energy"));
+    assert.equal(reveal.some((i) => i.key === "energy"), false);
   });
 
   it("groups navigation into collapsible sections instead of a flat list", () => {
     const tree = composeNavTree("plant_head", [], { active: "energy" });
     assert.ok(tree.standalone.some((i) => i.key === "today"));
-    assert.ok(tree.standalone.some((i) => i.key === "live"));
-    assert.equal(tree.standalone.some((i) => i.key === "analyst"), false);
+    assert.ok(tree.standalone.some((i) => i.key === "analyst"));
+    assert.equal(tree.standalone.some((i) => i.key === "live"), false);
     assert.equal(tree.groups.length >= 3, true);
     const insights = tree.groups.find((g) => g.id === "insights");
     assert.ok(insights?.items.some((i) => i.key === "energy"));
@@ -97,9 +101,9 @@ describe("role-aware navigation", () => {
     const operations = tree.groups.find((g) => g.id === "operations");
     assert.ok(operations?.items.some((i) => i.key === "alarms"));
     assert.ok(operations?.items.some((i) => i.key === "prescriptions"));
-    assert.ok(operations?.items.some((i) => i.key === "evidence"));
+    assert.equal(operations?.items.some((i) => i.key === "evidence"), false);
     const reports = tree.groups.find((g) => g.id === "reports");
-    assert.equal(reports?.items.some((i) => i.key === "evidence"), false);
+    assert.ok(reports?.items.some((i) => i.key === "evidence"));
     assert.ok(reports?.items.some((i) => i.key === "reports"));
   });
 
@@ -107,8 +111,8 @@ describe("role-aware navigation", () => {
     const tree = composeNavTree("cfo", [], { active: "reports" });
     assert.equal(tree.groups.some((g) => g.id === "operations"), false);
     assert.ok(tree.groups.some((g) => g.id === "reports"));
-    assert.equal(tree.standalone.some((i) => i.key === "analyst"), false);
-    assert.ok(navForRole("cfo").reveal.some((i) => i.key === "analyst"));
+    assert.ok(tree.standalone.some((i) => i.key === "analyst"));
+    assert.ok(navForRole("cfo").primary.some((i) => i.key === "analyst"));
   });
 });
 
@@ -134,16 +138,20 @@ describe("responsive Forge shell", () => {
 
   it("renders landmarks, skip link, and truthful offline banner", () => {
     const html = renderToStaticMarkup(
-      createElement(AppShell, {
-        active: "today",
-        plantName: "Jaipur Works",
-        role: "cfo",
-        connection: { sse: "offline" },
-        screenTitle: "Today",
-        contextSummary: ["Bill risk"],
-        criticalAlarmCount: 0,
-        children: createElement("p", null, "body"),
-      }),
+      createElement(
+        AuthProvider,
+        null,
+        createElement(AppShell, {
+          active: "today",
+          plantName: "Jaipur Works",
+          role: "cfo",
+          connection: { sse: "offline" },
+          screenTitle: "Today",
+          contextSummary: ["Bill risk"],
+          criticalAlarmCount: 0,
+          children: createElement("p", null, "body"),
+        }),
+      ),
     );
     assert.match(html, /Skip to main content/);
     assert.match(html, /id="forge-main"/);

@@ -159,12 +159,14 @@ export function OverviewBoard({
           })}
         </div>
 
+        <PrescriptionsOverviewPanel prescriptions={prescriptions} />
+
         <KpiHeroStrip live={liveKpis} />
 
         <EnergyTrendPanel rows={energyTrend30d} />
 
-        <div className="forge-grid-38-62">
-          <PrescriptionsOverviewPanel prescriptions={prescriptions} />
+        <div className="forge-grid-2">
+          <TopConsumersTable rows={topConsumers} />
           <div
             style={{
               display: "flex",
@@ -174,7 +176,6 @@ export function OverviewBoard({
               maxWidth: "100%",
             }}
           >
-            <TopConsumersTable rows={topConsumers} />
             <SectionDonut rows={sectionShare} tariffInrPerKwh={energyInrPerKwh} />
           </div>
         </div>

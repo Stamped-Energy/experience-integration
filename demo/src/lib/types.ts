@@ -1,0 +1,290 @@
+/** Shared L6 reference types - mirror contracts, do not invent fields. */
+
+export type Role =
+  | "operator"
+  | "supervisor"
+  | "plant_head"
+  | "energy_manager"
+  | "sustainability"
+  | "cfo"
+  | "admin";
+
+export type AlarmState =
+  | "raised"
+  | "acked"
+  | "escalated"
+  | "silenced"
+  | "cleared";
+
+export type AlarmSeverity = "critical" | "warning" | "info";
+
+export type PlantOutcome =
+  | "dynamic_production_planning"
+  | "quality_yield"
+  | "energy_waste"
+  | "uptime";
+
+export type ValueSignalKind =
+  | "dispatch_protected"
+  | "planned_hours"
+  | "quality_guard"
+  | "energy_avoided"
+  | "idle_minutes"
+  | "cost_avoided";
+
+export interface PrescriptionValueSignal {
+  kind: ValueSignalKind;
+  label: string;
+  value: number;
+  unit: string;
+  basis: "observed" | "modeled" | "planned";
+}
+
+export type VerificationStatus =
+  | "pending"
+  | "ops_confirmed"
+  | "modeled"
+  | "disputed"
+  | "verified";
+
+export type PrescriptionLane =
+  | "needs_review"
+  | "active"
+  | "verifying"
+  | "closed";
+
+export interface Alarm {
+  id: string;
+  plantId: string;
+  assetId: string;
+  assetLabel: string;
+  severity: AlarmSeverity;
+  state: AlarmState;
+  summary: string;
+  raisedAt: string;
+  ownerRole?: Role;
+  relatedPrescriptionId?: string;
+  findingId?: string;
+  outcome?: PlantOutcome;
+}
+
+export interface Prescription {
+  id: string;
+  plantId: string;
+  /** Imperative action statement - what to do. */
+  title: string;
+  /** Short why - visible in the compact card. */
+  why: string;
+  impactInrPerMonth: number;
+  confidence: number;
+  lane: PrescriptionLane;
+  ownerRole: Role;
+  dueAt: string;
+  verificationStatus?: VerificationStatus;
+  realisedInr?: number;
+  potentialInr?: number;
+  opportunityCost?: {
+    delayDays: number;
+    modeledInr: number;
+    verificationStatus: "modeled";
+  };
+  /** Issued — first_recommended_at */
+  firstRecommendedAt?: string | null;
+  acceptedAt?: string | null;
+  /** Actually done — implemented_at on DONE */
+  implementedAt?: string | null;
+  /** Ops clearance held — verified_at; not bill-verified */
+  verifiedAt?: string | null;
+  opsLabel?: string;
+  billLabel?: string;
+  /** Demand-charge / MD — non-additive in queue rollups */
+  isMdDemand?: boolean;
+  mdEpisodeId?: string;
+  mdEpisode?: {
+    md_episode_id?: string;
+    peak_kva?: number;
+    cmd_kva?: number;
+    episode_inr_cap?: number;
+    period_start?: string;
+    period_end?: string;
+    md_rate_inr_per_kva?: number;
+    clearance_status?: string;
+    [key: string]: unknown;
+  };
+  /** Compact card category, e.g. Load Management. */
+  category?: string;
+  priority?: "high" | "med" | "low";
+  billLine?: string;
+  effort?: string;
+  ruleId?: string;
+  relatedAlarmId?: string;
+  /** Human due label for compact cards, e.g. "This week". */
+  dueLabel?: string;
+  /** L4 who string when distinct from ownerRole. */
+  whoLabel?: string;
+  /** Two-pillar value domain from linked finding. */
+  valueDomain?: "energy_efficiency" | "equipment_health";
+  /** Primary operating outcome; optional for live payload compatibility. */
+  outcome?: PlantOutcome;
+  /** Primary value shown on decision surfaces; optional for live payload compatibility. */
+  valueSignal?: PrescriptionValueSignal;
+  /** L3 waste category 1–6 for pillar badge. */
+  wasteCategory?: number;
+  /** Wire evidence refs for evidence pack / full case. */
+  evidenceRefs?: string[];
+  /** Expand / detail: numbered recommended steps. */
+  actions?: string[];
+  /** Expand / detail: risk → mitigation lines. */
+  risks?: string[];
+  /** Rich full-case detail - overrides builder defaults when present. */
+  caseDetail?: PrescriptionCaseDetail;
+  /** ADR-024 - management classes show Discuss + tradeoff. */
+  decisionClass?: "maint" | "mgmt_schedule" | "mgmt_capacity" | "mgmt_cross_dept";
+  tradeoff?: PrescriptionTradeoff;
+  /** Per-Rx operator feedback after acknowledge (not Improve nav). */
+  feedback?: PrescriptionFeedback;
+}
+
+/** Light feedback captured on an acknowledged prescription. */
+export interface PrescriptionFeedback {
+  note: string;
+  outcome?: "helped" | "didnt_help" | "needs_follow_up";
+  at: string;
+}
+
+/** Trade-off block for management prescriptions (₹ hero first). */
+export interface PrescriptionTradeoff {
+  energyBenefitInrMonthly: number;
+  throughputRisk: string;
+  orderContext: "known" | "unknown" | "partial";
+  recommendedWindow: string;
+  alternatives: string[];
+  departmentOwners: string[];
+  orderIds?: string[];
+  oeeImpact?: string;
+}
+
+export interface CaseTableColumn {
+  key: string;
+  header: string;
+  align?: "left" | "right";
+}
+
+export interface CaseTableRow {
+  id: string;
+  [key: string]: string;
+}
+
+/** Comprehensive full-case payload for the prescription detail page. */
+export interface PrescriptionCaseDetail {
+  createdAt?: string;
+  /** Long-form problem narrative beyond compact `why`. */
+  description?: string;
+  savingsRange?: string;
+  eventSnapshot?: {
+    timestamp: string;
+    caption: string;
+    columns: CaseTableColumn[];
+    rows: CaseTableRow[];
+    interpretation: string;
+    sanityCheck?: string;
+  };
+  rootCause?: string[];
+  costBenefit?: {
+    wasteIdentified: string;
+    tariffScenarios?: {
+      columns: CaseTableColumn[];
+      rows: CaseTableRow[];
+    };
+    capexNote?: string;
+    sideGains?: string[];
+  };
+  risksTable?: {
+    columns: CaseTableColumn[];
+    rows: CaseTableRow[];
+  };
+  kpis?: {
+    columns: CaseTableColumn[];
+    rows: CaseTableRow[];
+  };
+  commissioning?: string[];
+  managerTakeaway?: string;
+  metadata?: Array<{ label: string; value: string }>;
+  lineage?: Array<{ label: string; value: string }>;
+}
+
+export interface TodaySignal {
+  id: string;
+  label: string;
+  value: string;
+  hint?: string;
+  tone: "neutral" | "critical" | "good" | "warning";
+  href: string;
+}
+
+/** Subset of L2 LedgerEntry for claim-safe L6 surfaces. */
+export type LedgerEntryType =
+  | "realised_savings"
+  | "potential_savings"
+  | "opportunity_cost";
+
+export interface LedgerEntry {
+  entryId: string;
+  plantId: string;
+  prescriptionId: string;
+  title: string;
+  entryType: LedgerEntryType;
+  periodStart: string;
+  periodEnd: string;
+  potentialInr: number;
+  realisedInr: number;
+  verificationStatus: VerificationStatus;
+  mvMethod: string;
+  baselineId: string;
+  emissionFactorRef: string | null;
+  modeledReason?: string;
+  /** Bill path only - never set from ops confirmation alone. */
+  billLineRefs?: string[];
+}
+
+export type FocusEntityType =
+  | "alarm"
+  | "prescription"
+  | "asset"
+  | "ledger_entry";
+
+export interface AnalystContextEnvelope {
+  orgId: string;
+  plantId: string;
+  userId: string;
+  role: Role;
+  routeId: string;
+  screenTitle: string;
+  focusEntity?: { type: FocusEntityType; id: string };
+  visibleSummary: string[];
+  timeRange?: { from: string; to: string };
+  excludeKeys?: string[];
+}
+
+export interface ConnectionStatus {
+  sse: "live" | "reconnecting" | "offline";
+  lastEventAt?: string;
+}
+
+export type NavKey =
+  | "home"
+  | "today"
+  | "live"
+  | "alarms"
+  | "prescriptions"
+  | "evidence"
+  | "analyst"
+  | "reports"
+  | "energy"
+  | "equipment"
+  | "plant_map"
+  | "intensity"
+  | "tools"
+  | "assignments"
+  | "integrations"
+  | "admin";
