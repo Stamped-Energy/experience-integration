@@ -21,7 +21,7 @@ L6 does not detect kWh waste. It drives **closure** (queue, evidence, ack sync) 
 | Framework | Next.js App Router + TypeScript |
 | UI | Tailwind + shadcn themed with **Forge Industrial** |
 | Charts | Apache ECharts 6 (dense TS); small SVG gauges OK |
-| Data | TanStack Query via **L6 BFF** (ADR-022) |
+| Data | TanStack Query via **L6 BFF** (ADR-016) |
 | Realtime | **SSE** + `Last-Event-ID` |
 | Jobs | BullMQ (P1+) |
 | PDF | Playwright print-CSS (P1) |

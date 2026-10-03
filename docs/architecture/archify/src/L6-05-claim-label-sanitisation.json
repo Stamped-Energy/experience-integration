@@ -135,7 +135,7 @@
       "title": "Status & sources",
       "items": [
         "experience-integration@82df09ee · web/src/lib/ledger.ts · contracts/mappings.ts",
-        "ops_confirmed ≠ bill verified (ADR-020)",
+        "ops_confirmed ≠ bill verified (ADR-014)",
         "No integration live · verified savings ₹0 (product honesty on index)"
       ]
     },

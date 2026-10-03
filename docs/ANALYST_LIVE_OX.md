@@ -82,4 +82,4 @@ Expect: streamed tokens; citations with path tags **G** (graph), **D** (delta), 
 ## Related
 
 - L4 OX Rx sim: [`knowledge-reasoning/docs/OPENROUTER_OX_ALPHA_L3_L5_SIM.md`](../../knowledge-reasoning/docs/OPENROUTER_OX_ALPHA_L3_L5_SIM.md)
-- ADR-023 boundary: L4 owns RAG/agent; L6 owns UX + envelope; BFF is HTTP-only.
+- ADR-W023 boundary: L4 owns RAG/agent; L6 owns UX + envelope; BFF is HTTP-only.

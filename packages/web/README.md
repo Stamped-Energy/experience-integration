@@ -2,7 +2,7 @@
 
 Next.js App Router web app for **Stamped L6** (Experience & Integration). Seeded from [`external/consumers/stamped-l6`](../../external/consumers/stamped-l6/); this package is the live consumer surface.
 
-**Authority:** [L6 UI charter](../../external/handoff/stamped-l6-ui-ux-charter.md) · [ADR-022](../../external/decisions/ADR-022-l6-bff-runtime-boundary.md) · [ADR-023](../../external/decisions/ADR-023-l6-ems-and-analyst-context.md) · [Forge](../../external/design/forge-industrial-design-system.md)
+**Authority:** [L6 UI charter](../../external/handoff/stamped-l6-ui-ux-charter.md) · [ADR-016](../../external/decisions/016-020/ADR-016-l6-bff-runtime-boundary.md) · [ADR-W023](../../external/archive/cleanup-2026-09/adrs/ADR-023-l6-ems-and-analyst-context.md) · [Forge](../../external/design/forge-industrial-design-system.md)
 
 ## Layout
 
@@ -38,4 +38,4 @@ pnpm --filter @stamped/l6-web build
 
 ## Next
 
-Wire BFF mutations to L5 (alarms / Rx) and L2 ledger reads per [build plan](../../external/handoff/stamped-l6-build-plan.md). Keep claim vocabulary in `lib/format.ts` aligned with ADR-020.
+Wire BFF mutations to L5 (alarms / Rx) and L2 ledger reads per [build plan](../../external/handoff/stamped-l6-build-plan.md). Keep claim vocabulary in `lib/format.ts` aligned with ADR-014.

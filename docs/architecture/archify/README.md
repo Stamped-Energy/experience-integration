@@ -59,7 +59,7 @@ Assignments can enqueue template sends; inbound webhooks **verify HMAC (BUILT)**
 - **Live vs Preview badge**: From `/api/meta/upstreams` `demoMode` and layer status (see L6-02).
 - **USE_FIXTURES**: Forces fixture upstreams for CI/demo (see L6-02).
 - **sanitizeClaimStatus**: Demotes unscoped `verified` to ops-confirmed (see L6-05).
-- **ops_confirmed vs verified**: Ops clearance ≠ bill verification (ADR-020; see L6-05).
+- **ops_confirmed vs verified**: Ops clearance ≠ bill verification (ADR-014; see L6-05).
 - **ingestL5Events**: Poll L5 `v1/events` into `l5_events` (see L6-04a).
 - **WHATSAPP_MODE auto**: Becomes live when Meta credentials are set (see L6-07).
 - **Ask Analyst envelope**: Removable context sent to L4 via BFF (see L6-03).

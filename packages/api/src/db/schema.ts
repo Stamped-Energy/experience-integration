@@ -96,7 +96,7 @@ export const auditEvents = pgTable("audit_events", {
 });
 
 /**
- * L6 product membership — plant-scoped RBAC role (ADR-023).
+ * L6 product membership — plant-scoped RBAC role (ADR-W023).
  * Distinct from Better Auth plugin `user.role` (admin|user).
  */
 export const memberships = pgTable(
