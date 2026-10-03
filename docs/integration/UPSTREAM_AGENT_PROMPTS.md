@@ -19,7 +19,7 @@ Layer: Stamped L5 — workflow and EMS alarm source of truth
 
 Objective
 Add the missing dashboard alarm lifecycle HTTP contract required by
-stamped-external ADR-023 and the L6 UI charter. Keep all state transitions and
+stamped-external ADR-W023 and the L6 UI charter. Keep all state transitions and
 audit/event emission in L5. Do not add L6 UI code.
 
 Read first
@@ -119,7 +119,7 @@ Read first
 2. external/architecture/layer-interfaces-l2.md
 3. external/contracts/schemas/ledger-entry.json
 4. external/handoff/l6-counterfactual-display-stub.md
-5. external/decisions/ADR-020-l5-mv-claim-governance.md
+5. external/decisions/011-015/ADR-014-l5-mv-claim-governance.md
 6. current query-api auth/RLS and pagination implementation
 
 Required read routes

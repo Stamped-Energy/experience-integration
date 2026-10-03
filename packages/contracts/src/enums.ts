@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-/** Seven L6 roles from ADR-023 / UI charter. */
+/** Seven L6 roles from ADR-W023 / UI charter. */
 export const RoleSchema = z.enum([
   "operator",
   "supervisor",
@@ -26,7 +26,7 @@ export const AlarmStateSchema = z.enum([
 export type AlarmState = z.infer<typeof AlarmStateSchema>;
 
 /**
- * Ledger / claim verification vocabulary (ADR-020).
+ * Ledger / claim verification vocabulary (ADR-014).
  * `ops_confirmed` ≠ bill `verified`.
  */
 export const VerificationStatusSchema = z.enum([
@@ -53,7 +53,7 @@ export const WorkflowStatusSchema = z.enum([
 ]);
 export type WorkflowStatus = z.infer<typeof WorkflowStatusSchema>;
 
-/** Stamped-internal statuses — never map to customer lanes (ADR-029). */
+/** Stamped-internal statuses — never map to customer lanes (ADR-W029). */
 export const STAMPED_INTERNAL_WORKFLOW_STATUSES: ReadonlySet<string> = new Set([
   "blocked",
   "pending_stamped_review",

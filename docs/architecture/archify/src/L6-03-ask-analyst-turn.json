@@ -15,7 +15,7 @@
         "id": "compose",
         "label": "Compose with context",
         "focus": ["browser", "web", "bff"],
-        "note": "Mode A/B sends removable context envelope chips plus question text to the BFF (ADR-023)."
+        "note": "Mode A/B sends removable context envelope chips plus question text to the BFF (ADR-W023)."
       },
       {
         "id": "preview-off",

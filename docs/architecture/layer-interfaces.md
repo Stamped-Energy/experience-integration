@@ -2,7 +2,7 @@
 
 > **Repo-local snapshot** of `external/architecture/layer-interfaces-l2.md`.  
 > **Canonical SoT:** [`external/architecture/layer-interfaces-l2.md`](../../external/architecture/layer-interfaces-l2.md) — bump the submodule; re-copy if this file drifts.  
-> **Related:** [ADR-008](../../external/decisions/ADR-008-layer-repo-topology-and-interfaces.md) · [ADR-009](../../external/decisions/ADR-009-stamped-l2-repo-charter.md)
+> **Related:** [ADR-006](../../external/decisions/006-010/ADR-006-layer-repo-topology-and-interfaces.md) · [ADR-007](../../external/decisions/006-010/ADR-007-stamped-l2-repo-charter.md)
 
 ---
 
@@ -149,7 +149,7 @@ Full sketch: [stamped-l2-query-api-sketch.md](../handoff/stamped-l2-query-api-sk
 | L2 → L3 | Query API | Aggregates, graph refs, baselines |
 | L3 → L4 | Outbox / bus | `Finding` |
 | L4 → L5 | Outbox | `Prescription` |
-| L5 → L2 | HTTP | Query + baseline lock + **idempotent** `POST /v1/ledger/entries` ([ADR-019](../decisions/ADR-019-l5-runtime-and-consistency.md)) |
+| L5 → L2 | HTTP | Query + baseline lock + **idempotent** `POST /v1/ledger/entries` ([ADR-013](../decisions/011-015/ADR-013-l5-runtime-and-consistency.md)) |
 | L5 → L6 | Outbox + query | `WorkflowEvent`, `LedgerEntry` refs |
 
 L5 runtime SSOT: [L5-closure-and-verification.md](../technical/layers/L5-closure-and-verification.md). L2 repo does **not** implement L4/L5/L6 app boundaries — documented for context only.

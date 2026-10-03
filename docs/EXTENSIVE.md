@@ -100,7 +100,7 @@ Queues: `l6.fixture.ping`, `l6.reports.generate`, `l6.webhooks.deliver` (**no wo
 
 - BFF trust boundary with fixture-first demos.
 - Explicit Live vs Preview rules (not “any 200 ⇒ live”).
-- Dual claim sanitization aligned with ADR-020.
+- Dual claim sanitization aligned with ADR-014.
 - Customer must not treat L5 withhold / pending_stamped_review as normal lanes.
 - RBAC matrix mirrored web + API (`navigation.ts`, `authz/matrix.ts`).
 - Lean Vercel fixtures deploy without BFF.

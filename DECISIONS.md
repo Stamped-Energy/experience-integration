@@ -10,7 +10,7 @@ upstream proposal rather than silent divergence.
 
 ### Context
 
-ADR-022 requires a browser-safe composition layer and separates web, BFF, and
+ADR-016 requires a browser-safe composition layer and separates web, BFF, and
 long-running work.
 
 ### Decision
@@ -309,7 +309,7 @@ DESIGN.md route list updated. WhatsApp send remains stub toast until P2 wiring.
 Platform handoff `external/handoff/l6-alarms-prescriptions-evidence-ia.md` and
 live audit of `trying.stamped.work` showed blurred roles: Rx expand had no
 proof CTA, chrome said “AI Prescriptions”, and Alarm “Evidence snapshot”
-competed with the Evidence pack route. ADR-023 lists Evidence as primary nav;
+competed with the Evidence pack route. ADR-W023 lists Evidence as primary nav;
 consumer DEC-012 demoted it.
 
 ### Decision
@@ -348,7 +348,7 @@ per scope. DEC-012 “AI Prescriptions” chrome wording superseded for ops nav.
 
 ### Context
 
-ADR-021 wants WhatsApp for issue / reminder / escalation. L5 does not yet expose
+ADR-015 wants WhatsApp for issue / reminder / escalation. L5 does not yet expose
 a plant-facing notify relay. Assignments and Rx assign needed an honest send path
 with durable logs.
 

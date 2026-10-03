@@ -91,7 +91,7 @@ Demo plants in `fixtures/demo.ts`: Jaipur, Vinayak, LNM CNC (`plant_lnm_faridaba
 
 **The problem.** Showing “verified” without bill line refs invents M&V.
 
-**How it works.** `sanitizeClaimStatus()` demotes bare `verified` → `ops_confirmed` unless `billLineRefs` non-empty (`lib/ledger.ts`). Badges: “Ops-confirmed”, “Modeled — not bill-verified”, reserved “Bill-verified” (`packages/contracts` `claimBadgeLabel`). Public `/v1/ledger` returns ops_confirmed + note. Aligns with ADR-020.
+**How it works.** `sanitizeClaimStatus()` demotes bare `verified` → `ops_confirmed` unless `billLineRefs` non-empty (`lib/ledger.ts`). Badges: “Ops-confirmed”, “Modeled — not bill-verified”, reserved “Bill-verified” (`packages/contracts` `claimBadgeLabel`). Public `/v1/ledger` returns ops_confirmed + note. Aligns with ADR-014.
 
 **Like.** Two stamps on a packing slip — warehouse vs accounts.
 
