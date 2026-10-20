@@ -325,7 +325,10 @@ a.row:hover { background: var(--surface-subtle); }
   .bottombar a svg { width: 20px; height: 20px; }
   .bottombar a[aria-current="page"] { color: var(--accent-700); }
   .workspace { padding: var(--space-4) var(--space-4) calc(var(--bottom-bar-h) + var(--space-5)); }
-  .search, .demo-band .authority, .crumbs .crumb-mid { display: none; }
+  .search, .demo-band .authority, .demo-band .sep, .demo-band > span:not(.authority), .crumbs .crumb-mid, .role-switch .label, .crumb-tools > .tag { display: none; }
+  .section-body.flush { overflow-x: auto; }
+  .table { min-width: 640px; }
+  .crumbs { font-size: 13px; }
   .crumbbar, .demo-band { padding: 0 var(--space-4); }
   .grid { grid-template-columns: minmax(0, 1fr); }
   .grid > * { grid-column: 1 / -1; }
