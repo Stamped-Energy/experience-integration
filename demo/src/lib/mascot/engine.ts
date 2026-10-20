@@ -35,6 +35,21 @@ export function spokePath(k: number, open: number, rot: number, s: number): stri
   return pathOf([{ x: 0, y: 0 }, ...a, far(a[a.length - 1]), far(b[0]), ...b], s);
 }
 
+/**
+ * Rim notch k: a short V cut at octagon corner k, from the round body out through the rim, following Vinayak's sketch.
+ * `twist` slants it like the logo's pinwheel; `open` widens (+) or narrows (-) it.
+ */
+export function notchPath(k: number, open: number, rot: number, s: number, bodyR: number, twist: number, width = 1): string {
+  const c = -Math.PI / 2 + STEP / 2 + k * STEP + rot;
+  const deg = Math.PI / 180;
+  const ai = Math.max(0.5, (5 + open * 3) * width) * deg;
+  const ao = Math.max(1, (17 + open * 7) * width) * deg;
+  const tw = twist * deg;
+  const at = (r: number, a: number): Point => ({ x: Math.cos(a) * r, y: Math.sin(a) * r });
+  const r0 = bodyR - 0.01;
+  return pathOf([at(r0, c - ai), at(r0, c + ai), at(1.5, c + tw + ao), at(1.5, c + tw - ao)], s);
+}
+
 const BODY = regularPolygonProfile(8, 1.035, 0.05, 22.5);
 
 export interface Pose {
@@ -46,8 +61,8 @@ export interface Pose {
 
 const REST: HeadGaze = { yaw: 3, pitch: 7, roll: -12 };
 const base = (): Pose => ({
-  scale: 1, sx: 1, sy: 1, dy: 0, rot: 0, open: 0, hub: 0.42,
-  gaze: { ...REST }, eyeW: EYE_W * 0.72, eyeH: EYE_H * 0.64, lids: [1, 1], tilt: [0, 0], eyeAlpha: 1,
+  scale: 1, sx: 1, sy: 1, dy: 0, rot: 0, open: 0, hub: 1,
+  gaze: { ...REST }, eyeW: EYE_W * 0.86, eyeH: EYE_H * 0.64, lids: [1, 1], tilt: [0, 0], eyeAlpha: 1,
   desat: 0, badge: 0, particles: -1,
 });
 const backOut = (x: number) => { const c = 1.6; const t = clamp(x) - 1; return 1 + (c + 1) * t ** 3 + c * t ** 2; };
@@ -63,7 +78,7 @@ export function statePose(state: MascotState, lt: number, t: number, still = fal
       p.scale = backOut(lt / 0.5);
       p.rot = -STEP * (1 - easings.easeOutCubic(clamp(lt / 0.9)));
       const f = easings.easeOutCubic(clamp((lt - 0.55) / 0.4));
-      p.hub = 0.42 * f; p.eyeAlpha = f; p.eyeH *= 0.3 + 0.7 * f;
+      p.hub = f; p.eyeAlpha = f; p.eyeH *= 0.3 + 0.7 * f;
       break;
     }
     case "listening":
@@ -128,6 +143,11 @@ export function sample(state: MascotState, lt: number, t: number, from?: Pose, s
   return blendPose(from, to, easings.easeOutCubic(clamp(lt / FADE)));
 }
 
+/** Body radius (octagon circumradius = 1). Measured off the sketch: the body fills about 70% of the octagon width. */
+export const BODY_R = 0.67;
+export const NOTCH = { notch: "logo" as "v" | "logo", twist: 8, width: 1 };
+export interface RenderOpts { bodyR?: number; eyeBoost?: number; notch?: "v" | "logo"; twist?: number; width?: number }
+
 export interface Frame {
   transform: string; body: string; spokes: string[]; hub: number;
   eyes: { d: string; transform: string }[]; eyeAlpha: number; desat: number;
@@ -135,15 +155,18 @@ export interface Frame {
 }
 
 /** SVG geometry for a pose, in a viewBox of -160..160 with circumradius 100. */
-export function render(p: Pose): Frame {
+export function render(p: Pose, o: RenderOpts = {}): Frame {
   const R = 100;
+  const bodyR = o.bodyR ?? BODY_R;
+  const k = bodyR / 0.42;
+  const eb = o.eyeBoost ?? 1;
   const body = closedPath(toPoints({ radii: BODY, rot: p.rot, cx: 0, cy: 0, sx: 1, sy: 1 }, R), 0.08);
-  const spokes = Array.from({ length: 8 }, (_, k) => spokePath(k, p.open, p.rot, R));
-  const poses = eyePoses(p.gaze, R * 0.68);
+  const spokes = Array.from({ length: 8 }, (_, n) => (o.notch ?? NOTCH.notch) === "logo" ? spokePath(n, p.open, p.rot, R) : notchPath(n, p.open, p.rot, R, bodyR, o.twist ?? NOTCH.twist, o.width ?? NOTCH.width));
+  const poses = eyePoses(p.gaze, R * bodyR * 1.15);
   const eyes = poses.map((e, i) => {
     const bs = blinkScale(p.lids[i]);
     return {
-      d: capsulePath(p.eyeW * R, p.eyeH * R),
+      d: capsulePath(p.eyeW * R * k * eb, p.eyeH * R * k * eb),
       transform: `translate(${e.x.toFixed(2)} ${e.y.toFixed(2)}) scale(1 ${bs.toFixed(3)}) matrix(${e.a.toFixed(3)} ${e.b.toFixed(3)} ${e.c.toFixed(3)} ${e.d.toFixed(3)} 0 0) rotate(${p.tilt[i].toFixed(1)})`,
     };
   });
@@ -155,6 +178,6 @@ export function render(p: Pose): Frame {
   });
   return {
     transform: `translate(0 ${(p.dy * R).toFixed(2)}) scale(${(p.scale * p.sx).toFixed(4)} ${(p.scale * p.sy).toFixed(4)})`,
-    body, spokes, hub: p.hub * R, eyes, eyeAlpha: p.eyeAlpha, desat: p.desat, particles, badge: p.badge,
+    body, spokes, hub: p.hub * bodyR * R, eyes, eyeAlpha: p.eyeAlpha, desat: p.desat, particles, badge: p.badge,
   };
 }

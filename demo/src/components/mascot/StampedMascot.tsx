@@ -51,11 +51,12 @@ export function StampedMascot({ state = "idle", size = 64, arrive = false, label
   const lt = c.since ? now - c.since : 0;
   const pose = sample(shown, lt, t, c.from, still);
   c.last = pose;
-  const f = render(pose);
+  // Small sizes get larger eyes so the face still reads at 22 to 28 px.
+  const f = render(pose, { eyeBoost: size < 40 ? 1.45 : 1 });
   const fill = f.desat > 0.01 ? `color-mix(in srgb, var(--mascot-body, #F75440) ${Math.round((1 - f.desat) * 100)}%, #8C8A86)` : "var(--mascot-body, #F75440)";
 
   return (
-    <svg className={`mascot${className ? ` ${className}` : ""}`} width={size} height={size} viewBox="-160 -160 320 320" role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true} data-state={shown}>
+    <svg className={`mascot${className ? ` ${className}` : ""}`} width={size} height={size} viewBox={size < 40 ? "-112 -112 224 224" : "-160 -160 320 320"} role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true} data-state={shown}>
       <defs>
         <mask id={`m${id}`} maskUnits="userSpaceOnUse" x="-160" y="-160" width="320" height="320">
           <path d={f.body} fill="#fff" />
@@ -69,7 +70,7 @@ export function StampedMascot({ state = "idle", size = 64, arrive = false, label
       </g>
       {f.particles.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r={p.r} opacity={p.o} fill="var(--mascot-body, #F75440)" />)}
       {f.badge > 0.01 ? (
-        <g transform={`translate(98 -98) scale(${f.badge.toFixed(3)})`}>
+        <g transform={`translate(${size < 40 ? 72 : 98} ${size < 40 ? -72 : -98}) scale(${(f.badge * (size < 40 ? 1.2 : 1)).toFixed(3)})`}>
           <circle r="34" fill="var(--mascot-warn, #D98E04)" />
           <rect x="-5" y="-20" width="10" height="24" rx="5" fill="#fff" />
           <circle cy="15" r="5.5" fill="#fff" />
