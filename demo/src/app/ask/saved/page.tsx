@@ -5,7 +5,7 @@ import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
-import { Answer, AskTabs, EvidenceItemSheet, FilterBar, allClaims, citations, crumbs, evHref, lineShort, matches, noPrice, proofFor, refHref, StaleTag } from "@/components/ask/common";
+import { Answer, AskTabs, EvidenceItemSheet, FilterBar, allClaims, citations, crumbs, evHref, lineShort, matches, proofFor, refHref, StaleTag } from "@/components/ask/common";
 
 export const metadata = { title: "Saved answers" };
 type SP = { id?: string; line?: string; topic?: string; state?: string; evidence?: string; ev?: string };
@@ -34,7 +34,7 @@ export default async function Saved({ searchParams }: { searchParams: Promise<SP
               <div key={g.l ?? "plant"}>
                 <div className="group-h">{lineShort(g.l)} · {g.rows.length}</div>
                 <DataTable caption={`Saved answers, ${lineShort(g.l)}`} rowKey={(s) => s.id} rows={g.rows} columns={[
-                  { key: "q", label: "Question", render: (s) => <><Link className="link" href={hrefFor(s.id)} scroll={false} style={s.id === sel.id ? { fontWeight: 600 } : undefined}>{s.title}</Link><span className="cell-sub">{noPrice(s.summary)}</span></> },
+                  { key: "q", label: "Question", render: (s) => <><Link className="link" href={hrefFor(s.id)} scroll={false} style={s.id === sel.id ? { fontWeight: 600 } : undefined}>{s.title}</Link><span className="cell-sub">{s.summary}</span></> },
                   { key: "t", label: "Topic", render: (s) => s.topic ?? "" },
                   { key: "b", label: "Saved by", render: (s) => <>{s.savedBy}<span className="cell-sub">{dayMonth(s.at)}</span></> },
                   { key: "c", label: "Confidence", render: (s) => s.confidence ? <><EvidenceTag label={s.confidence.label} />{s.confidence.band ? <span className="cell-sub">{s.confidence.band}</span> : null}</> : null },
@@ -61,7 +61,7 @@ export default async function Saved({ searchParams }: { searchParams: Promise<SP
             <DataTable caption="Evidence" rowKey={(r) => r.sid + r.id} rows={rows.flatMap((s) => citations(allClaims(D.askThreads.find((x) => x.id === s.threadId)!)).map((c) => ({ ...c, s: s.title, sid: s.id })))} columns={[
               { key: "i", label: "Id", mono: true, render: (r) => <Link className="link" href={evHref(hrefFor(r.sid), r.id)} scroll={false}>{r.id}</Link> },
               { key: "l", label: "Label", render: (r) => <EvidenceTag label={r.label} /> },
-              { key: "c", label: "Claim", render: (r) => noPrice(r.texts[0]) },
+              { key: "c", label: "Claim", render: (r) => r.texts[0] },
               { key: "s", label: "Saved answer", render: (r) => r.s },
               { key: "p", label: "Proof", mono: true, render: (r) => proofFor(r.id)?.id ?? "source" },
             ]} />
@@ -71,7 +71,7 @@ export default async function Saved({ searchParams }: { searchParams: Promise<SP
           <Section title={sel.title} meta={`${sel.savedBy} · ${lineShort(sel.lineId)}${sel.topic ? ` · ${sel.topic}` : ""}`} actions={<StaleTag s={sel} />}>
             <div className="stack-sm">
               {sel.stale ? <div className="stale-note" role="note"><b>Stale since {dayMonth(sel.stale.since)} ({rel(sel.stale.since)})</b><span>{sel.stale.reason}</span></div> : null}
-              {sel.summary ? <p style={{ margin: 0, fontSize: 14 }}>{noPrice(sel.summary)}</p> : null}
+              {sel.summary ? <p style={{ margin: 0, fontSize: 14 }}>{sel.summary}</p> : null}
               {sel.confidence ? <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13 }}><EvidenceTag label={sel.confidence.label} />{sel.confidence.band ? <span>Band {sel.confidence.band}</span> : null}</div> : null}
               {sel.refs?.length ? <div className="refs">{sel.refs.map((r) => { const h = r.startsWith("proof-") ? `${base}&evidence=${r}` : refHref(r); return h ? <Link key={r} href={h} scroll={false}>{r}</Link> : <span key={r}>{r}</span>; })}</div> : null}
               <span className="label" style={{ marginTop: 8 }}>Answer as saved, from the thread</span>
