@@ -91,6 +91,8 @@ export interface StopEvent extends Illustrative {
 export interface RunningSetting extends Illustrative {
   lineId: string; param: string; name: string; value: number; unit: string; band: [number, number];
   mode: Mode; writtenAt: string; signerRole: RoleId; expiresAt: string;
+  /** Plant map asset the setting is written to. */
+  assetId?: string;
 }
 export interface MeasurementPlan extends Illustrative {
   id: string; version: number; hash: string; lockedAt: string; trialId: string;
@@ -151,6 +153,12 @@ export interface AskClaim { text: string; evidenceIds: string[]; label: Evidence
 export interface AskThread extends Illustrative {
   id: string; title: string; objectRef?: string; updatedAt: string;
   messages: { from: "person" | "stamped"; text?: string; claims?: AskClaim[]; abstain?: string; cardRef?: string }[];
+  /** What the conversation was started from (Ask opened on an asset or a line). */
+  scope?: { assetId?: string; lineId: string };
+  /** Label and band for the answer as a whole; no score. */
+  confidence?: { label: EvidenceLabel; band?: string };
+  /** Dataset ids the answer rests on. Not shown as text. */
+  refs?: string[];
 }
 export interface SavedAnswer extends Illustrative {
   id: string; threadId: string; title: string; savedBy: string; at: string;
