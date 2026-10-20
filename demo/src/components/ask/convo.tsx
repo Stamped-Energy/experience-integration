@@ -7,6 +7,7 @@ import { dayMonth, rel } from "@/lib/format";
 import { EvidenceTag, Tag } from "@/components/ui/primitives";
 import { evHref, proofFor } from "./common";
 import { SourceMark } from "./AskClient";
+import { nameOf, proposalName, proposalShort } from "@/lib/names";
 
 const ORDER: EvidenceLabel[] = ["Unknown", "Assumed", "Modelled", "Estimated", "Measured"];
 export type Source = { id: string; label: EvidenceLabel; what: string; href: string };
@@ -53,12 +54,12 @@ export function turnsOf(t: AskThread, base: string): Turn[] {
     const marked = cl.map((c) => ({ text: c.text, marks: c.evidenceIds.map((e) => markOf(e, c.label)) }));
     const p = m.cardRef ? D.byId.proposal(m.cardRef) : undefined;
     const r = m.cardRef ? D.byId.proof(m.cardRef) : undefined;
-    const band = p ? `${p.predicted.name} ${p.predicted.low} to ${p.predicted.high} ${p.predicted.unit}` : r ? `${r.effect.low} to ${r.effect.high} ${r.effect.unit}` : undefined;
+    const band = t.confidence ? t.confidence.band : p ? `${p.predicted.name} ${p.predicted.low} to ${p.predicted.high} ${p.predicted.unit}` : r ? `${r.effect.low} to ${r.effect.high} ${r.effect.unit}` : undefined;
     out.push({
-      q, lead: marked[0]?.text, leadMarks: marked[0]?.marks, rest: marked.slice(1), label: weakestOf(cl.map((c) => c.label)), band, sources,
-      why: `The answer takes the weakest label of its ${cl.length} cited claim${cl.length === 1 ? "" : "s"}${band ? `; the band comes from ${p ? "the line model behind the card" : "the proof record"}` : "; none of the evidence carries a band"}.`,
-      card: p ? { id: p.id, title: `${p.param}: ${p.current} to ${p.proposed}`, href: `/process/proposals/${p.id}`, state: p.state } : r ? { id: r.id, title: r.title, href: `${base}?evidence=${r.id}`, state: r.verdict } : undefined,
-      followUps: follow(t.title, p ? [`What happens if I accept ${p.id}?`] : r ? ["Is the effect holding?"] : []),
+      q, lead: marked[0]?.text, leadMarks: marked[0]?.marks, rest: marked.slice(1), label: t.confidence?.label ?? weakestOf(cl.map((c) => c.label)), band, sources,
+      why: t.confidence ? `Label and band recorded for this answer as a whole, from its ${cl.length} cited claim${cl.length === 1 ? "" : "s"}.` : `The answer takes the weakest label of its ${cl.length} cited claim${cl.length === 1 ? "" : "s"}${band ? `; the band comes from ${p ? "the line model behind the card" : "the proof record"}` : "; none of the evidence carries a band"}.`,
+      card: p ? { id: p.id, title: proposalName(p.id), href: `/process/proposals/${p.id}`, state: p.state } : r ? { id: r.id, title: r.title, href: `${base}?evidence=${r.id}`, state: r.verdict } : undefined,
+      followUps: follow(t.title, p ? [`What happens if I accept ${proposalShort(p.id)}?`] : r ? ["Is the effect holding?"] : []),
     });
   }
   return out;
@@ -92,7 +93,7 @@ export function liveTurn(q: string, base: string): Turn {
     const done = tr.switches.filter((x) => x.done).length;
     return { q, lead: `Too early to call: ${r.effect.measure.toLowerCase()} is ${r.effect.value} ${r.effect.unit} on average, but the band still crosses zero.`, leadMarks: [1],
       rest: [{ text: `${done} of ${tr.switches.length} switches are done.`, marks: [1] }, { text: r.questions[2].answer + ".", marks: [sources.length] }],
-      label: weakestOf(r.questions.map((x) => x.label)), band: `${r.effect.low} to ${r.effect.high} ${r.effect.unit}`, why: `Proof record ${r.id}: verdict ${r.verdict}, rung ${r.rung}. The label is the weakest of its four questions.`,
+      label: weakestOf(r.questions.map((x) => x.label)), band: `${r.effect.low} to ${r.effect.high} ${r.effect.unit}`, why: `Proof record ${nameOf(r.id)}: verdict ${r.verdict}, rung ${r.rung}. The label is the weakest of its four questions.`,
       sources, card: { id: r.id, title: r.title, href: `${base}${base.includes("?") ? "&" : "?"}evidence=${r.id}`, state: r.verdict }, followUps: follow(q, ["When will the trial have enough batches?"]), step: `Reading ${D.byId.line(tr.lineId)!.short} batches` };
   }
   return { q, abstain: { text: "Not enough data to answer.", missing: ["The demonstration plant has no records this question needs.", "Ask only answers from plant data it can cite."], suggest: suggestions()[0]?.q }, followUps: follow(q) };
@@ -121,7 +122,7 @@ export function TurnView({ t, idx, compact }: { t: Turn; idx: number; compact?: 
           {t.rest?.length ? <p className="a-rest">{t.rest.map((r, i) => <span key={i}>{r.text}<Marks ns={r.marks} open="" />{" "}</span>)}</p> : null}
           {t.card ? <div className="card-row"><span className="label">{t.card.id.startsWith("prop") ? "Card" : "Proof record"}</span><span>{t.card.title}</span><Tag>{t.card.state}</Tag><Link className="link" href={t.card.href} scroll={false}>Open card</Link></div> : null}
           {t.sources?.length ? <details className="src-strip"><summary>{t.sources.length} source{t.sources.length === 1 ? "" : "s"}</summary>
-            <ol>{t.sources.map((s, i) => <li key={s.id}><span className="smark">{i + 1}</span><Link className="link mono" href={s.href} scroll={false}>{s.id}</Link><span className="src-what">{s.what}</span><EvidenceTag label={s.label} /></li>)}</ol></details> : null}
+            <ol>{t.sources.map((s, i) => <li key={s.id}><span className="smark">{i + 1}</span><Link className={`link${s.id.startsWith("EV-") ? " mono" : ""}`} href={s.href} scroll={false}>{s.id.startsWith("EV-") ? s.id : nameOf(s.id)}</Link><span className="src-what">{s.what}</span><EvidenceTag label={s.label} /></li>)}</ol></details> : null}
         </div>
       ) : <div className="a-prose"><p className="thinking">{t.step ?? "Reading plant data"}…</p></div>}
       {!compact && t.followUps.length ? <div className="followups">{t.followUps.map((f) => <Link key={f} prefetch={false} href={`/ask?q=${encodeURIComponent(f)}`}>{f}</Link>)}</div> : null}

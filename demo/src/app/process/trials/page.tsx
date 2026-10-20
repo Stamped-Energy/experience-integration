@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
@@ -27,11 +28,11 @@ export default async function Trials() {
         <div className="span-8 xl-span-9 stack">
           <Section title="Trials" meta={`${D.trials.length} on record`} flush>
             <DataTable caption="Trials" rowKey={(t) => t.id} rows={D.trials} columns={[
-              { key: "i", label: "Trial", render: (t) => <><Link className="link" href={`/process/trials/${t.id}`} style={{ fontWeight: 600 }}>{t.change}</Link><span className="cell-sub mono">{t.id} · {D.byId.line(t.lineId)!.short}</span></> },
+              { key: "i", label: "Trial", render: (t) => <><Link className="link" href={`/process/trials/${t.id}`} style={{ fontWeight: 600 }}>{t.change}</Link><span className="cell-sub">{nameOf(t.id)} · {D.byId.line(t.lineId)!.short}</span></> },
               { key: "s", label: "Status", render: (t) => <Tag tone={tone(t.status)}>{t.status}</Tag> },
               { key: "w", label: "Switches", align: "right", render: (t) => t.switches.length ? `${t.switches.filter((s) => !s.skippedReason).length} done, ${t.switches.filter((s) => s.skippedReason).length} skipped` : "None yet" },
               { key: "r", label: "Restore target", render: (t) => Object.entries(t.restoreTarget).map(([k, v]) => `${D.byId.window(t.lineId, k)?.name ?? k} ${v}`).join(", ") },
-              { key: "p", label: "Plan", mono: true, render: (t) => <Link className="link" href={`/process/measurement?plan=${t.measurementPlanId}`}>{t.measurementPlanId}</Link> },
+              { key: "p", label: "Plan", render: (t) => <Link className="link" href={`/process/measurement?plan=${t.measurementPlanId}`}>{nameOf(t.measurementPlanId)}</Link> },
               { key: "g", label: "Signed", render: (t) => (t.signedAt ? `Plant head · ${dayMonth(t.signedAt)}` : <span className="muted">Waiting for plant head</span>) },
               { key: "v", label: "Verdict", render: (t) => { const p = D.proofRecords.find((x) => x.objectId === t.id); return p ? <Link href={`/process?evidence=${p.id}`} scroll={false}><VerdictTag verdict={p.verdict} /></Link> : <span className="muted">None</span>; } },
             ]} />
@@ -59,7 +60,7 @@ export default async function Trials() {
           </Section>
           <Section title="Holding checks" flush actions={<Link className="link" href="/process/measurement">Plans</Link>}>
             <ul className="tl">{D.holdingChecks.map((h, i) => (
-              <li key={i}><span className="t">{dayMonth(h.checkedAt)}</span><span className="k" /><span className="mono">{h.planId}<span className="cell-sub">next {rel(h.nextAt)}</span></span><Tag tone={h.result === "holding" ? "success" : h.result === "faded" ? "critical" : "warning"}>{h.result}</Tag></li>
+              <li key={i}><span className="t">{dayMonth(h.checkedAt)}</span><span className="k" /><span>{nameOf(h.planId)}<span className="cell-sub">next {rel(h.nextAt)}</span></span><Tag tone={h.result === "holding" ? "success" : h.result === "faded" ? "critical" : "warning"}>{h.result}</Tag></li>
             ))}</ul>
           </Section>
         </div>

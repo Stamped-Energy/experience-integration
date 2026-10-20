@@ -1,5 +1,6 @@
 /** Server parts of the shell. AppShell wraps every page; Workspace adds the 44px breadcrumb bar for a page. */
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import type { ReactNode } from "react";
 import { inboxItems, leases, roles, suggestedQuestions } from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
@@ -65,7 +66,7 @@ export async function Workspace({ crumbs, children, askContext }: { crumbs: Crum
             <kbd>/</kbd>
           </label>
           <RoleSwitcher role={role} roles={roles.map((r) => ({ id: r.id, name: r.name }))} />
-          <Tag tone={lease.state === "active" && lease.offlineMin === 0 ? "success" : "warning"} dot title={`Lease ${lease.id}: at most ${lease.maxOfflineH} h offline, never more than ${lease.hardCapH} h`}>
+          <Tag tone={lease.state === "active" && lease.offlineMin === 0 ? "success" : "warning"} dot title={`Lease ${nameOf(lease.id)}: at most ${lease.maxOfflineH} h offline, never more than ${lease.hardCapH} h`}>
             {lease.offlineMin === 0 ? "Connected" : `Offline · ${lease.offlineMin} min of 4 h`}
           </Tag>
           <AskButton context={askContext} className="btn btn-sm btn-accent" />

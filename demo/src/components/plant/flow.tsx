@@ -7,9 +7,7 @@ import { hhmm } from "@/lib/format";
 import { fmt, latest, openCards, readingsOf, seriesFor, tagsOf } from "@/components/plant/common";
 
 export type Status = "normal" | "watch" | "act" | "trial";
-/** Running settings belong to the asset they act on. The demo data has no asset on a running setting, so the map keeps this small table. */
-const SETTING_ASSET: Record<string, string> = { "hold-temp": "a-hold", "hold-time": "a-hold", agitator: "a-mixer", "melt-temp": "b-press", "hold-pressure": "b-press", "cycle-time": "b-press" };
-export const settingsOf = (a: Asset) => D.runningSettings.filter((s) => SETTING_ASSET[s.param] === a.id);
+export const settingsOf = (a: Asset) => D.runningSettings.filter((s) => s.assetId === a.id);
 
 /** Sub-equipment: an asset drawn below the top row in the old section geometry hangs off the asset above it. */
 export const parentOf = (a: Asset) => a.section.y === 0 ? undefined : D.assets.find((p) => p.lineId === a.lineId && p.section.y === 0 && p.section.x <= a.section.x && a.section.x < p.section.x + p.section.w);
@@ -34,13 +32,16 @@ export function tagStatus(t: TagT): { status: Status; why?: string } {
   if (r?.qualityCode === "uncertain") return { status: "watch", why: `${t.name}: uncertain reading` };
   return { status: "normal" };
 }
-const RANK: Record<Status, number> = { normal: 0, trial: 1, watch: 2, act: 3 };
-export function assetStatus(a: Asset, withChildren = true): { status: Status; why: string[]; trial: boolean } {
+/** Primary status order: Act (abnormal) first, then Trial, then Watch. Any other status on the same tile is a secondary note. */
+const RANK: Record<Status, number> = { normal: 0, watch: 1, trial: 2, act: 3 };
+export function assetStatus(a: Asset, withChildren = true): { status: Status; secondary: Status[]; why: string[]; trial: boolean } {
   const parts = [...tagsOf(a).map(tagStatus), ...(withChildren ? childrenOf(a).flatMap((c) => tagsOf(c).map(tagStatus)) : [])];
   const trial = settingsOf(a).some((s) => s.mode === "Trial");
   let status: Status = trial ? "trial" : "normal";
   for (const p of parts) if (RANK[p.status] > RANK[status]) status = p.status;
-  return { status, why: [...parts.filter((p) => p.why).map((p) => p.why!), ...(trial ? settingsOf(a).filter((s) => s.mode === "Trial").map((s) => `${s.name} on trial at ${s.value} ${s.unit}`) : [])], trial };
+  const all = new Set<Status>([...parts.map((p) => p.status), ...(trial ? ["trial" as Status] : [])]);
+  const secondary = [...all].filter((x) => x !== "normal" && x !== status).sort((x, y) => RANK[y] - RANK[x]);
+  return { status, secondary, why: [...parts.filter((p) => p.why).map((p) => p.why!), ...(trial ? settingsOf(a).filter((s) => s.mode === "Trial").map((s) => `${s.name} on trial at ${s.value} ${s.unit}`) : [])], trial };
 }
 export const needsAttention = (a: Asset) => assetStatus(a).status !== "normal" || openCards(a).length > 0;
 
@@ -83,7 +84,7 @@ export function Tile({ a, selected, href, dim, noKids }: { a: Asset; selected?: 
     <div className={`ptile-wrap${dim ? " dim" : ""}`}>
       <Link href={href} scroll={false} prefetch={false} data-tile className={`ptile st-${st.status}${selected ? " on" : ""}`} aria-current={selected ? "true" : undefined}
         title={st.why.join("; ") || undefined}>
-        <span className="ptile-top"><span className="ptile-name">{a.name}</span><span className="ptile-marks">{st.trial && st.status !== "trial" ? <StatusGlyph s="trial" /> : null}<StatusGlyph s={st.status} word={st.status !== "normal"} /></span></span>
+        <span className="ptile-top"><span className="ptile-name">{a.name}</span><span className="ptile-marks"><StatusGlyph s={st.status} word={st.status !== "normal"} />{st.secondary.length ? <span className="isa-sec">also {st.secondary.map((x) => WORD[x].toLowerCase()).join(", ")}</span> : null}</span></span>
         <span className="ptile-mid">
           <span className="ptile-read">{v !== undefined ? fmt(v) : "–"}<small>{key?.unit}</small></span>
           {key && <BandSpark values={s.values.slice(-24)} band={bandOf(key)} label={`${key.name} trend`} />}

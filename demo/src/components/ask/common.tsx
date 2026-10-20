@@ -1,5 +1,6 @@
 /** Ask area: tabs, evidence chips, answers with label and band only, abstain notes, sources and the evidence lookup. */
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import { dayMonth as dayMonthS } from "@/lib/format";
 import * as D from "@/lib/demo/data";
 import type { AskClaim, AskThread, EvidenceLabel, SavedAnswer } from "@/lib/demo/types";
@@ -37,7 +38,7 @@ export function AbstainNote({ text }: { text: string }) {
 const objName = (ref?: string) => {
   if (!ref) return undefined;
   const d = D.driftSignals.find((x) => x.id === ref); if (d) return { name: `${d.property} drift, ${D.byId.line(d.lineId)!.short}`, href: "/quality/drift" };
-  const p = D.proposals.find((x) => x.id === ref); if (p) return { name: `Proposal ${p.id}`, href: `/process/proposals/${p.id}` };
+  const p = D.proposals.find((x) => x.id === ref); if (p) return { name: nameOf(p.id), href: `/process/proposals/${p.id}` };
   const l = D.lots.find((x) => x.id === ref); if (l) return { name: `Lot ${l.id.split("-").pop()}`, href: `/quality/lots/${l.id}` };
   return { name: ref, href: undefined };
 };
@@ -48,7 +49,7 @@ export function AllowedCard({ refId, base }: { refId: string; base: string }) {
   const p = D.proposals.find((x) => x.id === refId);
   if (p) return (
     <div className="ask-card">
-      <div className="ask-card-head"><span className="label">Card, read-only</span><Link className="link" href={`/process/proposals/${p.id}`}>{p.id}</Link><Tag tone="accent">{p.state}</Tag></div>
+      <div className="ask-card-head"><span className="label">Card, read-only</span><Link className="link" href={`/process/proposals/${p.id}`}>{nameOf(p.id)}</Link><Tag tone="accent">{p.state}</Tag></div>
       <div style={{ fontWeight: 600, fontSize: 14 }}>{p.param}: {p.current} to {p.proposed}</div>
       <Confidence kind="prediction" label={p.weakestLabel} measure={p.predicted.name} unit={p.predicted.unit} low={p.predicted.low} point={p.predicted.point} high={p.predicted.high} spec={p.predicted.spec} drivers={p.drivers} fit={p.fitState} method="Line model; band only, no single percentage" evidenceIds={p.evidenceIds} />
     </div>
@@ -56,7 +57,7 @@ export function AllowedCard({ refId, base }: { refId: string; base: string }) {
   const r = D.proofRecords.find((x) => x.id === refId);
   if (r) return (
     <div className="ask-card">
-      <div className="ask-card-head"><span className="label">Proof record</span><span className="mono">{r.id}</span><Link className="link" href={`${base}${base.includes("?") ? "&" : "?"}evidence=${r.id}`} scroll={false}>Open evidence</Link></div>
+      <div className="ask-card-head"><span className="label">Proof record</span><span className="mono">{nameOf(r.id)}</span><Link className="link" href={`${base}${base.includes("?") ? "&" : "?"}evidence=${r.id}`} scroll={false}>Open evidence</Link></div>
       <div style={{ fontWeight: 600, fontSize: 14 }}>{r.title}</div>
       <Confidence kind="verdict" label={r.questions[2].label} verdict={r.verdict} rung={r.rung} effect={`${r.effect.measure} ${r.effect.value > 0 ? "+" : ""}${r.effect.value} ${r.effect.unit}`} interval={`${r.effect.low} to ${r.effect.high} ${r.effect.unit}`} diagnostics={r.diagnostics} method="Proof record" withheldNeeds={r.withheldNeeds} />
     </div>
@@ -101,7 +102,7 @@ export function EvidenceItemSheet({ id, closeHref }: { id: string; closeHref: st
             <span className="label">Cited by claims</span>
             {claims.map((x, i) => <div key={x.where + i} className="ask-claim"><span>{x.c.text}</span><span className="meta"><EvidenceTag label={x.c.label} /><Link className="link" href={x.href}>{x.where}</Link></span></div>)}
           </div>
-          {props.length ? <div className="stack-sm"><span className="label">Cited by proposals</span>{props.map((p) => <Link key={p.id} className="link" href={`/process/proposals/${p.id}`}>{p.id}: {p.param} {p.current} to {p.proposed}</Link>)}</div> : null}
+          {props.length ? <div className="stack-sm"><span className="label">Cited by proposals</span>{props.map((p) => <Link key={p.id} className="link" href={`/process/proposals/${p.id}`}>{nameOf(p.id)}: {p.param} {p.current} to {p.proposed}</Link>)}</div> : null}
           {inv.length ? <div className="stack-sm"><span className="label">In investigations</span>{inv.map(({ e, i }) => <div key={i.id + e.at} className="ask-claim"><span>{e.text}</span><span className="meta"><EvidenceTag label={e.label} /><Link className="link" href={`/quality/investigations/${i.id}`}>{i.title}</Link></span></div>)}</div> : null}
         </div>
       </aside>

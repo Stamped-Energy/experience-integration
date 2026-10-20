@@ -1,4 +1,5 @@
 import { RevokeLease } from "@/components/plant/RevokeLease";
+import { nameOf } from "@/lib/names";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
@@ -25,9 +26,9 @@ export default async function Box() {
       <PlantTabs active="box" />
       <div className="grid">
         <div className="span-6 stack">
-          <Section title="Lease" meta={<span className="mono">{lease.id}</span>} actions={<Tag tone={lease.state === "active" ? "success" : "warning"} dot>{lease.offlineMin ? `Offline ${lease.offlineMin} min` : "Connected"}</Tag>}>
+          <Section title="Lease" meta={<span className="mono">{nameOf(lease.id)}</span>} actions={<Tag tone={lease.state === "active" ? "success" : "warning"} dot>{lease.offlineMin ? `Offline ${lease.offlineMin} min` : "Connected"}</Tag>}>
             <div className="lease">
-              <div><div className="label">State</div><div style={{ fontSize: 18 }}>{lease.state === "active" ? (lease.offlineMin ? "Offline" : "Connected") : lease.state}</div><div className="cell-sub">signed lease {lease.id}</div></div>
+              <div><div className="label">State</div><div style={{ fontSize: 18 }}>{lease.state === "active" ? (lease.offlineMin ? "Offline" : "Connected") : lease.state}</div><div className="cell-sub">signed lease {nameOf(lease.id)}</div></div>
               <div><div className="label">Offline limit</div><div style={{ fontSize: 18 }}>{lease.maxOfflineH} h</div><div className="cell-sub">then recommend-only</div></div>
               <div><div className="label">Hard cap</div><div style={{ fontSize: 18 }}>{lease.hardCapH} h</div><div className="cell-sub">then stops acting</div></div>
             </div>
@@ -36,7 +37,7 @@ export default async function Box() {
             <dl className="facts-grid" style={{ marginTop: 12 }}>
               <dt>Issued</dt><dd>{dayMonth(lease.issuedAt)} {hhmm(lease.issuedAt)}</dd>
               <dt>Last sync</dt><dd>{rel(box.lastSync)}</dd>
-              <dt>Box</dt><dd>{box.id} · {box.version}</dd>
+              <dt>Box</dt><dd>{nameOf(box.id)} · {box.version}</dd>
             </dl>
             <RevokeLease leaseId={lease.id} allowed={allowed} reason={deniedReason("revoke-lease", "revoke the lease")} />
           </Section>
@@ -52,7 +53,7 @@ export default async function Box() {
         <div className="span-6 stack">
           <Section title="Lease history" flush>
             <DataTable caption="Leases" rowKey={(l) => l.id} rows={D.leases} columns={[
-              { key: "i", label: "Lease", mono: true, render: (l) => l.id },
+              { key: "i", label: "Lease", render: (l) => nameOf(l.id) },
               { key: "a", label: "Issued", mono: true, render: (l) => `${dayMonth(l.issuedAt)} ${hhmm(l.issuedAt)}` },
               { key: "s", label: "State", render: (l) => <Tag tone={l.state === "active" ? "success" : l.state === "revoked" ? "warning" : "neutral"}>{l.state}</Tag> },
               { key: "o", label: "Offline", align: "right", render: (l) => `${l.offlineMin} min` },

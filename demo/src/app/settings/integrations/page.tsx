@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
 import { can, grant, whoCan, ACTIONS, ACTION_LABELS, ROLE_ORDER } from "@/lib/rbac";
@@ -29,7 +30,7 @@ export default async function Integrations() {
       </Section>
       <Section title="API keys" flush>
           <DataTable caption="API keys" rowKey={(k) => k.id} rows={D.apiKeys} columns={[
-            { key: "l", label: "Key", render: (k) => <>{k.label}<span className="cell-sub mono">{k.id}</span></> },
+            { key: "l", label: "Key", render: (k) => <>{k.label}<span className="cell-sub mono">{nameOf(k.id)}</span></> },
             { key: "c", label: "Created", render: (k) => dayMonth(k.created) },
             { key: "u", label: "Last used", render: (k) => rel(k.lastUsed) },
             { key: "r", label: "", render: (k) => <ConfirmAction label="Revoke" allowed={ok} reason={reason} title={`Revoke ${k.label}`} body={<p>Calls with this key fail from now.</p>} confirm="Revoke" done="Revoked (illustrative)." /> },
