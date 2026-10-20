@@ -67,3 +67,16 @@ test("saved answers: refs resolve, label and band confidence, at least one stale
   assert.ok(D.savedAnswers.length >= 6 && D.notes.length >= 6);
   assert.ok(D.savedAnswers.some((a) => a.stale), "no stale saved answer");
 });
+
+test("no rupee amounts outside the owner's Home data", () => {
+  assert.ok(!JSON.stringify(D.savedAnswers).includes("₹"), "saved answers");
+  assert.ok(!JSON.stringify(D.notes).includes("₹"), "notes");
+});
+
+test("settings data varied", () => {
+  const now = Date.parse(D.DEMO_NOW);
+  const sa = D.standingApprovals;
+  assert.ok(sa.some((a) => a.revokedAt) && sa.some((a) => !a.revokedAt && Date.parse(a.until) - now < 3 * 864e5) && sa.some((a) => !a.revokedAt && Date.parse(a.until) - now > 7 * 864e5));
+  for (const a of sa) assert.ok(D.byId.line(a.lineId) && a.params.every((p) => D.signedWindows.some((w) => w.lineId === a.lineId && w.param === p)), a.id);
+  assert.deepEqual([...new Set(D.webhooks.map((w) => w.status))].sort(), ["failing", "healthy", "paused"]);
+});
