@@ -30,6 +30,9 @@ export default async function LinePacks({ searchParams }: { searchParams: Promis
               <dt>A run</dt><dd>{p.labels.run}</dd><dt>Runs</dt><dd>{p.labels.runs}</dd><dt>Unit</dt><dd>{p.labels.unit}</dd><dt>Outcome</dt><dd>{p.labels.outcome}</dd>
             </dl>
           </Section>
+          <Section title="Running settings on these lines" flush>
+            <div className="rows">{D.runningSettings.filter((r) => lines.some((l) => l.id === r.lineId)).map((r) => <div key={r.lineId + r.param} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title" style={{ display: "block" }}>{r.name}</span><span className="row-sub">{r.value} {r.unit} · band {r.band[0]} to {r.band[1]}</span></span><ModeTag mode={r.mode} /></div>)}</div>
+          </Section>
         </div>
         <div className="span-8 xl-span-6 stack">
           <Section title={p.equipmentClass} meta={<span className="mono">{p.id}</span>} actions={<Illustrative />}>
@@ -61,6 +64,13 @@ export default async function LinePacks({ searchParams }: { searchParams: Promis
           </Section>
           <Section title="Assets in those lines" flush>
             <div className="rows">{D.assets.filter((a) => lines.some((l) => l.id === a.lineId)).map((a) => <Link key={a.id} className="row" href={`/plant/assets/${a.id}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span className="row-title">{a.name}</span><span className="muted">{tagsOf(a).length} tags</span></Link>)}</div>
+          </Section>
+          <Section title="Recent setpoint writes" flush>
+            <DataTable caption="Writes" rowKey={(w) => `${w.runId}-${w.param}`} rows={D.setpointWrites.filter((w) => lines.some((l) => l.id === D.runs.find((r) => r.id === w.runId)?.lineId)).slice(-6).reverse()} columns={[
+              { key: "p", label: "Setting", render: (w) => w.param },
+              { key: "v", label: "Value", align: "right", render: (w) => w.value },
+              { key: "s", label: "Source", render: (w) => w.source },
+            ]} />
           </Section>
         </div>
         <div className="span-12">

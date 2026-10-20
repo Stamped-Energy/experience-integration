@@ -64,7 +64,7 @@ export default async function PlantMap({ searchParams }: { searchParams: Promise
           <Section title="Since this morning" flush>
             <ul className="tl" style={{ padding: "8px 16px" }}>{D.shiftEvents.slice(-6).map((e) => <li key={e.at + e.text}><span className="t">{hhmm(e.at)}</span><span className={`k ${e.kind === "stop" ? "x" : "s"}`} /><span>{e.text}</span><span /></li>)}</ul>
           </Section>
-          <div className="xl-hide stack"><OpenCards cards={cards} /></div>
+          <div className="xl-hide stack"><OpenCards cards={cards} /><PlantHealth only="sources" /></div>
         </div>
         <div className="xl-only stack xl-span-3"><OpenCards cards={cards} /><PlantHealth /></div>
       </div>
@@ -80,16 +80,16 @@ function OpenCards({ cards }: { cards: typeof D.proposals }) {
   );
 }
 
-function PlantHealth() {
+function PlantHealth({ only }: { only?: "sources" }) {
   const lease = D.leases.find((l) => l.state === "active") ?? D.leases[0];
   return (
     <>
       <Section title="Data sources" flush actions={<Link className="link" href="/plant/data">Data health</Link>}>
         <div className="rows">{D.dataSources.map((s) => <div key={s.id} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title" style={{ display: "block" }}>{s.name}</span><span className="row-sub">{s.tags} tags · last seen {rel(s.lastSeen)}</span></span>{s.gapPct ? <Tag tone="warning">{s.gapPct}% gap</Tag> : <Tag>No gaps</Tag>}</div>)}</div>
       </Section>
-      <Section title="Plant Box" actions={<Link className="link" href="/plant/box">Lease</Link>}>
+      {only ? null : <Section title="Plant Box" actions={<Link className="link" href="/plant/box">Lease</Link>}>
         <dl className="facts-grid"><dt>Lease</dt><dd>{lease.id}, {lease.offlineMin ? `offline ${lease.offlineMin} min` : "connected"}</dd><dt>Limits</dt><dd>{lease.maxOfflineH} h then recommend-only, {lease.hardCapH} h cap</dd><dt>Last sync</dt><dd>{rel(D.plantBox.lastSync)}</dd></dl>
-      </Section>
+      </Section>}
     </>
   );
 }
