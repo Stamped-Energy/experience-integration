@@ -42,7 +42,7 @@ export default async function Trials() {
             </Section>
           ))}
         </div>
-        <div className="span-4 xl-span-3 stack">
+        <div className="span-4 xl-span-3 stack ctx">
           <Section title="Waiting for signature" meta="Signer set per plant" flush>
             {waiting.map((t) => (
               <article key={t.id} className="card decision" style={{ margin: 12 }}>

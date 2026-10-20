@@ -68,7 +68,7 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
             ]} />
           </Section>
         </div>
-        <div className="span-4 xl-span-3 stack">
+        <div className="span-4 xl-span-3 stack ctx">
           <Section title="Facts">
             <dl className="facts-grid">
               <dt>Line pack</dt><dd>{pack.equipmentClass}</dd>

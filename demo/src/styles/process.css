@@ -43,7 +43,7 @@
 .sw { background: var(--surface); padding: var(--space-2); font-size: 12px; min-height: 58px; display: flex; flex-direction: column; gap: 2px; }
 .sw .arm { font-weight: 600; font-size: 13px; }
 .sw.B .arm { color: var(--accent-700); }
-.sw.skip { background: var(--warning-tint); }
+.sw.sw-skip { background: var(--warning-tint); }
 .sw.todo { background: var(--surface-subtle); color: var(--text-muted); }
 .sw a { color: inherit; }
 
@@ -95,3 +95,8 @@
 .adjust-foot { display: flex; gap: var(--space-2); align-items: center; font-size: 12px; }
 .adjust-err { color: var(--critical-text); font-weight: 500; }
 .spacer { flex: 1; }
+/* Context columns are narrow: let the card state strip wrap instead of overflowing the card. */
+.ctx .strip { flex-wrap: wrap; row-gap: 6px; }
+.ctx .card-foot { flex-wrap: wrap; }
+.ev-body > * { flex-shrink: 0; }
+.ev-rows th { position: static; }

@@ -34,7 +34,7 @@ export default async function ModelFitPage() {
             </div>
           );
         })}
-        <div className="span-12 xl-span-4 stack">
+        <div className="span-12 xl-span-4 stack ctx">
           <Section title="Withheld because of fit" meta={`${withheld.length} proposal`} flush>
             <div className="stack-sm" style={{ padding: 12 }}>{withheld.map((p) => <DecisionCard key={p.id} p={p} role={role} variant="compact" href={`/process/proposals/${p.id}`} />)}</div>
           </Section>

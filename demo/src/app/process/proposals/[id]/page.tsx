@@ -62,7 +62,7 @@ export default async function ProposalTest({ params }: { params: Promise<{ id: s
             </table>
           </Section>
         </div>
-        <div className="span-4 stack">
+        <div className="span-4 stack ctx">
           <FitChecks fit={fit} compact />
           <Section title="Runs this rests on" flush>
             <DataTable caption="Recent runs" rowKey={(r) => r.id} rows={recent.slice(-6).reverse()} columns={[

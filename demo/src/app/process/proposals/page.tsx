@@ -34,7 +34,7 @@ export default async function Proposals({ searchParams }: { searchParams: Promis
           </div>
           {list.length ? list.map((p) => <DecisionCard key={p.id} p={p} role={role} href={`/process/proposals/${p.id}`} />) : <EmptyState title="Nothing in this view" body="When the optimiser finds a better setting inside the signed window, the proposal appears here." />}
         </div>
-        <div className="span-4 xl-span-6 stack">
+        <div className="span-4 xl-span-6 stack ctx">
           <Section title="All proposals, 14 days" meta={`${D.proposals.length} on record`} flush>
             <DataTable caption="All proposals" rowKey={(p) => p.id} rows={[...list, ...others]} columns={[
               { key: "i", label: "Id", mono: true, render: (p) => <Link className="link" href={`/process/proposals/${p.id}`}>{p.id}</Link> },
@@ -45,6 +45,22 @@ export default async function Proposals({ searchParams }: { searchParams: Promis
               { key: "t", label: "Raised", mono: true, render: (p) => `${dayMonth(p.createdAt)} ${hhmm(p.createdAt)}` },
             ]} />
           </Section>
+          <div className="xl-cols-2">
+            <Section title="Running and measuring" meta="Written values and what Stop does" flush>
+              <div className="rows">{D.proposals.filter((p) => GROUP.running.includes(p.state) && inLine(p.lineId)).map((p) => (
+                <Link key={p.id} className="row" href={`/process/proposals/${p.id}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto", padding: "8px 16px" }}>
+                  <span style={{ minWidth: 0 }}><span className="row-title" style={{ display: "block" }}>{D.byId.window(p.lineId, p.param)?.name} {p.proposed} {D.byId.window(p.lineId, p.param)?.unit}</span><span className="row-sub" style={{ whiteSpace: "normal" }}>{p.stopEffect}</span></span>
+                  <Tag tone="info">{p.state}</Tag>
+                </Link>))}</div>
+            </Section>
+            <Section title="Why not" meta="Declined, expired and withheld" flush>
+              <div className="rows">{D.proposals.filter((p) => GROUP.closed.includes(p.state) && inLine(p.lineId)).map((p) => (
+                <Link key={p.id} className="row" href={`/process/proposals/${p.id}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto", padding: "8px 16px" }}>
+                  <span style={{ minWidth: 0 }}><span className="row-title" style={{ display: "block" }}>{D.byId.window(p.lineId, p.param)?.name} {p.current} to {p.proposed}</span><span className="row-sub" style={{ whiteSpace: "normal" }}>{p.declineReason ? `${p.decidedBy}: ${p.declineReason}` : p.state === "Withheld" ? (p.fitState !== "accepted" ? "Model fit not accepted, no number offered" : p.safetyFilter.rules.join("; ")) : "Nobody decided before it expired"}</span></span>
+                  <Tag>{p.state}</Tag>
+                </Link>))}</div>
+            </Section>
+          </div>
         </div>
       </div>
     </Workspace>

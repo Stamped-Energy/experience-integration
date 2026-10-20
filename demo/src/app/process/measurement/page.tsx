@@ -25,7 +25,7 @@ export default async function Measurement({ searchParams }: { searchParams: Prom
         actions={<AskButton context={plan.id} label="Ask about this plan" />} />
       <ProcessTabs active="measurement" />
       <div className="grid">
-        <div className="span-4 xl-span-3 stack">
+        <div className="span-4 xl-span-3 stack ctx">
           <Section title="Plans" meta={`${D.measurementPlans.length} locked`} flush>
             <div className="rows">{D.measurementPlans.map((m) => { const t = D.byId.trial(m.trialId)!; return (
               <Link key={m.id} href={`/process/measurement?plan=${m.id}`} className="row" aria-current={m.id === plan.id ? "true" : undefined} style={{ gridTemplateColumns: "minmax(0,1fr) auto", background: m.id === plan.id ? "var(--accent-50)" : undefined }} scroll={false}>

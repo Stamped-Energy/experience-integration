@@ -87,7 +87,7 @@ export default async function RunDetail({ params, searchParams }: { params: Prom
             </Section>
           </div>
         </div>
-        <div className="span-4 stack">
+        <div className="span-4 stack ctx">
           <Section title="Evidence on demand" meta={proof ? <span className="mono">{proof.id}</span> : undefined}>
             {proof ? (
               <div className="stack-sm">

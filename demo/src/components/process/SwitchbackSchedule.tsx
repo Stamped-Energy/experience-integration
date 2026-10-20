@@ -9,11 +9,11 @@ export function SwitchbackSchedule({ trial }: { trial: Trial }) {
   const todo = Math.max(0, (plan?.minBatches ?? trial.switches.length) - trial.switches.length);
   return (
     <>
-      <div className="sw-grid" role="list" aria-label={`Switchback schedule for ${trial.id}`}>
+      <div className="sw-grid" style={{ gridTemplateColumns: `repeat(${Math.ceil((trial.switches.length + todo) / ((trial.switches.length + todo) > 12 ? 2 : 1))}, minmax(0, 1fr))` }} role="list" aria-label={`Switchback schedule for ${trial.id}`}>
         {trial.switches.map((s) => {
           const run = D.runs.find((r) => r.id === s.runId)!;
           return (
-            <div key={s.runId} role="listitem" className={`sw ${s.arm}${s.skippedReason ? " skip" : ""}`} title={s.skippedReason}>
+            <div key={s.runId} role="listitem" className={`sw ${s.arm}${s.skippedReason ? " sw-skip" : ""}`} title={s.skippedReason}>
               <span className="arm">{s.arm} {s.arm === "B" ? "change" : "prior"}</span>
               <Link href={`/process/runs/${run.id}`} className="mono">{runLabel(run).replace(/^\D+/, "")}</Link>
               <span className="muted">{s.skippedReason ? "Skipped" : "Written"}</span>

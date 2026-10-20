@@ -14,7 +14,7 @@ import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { SwitchbackSchedule } from "@/components/process/SwitchbackSchedule";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { ProcessTabs, crumbs, runLabel } from "@/components/process/common";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -54,6 +54,16 @@ export default async function TrialDetail({ params, searchParams }: { params: Pr
           <Section title="Switchback schedule" meta={`${done} written · ${skipped.length} skipped · ${plan.minBatches} planned`} flush>
             {t.switches.length ? <SwitchbackSchedule trial={t} /> : <p className="muted" style={{ padding: "12px 16px", margin: 0, fontSize: 13 }}>No switches yet. The schedule starts once the trial order is signed.</p>}
           </Section>
+          <Section title={`${line.type === "batch" ? "Batches" : "Shift runs"} in this trial`} meta="Arm, value written and outcome per run" flush>
+            <DataTable caption="Runs in this trial" rowKey={(s) => s.runId} rows={t.switches.slice().reverse()} columns={[
+              { key: "r", label: "Run", render: (s) => <Link className="link" href={`/process/runs/${s.runId}`}>{runLabel(D.runs.find((r) => r.id === s.runId)!)}</Link> },
+              { key: "e", label: "Ended", mono: true, render: (s) => { const r = D.runs.find((x) => x.id === s.runId)!; return `${dayMonth(r.end)} ${hhmm(r.end)}`; } },
+              { key: "a", label: "Arm", render: (s) => <Tag tone={s.arm === "B" ? "info" : "neutral"}>{s.arm === "B" ? "B, change" : "A, prior"}</Tag> },
+              { key: "v", label: win?.name ?? param, align: "right", render: (s) => `${D.runs.find((r) => r.id === s.runId)!.setpoints[param] ?? "None"} ${win?.unit ?? ""}` },
+              ...D.runs.find((r) => r.id === t.switches[0]?.runId)?.outcomes.filter((o) => o.unit !== "flag").map((o) => ({ key: o.name, label: o.name, align: "right" as const, render: (s: typeof t.switches[number]) => { const x = D.runs.find((r) => r.id === s.runId)!.outcomes.find((y) => y.name === o.name)!; return `${x.value} ${x.unit}`; } })) ?? [],
+              { key: "w", label: "Switch", render: (s) => (s.skippedReason ? <Tag tone="warning">Skipped</Tag> : "Written") },
+            ]} />
+          </Section>
           <div className="split">
             <Section title="Skipped switches" flush>
               <DataTable caption="Skipped switches" rowKey={(s) => s.runId} rows={skipped} columns={[
@@ -71,7 +81,7 @@ export default async function TrialDetail({ params, searchParams }: { params: Pr
             </Section>
           </div>
         </div>
-        <div className="span-4 stack">
+        <div className="span-4 stack ctx">
           {win && rs ? <Section title="Restore target"><LimitsBand name={win.name} unit={win.unit} signed={[win.low, win.high]} narrowed={win.narrowedLow !== undefined ? [win.narrowedLow, win.narrowedHigh!] : undefined} current={rs.value} proposed={Object.values(t.restoreTarget)[0]} signedBy={win.signedBy} signedAt={dayMonth(win.signedAt)} /><div className="muted" style={{ fontSize: 12, marginTop: 4 }}>Tick shows the prior value Stop restores.</div></Section> : null}
           <Section title="Measurement plan" meta={<span className="mono">{plan.id} v{plan.version}</span>} actions={<Tag>Locked</Tag>}>
             <dl className="facts-grid">

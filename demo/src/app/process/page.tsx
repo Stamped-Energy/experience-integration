@@ -61,11 +61,16 @@ export default async function ProcessLines({ searchParams }: { searchParams: Pro
             </Section>
           </div>
         </div>
-        <div className="span-4 xl-span-3 stack">
+        <div className="span-4 xl-span-3 stack ctx">
           <Section title="Needs a decision" meta={`${open.length} waiting`} flush>
             <div className="stack-sm" style={{ padding: 12 }}>
-              {open.map((p) => <DecisionCard key={p.id} p={p} role={role} variant="compact" href={`/process/proposals/${p.id}`} />)}
+              {open.slice(0, 2).map((p) => <DecisionCard key={p.id} p={p} role={role} variant="compact" href={`/process/proposals/${p.id}`} />)}
             </div>
+            {open.length > 2 ? <div className="rows">{open.slice(2).map((p) => (
+              <Link key={p.id} className="row" href={`/process/proposals/${p.id}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
+                <span style={{ minWidth: 0 }}><span className="row-title" style={{ display: "block" }}>{D.byId.window(p.lineId, p.param)?.name} {p.current} to {p.proposed}</span><span className="row-sub">{D.byId.line(p.lineId)!.short} · expires {rel(p.expiresAt)}</span></span>
+                <Tag tone="accent">Needs a decision</Tag>
+              </Link>))}</div> : null}
           </Section>
           <Section title="Stops" meta="Last 14 days" flush>
             <ul className="tl">{D.stopEvents.map((s) => (

@@ -32,7 +32,7 @@ export default async function RunningSettings() {
             </Section>
           ))}
         </div>
-        <div className="span-4 xl-span-3 stack">
+        <div className="span-4 xl-span-3 stack ctx">
           <Section title="Last writes" meta="Line A trial batches" flush>
             <ul className="tl">{writes.map((w) => (
               <li key={w.runId}><span className="t">{dayMonth(w.at)} {hhmm(w.at)}</span><span className={`k ${w.status === "skipped" ? "s" : "w"}`} /><span>Hold temperature {w.value} °C<span className="cell-sub">{w.reason ?? `${w.source} · ${w.runId}`}</span></span><Tag tone={w.status === "skipped" ? "warning" : "neutral"}>{w.status}</Tag></li>
