@@ -13,11 +13,6 @@ on:
         description: "Push to ECR"
         type: boolean
         default: true
-  push:
-    branches: [main, "feat/cnc-intelligence"]
-    paths:
-      - "deploy/stamped-cloud/**"
-      - ".github/workflows/deploy-stamped-cloud.yml"
 
 concurrency:
   group: deploy-stamped-cloud-${{ github.ref }}

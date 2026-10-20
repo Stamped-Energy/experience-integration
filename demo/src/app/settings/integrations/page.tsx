@@ -1,519 +1,61 @@
-"use client";
+import Link from "next/link";
+import { nameOf } from "@/lib/names";
+import * as D from "@/lib/demo/data";
+import { currentRole } from "@/lib/role";
+import { can, grant, whoCan, ACTIONS, ACTION_LABELS, ROLE_ORDER } from "@/lib/rbac";
+import { dayMonth, rel } from "@/lib/format";
+import { deniedReason } from "@/components/cards/DecisionCard";
+import { LimitsBand } from "@/components/ui/LimitsBand";
+import { DataTable, LineModeTag, ModeTag, Section, Tag } from "@/components/ui/primitives";
+import { ConfirmAction } from "@/components/settings/Confirm";
+import { GrantTag, SettingsPage, roleName } from "@/components/settings/common";
 
-import { useCallback, useEffect, useState } from "react";
-import { AppShell } from "@/components/shell/AppShell";
-import { EmptyUpstreamState } from "@/components/ui/SourceIndicator";
-import {
-  GhostButton,
-  PageHead,
-  Panel,
-  PrimaryButton,
-  StatusChip,
-  ToastRegion,
-} from "@/components/ui/primitives";
-import { useAuth } from "@/lib/auth-context";
-import { useDataSource } from "@/lib/data-source-context";
-import {
-  createApiKey,
-  createWebhook,
-  getEntraStatus,
-  getWhatsAppStatus,
-  listApiKeys,
-  listWebhooks,
-  revokeApiKey,
-  testWebhook,
-  testWhatsAppSend,
-  type ApiKeyItem,
-  type EntraStatus,
-  type WebhookItem,
-  type WhatsAppStatus,
-} from "@/lib/integrations-api";
-import { usePlant } from "@/lib/plant-context";
-import { connectionFromProbe, toShellRole } from "@/lib/shell-session";
-import { formatIstDateTime } from "@/lib/format";
-import { apiKeysFixture, webhooksFixture } from "@/fixtures/demo";
-import { connectionFixture } from "@/lib/plant-catalog";
-
-const SCOPE_LABELS: Record<string, string> = {
-  "ledger:read": "Read savings data",
-  "events:read": "Read live events",
-  "alarms:read": "Read alarms",
-  "prescriptions:read": "Read prescriptions",
-};
-
-const DEFAULT_SCOPES = ["alarms:read", "events:read", "ledger:read"];
-
-export default function IntegrationsSettingsPage() {
-  const { activePlant } = usePlant();
-  const { isDemoSession, membershipRole } = useAuth();
-  const { probe } = useDataSource();
-
-  const [keys, setKeys] = useState<ApiKeyItem[]>([]);
-  const [webhooks, setWebhooks] = useState<WebhookItem[]>([]);
-  const [entra, setEntra] = useState<EntraStatus | null>(null);
-  const [whatsapp, setWhatsapp] = useState<WhatsAppStatus | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const [keyName, setKeyName] = useState("");
-  const [createdSecret, setCreatedSecret] = useState<string | null>(null);
-  const [webhookUrl, setWebhookUrl] = useState("");
-  const [webhookSecret, setWebhookSecret] = useState<string | null>(null);
-  const [waPhone, setWaPhone] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-  const [toastTone, setToastTone] = useState<"good" | "critical">("good");
-
-  const flash = (msg: string, tone: "good" | "critical" = "good") => {
-    setToastTone(tone);
-    setToast(msg);
-  };
-
-  const reload = useCallback(async () => {
-    setLoading(true);
-    setLoadError(null);
-    if (isDemoSession) {
-      setKeys(
-        apiKeysFixture.map((key) => ({
-          id: key.id,
-          name: key.name,
-          prefix: key.prefix,
-          scopes: key.scopes,
-          created_at: key.createdAt,
-          last_used_at: key.lastUsedAt,
-          revoked_at: null,
-        })),
-      );
-      setWebhooks(
-        webhooksFixture.map((webhook) => ({
-          id: webhook.id,
-          url: webhook.url,
-          enabled: webhook.enabled,
-          event_filters: webhook.eventFilters,
-        })),
-      );
-      setEntra({
-        enabled: true,
-        tenant_id: "jaipur-works.onmicrosoft.com",
-        client_id: "stamped-control-room",
-        mapping: "Plant head → admin · Energy manager → analyst",
-        note: "Single sign-on with Microsoft Entra. Access and roles are managed in Stamped.",
-        local_auth_coexists: true,
-      });
-      setWhatsapp({
-        mode: "live",
-        configured: true,
-        phone_number_id_set: true,
-        verify_token_set: true,
-        app_secret_set: true,
-        recent: [
-          {
-            id: "wa_msg_1",
-            template_id: "issue",
-            status: "delivered",
-            mode: "live",
-            created_at: "2026-07-21T09:41:00+05:30",
-          },
-        ],
-      });
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const [k, w, e, wa] = await Promise.all([
-        listApiKeys(),
-        listWebhooks(),
-        getEntraStatus(),
-        getWhatsAppStatus(),
-      ]);
-      setKeys(k);
-      setWebhooks(w);
-      setEntra(e);
-      setWhatsapp(wa);
-    } catch (err) {
-      setKeys([]);
-      setWebhooks([]);
-      setEntra(null);
-      setWhatsapp(null);
-      setLoadError(
-        err instanceof Error ? err.message : "Integrations APIs unavailable",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [isDemoSession]);
-
-  useEffect(() => {
-    void reload();
-  }, [reload]);
-
-  async function onCreateKey(e: React.FormEvent) {
-    e.preventDefault();
-    if (!keyName.trim()) return;
-    setBusy(true);
-    try {
-      const created = await createApiKey({
-        name: keyName.trim(),
-        scopes: DEFAULT_SCOPES,
-      });
-      setCreatedSecret(created.api_key);
-      setKeyName("");
-      flash("API key created — copy it now; it will not be shown again");
-      await reload();
-    } catch (err) {
-      flash(err instanceof Error ? err.message : "Create key failed", "critical");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function onRevokeKey(id: string) {
-    setBusy(true);
-    try {
-      await revokeApiKey(id);
-      flash("API key revoked");
-      await reload();
-    } catch (err) {
-      flash(err instanceof Error ? err.message : "Revoke failed", "critical");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function onCreateWebhook(e: React.FormEvent) {
-    e.preventDefault();
-    if (!webhookUrl.trim()) return;
-    setBusy(true);
-    try {
-      const created = await createWebhook({ url: webhookUrl.trim() });
-      setWebhookSecret(created.secret);
-      setWebhookUrl("");
-      flash("Webhook created — copy the signing secret now");
-      await reload();
-    } catch (err) {
-      flash(err instanceof Error ? err.message : "Create webhook failed", "critical");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function onTestWebhook(id: string) {
-    setBusy(true);
-    try {
-      const result = await testWebhook(id);
-      flash(`Test delivery ${result.delivery_id.slice(0, 8)}… queued`);
-    } catch (err) {
-      flash(err instanceof Error ? err.message : "Test failed", "critical");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function onTestWhatsApp(e: React.FormEvent) {
-    e.preventDefault();
-    if (!waPhone.trim()) return;
-    setBusy(true);
-    try {
-      const result = await testWhatsAppSend({
-        phone: waPhone.trim(),
-        template: "issue",
-      });
-      flash(`WhatsApp test logged (${result.log_id.slice(0, 8)}…)`);
-      await reload();
-    } catch (err) {
-      flash(err instanceof Error ? err.message : "WhatsApp test failed", "critical");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  const activeKeys = keys.filter((k) => !k.revoked_at);
-
+export const metadata = { title: "Integrations" };
+export default async function Integrations() {
+  const role = await currentRole();
+  const ok = can(role, "manage-integrations");
+  const reason = deniedReason("manage-integrations", "manage integrations");
   return (
-    <AppShell
-      active="integrations"
-      plantName={activePlant.plantName}
-      plantId={activePlant.plantId}
-      role={toShellRole(membershipRole)}
-      connection={isDemoSession ? connectionFixture : connectionFromProbe(probe)}
-      screenTitle="Integrations"
-      contextSummary={["Connections & exports", activePlant.plantName]}
-    >
-      <PageHead eyebrow="Admin" title="Integrations" />
-      {loading ? (
-        <p style={{ margin: 0, fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-          Loading integrations…
-        </p>
-      ) : loadError ? (
-        <EmptyUpstreamState title="Integrations unavailable" detail={loadError} />
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <Panel>
-            <h2 style={{ margin: 0, fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
-              API keys
-            </h2>
-            <div style={{ height: 12 }} />
-            <form
-              onSubmit={(e) => void onCreateKey(e)}
-              style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}
-            >
-              <input
-                value={keyName}
-                onChange={(e) => setKeyName(e.target.value)}
-                placeholder="Key name"
-                style={{
-                  flex: "1 1 180px",
-                  padding: "8px 10px",
-                  borderRadius: 8,
-                  border: "1px solid var(--forge-outline-variant)",
-                }}
-              />
-              <PrimaryButton type="submit" disabled={busy || !keyName.trim()}>
-                Create key
-              </PrimaryButton>
-            </form>
-            {createdSecret ? (
-              <p
-                role="status"
-                style={{
-                  margin: "0 0 12px",
-                  padding: 10,
-                  borderRadius: 8,
-                  background: "var(--forge-surface-container-low)",
-                  fontSize: 12,
-                  wordBreak: "break-all",
-                  fontFamily: "var(--forge-font-mono, monospace)",
-                }}
-              >
-                {createdSecret}
-              </p>
-            ) : null}
-            {activeKeys.length === 0 ? (
-              <p style={{ margin: 0, fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-                No active API keys.
-              </p>
-            ) : (
-              <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 10 }}>
-                {activeKeys.map((k) => (
-                  <li
-                    key={k.id}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      gap: 12,
-                      flexWrap: "wrap",
-                      paddingBottom: 10,
-                      borderBottom: "1px solid var(--forge-outline-variant)",
-                    }}
-                  >
-                    <div>
-                      <p style={{ margin: 0, fontWeight: 700 }}>{k.name}</p>
-                      <p
-                        className="tabular"
-                        style={{
-                          margin: "4px 0 0",
-                          fontSize: 12,
-                          color: "var(--forge-on-surface-variant)",
-                        }}
-                      >
-                        {k.prefix}••• · created {formatIstDateTime(k.created_at)}
-                      </p>
-                      <p
-                        style={{
-                          margin: "6px 0 0",
-                          fontSize: 12,
-                          display: "flex",
-                          gap: 6,
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        {k.scopes.map((s) => (
-                          <StatusChip key={s} tone="info">
-                            {SCOPE_LABELS[s] ?? s}
-                          </StatusChip>
-                        ))}
-                      </p>
-                    </div>
-                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                      <StatusChip tone={k.last_used_at ? "good" : "neutral"}>
-                        {k.last_used_at
-                          ? `Last used ${formatIstDateTime(k.last_used_at)}`
-                          : "Never used"}
-                      </StatusChip>
-                      <GhostButton onClick={() => void onRevokeKey(k.id)} disabled={busy}>
-                        Revoke
-                      </GhostButton>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Panel>
-
-          <Panel>
-            <h2 style={{ margin: 0, fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
-              Webhooks
-            </h2>
-            <div style={{ height: 12 }} />
-            <form
-              onSubmit={(e) => void onCreateWebhook(e)}
-              style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}
-            >
-              <input
-                value={webhookUrl}
-                onChange={(e) => setWebhookUrl(e.target.value)}
-                placeholder="https://example.com/hooks/stamped"
-                style={{
-                  flex: "1 1 240px",
-                  padding: "8px 10px",
-                  borderRadius: 8,
-                  border: "1px solid var(--forge-outline-variant)",
-                }}
-              />
-              <PrimaryButton type="submit" disabled={busy || !webhookUrl.trim()}>
-                Add webhook
-              </PrimaryButton>
-            </form>
-            {webhookSecret ? (
-              <p
-                role="status"
-                style={{
-                  margin: "0 0 12px",
-                  padding: 10,
-                  borderRadius: 8,
-                  background: "var(--forge-surface-container-low)",
-                  fontSize: 12,
-                  wordBreak: "break-all",
-                  fontFamily: "var(--forge-font-mono, monospace)",
-                }}
-              >
-                Signing secret (once): {webhookSecret}
-              </p>
-            ) : null}
-            {webhooks.length === 0 ? (
-              <p style={{ margin: 0, fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-                No webhooks configured.
-              </p>
-            ) : (
-              <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 10 }}>
-                {webhooks.map((w) => (
-                  <li
-                    key={w.id}
-                    style={{
-                      paddingBottom: 10,
-                      borderBottom: "1px solid var(--forge-outline-variant)",
-                    }}
-                  >
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                      <p style={{ margin: 0, fontWeight: 700, wordBreak: "break-all" }}>{w.url}</p>
-                      <StatusChip tone={w.enabled ? "good" : "neutral"}>
-                        {w.enabled ? "Enabled" : "Disabled"}
-                      </StatusChip>
-                      <GhostButton onClick={() => void onTestWebhook(w.id)} disabled={busy}>
-                        Send test
-                      </GhostButton>
-                    </div>
-                    <p
-                      style={{
-                        margin: "6px 0 0",
-                        fontSize: 12,
-                        color: "var(--forge-on-surface-variant)",
-                      }}
-                    >
-                      Filters:{" "}
-                      {w.event_filters?.length
-                        ? w.event_filters.join(", ")
-                        : "all events"}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Panel>
-
-          <Panel>
-            <h2 style={{ margin: 0, fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
-              Microsoft sign-in
-            </h2>
-            {entra?.mapping ? (
-              <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-                {entra.mapping}
-              </p>
-            ) : null}
-            <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <StatusChip tone={entra?.enabled ? "good" : "neutral"}>
-                {entra?.enabled ? "Entra enabled" : "Not connected"}
-              </StatusChip>
-              {entra?.tenant_id ? (
-                <StatusChip tone="info">Tenant configured</StatusChip>
-              ) : (
-                <StatusChip tone="info">Tenant pending setup</StatusChip>
-              )}
-              {entra?.local_auth_coexists ? (
-                <StatusChip tone="neutral">Local auth coexists</StatusChip>
-              ) : null}
-            </div>
-          </Panel>
-
-          <Panel>
-            <h2 style={{ margin: 0, fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
-              WhatsApp
-            </h2>
-            <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <StatusChip tone={whatsapp?.configured ? "good" : "warning"}>
-                {whatsapp?.configured ? "Credentials set" : "Not fully configured"}
-              </StatusChip>
-              <StatusChip tone="info">Mode: {whatsapp?.mode ?? "unknown"}</StatusChip>
-            </div>
-            <form
-              onSubmit={(e) => void onTestWhatsApp(e)}
-              style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}
-            >
-              <input
-                value={waPhone}
-                onChange={(e) => setWaPhone(e.target.value)}
-                placeholder="+9198XXXXXXXX"
-                style={{
-                  flex: "1 1 180px",
-                  padding: "8px 10px",
-                  borderRadius: 8,
-                  border: "1px solid var(--forge-outline-variant)",
-                }}
-              />
-              <PrimaryButton type="submit" disabled={busy || !waPhone.trim()}>
-                Test send
-              </PrimaryButton>
-            </form>
-            {whatsapp?.recent?.length ? (
-              <ul style={{ listStyle: "none", margin: "12px 0 0", padding: 0, display: "grid", gap: 6 }}>
-                {whatsapp.recent.slice(0, 5).map((log) => (
-                  <li
-                    key={log.id}
-                    style={{ fontSize: 12, color: "var(--forge-on-surface-variant)" }}
-                  >
-                    {log.template_id} · {log.status} · {log.mode} ·{" "}
-                    {formatIstDateTime(log.created_at)}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </Panel>
-
-          <Panel>
-            <h2 style={{ margin: 0, fontFamily: "var(--forge-font-display)", fontSize: 16 }}>
-              Power BI
-            </h2>
-            <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--forge-on-surface-variant)" }}>
-              Daily sync · 06:00 IST · last run today
-            </p>
-            <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <StatusChip tone="good">Connected</StatusChip>
-            </div>
-          </Panel>
-        </div>
-      )}
-      <ToastRegion message={toast} tone={toastTone} />
-    </AppShell>
+    <SettingsPage section="integrations" title="Integrations" meta="Data connections Stamped reads from, sign-in, API keys and webhooks." changes={["manage-integrations"]} audit={/Exported/}
+      help={<ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.6 }}><li>Data connections are read only.</li><li>API keys are shown once at creation.</li><li>Webhooks carry ids, never readings.</li></ul>}>
+      <Section title="Connections" flush>
+        <DataTable caption="Connections" rowKey={(i) => i.id} rows={D.integrations} columns={[
+          { key: "n", label: "Connection", render: (i) => <>{i.name}<span className="cell-sub">{i.kind}</span></> },
+          { key: "s", label: "Status", render: (i) => <Tag tone={i.status === "connected" ? "success" : i.status === "degraded" ? "warning" : "neutral"} dot>{i.status}</Tag> },
+          { key: "l", label: "Last sync", render: (i) => rel(i.lastSync) },
+          { key: "d", label: "Data", render: (i) => { const s = D.dataSources.find((x) => x.name === i.name); return s ? `${s.tags} tags · ${s.gapPct}% gap` : ""; } },
+          { key: "a", label: "", render: (i) => <ConfirmAction label="Test" allowed={ok} reason={reason} title={`Test ${i.name}`} body={<p>Reads one value to check the connection. Nothing is written.</p>} confirm="Run test" done="Test passed (illustrative)." /> },
+        ]} />
+        <div className="card-foot"><Link className="link" href="/plant/data">Data health</Link><span className="spacer" /><ConfirmAction label="Add connection" allowed={ok} reason={reason} title="Add a data connection" body={<p>Historian, production system, lab system or quality system.</p>} confirm="Add" done="Added (illustrative)." /></div>
+      </Section>
+      <Section title="API keys" flush>
+          <DataTable caption="API keys" rowKey={(k) => k.id} rows={D.apiKeys} columns={[
+            { key: "l", label: "Key", render: (k) => <>{k.label}<span className="cell-sub mono">{nameOf(k.id)}</span></> },
+            { key: "c", label: "Created", render: (k) => dayMonth(k.created) },
+            { key: "u", label: "Last used", render: (k) => rel(k.lastUsed) },
+            { key: "r", label: "", render: (k) => <ConfirmAction label="Revoke" allowed={ok} reason={reason} title={`Revoke ${k.label}`} body={<p>Calls with this key fail from now.</p>} confirm="Revoke" done="Revoked (illustrative)." /> },
+          ]} />
+          <div className="card-foot"><ConfirmAction label="Create key" allowed={ok} reason={reason} title="Create an API key" body={<p>Name the key. It is shown once.</p>} confirm="Create" done="Created (illustrative)." /></div>
+        </Section>
+        <Section title="Webhooks" flush>
+          <DataTable caption="Webhooks" rowKey={(w) => w.id} rows={D.webhooks} columns={[
+            { key: "u", label: "Address", mono: true, render: (w) => w.url },
+            { key: "s", label: "Health", render: (w) => <>{w.status === "failing" ? <Tag tone="critical" dot>Failing</Tag> : w.status === "paused" ? <Tag tone="neutral">Paused</Tag> : <Tag tone="success" dot>Healthy</Tag>}{w.note && <span className="cell-sub">{w.note}</span>}</> },
+            { key: "d", label: "Last delivery", render: (w) => w.lastDelivery ? rel(w.lastDelivery) : "None yet" },
+            { key: "e", label: "Events", render: (w) => <span className="scope-chips">{w.events.map((e) => <Tag key={e}>{e}</Tag>)}</span> },
+            { key: "a", label: "", render: (w) => w.status === "failing" ? <ConfirmAction label="Retry" allowed={ok} reason={reason} title="Retry queued deliveries" body={<p>Sends queued deliveries again in order. Payloads carry ids only.</p>} confirm="Retry" done="Retry queued (illustrative)." /> : w.status === "paused" ? <ConfirmAction label="Resume" allowed={ok} reason={reason} title="Resume webhook" body={<p>Deliveries start again from the next event.</p>} confirm="Resume" done="Resumed (illustrative)." /> : <ConfirmAction label="Pause" allowed={ok} reason={reason} title="Pause webhook" body={<p>Events are not sent until resumed.</p>} confirm="Pause" done="Paused (illustrative)." /> },
+          ]} />
+          <div className="card-foot"><ConfirmAction label="Add webhook" allowed={ok} reason={reason} title="Add a webhook" body={<p>Pick events. Payloads carry ids only.</p>} confirm="Add" done="Added (illustrative)." /></div>
+        </Section>
+      <Section title="Data sources behind the connections" flush>
+        <DataTable caption="Sources" rowKey={(s) => s.id} rows={D.dataSources} columns={[
+          { key: "n", label: "Source", render: (s) => s.name },
+          { key: "k", label: "Kind", render: (s) => s.kind },
+          { key: "t", label: "Tags", align: "right", render: (s) => s.tags },
+          { key: "q", label: "Good readings", align: "right", render: (s) => `${s.qualityCodes.good}%` },
+          { key: "l", label: "Last seen", render: (s) => rel(s.lastSeen) },
+        ]} />
+      </Section>
+    </SettingsPage>
   );
 }

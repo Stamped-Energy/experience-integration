@@ -1,42 +1,32 @@
-import type { Metadata } from "next";
-import { PlantProvider } from "@/lib/plant-context";
-import { DataSourceProvider } from "@/lib/data-source-context";
-import { AuthGate, AuthProvider } from "@/lib/auth-context";
-import { StaffUnlockGuard } from "@/components/settings/StaffUnlockGuard";
+import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
+import { AppShell } from "@/components/shell/Shell";
+import { DISPLAY_SCRIPT } from "@/components/shell/ShellClient";
 import "@/styles/tokens.css";
-import "@/styles/forge-ui.css";
-import "@/components/shell/shell.css";
-import "@/components/evidence/evidence.css";
-import "@/components/analyst/contextual-analyst.css";
-import "@/components/analytics/sustainability.css";
-import "@/components/alarms/alarm-full-case.css";
-import "@/components/prescriptions/prescription-full-case.css";
+import "@/styles/app.css";
+import "@/styles/process.css";
+import "@/styles/quality.css";
+import "@/styles/plant.css";
+import "@/styles/ask.css";
+import "@/styles/settings.css";
+import "@/styles/activity.css";
+
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
+/** Brand face, one or two places only (spec Revision 4). */
+const brand = Space_Grotesk({ subsets: ["latin"], weight: ["500"], variable: "--font-brand", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Stamped",
-  description: "Energy operations dashboard for your plant",
+  title: { default: "Stamped · Demonstration plant", template: "%s · Stamped" },
+  description: "Stamped on a fictional demonstration plant with illustrative data. Stamped works inside limits set beforehand.",
 };
+export const viewport: Viewport = { themeColor: "#FAFAF9", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-IN">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body>
-        <AuthProvider>
-          <AuthGate>
-            <PlantProvider>
-              <DataSourceProvider>
-                <StaffUnlockGuard>{children}</StaffUnlockGuard>
-              </DataSourceProvider>
-            </PlantProvider>
-          </AuthGate>
-        </AuthProvider>
-      </body>
+    <html lang="en-IN" className={`${geist.variable} ${geistMono.variable} ${brand.variable}`} suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: DISPLAY_SCRIPT }} /></head>
+      <body><AppShell>{children}</AppShell></body>
     </html>
   );
 }
