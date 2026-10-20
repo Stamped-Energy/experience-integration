@@ -54,3 +54,16 @@ test("every tag has readings, 12 per run, same shape", () => {
     for (const r of rs) assert.ok(Number.isFinite(r.value) && D.runs.find((x) => x.id === r.runId)?.lineId === t.lineId, t.id);
   }
 });
+
+test("saved answers: refs resolve, label and band confidence, at least one stale", () => {
+  const ids = new Set<string>([
+    ...D.proposals, ...D.proofRecords, ...D.lots, ...D.runs, ...D.trials, ...D.valueItems, ...D.corrections, ...D.investigations, ...D.driftSignals,
+  ].map((x) => x.id).concat(D.modelFits.map((m) => m.modelId)));
+  for (const a of D.savedAnswers) {
+    assert.ok(D.askThreads.some((t) => t.id === a.threadId), a.id);
+    assert.ok(a.confidence && !/%\s*confiden/i.test(JSON.stringify(a)), a.id);
+    for (const r of a.refs ?? []) assert.ok(ids.has(r), `${a.id} -> ${r}`);
+  }
+  assert.ok(D.savedAnswers.length >= 6 && D.notes.length >= 6);
+  assert.ok(D.savedAnswers.some((a) => a.stale), "no stale saved answer");
+});
