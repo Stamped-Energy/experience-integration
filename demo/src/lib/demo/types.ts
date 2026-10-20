@@ -149,8 +149,19 @@ export interface AskThread extends Illustrative {
   id: string; title: string; objectRef?: string; updatedAt: string;
   messages: { from: "person" | "stamped"; text?: string; claims?: AskClaim[]; abstain?: string; cardRef?: string }[];
 }
-export interface SavedAnswer extends Illustrative { id: string; threadId: string; title: string; savedBy: string; at: string }
-export interface Note extends Illustrative { id: string; kind: "handover" | "weekly"; title: string; at: string; claims: AskClaim[] }
+export interface SavedAnswer extends Illustrative {
+  id: string; threadId: string; title: string; savedBy: string; at: string;
+  lineId?: string; topic?: "Process" | "Quality";
+  /** Short restatement of the saved answer. */
+  summary?: string;
+  /** Label and band only; no score (spec §7.2: no answer score is documented). */
+  confidence?: { label: EvidenceLabel; band?: string };
+  /** Ids of dataset items the answer rests on (proposals, proof records, lots, runs, model fits, trials). */
+  refs?: string[];
+  /** Set when the data or model behind the answer changed after it was saved. Absent means current. */
+  stale?: { since: string; reason: string };
+}
+export interface Note extends Illustrative { id: string; kind: "handover" | "weekly"; title: string; at: string; claims: AskClaim[]; lineId?: string; topic?: "Process" | "Quality" }
 export interface AuditEvent extends Illustrative {
   id: string; at: string; personId: string; role: RoleId; action: string; objectType: string; objectId: string;
   before?: string; after?: string; reason?: string; channel: "in-app" | "email" | "system";
