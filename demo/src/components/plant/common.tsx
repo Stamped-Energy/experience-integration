@@ -19,7 +19,9 @@ export function PlantTabs({ active }: { active: PlantTab }) {
 export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Demonstration plant", href: "/" }, { label: "Plant", href: "/plant" }, ...rest];
 
 export const tagsOf = (a: Asset) => D.tags.filter((t) => t.assetId === a.id);
-export const readingsOf = (t: TagT) => D.tagReadings.filter((r) => r.tagId === t.id).sort((a, b) => a.at.localeCompare(b.at));
+const runEnd = (id: string) => D.runs.find((r) => r.id === id)?.end ?? "";
+/** Readings in run order, then time within the run. Two original series share timestamps across runs, so run order comes first. */
+export const readingsOf = (t: TagT) => D.tagReadings.filter((r) => r.tagId === t.id).sort((a, b) => runEnd(a.runId).localeCompare(runEnd(b.runId)) || a.at.localeCompare(b.at));
 export const latest = (t: TagT) => readingsOf(t).at(-1);
 export const fmt = (v: number) => (Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(Math.abs(v) >= 10 ? 1 : 2));
 /** A proposal on this asset that still waits for a person. */
