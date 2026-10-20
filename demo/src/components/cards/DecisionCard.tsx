@@ -39,6 +39,8 @@ export function DecisionCard({ p, role, href, variant = "full" }: { p: Proposal;
     : [];
   const stop = running || open ? { effect: p.stopEffect, allowed: can(role, "press-stop", p.lineId), reason: deniedReason("press-stop", "press Stop") } : undefined;
   const big = variant === "operator";
+  const band: [number, number] | undefined = win ? [win.narrowedLow ?? win.low, win.narrowedHigh ?? win.high] : undefined;
+  const adjust = open && band ? { name: win!.name, unit, current: p.current, proposed: p.proposed, band, step: band[1] - band[0] > 50 ? 5 : band[1] - band[0] > 10 ? 1 : 0.1, bandLabel: win!.narrowedLow !== undefined ? "Stamped narrowing" : "Signed band" } : undefined;
   return (
     <article className={`card${open ? " decision" : ""}`} aria-labelledby={`${p.id}-t`}>
       <div className="card-head">
@@ -79,7 +81,7 @@ export function DecisionCard({ p, role, href, variant = "full" }: { p: Proposal;
         {p.decidedBy && !p.declineReason ? <div className="mode-line"><span className="label" style={{ paddingTop: 2 }}>Decided</span><span>{p.decidedBy} · {dayMonth(p.decidedAt!)} {hhmm(p.decidedAt!)}</span></div> : null}
         <StateStrip state={p.state} />
       </div>
-      {actions.length || stop ? <CardActions actions={actions} stop={stop} large={big} /> : null}
+      {actions.length || stop ? <CardActions actions={actions} stop={stop} large={big} adjust={adjust} /> : null}
     </article>
   );
 }
