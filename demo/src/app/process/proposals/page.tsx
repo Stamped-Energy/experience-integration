@@ -27,14 +27,14 @@ export default async function Proposals({ searchParams }: { searchParams: Promis
         actions={<AskButton context="Process proposals" label="Ask about proposals" />} />
       <ProcessTabs active="proposals" />
       <div className="grid">
-        <div className="span-8 xl-span-6 stack">
+        <div className="span-8 xl-span-7 stack">
           <div style={{ display: "flex", gap: 16, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
             <Tabs label="Proposal state" items={(["waiting", "running", "closed"] as F[]).map((x) => ({ href: q(x, sp.line), label: x === "waiting" ? "Waiting" : x === "running" ? "Running and measuring" : "Closed", count: D.proposals.filter((p) => GROUP[x].includes(p.state) && inLine(p.lineId)).length, active: x === f }))} />
             <div className="chips">{[undefined, ...D.lines.map((l) => l.id)].map((l) => <Link key={l ?? "all"} className="chip" aria-current={sp.line === l ? "true" : undefined} href={q(f, l)} scroll={false}>{l ? D.byId.line(l)!.short : "All lines"}</Link>)}</div>
           </div>
-          {list.length ? list.map((p) => <DecisionCard key={p.id} p={p} role={role} href={`/process/proposals/${p.id}`} />) : <EmptyState title="Nothing in this view" body="When the optimiser finds a better setting inside the signed window, the proposal appears here." />}
+          {list.length ? <div className="stack">{list.map((p) => <DecisionCard key={p.id} p={p} role={role} href={`/process/proposals/${p.id}`} />)}</div> : <EmptyState title="Nothing in this view" body="When the optimiser finds a better setting inside the signed window, the proposal appears here." />}
         </div>
-        <div className="span-4 xl-span-6 stack ctx">
+        <div className="span-4 xl-span-5 stack ctx">
           <Section title="All proposals, 14 days" meta={`${D.proposals.length} on record`} flush>
             <DataTable caption="All proposals" rowKey={(p) => p.id} rows={[...list, ...others]} columns={[
               { key: "i", label: "Id", mono: true, render: (p) => <Link className="link" href={`/process/proposals/${p.id}`}>{p.id}</Link> },
@@ -45,7 +45,7 @@ export default async function Proposals({ searchParams }: { searchParams: Promis
               { key: "t", label: "Raised", mono: true, render: (p) => `${dayMonth(p.createdAt)} ${hhmm(p.createdAt)}` },
             ]} />
           </Section>
-          <div className="xl-cols-2">
+          <div className="stack">
             <Section title="Running and measuring" meta="Written values and what Stop does" flush>
               <div className="rows">{D.proposals.filter((p) => GROUP.running.includes(p.state) && inLine(p.lineId)).map((p) => (
                 <Link key={p.id} className="row" href={`/process/proposals/${p.id}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto", padding: "8px 16px" }}>

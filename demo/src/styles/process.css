@@ -6,7 +6,7 @@
 @media (min-width: 1800px) {
   .xl-only { display: flex; }
   .xl-span-3 { grid-column: span 3 !important; } .xl-span-4 { grid-column: span 4 !important; } .xl-span-5 { grid-column: span 5 !important; }
-  .xl-span-6 { grid-column: span 6 !important; } .xl-span-7 { grid-column: span 7 !important; } .xl-span-9 { grid-column: span 9 !important; }
+  .xl-span-6 { grid-column: span 6 !important; } .xl-span-8 { grid-column: span 8 !important; } .xl-span-7 { grid-column: span 7 !important; } .xl-span-9 { grid-column: span 9 !important; }
   .xl-cols-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-5); align-items: start; }
 }
 
@@ -100,3 +100,4 @@
 .ctx .card-foot { flex-wrap: wrap; }
 .ev-body > * { flex-shrink: 0; }
 .ev-rows th { position: static; }
+@media (min-width: 1800px) { .xl-hide { display: none !important; } .xl-only.stack { display: flex; } }

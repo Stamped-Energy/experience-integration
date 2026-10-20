@@ -4,6 +4,7 @@ import { dayMonth, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
+import { SwitchbackSchedule } from "@/components/process/SwitchbackSchedule";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { ProcessTabs, crumbs } from "@/components/process/common";
 
@@ -25,7 +26,7 @@ export default async function Measurement({ searchParams }: { searchParams: Prom
         actions={<AskButton context={plan.id} label="Ask about this plan" />} />
       <ProcessTabs active="measurement" />
       <div className="grid">
-        <div className="span-4 xl-span-3 stack ctx">
+        <div className="span-4 xl-span-4 stack ctx">
           <Section title="Plans" meta={`${D.measurementPlans.length} locked`} flush>
             <div className="rows">{D.measurementPlans.map((m) => { const t = D.byId.trial(m.trialId)!; return (
               <Link key={m.id} href={`/process/measurement?plan=${m.id}`} className="row" aria-current={m.id === plan.id ? "true" : undefined} style={{ gridTemplateColumns: "minmax(0,1fr) auto", background: m.id === plan.id ? "var(--accent-50)" : undefined }} scroll={false}>
@@ -37,8 +38,22 @@ export default async function Measurement({ searchParams }: { searchParams: Prom
           <Section title="How the holding check works">
             <p style={{ fontSize: 13, margin: 0, color: "var(--text-secondary)" }}>After a verdict, the same measures are checked again on later runs. The result is one of three words: <strong>holding</strong>, <strong>faded</strong> or <strong>inconclusive</strong>. A faded result reopens the change for review; it never undoes a value by itself.</p>
           </Section>
+          <div className="xl-only stack">
+          <Section title="Holding check" meta={checks[0] ? `Next ${rel(checks[0].nextAt)}` : undefined} flush>
+            <ul className="tl">{checks.length ? checks.map((h, i) => (
+              <li key={i}><span className="t">{dayMonth(h.checkedAt)}</span><span className="k" /><span>{h.result === "holding" ? "Effect still there" : h.result === "faded" ? "Effect gone; change reopened" : "Not enough runs to tell"}</span><Tag tone={htone(h.result)}>{h.result}</Tag></li>
+            )) : <li><span className="t">None</span><span /><span className="muted">First check after the verdict</span><span /></li>}</ul>
+          </Section>
+          <Section title="All holding checks" flush>
+            <DataTable caption="All holding checks" rowKey={(h) => h.planId + h.checkedAt} rows={D.holdingChecks} columns={[
+              { key: "p", label: "Plan", mono: true, render: (h) => h.planId },
+              { key: "d", label: "Checked", render: (h) => dayMonth(h.checkedAt) },
+              { key: "r", label: "Result", render: (h) => <Tag tone={htone(h.result)}>{h.result}</Tag> },
+            ]} />
+          </Section>
+          </div>
         </div>
-        <div className="span-8 xl-span-6 stack">
+        <div className="span-8 xl-span-8 stack">
           <Section title={trial.change} meta={<span className="mono">{plan.id} · version {plan.version} · hash {plan.hash}</span>} actions={<Tag>Locked {dayMonth(plan.lockedAt)}</Tag>} flush>
             <div className="stat-row">
               <div className="stat"><div className="label">Line</div><div className="v" style={{ fontSize: 16 }}>{line.short}</div><div className="s">{line.product}</div></div>
@@ -62,8 +77,9 @@ export default async function Measurement({ searchParams }: { searchParams: Prom
               <dt>Proof</dt><dd>{proof ? <Link className="link" href={`/process/measurement?plan=${plan.id}&evidence=${proof.id}`} scroll={false}>{proof.id}, open the four questions</Link> : "None yet"}</dd>
             </dl>
           </Section>
+          {trial.switches.length ? <Section title="Switches so far" meta={`${trial.switches.length} of ${plan.minBatches} ${unit}`} flush><SwitchbackSchedule trial={trial} /></Section> : null}
         </div>
-        <div className="span-12 xl-span-3 stack">
+        <div className="span-12 stack xl-hide">
           <Section title="Holding check" meta={checks[0] ? `Next ${rel(checks[0].nextAt)}` : undefined} flush>
             <ul className="tl">{checks.length ? checks.map((h, i) => (
               <li key={i}><span className="t">{dayMonth(h.checkedAt)}</span><span className="k" /><span>{h.result === "holding" ? "Effect still there" : h.result === "faded" ? "Effect gone; change reopened" : "Not enough runs to tell"}</span><Tag tone={htone(h.result)}>{h.result}</Tag></li>
