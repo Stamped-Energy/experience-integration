@@ -6,7 +6,7 @@ import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
-import { AskTabs, EvidenceChip, EvidenceItemSheet, citations, crumbs, evHref, proofFor, weakest, FilterBar, matches, lineShort } from "@/components/ask/common";
+import { AskTabs, EvidenceChip, EvidenceItemSheet, citations, crumbs, evHref, proofFor, weakest, FilterBar, matches, lineShort, noPrice } from "@/components/ask/common";
 
 export const metadata = { title: "Handover and weekly note" };
 export default async function Notes({ searchParams }: { searchParams: Promise<{ id?: string; line?: string; topic?: string; evidence?: string; ev?: string }> }) {
@@ -36,7 +36,7 @@ export default async function Notes({ searchParams }: { searchParams: Promise<{ 
           <Section title={n.title} meta={`${n.kind === "handover" ? "Shift handover" : "Weekly note"} · ${lineShort(n.lineId)}${n.topic ? ` · ${n.topic}` : ""} · drafted ${dayMonth(n.at)} ${hhmm(n.at)}`} actions={<EvidenceTag label={weakest(n.claims)} />}>
             <div className="stack">
               <div className="note-sec"><h3>What changed</h3>
-                <ol className="claims">{n.claims.map((c) => <li key={c.text}>{c.text}<span className="claim-ev">{c.evidenceIds.map((e) => <EvidenceChip key={e} id={e} label={c.label} base={base} />)}</span></li>)}</ol></div>
+                <ol className="claims">{n.claims.map((c, i) => <li key={i}>{noPrice(c.text)}<span className="claim-ev">{c.evidenceIds.map((e) => <EvidenceChip key={e} id={e} label={c.label} base={base} />)}</span></li>)}</ol></div>
               <div className="note-sec"><h3>What waits</h3>
                 <div className="rows">{waits.map((w) => <Link key={w.id} className="row" href={`/inbox/${w.id}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span className="row-title">{w.title}</span><Tag>{w.kind}</Tag></Link>)}</div></div>
               <div className="note-sec"><h3>Decisions taken</h3>
@@ -51,7 +51,7 @@ export default async function Notes({ searchParams }: { searchParams: Promise<{ 
         </div>
         <div className="span-3 stack ctx">
           <Section title="Cited items" meta={`${cites.length} evidence ids`} flush>
-            <div className="rows">{cites.map((c) => <Link key={c.id} className="row" href={evHref(base, c.id)} scroll={false} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title mono" style={{ display: "block" }}>{c.id}</span><span className="row-sub">{c.texts[0]}</span></span><span style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-end" }}><EvidenceTag label={c.label} />{proofFor(c.id) ? <span className="mono muted" style={{ fontSize: 11 }}>{proofFor(c.id)!.id}</span> : null}</span></Link>)}</div>
+            <div className="rows">{cites.map((c) => <Link key={c.id} className="row" href={evHref(base, c.id)} scroll={false} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title mono" style={{ display: "block" }}>{c.id}</span><span className="row-sub">{noPrice(c.texts[0])}</span></span><span style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-end" }}><EvidenceTag label={c.label} />{proofFor(c.id) ? <span className="mono muted" style={{ fontSize: 11 }}>{proofFor(c.id)!.id}</span> : null}</span></Link>)}</div>
           </Section>
           <Section title="Shift events used" flush>
             <ul className="tl" style={{ padding: "8px 16px" }}>{D.shiftEvents.slice(-7).map((e) => <li key={e.at + e.text}><span className="t">{hhmm(e.at)}</span><span className={`k ${e.kind === "stop" ? "x" : "s"}`} /><span>{e.text}</span><span /></li>)}</ul>

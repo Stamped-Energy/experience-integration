@@ -61,7 +61,7 @@ export default async function Saved({ searchParams }: { searchParams: Promise<SP
             <DataTable caption="Evidence" rowKey={(r) => r.sid + r.id} rows={rows.flatMap((s) => citations(allClaims(D.askThreads.find((x) => x.id === s.threadId)!)).map((c) => ({ ...c, s: s.title, sid: s.id })))} columns={[
               { key: "i", label: "Id", mono: true, render: (r) => <Link className="link" href={evHref(hrefFor(r.sid), r.id)} scroll={false}>{r.id}</Link> },
               { key: "l", label: "Label", render: (r) => <EvidenceTag label={r.label} /> },
-              { key: "c", label: "Claim", render: (r) => r.texts[0] },
+              { key: "c", label: "Claim", render: (r) => noPrice(r.texts[0]) },
               { key: "s", label: "Saved answer", render: (r) => r.s },
               { key: "p", label: "Proof", mono: true, render: (r) => proofFor(r.id)?.id ?? "source" },
             ]} />
