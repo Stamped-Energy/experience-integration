@@ -1,11 +1,12 @@
 /** Server parts of the shell. AppShell wraps every page; Workspace adds the 44px breadcrumb bar for a page. */
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { askThreads, inboxItems, leases, roles, suggestedQuestions } from "@/lib/demo/data";
+import { inboxItems, leases, roles, suggestedQuestions } from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
 import { AskButton, AskPanelFrame, AskProvider, BottomBar, Rail, RoleSwitcher } from "./ShellClient";
 import { Icon } from "./icons";
-import { EvidenceTag, Tag } from "@/components/ui/primitives";
+import { Tag } from "@/components/ui/primitives";
+import { AskPanelContents } from "@/components/ask/Panel";
 
 export function DemoBand() {
   return (
@@ -23,7 +24,6 @@ export function DemoBand() {
 export async function AppShell({ children }: { children: ReactNode }) {
   const role = await currentRole();
   const waiting = inboxItems.filter((i) => i.bucket === "waiting").length;
-  const t = askThreads[0];
   return (
     <AskProvider>
       <a className="skip" href="#main">Skip to content</a>
@@ -36,16 +36,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
       </div>
       <BottomBar />
       <AskPanelFrame suggestions={suggestedQuestions}>
-        <div className="ask-msg-person">{t.messages[0].text}</div>
-        <div className="ask-claims">
-          {t.messages[1].claims!.map((c) => (
-            <div key={c.text} className="ask-claim">
-              <span>{c.text}</span>
-              <span className="meta"><EvidenceTag label={c.label} />{c.evidenceIds.map((e) => <span key={e} className="mono muted">{e}</span>)}</span>
-            </div>
-          ))}
-        </div>
-        <Link className="link" href="/inbox/in-2" style={{ fontSize: 13 }}>Open the card this answer points to</Link>
+        <AskPanelContents />
       </AskPanelFrame>
     </AskProvider>
   );

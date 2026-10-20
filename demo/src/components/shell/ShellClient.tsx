@@ -134,8 +134,8 @@ export function AskPanelFrame({ children, suggestions }: { children: ReactNode; 
             <div className="ask-msg-person">{a}</div>
             <div className="ask-claims">
               <div className="ask-claim">
-                <span>In this demonstration, answers come from the saved threads above. In a plant, each claim carries its evidence id and label.</span>
-                <span className="meta"><span className="tag">Unknown</span><span className="muted">Abstained: no demo source for this question</span></span>
+                <span>I can&apos;t answer that: the data this question needs is not available in the demonstration plant.</span>
+                <span className="meta"><span className="tag tag-warning">Abstained</span><a className="link" href={`/ask?q=${encodeURIComponent(a)}`}>Open in Ask</a></span>
               </div>
             </div>
           </div>
