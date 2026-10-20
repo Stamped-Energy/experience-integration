@@ -48,7 +48,7 @@ export default async function Links() {
         </div>
         <div className="span-5 stack ctx">
           <Section title="All links" meta={`${D.lotLinks.length} links · lowest first`} flush>
-            <DataTable caption="Links" rowKey={(l) => l.id} rows={all.slice(0, 26)} columns={[
+            <DataTable caption="Links" rowKey={(l) => l.id} rows={all.slice(0, 27)} columns={[
               { key: "l", label: "Lot", mono: true, render: (l) => <Link className="link" href={`/quality/lots/${l.lotId}`}>{lotNo(l.lotId)}</Link> },
               { key: "r", label: "Run", render: (l) => runLabel(D.runs.find((r) => r.id === l.runId)!) },
               { key: "c", label: "Confidence", align: "right", mono: true, render: (l) => l.link_confidence.toFixed(2) },

@@ -83,6 +83,16 @@ export default async function LotDetail({ params, searchParams }: { params: Prom
               { key: "s", label: "Link", render: (l) => <>{l.link_confidence.toFixed(2)} <Tag>{l.status}</Tag></> },
             ]} />
           </Section>
+          <Section title={`Other ${gradeOf(lot).name} lots`} meta="Newest first" flush>
+            <DataTable caption="Same grade" rowKey={(l) => l.id} rows={same.filter((l) => l.id !== lot.id).reverse().slice(0, 6)} columns={[
+              { key: "l", label: "Lot", mono: true, render: (l) => <Link className="link" href={`/quality/lots/${l.id}`}>{lotNo(l.id)}</Link> },
+              { key: "r", label: "Risk", render: (l) => <RiskTag risk={l.riskWord} /> },
+              { key: "p", label: "Predicted", align: "right", render: (l) => `${propOf(l).predicted.point} ${propOf(l).unit}` },
+              { key: "a", label: "Anchor", render: (l) => (propOf(l).anchored ? <Tag tone="success">Lab result</Tag> : <Tag tone="warning">Unanchored</Tag>) },
+              { key: "j", label: "Join", render: (l) => <JoinTag label={weakestJoin(l)} /> },
+              { key: "s", label: "Status", render: (l) => l.status },
+            ]} />
+          </Section>
         </div>
         <div className="span-4 stack ctx">
           <Section title="Facts">
@@ -106,6 +116,13 @@ export default async function LotDetail({ params, searchParams }: { params: Prom
               : <CardActions actions={[{ id: "c", label: "Send correction to process", allowed: can(role, "send-correction"), reason: deniedReason("send-correction", "send corrections"), done: "Correction sent as a recommendation. Illustrative." }]} />}
           </Section>
           {inv.length ? <Section title="Investigations" flush><div className="rows">{inv.map((i) => <Link key={i.id} href={`/quality/investigations/${i.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span className="row-title">{i.title}</span><Tag tone={i.status === "open" ? "info" : "neutral"}>{i.status}</Tag></Link>)}</div></Section> : null}
+          <Section title={`Lab results, ${gradeOf(lot).name}`} meta="From the lab system" flush>
+            <DataTable caption="Lab results" rowKey={(r) => r.id} rows={D.labResults.filter((r) => D.byId.lot(r.lotId)?.gradeId === lot.gradeId).slice(-6).reverse()} columns={[
+              { key: "l", label: "Lot", mono: true, render: (r) => <Link className="link" href={`/quality/lots/${r.lotId}`}>{lotNo(r.lotId)}</Link> },
+              { key: "v", label: prop.name, align: "right", render: (r) => `${r.value} ${prop.unit}` },
+              { key: "t", label: "At", render: (r) => `${dayMonth(r.at)} ${hhmm(r.at)}` },
+            ]} />
+          </Section>
         </div>
       </div>
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref={base} /> : null}

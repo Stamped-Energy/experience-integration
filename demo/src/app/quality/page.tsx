@@ -19,7 +19,7 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
   const sp = await searchParams;
   const role = await currentRole();
   const sorted = D.lots.slice().sort((a, b) => RANK[a.riskWord] - RANK[b.riskWord] || b.startedAt.localeCompare(a.startedAt));
-  const rows = sp.all ? sorted : sorted.filter((l) => l.riskWord !== "On track" || l.status !== "complete").slice(0, 16);
+  const rows = sp.all ? sorted : sorted.filter((l) => l.riskWord !== "On track" || l.status !== "complete").slice(0, 20);
   const sel = D.byId.lot(sp.lot ?? "") ?? sorted[0];
   const prop = propOf(sel), spec = specOf(sel), lab = labOf(sel), links = linksOf(sel);
   const proof = proofForLot(sel);
@@ -69,6 +69,20 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
               { id: "corr", label: "Send correction to process", primary: sel.riskWord === "At risk", allowed: can(role, "send-correction"), reason: deniedReason("send-correction", "send corrections"), done: "Correction sent to Process as a recommendation. Illustrative: nothing was written." },
               { id: "open", label: "Investigate", allowed: true, done: "Opened an investigation draft." },
             ]} />
+          </Section>
+          <Section title="By grade" flush>
+            <DataTable caption="Grades" rowKey={(g) => g.id} rows={D.grades} columns={[
+              { key: "g", label: "Grade", render: (g) => g.name },
+              { key: "n", label: "Lots", align: "right", render: (g) => D.lots.filter((l) => l.gradeId === g.id).length },
+              { key: "r", label: "At risk", align: "right", render: (g) => D.lots.filter((l) => l.gradeId === g.id && l.riskWord === "At risk").length },
+              { key: "s", label: "Spec", align: "right", render: (g) => { const s = D.specs.find((x) => x.gradeId === g.id)!; return `${s.lsl} to ${s.usl} ${s.unit}`; } },
+            ]} />
+          </Section>
+          <Section title="Drift and corrections" flush>
+            <div className="rows">
+              {D.driftSignals.map((d) => <Link key={d.id} className="row" href="/quality/drift" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title" style={{ display: "block" }}>{d.property} drifting {d.direction}, {D.byId.line(d.lineId)!.short}</span><span className="row-sub">{d.magnitude}</span></span><Tag tone="warning">Drift</Tag></Link>)}
+              {D.corrections.map((c) => <Link key={c.id} className="row" href="/quality/corrections" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title" style={{ display: "block" }}>{c.direction} {D.byId.window(c.toLineId, c.param)?.name.toLowerCase() ?? c.param}</span><span className="row-sub">Lot {lotNo(c.lotId)} · {c.reason}</span></span><Tag tone={c.status === "accepted" ? "success" : c.status === "sent" ? "accent" : "neutral"}>{c.status}</Tag></Link>)}
+            </div>
           </Section>
           <Section title="Since this morning" flush>
             <ul className="tl">{D.shiftEvents.filter((e) => e.kind === "lot" || e.kind === "data").map((e) => <li key={e.at}><span className="t">{dayMonth(e.at)}</span><span className={`k ${e.kind === "lot" ? "x" : "s"}`} /><span>{e.text}</span><span /></li>)}</ul>
