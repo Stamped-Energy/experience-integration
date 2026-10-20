@@ -47,7 +47,7 @@ export function HomeAsk({ steps }: { steps: Record<string, string> }) {
   const [mood, setMood] = useState<MascotMode>("ambient");
   return (
     <div className="home-ask">
-      <div className="ask-mascot"><StampedMascot mode={mood} size={96} arrive label="Stamped assistant" /></div>
+      <div className="ask-mascot"><StampedMascot mode={mood} size={160} arrive label="Stamped assistant" /></div>
       <Composer big steps={steps} foot="Ask the Stamped agent" onMood={setMood} />
     </div>
   );
