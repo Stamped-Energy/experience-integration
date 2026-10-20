@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { nameOf } from "@/lib/names";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import { dayMonth, hhmm } from "@/lib/format";
@@ -38,11 +39,11 @@ export default async function Notes({ searchParams }: { searchParams: Promise<{ 
               <div className="note-sec"><h3>What changed</h3>
                 <ol className="claims">{n.claims.map((c, i) => <li key={i}>{c.text}<span className="claim-ev">{c.evidenceIds.map((e) => <EvidenceChip key={e} id={e} label={c.label} base={base} />)}</span></li>)}</ol></div>
               <div className="note-sec"><h3>What waits</h3>
-                <div className="rows">{waits.map((w) => <Link key={w.id} className="row" href={`/inbox/${w.id}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span className="row-title">{w.title}</span><Tag>{w.kind}</Tag></Link>)}</div></div>
+                <div className="rows">{waits.map((w) => <Link key={w.id} className="row" href={`/inbox/${w.id}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span className="row-title">{w.title}</span><Tag>{w.kind.replace("-", " ")}</Tag></Link>)}</div></div>
               <div className="note-sec"><h3>Decisions taken</h3>
                 <DataTable caption="Decisions" rowKey={(a) => a.id} rows={decided} columns={[
                   { key: "a", label: "Action", render: (a) => a.action },
-                  { key: "o", label: "On", mono: true, render: (a) => a.objectId },
+                  { key: "o", label: "On", render: (a) => nameOf(a.objectId) },
                   { key: "r", label: "Role", render: (a) => a.role },
                   { key: "t", label: "At", mono: true, render: (a) => `${dayMonth(a.at)} ${hhmm(a.at)}` },
                 ]} /></div>
@@ -51,7 +52,7 @@ export default async function Notes({ searchParams }: { searchParams: Promise<{ 
         </div>
         <div className="span-3 stack ctx">
           <Section title="Cited items" meta={`${cites.length} evidence ids`} flush>
-            <div className="rows">{cites.map((c) => <Link key={c.id} className="row" href={evHref(base, c.id)} scroll={false} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title mono" style={{ display: "block" }}>{c.id}</span><span className="row-sub">{c.texts[0]}</span></span><span style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-end" }}><EvidenceTag label={c.label} />{proofFor(c.id) ? <span className="mono muted" style={{ fontSize: 11 }}>{proofFor(c.id)!.id}</span> : null}</span></Link>)}</div>
+            <div className="rows">{cites.map((c) => <Link key={c.id} className="row" href={evHref(base, c.id)} scroll={false} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title mono" style={{ display: "block" }}>{nameOf(c.id)}</span><span className="row-sub">{c.texts[0]}</span></span><span style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-end" }}><EvidenceTag label={c.label} />{proofFor(c.id) ? <span className="muted" style={{ fontSize: 11 }}>{proofFor(c.id)!.title}</span> : null}</span></Link>)}</div>
           </Section>
           <Section title="Shift events used" flush>
             <ul className="tl" style={{ padding: "8px 16px" }}>{D.shiftEvents.slice(-7).map((e) => <li key={e.at + e.text}><span className="t">{hhmm(e.at)}</span><span className={`k ${e.kind === "stop" ? "x" : "s"}`} /><span>{e.text}</span><span /></li>)}</ul>
