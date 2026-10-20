@@ -6,7 +6,7 @@ import { dayMonth, hhmm } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { RunChart } from "@/components/ui/charts";
-import { LineModeTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, LineModeTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { InboxCard } from "@/components/inbox/InboxCard";
 import { lineSeries, proofHref } from "@/components/home/blocks";
 
@@ -25,7 +25,19 @@ export default async function CardDetail({ params }: { params: Promise<{ id: str
     <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Inbox", href: "/inbox" }, { label: line.short, href: `/process?line=${line.id}` }, { label: p ? D.byId.asset(p.assetId)!.name : item.ref }]} askContext={item.ref}>
       <PageHeader eyebrow={`Inbox · ${item.ref}`} title={item.title} actions={<><Link className="btn btn-sm btn-quiet" href="/inbox">Back to Inbox</Link><AskButton context={item.ref} label="Ask about this card" /></>} />
       <div className="grid">
-        <div className="span-8 stack"><InboxCard item={item} role={role} link={false} /></div>
+        <div className="span-8 stack">
+          <InboxCard item={item} role={role} link={false} />
+          <Section title={`Signed limits on ${line.short}`} meta="Stamped works inside limits set beforehand. It may narrow, never widen." flush>
+            <DataTable caption="Signed limits" rowKey={(w) => w.id} rows={D.signedWindows.filter((w) => w.lineId === line.id)} columns={[
+              { key: "n", label: "Setting", render: (w) => <span style={{ fontWeight: 500 }}>{w.name}</span> },
+              { key: "s", label: "Signed", align: "right", render: (w) => `${w.low} to ${w.high} ${w.unit}` },
+              { key: "r", label: "Stamped narrowing", align: "right", render: (w) => (w.narrowedLow !== undefined ? `${w.narrowedLow} to ${w.narrowedHigh} ${w.unit}` : "None") },
+              { key: "b", label: "Signed by", render: (w) => `${w.signedBy} · ${dayMonth(w.signedAt)}` },
+              { key: "v", label: "Version", mono: true, render: (w) => `v${w.version} · ${w.manifestRef}` },
+              { key: "e", label: "Expires", render: (w) => dayMonth(w.expiresAt) },
+            ]} />
+          </Section>
+        </div>
         <div className="span-4 stack">
           <Section title={line.name} actions={<LineModeTag mode={line.mode} />}>
             <div className="label">{s.name}, last 24 runs</div>

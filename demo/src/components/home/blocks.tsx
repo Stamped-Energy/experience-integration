@@ -69,11 +69,11 @@ export function LotsAtRisk({ limit = 4 }: { limit?: number }) {
         const prop = D.lotProperties.find((p) => p.lotId === l.id)!;
         const spec = D.specs.find((s) => s.gradeId === l.gradeId)!;
         return (
-          <Link className="row" key={l.id} href={`/quality?lot=${l.id}`} style={{ gridTemplateColumns: "88px minmax(0,1fr) auto" }}>
+          <Link className="row" key={l.id} href={`/quality?lot=${l.id}`} style={{ gridTemplateColumns: "64px minmax(0,1fr) auto", padding: "6px var(--space-4)" }}>
             <span className="mono">{l.id.replace("lot-", "").toUpperCase()}</span>
             <span style={{ minWidth: 0 }}>
               <span className="row-title" style={{ display: "block" }}>{prop.name} {prop.predicted.point} {prop.unit}</span>
-              <span className="row-sub">Band {prop.predicted.low} to {prop.predicted.high}, spec {spec.lsl} to {spec.usl} · {prop.anchored ? "anchored" : "unanchored"}</span>
+              <span className="row-sub">{prop.predicted.low} to {prop.predicted.high} · spec {spec.lsl} to {spec.usl}{prop.anchored ? "" : " · unanchored"}</span>
             </span>
             <Tag tone="warning">At risk</Tag>
           </Link>

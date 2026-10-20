@@ -3,7 +3,7 @@ export interface LimitsBandProps {
   name: string; unit: string; signed: [number, number]; narrowed?: [number, number];
   current: number; proposed?: number; signedBy: string; signedAt: string; signerRole?: string; large?: boolean;
 }
-export function LimitsBand({ name, unit, signed, narrowed, current, proposed, signedBy, signedAt, large }: LimitsBandProps) {
+export function LimitsBand({ name, unit, signed, narrowed, current, proposed, signedBy, signedAt, large, legend = true }: LimitsBandProps & { legend?: boolean }) {
   const span = signed[1] - signed[0];
   const L = signed[0] - span * 0.08, H = signed[1] + span * 0.08;
   const p = (v: number) => `${((v - L) / (H - L)) * 100}%`;
@@ -25,12 +25,12 @@ export function LimitsBand({ name, unit, signed, narrowed, current, proposed, si
       <div className="limits-ticks" style={{ paddingLeft: p(signed[0]), paddingRight: `calc(100% - ${p(signed[1])})` }}>
         <span>{signed[0]}</span>{narrowed ? <span>{narrowed[0]} to {narrowed[1]} narrowed</span> : null}<span>{signed[1]}</span>
       </div>
-      <div className="limits-legend">
+      {legend ? <div className="limits-legend">
         <span><i className="k-signed" />Signed by {signedBy} · {signedAt}</span>
         {narrowed ? <span><i className="k-narrow" />Stamped narrowing</span> : null}
         <span><i className="k-current" />Now</span>
         {proposed !== undefined ? <span><i className="k-prop" />Proposed</span> : null}
-      </div>
+      </div> : <div className="muted" style={{ fontSize: 12 }}>Signed by {signedBy} · {signedAt}{narrowed ? " · hatched: Stamped narrowing" : ""}</div>}
     </div>
   );
 }

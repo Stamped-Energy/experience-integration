@@ -72,11 +72,11 @@ function PlantView({ role }: { role: RoleId }) {
               ))}
             </div>
           </Section>
-          <Section title="Proof updates" meta="Evidence on demand in Process and Quality" flush><ProofUpdates /></Section>
         </div>
         <div className="span-4 stack">
           <Section title="Stamped did this shift" meta="Shift 1, 06:00 to 14:00" flush><ShiftTimeline limit={7} /></Section>
           <Section title="Lots at risk" actions={<Link className="link" href="/quality">Quality</Link>} flush><LotsAtRisk /></Section>
+          <Section title="Proof updates" meta="Evidence on demand" flush><ProofUpdates /></Section>
         </div>
       </div>
     </div>
@@ -152,7 +152,7 @@ function LineView({ role, lineId }: { role: RoleId; lineId: string }) {
                 return (
                   <div key={s.param} style={{ padding: "var(--space-4)", borderLeft: i ? "1px solid var(--border)" : undefined }}>
                     <LimitsBand name={s.name} unit={s.unit} signed={[w.low, w.high]} narrowed={w.narrowedLow !== undefined ? [w.narrowedLow, w.narrowedHigh!] : undefined}
-                      current={s.value} signedBy={w.signedBy} signedAt={dayMonth(w.signedAt)} large />
+                      current={s.value} signedBy={w.signedBy} signedAt={dayMonth(w.signedAt)} large legend={false} />
                     <div style={{ marginTop: 8, display: "flex", gap: 8, alignItems: "center" }}><ModeTag mode={s.mode} /><span className="muted" style={{ fontSize: 12 }}>written {rel(s.writtenAt)}</span></div>
                   </div>
                 );
@@ -161,15 +161,19 @@ function LineView({ role, lineId }: { role: RoleId; lineId: string }) {
           </Section>
         </div>
         <div className="span-4 stack">
-          <Section title={trial ? "Trial running" : "Stop"} meta={trial ? trial.id : undefined}>
-            <div className="stack-sm" style={{ fontSize: 14 }}>
+          <section className="section">
+            <div className="section-head"><h2>{trial ? "Trial running" : "Stop"}</h2>{trial ? <span className="section-meta mono">{trial.id}</span> : null}</div>
+            <div className="section-body stack-sm" style={{ fontSize: 14 }}>
               {trial ? <><div style={{ fontWeight: 500 }}>{trial.change}</div><div className="secondary">{trial.switches.filter((s) => s.done).length} of 16 batches done · restore target {Object.values(trial.restoreTarget)[0]} °C</div></> : null}
               <div className="secondary">{trial ? "Stop restores the checked prior value from the next batch. If restore fails the line goes recommend-only." : "Stop keeps the current values and writes nothing new until a person decides."}</div>
             </div>
-          </Section>
-          <div style={{ marginTop: -24 }}>
             <CardActions actions={[]} large stop={{ effect: trial ? "Prior value 84 °C restores from the next batch." : "Values kept; nothing new is written.", allowed: can(role, "press-stop", lineId), reason: deniedReason("press-stop", "press Stop") }} />
-          </div>
+          </section>
+          <Section title="This shift" meta={line.short} flush>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))" }}>
+              {line.kpis.map((k, i) => <div key={k.label} className="kpi" style={{ borderLeft: i ? undefined : 0 }}><span className="label">{k.label}</span><div className="kpi-value" style={{ fontSize: 20 }}>{k.value}{k.unit ? <span className="unit">{k.unit}</span> : null}</div></div>)}
+            </div>
+          </Section>
           <Section title="Recent writes" meta={line.short} flush>
             <div className="rows">
               {(lineId === "line-a" ? writes : []).map((w) => (

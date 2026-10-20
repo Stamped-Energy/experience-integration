@@ -40,6 +40,14 @@ export default async function Inbox({ searchParams }: { searchParams: Promise<{ 
               </div>
             </Section>
           ) : null}
+          <Section title="How decisions work" meta="The same for every card">
+            <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 6, fontSize: 13 }} className="secondary">
+              <li>Stamped works inside limits set beforehand. Every number sits inside a signed band.</li>
+              <li>Accept, adjust in band, or decline with a reason. Declines teach the agent.</li>
+              <li>Stop always says what it will do before you press it.</li>
+              <li>Releasing a hold happens in your quality system, not here.</li>
+            </ul>
+          </Section>
         </div>
         <div className="span-4 stack">
           <Section title="By owner" meta="Routing from Settings" flush>
@@ -49,14 +57,6 @@ export default async function Inbox({ searchParams }: { searchParams: Promise<{ 
                 return <div key={r.id} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span>{r.name}{r.id === role ? " (you)" : ""}</span><span className="mono">{n}</span></div>;
               })}
             </div>
-          </Section>
-          <Section title="How decisions work">
-            <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 6, fontSize: 13 }} className="secondary">
-              <li>Stamped works inside limits set beforehand. Every number sits inside a signed band.</li>
-              <li>Accept, adjust in band, or decline with a reason. Declines teach the agent.</li>
-              <li>Stop always says what it will do before you press it.</li>
-              <li>Releasing a hold happens in your quality system, not here.</li>
-            </ul>
           </Section>
           <Section title="Decided recently" flush>
             <div className="rows">{D.inboxItems.filter((i) => i.bucket === "decided").slice(0, 4).map((i) => <Link key={i.id} href={`/inbox/${i.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span className="row-title" style={{ fontWeight: 400 }}>{i.title}</span><Tag>{D.byId.proposal(i.ref)?.state ?? "Done"}</Tag></Link>)}</div>

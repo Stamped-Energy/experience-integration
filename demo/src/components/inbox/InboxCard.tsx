@@ -9,6 +9,8 @@ import { EvidenceIds, ModeTag, Tag } from "@/components/ui/primitives";
 import { DecisionCard, deniedReason } from "@/components/cards/DecisionCard";
 import { CardActions } from "@/components/cards/CardActions";
 
+const PARAM: Record<string, string> = { "tool-temp": "tool temperature", "hold-temp": "hold temperature", "hold-pressure": "hold pressure" };
+
 export function InboxCard({ item, role, link = true }: { item: InboxItem; role: RoleId; link?: boolean }) {
   const href = link ? `/inbox/${item.id}` : undefined;
   if (item.kind === "proposal") return <DecisionCard p={D.byId.proposal(item.ref)!} role={role} href={href} />;
@@ -32,7 +34,7 @@ export function InboxCard({ item, role, link = true }: { item: InboxItem; role: 
             <div className="card-block"><span className="label">Measurement plan</span><span className="secondary">{plan.id} v{plan.version} · hash <span className="mono">{plan.hash}</span> · locked {dayMonth(plan.lockedAt)} · at least {plan.minBatches} runs</span></div>
             <div className="card-block"><span className="label">Confidence</span><Confidence kind="label" label="Unknown" note="No result yet. The verdict comes from the locked plan after the trial." method="Switchback trial, verdict per locked measurement plan" /></div>
           </div>
-          <div className="mode-line"><span className="label" style={{ paddingTop: 2 }}>If stopped</span><span>Stop restores the checked prior value, {Object.entries(t.restoreTarget).map(([k, v]) => `${k} ${v}`).join(", ")}. If restore fails the line goes recommend-only.</span></div>
+          <div className="mode-line"><span className="label" style={{ paddingTop: 2 }}>If stopped</span><span>Stop restores the checked prior value, {Object.entries(t.restoreTarget).map(([k, v]) => `${PARAM[k] ?? k} ${v}`).join(", ")}. If restore fails the line goes recommend-only.</span></div>
         </div>
         <CardActions actions={[
           { id: "sign", label: "Sign trial order", primary: true, allowed: can(role, "sign-trial"), reason: deniedReason("sign-trial", "sign"), done: "Signed. Illustrative: no trial was started." },
