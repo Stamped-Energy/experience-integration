@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { NAV, areaFor } from "@/lib/nav";
-import { Icon, StampedMark } from "./icons";
+import { Icon } from "./icons";
 import type { RoleId } from "@/lib/demo/types";
 
 const ICON: Record<string, (p: object) => ReactNode> = Icon as never;
@@ -23,7 +23,7 @@ export function Rail({ inboxCount }: { inboxCount: number }) {
   );
   return (
     <nav className="rail" aria-label="Areas">
-      <Link href="/" className="rail-mark" aria-label="Stamped home"><StampedMark /></Link>
+      <Link href="/" className="rail-mark" aria-label="Stamped home">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/stamped-logo.png" alt="Stamped" width={28} height={28} /></Link>
       {g1.map(item)}
       <div className="rail-sep" />
       {g2.map(item)}

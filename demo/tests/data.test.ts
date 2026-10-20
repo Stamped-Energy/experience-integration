@@ -42,3 +42,7 @@ test("copy: no em dashes, no client names", () => {
   assert.ok(!s.includes("\u2014"), "em dash");
   for (const bad of ["Jaipur", "unlock", "superpower", "WhatsApp", "digital twin"]) assert.ok(!s.toLowerCase().includes(bad.toLowerCase()), bad);
 });
+
+test("every run has setpoint writes", () => {
+  for (const r of D.runs) assert.ok(D.setpointWrites.some((w) => w.runId === r.id), r.id);
+});

@@ -133,7 +133,7 @@ function LineView({ role, lineId }: { role: RoleId; lineId: string }) {
   const next = D.proposals.find((p) => p.lineId === lineId && p.state === "Waiting");
   const settings = D.runningSettings.filter((s) => s.lineId === lineId);
   const trial = D.trials.find((t) => t.lineId === lineId && t.status === "running");
-  const writes = D.setpointWrites.slice(-6).reverse();
+  const writes = D.setpointWrites.filter((w) => w.param === (lineId === "line-a" ? "hold-temp" : "cycle-time") && D.runs.find((r) => r.id === w.runId)?.lineId === lineId).slice(-6).reverse();
   return (
     <div className="stack">
       <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
@@ -176,14 +176,13 @@ function LineView({ role, lineId }: { role: RoleId; lineId: string }) {
           </Section>
           <Section title="Recent writes" meta={line.short} flush>
             <div className="rows">
-              {(lineId === "line-a" ? writes : []).map((w) => (
+              {writes.map((w) => (
                 <div key={w.runId} className="row" style={{ gridTemplateColumns: "84px minmax(0,1fr) auto" }}>
-                  <span className="mono">{w.runId.replace("run-a-", "Batch ")}</span>
-                  <span className="secondary">{w.value} °C · {w.source}</span>
+                  <span className="mono">{w.runId.replace("run-a-", "Batch ").replace("run-b-", "Run ")}</span>
+                  <span className="secondary">{w.value} {lineId === "line-a" ? "°C" : "s"} · {w.source}</span>
                   {w.status === "written" ? <Tag>Written</Tag> : <Tag tone="warning" title={w.reason}>Skipped</Tag>}
                 </div>
               ))}
-              {lineId === "line-b" ? <EmptyState title="Writes under standing approval" body="Cycle time 33.2 s was written 5 h ago under the standing approval granted by Plant head A." /> : null}
             </div>
           </Section>
         </div>
