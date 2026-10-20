@@ -1,0 +1,15 @@
+/* Activity area */
+.diff { display: inline-flex; gap: 6px; align-items: baseline; font-size: 12px; }
+.diff del { color: var(--text-secondary); }
+.diff ins { text-decoration: none; font-weight: 600; }
+.diff-box { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.diff-box > div { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--space-3); }
+.diff-box > div:first-child .v { text-decoration: line-through; color: var(--text-secondary); }
+.diff-box .v { font-size: 16px; margin-top: 4px; }
+.stat-link { text-decoration: none; color: inherit; }
+.stat-link.on { box-shadow: inset 0 -2px 0 var(--text-primary); }
+.link.strong { font-weight: 600; }
+.rep-preview { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--space-4); background: var(--surface); font-size: 13px; }
+.rep-preview h4 { margin: 0 0 4px; font-size: 15px; }
+.rep-preview table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.rep-preview td, .rep-preview th { border-bottom: 1px solid var(--border); padding: 4px 6px; text-align: left; font-size: 12px; }
