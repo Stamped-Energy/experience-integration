@@ -302,6 +302,8 @@ a.row:hover { background: var(--surface-subtle); }
 .linecell .facts { display: flex; gap: var(--space-5); margin-top: var(--space-3); }
 .linecell .fact .v { font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .linecell .fact .v .unit { font-size: 12px; color: var(--text-secondary); margin-left: 2px; }
+.line-pick { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+.line-pick .secondary { margin-left: auto; }
 
 /* Charts */
 .chart { display: block; width: 100%; height: auto; overflow: visible; }
@@ -358,8 +360,22 @@ a.row:hover { background: var(--surface-subtle); }
   .linestrip, .card-cols { grid-template-columns: minmax(0, 1fr); }
   .linecell { grid-template-columns: minmax(0, 1fr); }
   .linecell + .linecell { border-left: 0; border-top: 1px solid var(--border); }
+  .linecell .facts { flex-wrap: wrap; row-gap: var(--space-2); }
   .ask-panel { width: 100%; }
-  .page-head { flex-wrap: wrap; }
+  .page-head { flex-wrap: wrap; align-items: flex-start; }
+  .page-head .head-actions { margin-left: 0; }
+  .tabs { flex-wrap: wrap; column-gap: var(--space-4); row-gap: 0; }
+  .section-head { flex-wrap: wrap; height: auto; min-height: 44px; padding: var(--space-2) var(--space-4); }
+  .card-body, .card-cols, .card-block, .mode-line, .strip { min-width: 0; max-width: 100%; }
+  .strip, .mode-line, .card-foot { flex-wrap: wrap; row-gap: 6px; }
+  .conf-why dl { grid-template-columns: minmax(0, max-content) minmax(0, 1fr); }
+  .conf-why dd { overflow-wrap: anywhere; }
+  .line-pick .secondary { margin-left: 0; flex-basis: 100%; }
+  .fit-cols { grid-template-columns: minmax(0, 1fr) !important; }
+  .fit-cols > * { border-left: 0 !important; border-top: 1px solid var(--border); }
+  .fit-cols > :first-child { border-top: 0 !important; }
+  a.row.row-proposal { display: flex; flex-wrap: wrap; align-items: center; gap: 6px var(--space-3); height: auto; min-height: 44px; }
+  a.row.row-proposal > :first-child { flex: 1 1 100%; min-width: 0; }
 }
 @media (min-width: 768px) and (max-width: 1279px) {
   .grid > .span-8, .grid > .span-4, .grid > .span-7, .grid > .span-5, .grid > .span-9, .grid > .span-3 { grid-column: 1 / -1; }

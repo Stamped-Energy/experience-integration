@@ -118,7 +118,7 @@ function PlantView({ role }: { role: RoleId }) {
             <div className="stack-sm" style={{ padding: "var(--space-3)" }}>
               <DecisionCard p={waiting[0]} role={role} href="/inbox/in-1" />
               {waiting.slice(1).map((p) => (
-                <Link key={p.id} href={`/inbox/${D.inboxItems.find((i) => i.ref === p.id)!.id}`} className="row card" style={{ gridTemplateColumns: "minmax(0,1fr) auto auto auto" }}>
+                <Link key={p.id} href={`/inbox/${D.inboxItems.find((i) => i.ref === p.id)!.id}`} className="row card row-proposal" style={{ gridTemplateColumns: "minmax(0,1fr) auto auto auto" }}>
                   <span style={{ minWidth: 0 }}>
                     <span className="row-title" style={{ display: "block" }}>{D.inboxItems.find((i) => i.ref === p.id)!.title}</span>
                     <span className="row-sub">{D.byId.line(p.lineId)!.short} · {p.predicted.name} {p.predicted.low} to {p.predicted.high} {p.predicted.unit} · {p.weakestLabel}</span>
@@ -194,9 +194,9 @@ function LineView({ role, lineId }: { role: RoleId; lineId: string }) {
   const writes = D.setpointWrites.filter((w) => w.param === (lineId === "line-a" ? "hold-temp" : "cycle-time") && D.runs.find((r) => r.id === w.runId)?.lineId === lineId).slice(-6).reverse();
   return (
     <div className="stack">
-      <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
+      <div className="line-pick">
         {D.lines.map((l) => <Link key={l.id} href={`/?view=line&line=${l.id}`} className={`btn btn-sm${l.id === lineId ? " btn-accent" : ""}`} aria-current={l.id === lineId ? "page" : undefined}>{l.name}</Link>)}
-        <span style={{ marginLeft: "auto" }} className="secondary">{line.product} · {line.status}</span>
+        <span className="secondary">{line.product} · {line.status}</span>
         <LineModeTag mode={line.mode} />
       </div>
       <div className="grid">
@@ -204,7 +204,7 @@ function LineView({ role, lineId }: { role: RoleId; lineId: string }) {
           {next ? <DecisionCard p={next} role={role} variant="operator" href={`/inbox/${D.inboxItems.find((i) => i.ref === next.id)!.id}`} />
             : <Section title="Next proposal"><EmptyState title="No proposal waiting" body="The line is running inside its signed band. A proposal appears here when the next run can do better." /></Section>}
           <Section title="Current settings" meta="Inside the signed band" flush>
-            <div style={{ display: "grid", gridTemplateColumns: `repeat(${settings.length}, minmax(0,1fr))` }}>
+            <div className="fit-cols" style={{ display: "grid", gridTemplateColumns: `repeat(${settings.length}, minmax(0,1fr))` }}>
               {settings.map((s, i) => {
                 const w = D.byId.window(lineId, s.param)!;
                 return (
@@ -228,7 +228,7 @@ function LineView({ role, lineId }: { role: RoleId; lineId: string }) {
             <CardActions actions={[]} large stop={{ effect: trial ? "Prior value 84 °C restores from the next batch." : "Values kept; nothing new is written.", allowed: can(role, "press-stop", lineId), reason: deniedReason("press-stop", "press Stop") }} />
           </section>
           <Section title="This shift" meta={line.short} flush>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))" }}>
+            <div className="fit-cols" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))" }}>
               {line.kpis.map((k, i) => <div key={k.label} className="kpi" style={{ borderLeft: i ? undefined : 0 }}><span className="label">{k.label}</span><div className="kpi-value" style={{ fontSize: 20 }}>{k.value}{k.unit ? <span className="unit">{k.unit}</span> : null}</div></div>)}
             </div>
           </Section>
