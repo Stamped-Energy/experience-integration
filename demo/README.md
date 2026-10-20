@@ -67,3 +67,7 @@ The look follows the technical architecture site's operations design system. Gei
 - Decide whether actions should persist for a session in the showcase.
 - Port approved screens into `packages/web`, keeping the demo-only pieces (role switcher, illustrative band) out of the product.
 - Update the website and positioning docs to the authority line "Stamped works inside limits set beforehand".
+
+## Mascot
+
+Ask has a mascot: the Stamped logo with two eyes. It lives in `src/components/mascot/StampedMascot.tsx` and is drawn by a pure engine in `src/lib/mascot/engine.ts`, built on a port of bloub's core (`src/lib/mascot/bloub/`, MIT, licence kept). States: arrival, idle (blinks and eye drift), listening (while you type), thinking (spokes turn slowly), answering (spokes open, gentle bob), success (eight coral particles along the spokes), warning (amber badge) and error (spokes close, colour dims). It holds still when the browser asks for reduced motion. The rail and banner logo are now vector (`StampedMark`), so dark mode no longer needs a white tile.
