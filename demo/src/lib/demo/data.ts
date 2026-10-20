@@ -500,12 +500,40 @@ export const askThreads: T.AskThread[] = [
 ];
 export const suggestedQuestions: string[] = ["What changed on Line B this shift?", "Which lots are at risk today?", "Is the hold temperature trial on track?", "What is waiting for my decision?"];
 export const savedAnswers: T.SavedAnswer[] = [
-  { ...I, id: "sa-ans-1", threadId: "ask-2", title: "Tool T3 cycle change, value", savedBy: "Owner A.", at: at(-1) },
-  { ...I, id: "sa-ans-2", threadId: "ask-1", title: "Line A viscosity drift", savedBy: "Quality head A.", at: at(0, -1) },
+  { ...I, id: "sa-ans-1", threadId: "ask-2", title: "Tool T3 cycle change, value", savedBy: "Owner A.", at: at(-1), lineId: "line-b", topic: "Process",
+    summary: "Parts per shift rose 2.6% after the cycle change; Illustrative ₹2,14,000 a month at the plant's prices.", confidence: { label: "Measured", band: "1.9 to 3.3% parts per shift" }, refs: ["proof-3", "val-1", "prop-105"] },
+  { ...I, id: "sa-ans-2", threadId: "ask-1", title: "Line A viscosity drift", savedBy: "Quality head A.", at: at(0, -1), lineId: "line-a", topic: "Quality",
+    summary: "Viscosity rose 38 mPa·s over 9 batches with end-of-hold torque; a small agitator increase is modelled to bring it back.", confidence: { label: "Modelled", band: "2430 to 2560 mPa·s after the change" }, refs: ["drift-1", "prop-102", "inv-1"] },
+  { ...I, id: "sa-ans-3", threadId: "ask-1", title: "Will a shorter hold work on Grade A-12?", savedBy: "Process engineer A.", at: at(-9), lineId: "line-a", topic: "Process",
+    summary: "A 50 min hold was predicted to keep viscosity inside spec.", confidence: { label: "Modelled", band: "2300 to 2620 mPa·s" }, refs: ["prop-106", "model-a"],
+    stale: { since: at(-3), reason: "Model of the mixer recalibrated to a-2.2 and its fit is no longer accepted; the safety filter has since withheld this change." } },
+  { ...I, id: "sa-ans-4", threadId: "ask-3", title: "Lot 3307 outlook", savedBy: "Shift lead A.", at: at(-2), lineId: "line-a", topic: "Quality",
+    summary: "Predicted viscosity sat near the upper spec; the band was unanchored at the time.", confidence: { label: "Estimated", band: "2540 to 2630 mPa·s" }, refs: ["lot-a-3307", "corr-1"],
+    stale: { since: at(-1), reason: "A correction was sent to Process after this was saved, and lab results for the lot are still missing." } },
+  { ...I, id: "sa-ans-5", threadId: "ask-2", title: "Hold pressure 720 bar, did it hold?", savedBy: "Plant head A.", at: at(-6), lineId: "line-b", topic: "Process",
+    summary: "Scrap fell 0.6 points and was still holding at the last check.", confidence: { label: "Measured", band: "0.3 to 0.9 points less scrap" }, refs: ["proof-2", "trial-2", "val-2"] },
+  { ...I, id: "sa-ans-6", threadId: "ask-4", title: "Light parts on cavity 2", savedBy: "Quality head A.", at: at(-13), lineId: "line-b", topic: "Quality",
+    summary: "Part weight on cavity 2 recovered after Process raised hold pressure.", confidence: { label: "Measured", band: "48.0 to 48.4 g" }, refs: ["inv-2", "corr-2", "lot-b-7711"] },
 ];
 export const notes: T.Note[] = [
-  { ...I, id: "note-1", kind: "handover", title: "Shift 1 to Shift 2", at: at(0, 0, -5), claims: [{ text: "Hold temperature trial on batch 10 of 16.", evidenceIds: ["EV-A-1131"], label: "Measured" }, { text: "Lot 3307 at risk, correction sent to Process.", evidenceIds: ["EV-A-1188"], label: "Estimated" }] },
+  { ...I, id: "note-1", kind: "handover", title: "Shift 1 to Shift 2", at: at(0, 0, -5), lineId: "line-a", topic: "Process", claims: [{ text: "Hold temperature trial on batch 10 of 16.", evidenceIds: ["EV-A-1131"], label: "Measured" }, { text: "Lot 3307 at risk, correction sent to Process.", evidenceIds: ["EV-A-1188"], label: "Estimated" }] },
   { ...I, id: "note-2", kind: "weekly", title: "Week 42 note", at: at(-1), claims: [{ text: "Three changes verified this quarter, two indicative.", evidenceIds: ["EV-B-2101"], label: "Measured" }] },
+  { ...I, id: "note-3", kind: "handover", title: "Shift 3 to Shift 1", at: at(0, -8), lineId: "line-b", topic: "Process", claims: [
+    { text: "Cycle time 33.2 s running under the standing approval; 23 uses so far.", evidenceIds: ["EV-B-2101"], label: "Measured" },
+    { text: "Resin lot R-77 on the dryer; first parts sat at the low edge of part weight.", evidenceIds: ["EV-B-2190"], label: "Measured" },
+  ] },
+  { ...I, id: "note-4", kind: "handover", title: "Shift 2 to Shift 3, yesterday", at: at(-1, -6), lineId: "line-a", topic: "Quality", claims: [
+    { text: "Viscosity drifting up over the last 9 batches.", evidenceIds: ["EV-A-1180"], label: "Measured" },
+    { text: "Lab system late; four lots unanchored until results arrive.", evidenceIds: ["EV-A-1185"], label: "Unknown" },
+  ] },
+  { ...I, id: "note-5", kind: "weekly", title: "Week 41 note", at: at(-8), topic: "Process", claims: [
+    { text: "Hold pressure 720 bar on Tool T3 verified at R3; Illustrative ₹1,38,000 a month at the plant's prices.", evidenceIds: ["EV-B-1902"], label: "Measured" },
+    { text: "Hold temperature trial on Line A signed and started.", evidenceIds: ["EV-A-1102"], label: "Measured" },
+  ] },
+  { ...I, id: "note-6", kind: "weekly", title: "Week 40 note", at: at(-15), topic: "Quality", claims: [
+    { text: "Light parts on cavity 2 closed after a correction to Process.", evidenceIds: ["EV-B-1902"], label: "Measured" },
+    { text: "Dryer alarm tuning showed no change in splay defects.", evidenceIds: ["EV-B-1801"], label: "Measured" },
+  ] },
 ];
 
 /* ---------------- Activity ---------------- */
