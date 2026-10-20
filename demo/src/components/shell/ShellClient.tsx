@@ -117,14 +117,14 @@ export function AskButton({ context, label = "Ask Stamped", className = "btn btn
 }
 
 export function AskPanelFrame({ children, suggestions }: { children: ReactNode; suggestions: string[] }) {
-  const { open, context, hide } = useAsk();
+  const { open, context, hide, show } = useAsk();
   const [q, setQ] = useState("");
   const [asked, setAsked] = useState<string[]>([]);
   return (
     <aside className="ask-panel" data-open={open} aria-label="Ask Stamped" aria-hidden={!open}>
       <div className="ask-head">
         <h2>Ask Stamped</h2>
-        {context ? <span className="tag">{context}</span> : null}
+        {context ? <span className="tag scope-chip">About: {context}<button type="button" onClick={() => show()} aria-label={`Remove scope ${context}`}>×</button></span> : null}
         <button type="button" className="icon-btn" style={{ marginLeft: "auto" }} onClick={hide} aria-label="Close Ask"><Icon.close /></button>
       </div>
       <div className="ask-body">
@@ -134,8 +134,8 @@ export function AskPanelFrame({ children, suggestions }: { children: ReactNode; 
             <div className="ask-msg-person">{a}</div>
             <div className="ask-claims">
               <div className="ask-claim">
-                <span>In this demonstration, answers come from the saved threads above. In a plant, each claim carries its evidence id and label.</span>
-                <span className="meta"><span className="tag">Unknown</span><span className="muted">Abstained: no demo source for this question</span></span>
+                <span>I can&apos;t answer that: the data this question needs is not available in the demonstration plant.</span>
+                <span className="meta"><span className="tag tag-warning">Abstained</span><a className="link" href={`/ask?q=${encodeURIComponent(a)}`}>Open in Ask</a></span>
               </div>
             </div>
           </div>
@@ -144,7 +144,7 @@ export function AskPanelFrame({ children, suggestions }: { children: ReactNode; 
       <form className="ask-foot" onSubmit={(e) => { e.preventDefault(); if (q.trim()) { setAsked((x) => [...x, q.trim()]); setQ(""); } }}>
         <div className="chips">{suggestions.slice(0, 3).map((s) => <button key={s} type="button" className="chip" onClick={() => setQ(s)}>{s}</button>)}</div>
         <div className="ask-input">
-          <input value={q} onChange={(e) => setQ(e.target.value)} name="question" autoComplete="off" placeholder="Ask about a line, lot or change…" aria-label="Question" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} name="question" autoComplete="off" placeholder="Ask about a line, a lot or a change" aria-label="Question" />
           <button className="btn btn-primary" type="submit">Ask</button>
         </div>
         <span className="muted" style={{ fontSize: 12 }}>Ask reads only. It cannot change a setting.</span>

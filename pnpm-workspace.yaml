@@ -15,10 +15,12 @@ overrides:
   "@playwright/test": "1.55.1"
   playwright: "1.55.1"
   playwright-core: "1.55.1"
-  sharp: "0.35.4"
+  sharp: "0.35.5"
   mysql2: "3.22.0"
   fast-uri@>=3.0.0 <3.1.7: ^3.1.7
   fast-uri@>=4.0.0 <4.1.4: ^4.1.4
+  # GHSA high: event-loop DoS below 1.2.2 (via next>postcss)
+  source-map-js@<1.2.2: ^1.2.2
 
 # find-my-way HTTP/2 DoS — wait for fastify to bump; this BFF is not HTTP/2-facing on /v1
 auditConfig:
@@ -33,7 +35,7 @@ allowBuilds:
   "@prisma/engines": true
 
 catalog:
-  next: 16.3.7
+  next: 16.3.8
   react: 19.2.8
   react-dom: 19.2.8
   typescript: 5.9.3
