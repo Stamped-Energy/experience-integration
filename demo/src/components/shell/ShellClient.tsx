@@ -125,7 +125,7 @@ export function AskPanelFrame({ children, suggestions }: { children: ReactNode; 
   return (
     <aside className="ask-panel" data-open={open} aria-label="Ask Stamped" aria-hidden={!open}>
       <div className="ask-head">
-        <StampedMascot state={open ? (asked.length && !q ? "warning" : q.trim() ? "listening" : "idle") : "idle"} size={30} arrive key={open ? "o" : "c"} />
+        <StampedMascot mode={open ? (asked.length && !q ? "warning" : q.trim() ? "listening" : "ambient") : "ambient"} size={30} arrive key={open ? "o" : "c"} />
         <h2>Ask Stamped</h2>
         {context ? <span className="tag scope-chip">About: {context}<button type="button" onClick={() => show()} aria-label={`Remove scope ${context}`}>×</button></span> : null}
         <button type="button" className="icon-btn" style={{ marginLeft: "auto" }} onClick={hide} aria-label="Close Ask"><Icon.close /></button>
