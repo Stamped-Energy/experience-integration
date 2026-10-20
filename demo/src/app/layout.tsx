@@ -24,7 +24,7 @@ export const viewport: Viewport = { themeColor: "#FAFAF9", width: "device-width"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-IN" className={`${geist.variable} ${geistMono.variable} ${brand.variable}`} suppressHydrationWarning>
+    <html lang="en-IN" data-theme="light" className={`${geist.variable} ${geistMono.variable} ${brand.variable}`} suppressHydrationWarning>
       <head><script dangerouslySetInnerHTML={{ __html: DISPLAY_SCRIPT }} /></head>
       <body><AppShell>{children}</AppShell></body>
     </html>
