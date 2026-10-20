@@ -101,17 +101,3 @@
 .ev-body > * { flex-shrink: 0; }
 .ev-rows th { position: static; }
 @media (min-width: 1800px) { .xl-hide { display: none !important; } .xl-only.stack { display: flex; } }
-
-/* Quality area */
-.no-release { font-size: 12px; color: var(--text-secondary); padding: var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-subtle); margin-bottom: var(--space-4); }
-.join { display: grid; grid-template-columns: minmax(0, 220px) 40px minmax(0, 1fr); align-items: stretch; }
-.join-lot { border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: var(--space-3); align-self: center; background: var(--surface-subtle); }
-.join-edges { position: relative; }
-.join-edges::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--border-strong); }
-.join-runs { display: flex; flex-direction: column; gap: var(--space-2); }
-.join-run { border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
-.join-run.weak { border-style: dashed; border-color: var(--warning); }
-.parts { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-2); font-size: 11px; color: var(--text-secondary); }
-.parts b { display: block; font-size: 13px; color: var(--text-primary); font-weight: 500; font-variant-numeric: tabular-nums; }
-.cand { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-3); }
-.cand > div { border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-3); }
