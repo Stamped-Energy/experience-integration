@@ -33,8 +33,8 @@ button { font: inherit; color: inherit; }
 }
 .rail-mark { width: 32px; height: 32px; display: grid; place-items: center; margin-bottom: var(--space-3); }
 .rail-mark img, .band-logo { display: block; object-fit: contain; border-radius: var(--radius-sm); }
-/* Official logo PNG has a white background; keep it on a white tile in dark theme rather than redraw it. */
-[data-theme="dark"] .rail-mark img, [data-theme="dark"] .band-logo { background: #FFFFFF; }
+/* The rail and band logo are vector (StampedMark) on a transparent ground, so no tile is needed in dark theme. */
+
 .rail-item {
   position: relative; width: 40px; height: 40px; display: grid; place-items: center;
   border-radius: var(--radius-md); color: var(--text-secondary);

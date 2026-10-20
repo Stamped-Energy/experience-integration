@@ -94,3 +94,12 @@ a.h-item:hover, .h-item:hover { background: var(--surface-subtle); }
 .missing { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text-secondary); }
 .panel-ask .a-prose { font-size: 13px; } .panel-ask .a-lead { font-size: 14px; } .panel-ask .why-pop { width: 260px; }
 .scope-chip { display: inline-flex; gap: 4px; align-items: center; } .scope-chip button { border: 0; background: none; cursor: pointer; padding: 0 2px; font: inherit; color: var(--text-secondary); }
+
+/* ---------- Mascot ---------- */
+.ask-mascot { display: flex; justify-content: center; margin-bottom: calc(var(--space-2) * -1); }
+.a-row { display: flex; gap: 10px; align-items: flex-start; }
+.a-row > .a-prose { flex: 1; min-width: 0; }
+.a-mascot { flex: none; line-height: 0; padding-top: 2px; }
+.composer2 .thinking { display: inline-flex; align-items: center; gap: 6px; }
+.ask-head .mascot { flex: none; }
+.mascot { display: inline-block; overflow: visible; }

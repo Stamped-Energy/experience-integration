@@ -5,6 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { NAV, areaFor } from "@/lib/nav";
 import { Icon } from "./icons";
+import { StampedMark } from "./StampedMark";
+import { StampedMascot } from "@/components/mascot/StampedMascot";
 import type { RoleId } from "@/lib/demo/types";
 
 const ICON: Record<string, (p: object) => ReactNode> = Icon as never;
@@ -23,7 +25,7 @@ export function Rail({ inboxCount }: { inboxCount: number }) {
   );
   return (
     <nav className="rail" aria-label="Areas">
-      <Link href="/" className="rail-mark" aria-label="Stamped home">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/stamped-logo.png" alt="Stamped" width={28} height={28} /></Link>
+      <Link href="/" className="rail-mark" aria-label="Stamped home"><StampedMark size={28} /></Link>
       {g1.map(item)}
       <div className="rail-sep" />
       {g2.map(item)}
@@ -123,6 +125,7 @@ export function AskPanelFrame({ children, suggestions }: { children: ReactNode; 
   return (
     <aside className="ask-panel" data-open={open} aria-label="Ask Stamped" aria-hidden={!open}>
       <div className="ask-head">
+        <StampedMascot state={open ? (asked.length && !q ? "warning" : q.trim() ? "listening" : "idle") : "idle"} size={30} arrive key={open ? "o" : "c"} />
         <h2>Ask Stamped</h2>
         {context ? <span className="tag scope-chip">About: {context}<button type="button" onClick={() => show()} aria-label={`Remove scope ${context}`}>×</button></span> : null}
         <button type="button" className="icon-btn" style={{ marginLeft: "auto" }} onClick={hide} aria-label="Close Ask"><Icon.close /></button>
