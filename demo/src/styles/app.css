@@ -137,6 +137,9 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 }
 .btn:hover { background: var(--surface-subtle); }
 .btn svg { width: 16px; height: 16px; }
+.btn.ask-launch { padding-left: 4px; }
+.btn.ask-launch .mascot, .ask-launch-mark { width: 18px; height: 18px; flex: none; }
+.ask-launch-mark { background: var(--mascot-body, #F75440); clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); }
 .btn-primary { background: var(--accent-fill); border-color: var(--accent-fill); color: #FFFFFF; }
 .btn-primary:hover { background: var(--accent-600); border-color: var(--accent-600); }
 .btn-accent { border-color: var(--accent-300); color: var(--accent-700); }

@@ -113,9 +113,20 @@ export function AskProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={{ open, context, show, hide }}>{children}</Ctx.Provider>;
 }
 
-export function AskButton({ context, label = "Ask Stamped", className = "btn btn-sm" }: { context?: string; label?: string; className?: string }) {
+function LaunchMascot() {
+  const [live, setLive] = useState(false);
+  useEffect(() => { setLive(true); }, []);
+  return live ? <StampedMascot mode="ambient" size={18} seed={1} /> : <span className="ask-launch-mark" aria-hidden />;
+}
+
+export function AskButton({ context, label = "Ask Stamped", className = "btn btn-sm", mascot = false }: { context?: string; label?: string; className?: string; mascot?: boolean }) {
   const { show } = useAsk();
-  return <button type="button" className={className} onClick={() => show(context)}><Icon.ask />{label}</button>;
+  return (
+    <button type="button" className={mascot ? `${className} ask-launch` : className} onClick={() => show(context)}>
+      {mascot ? <LaunchMascot /> : <Icon.ask />}
+      {label}
+    </button>
+  );
 }
 
 export function AskPanelFrame({ children, suggestions }: { children: ReactNode; suggestions: string[] }) {

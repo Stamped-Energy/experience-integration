@@ -55,7 +55,7 @@ export async function Workspace({ crumbs, children, askContext }: { crumbs: Crum
           <Tag tone={lease.state === "active" && lease.offlineMin === 0 ? "success" : "warning"} dot title={`Lease ${nameOf(lease.id)}: at most ${lease.maxOfflineH} h offline, never more than ${lease.hardCapH} h`}>
             {lease.offlineMin === 0 ? "Connected" : `Offline · ${lease.offlineMin} min of 4 h`}
           </Tag>
-          <AskButton context={askContext} className="btn btn-sm btn-accent" />
+          <AskButton context={askContext} className="btn btn-sm btn-accent" mascot />
         </div>
       </header>
       <main className="workspace" id="main"><div className="page">{children}</div></main>

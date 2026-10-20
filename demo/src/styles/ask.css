@@ -32,15 +32,17 @@
 .group-h { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-secondary); padding: 8px 16px; background: var(--surface-subtle); border-bottom: 1px solid var(--border); }
 
 /* Ask redesign */
-.askx { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--space-6, 24px); min-height: calc(100vh - 120px); }
-.askx.hist-off { grid-template-columns: minmax(0, 1fr); }
+.main:has(.askx) { height: 100dvh; overflow: hidden; }
+.main:has(.askx) .workspace { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+.main:has(.askx) .page { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.askx { flex: 1; min-height: 0; display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--space-6, 24px); overflow: hidden; }
 @media (min-width: 1800px) { .askx { grid-template-columns: 320px minmax(0, 1fr); } }
-.askx-hist { border-right: 1px solid var(--border); padding-right: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
-.askx-main { display: flex; flex-direction: column; min-width: 0; position: relative; }
+.askx-hist { min-height: 0; border-right: 1px solid var(--border); padding-right: var(--space-4); display: flex; flex-direction: column; }
+.askx-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; position: relative; overflow: auto; }
 .askx-col { width: 100%; max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-6, 24px); }
 .askx-pin { position: sticky; bottom: 0; margin-top: auto; padding: var(--space-3) 0 var(--space-4); background: linear-gradient(to bottom, transparent, var(--canvas) 30%); }
-.h-toggle { font-size: 12px; align-self: flex-start; }
-.hist2 { display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.hist2 { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.h-scroll { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
 .h-new { align-self: flex-start; margin-bottom: var(--space-2); }
 .h-filters { display: flex; gap: 6px; margin-bottom: var(--space-2); }
 .h-group { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-secondary); margin: var(--space-3) 0 4px; }

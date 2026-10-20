@@ -21,7 +21,7 @@ Checks: `pnpm lint` (types plus the copy-rule check), `pnpm test` (dataset cross
 | `Rail` | ShellClient.tsx | `inboxCount` | 56px. Order from `src/lib/nav.ts` `NAV`; same for all roles. Planning marked soon. Maintenance absent. |
 | `BottomBar` | ShellClient.tsx | none | Under 768px; items with `mobile: true`. |
 | `RoleSwitcher` | ShellClient.tsx | `role`, `roles` | Sets the `stamped-role` cookie and refreshes. |
-| `AskProvider`, `useAsk()`, `AskButton` | ShellClient.tsx | `AskButton { context?, label?, className? }` | Opens the Ask side panel from any screen with the object on screen as context. |
+| `AskProvider`, `useAsk()`, `AskButton` | ShellClient.tsx | `AskButton { context?, label?, className?, mascot? }` | Opens the Ask side panel from any screen with the object on screen as context. The bar button passes `mascot`. |
 | `Icon.*`, `StampedMark` | icons.tsx | SVG props | One line-icon family. Add icons here. |
 
 `Crumb = { label: string; href?: string }`. Middle crumbs hide on mobile.

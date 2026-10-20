@@ -146,11 +146,13 @@ export function History({ current, filter, base }: { current?: string; filter?: 
     <nav className="hist2" aria-label="Ask history">
       <Link className="btn btn-sm h-new" href="/ask" prefetch={false}>New question</Link>
       <div className="h-filters">{[["", "All"], ["saved", "Saved"], ["notes", "Notes"]].map(([v, l]) => <Link key={l} prefetch={false} scroll={false} className={`fchip${(filter ?? "") === v ? " on" : ""}`} href={f(v || undefined)}>{l}</Link>)}</div>
-      {(!filter) && <>{today.length ? <><div className="h-group">Today</div>{today.map(item)}</> : null}{week.length ? <><div className="h-group">This week</div>{week.map(item)}</> : null}</>}
-      {(!filter || filter === "saved") && <><div className="h-group">Saved</div>{D.savedAnswers.map((s) => <div key={s.id} className="h-item">
-        <Link prefetch={false} href={`/ask/saved?id=${s.id}`}>{s.title}</Link>
-        <span>{s.stale ? <><Tag tone="warning" title={s.stale.reason}>Stale</Tag> <Link prefetch={false} className="link" href={`/ask?q=${encodeURIComponent(s.title)}`}>Re-run</Link></> : dayMonth(s.at)}</span></div>)}</>}
-      {filter === "notes" && <><div className="h-group">Notes</div>{D.notes.map((n) => <Link key={n.id} prefetch={false} href={`/ask/notes?id=${n.id}`} className="h-item">{n.title}<span>{n.kind} · {dayMonth(n.at)}</span></Link>)}</>}
+      <div className="h-scroll">
+        {(!filter) && <>{today.length ? <><div className="h-group">Today</div>{today.map(item)}</> : null}{week.length ? <><div className="h-group">This week</div>{week.map(item)}</> : null}</>}
+        {(!filter || filter === "saved") && <><div className="h-group">Saved</div>{D.savedAnswers.map((s) => <div key={s.id} className="h-item">
+          <Link prefetch={false} href={`/ask/saved?id=${s.id}`}>{s.title}</Link>
+          <span>{s.stale ? <><Tag tone="warning" title={s.stale.reason}>Stale</Tag> <Link prefetch={false} className="link" href={`/ask?q=${encodeURIComponent(s.title)}`}>Re-run</Link></> : dayMonth(s.at)}</span></div>)}</>}
+        {filter === "notes" && <><div className="h-group">Notes</div>{D.notes.map((n) => <Link key={n.id} prefetch={false} href={`/ask/notes?id=${n.id}`} className="h-item">{n.title}<span>{n.kind} · {dayMonth(n.at)}</span></Link>)}</>}
+      </div>
     </nav>
   );
 }
