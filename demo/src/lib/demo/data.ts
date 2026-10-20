@@ -235,12 +235,12 @@ export const standingApprovals: T.StandingApproval[] = [
 ];
 
 export const runningSettings: T.RunningSetting[] = [
-  { ...I, lineId: "line-a", param: "hold-temp", name: "Hold temperature", value: 86, unit: "°C", band: [80, 90], mode: "Trial", writtenAt: at(0, -3), signerRole: "plant-head", expiresAt: at(9) },
-  { ...I, lineId: "line-a", param: "hold-time", name: "Hold time", value: 55, unit: "min", band: [40, 70], mode: "Stay", writtenAt: at(-6), signerRole: "plant-head", expiresAt: at(50) },
-  { ...I, lineId: "line-a", param: "agitator", name: "Agitator speed", value: 150, unit: "rpm", band: [130, 170], mode: "Stay", writtenAt: at(-6), signerRole: "plant-head", expiresAt: at(50) },
-  { ...I, lineId: "line-b", param: "melt-temp", name: "Melt temperature", value: 236, unit: "°C", band: [225, 248], mode: "Stay", writtenAt: at(-9), signerRole: "plant-head", expiresAt: at(61) },
-  { ...I, lineId: "line-b", param: "hold-pressure", name: "Hold pressure", value: 720, unit: "bar", band: [640, 820], mode: "Stay", writtenAt: at(-9), signerRole: "plant-head", expiresAt: at(61) },
-  { ...I, lineId: "line-b", param: "cycle-time", name: "Cycle time", value: 33.2, unit: "s", band: [30, 38], mode: "Stay", writtenAt: at(0, -5), signerRole: "plant-head", expiresAt: at(16) },
+  { ...I, lineId: "line-a", param: "hold-temp", name: "Hold temperature", value: 86, unit: "°C", band: [80, 90], mode: "Trial", writtenAt: at(0, -3), signerRole: "plant-head", expiresAt: at(9), assetId: "a-hold" },
+  { ...I, lineId: "line-a", param: "hold-time", name: "Hold time", value: 55, unit: "min", band: [40, 70], mode: "Stay", writtenAt: at(-6), signerRole: "plant-head", expiresAt: at(50), assetId: "a-hold" },
+  { ...I, lineId: "line-a", param: "agitator", name: "Agitator speed", value: 150, unit: "rpm", band: [130, 170], mode: "Stay", writtenAt: at(-6), signerRole: "plant-head", expiresAt: at(50), assetId: "a-mixer" },
+  { ...I, lineId: "line-b", param: "melt-temp", name: "Melt temperature", value: 236, unit: "°C", band: [225, 248], mode: "Stay", writtenAt: at(-9), signerRole: "plant-head", expiresAt: at(61), assetId: "b-press" },
+  { ...I, lineId: "line-b", param: "hold-pressure", name: "Hold pressure", value: 720, unit: "bar", band: [640, 820], mode: "Stay", writtenAt: at(-9), signerRole: "plant-head", expiresAt: at(61), assetId: "b-press" },
+  { ...I, lineId: "line-b", param: "cycle-time", name: "Cycle time", value: 33.2, unit: "s", band: [30, 38], mode: "Stay", writtenAt: at(0, -5), signerRole: "plant-head", expiresAt: at(16), assetId: "b-tool" },
 ];
 
 /* ---------------- Proposals ---------------- */
@@ -510,6 +510,35 @@ export const askThreads: T.AskThread[] = [
   { ...I, id: "ask-4", title: "Handover for Shift 2", updatedAt: at(0, 0, -5),
     messages: [{ from: "person", text: "Summarise Shift 1 for handover." }, { from: "stamped", claims: [{ text: "Two proposals accepted on Line B, one waiting on Line A.", evidenceIds: ["EV-B-2214"], label: "Measured" }] }] },
 ];
+/** Short conversations started from an asset or a line (Ask opened in context). */
+const scoped = (id: string, title: string, scope: { assetId?: string; lineId: string }, q: string, claims: T.AskClaim[], confidence: { label: T.EvidenceLabel; band?: string }, refs: string[], ago: number): T.AskThread =>
+  ({ ...I, id, title, scope, confidence, refs, updatedAt: at(0, -ago), messages: [{ from: "person", text: q }, { from: "stamped", claims }] });
+askThreads.push(
+  scoped("ask-m1", "Mixer M1 torque", { assetId: "a-mixer", lineId: "line-a" }, "Why is torque on Mixer M1 higher at the end of the hold?",
+    [{ text: "End-of-hold torque is about 6% above the best batches of this grade.", evidenceIds: ["EV-A-1188"], label: "Measured" },
+     { text: "It rises with viscosity on the same batches; a small increase in agitator speed is modelled to bring viscosity back inside the band.", evidenceIds: ["EV-A-1191"], label: "Modelled" }],
+    { label: "Modelled", band: "viscosity 2430 to 2560 mPa·s after the change" }, ["prop-102", "drift-1", "a-mixer"], 1),
+  scoped("ask-h1", "Hold tank H1 settings", { assetId: "a-hold", lineId: "line-a" }, "What is Hold tank H1 running at, and why?",
+    [{ text: "Hold temperature is 86 °C as the trial arm of the current trial; hold time stays at 55 minutes.", evidenceIds: ["EV-A-1102"], label: "Measured" },
+     { text: "Pressing Stop restores 84 °C from the next batch.", evidenceIds: ["EV-A-1131"], label: "Measured" }],
+    { label: "Measured", band: "signed 78 to 92 °C, narrowed to 80 to 90 °C" }, ["trial-1", "win-a-1", "a-hold"], 2),
+  scoped("ask-p3", "Press P3 hold pressure", { assetId: "b-press", lineId: "line-b" }, "Is it safe to raise hold pressure on Press P3?",
+    [{ text: "The proposed value sits inside the narrowed band of 640 to 820 bar and passes the clamp force check.", evidenceIds: ["EV-B-2207"], label: "Measured" },
+     { text: "Scrap is expected to fall slightly with the higher pressure.", evidenceIds: ["EV-B-2214"], label: "Estimated" }],
+    { label: "Estimated", band: "scrap rate 2.4 to 3.3%" }, ["prop-101", "win-b-2", "b-press"], 1),
+  scoped("ask-t3", "Tool T3 cycle time", { assetId: "b-tool", lineId: "line-b" }, "Has the shorter cycle on Tool T3 held up?",
+    [{ text: "Parts per shift are up 2.6% on the same tool and resin lot.", evidenceIds: ["EV-B-2101"], label: "Measured" },
+     { text: "Part weight has not drifted since the change.", evidenceIds: ["EV-B-2101"], label: "Measured" }],
+    { label: "Measured", band: "1.9 to 3.3% more parts per shift" }, ["proof-3", "sa-1", "b-tool"], 3),
+  scoped("ask-la", "Line A today", { lineId: "line-a" }, "What needs attention on Line A today?",
+    [{ text: "One proposal is waiting on agitator speed, and the hold temperature trial is on batch 10 of 16.", evidenceIds: ["EV-A-1131"], label: "Measured" },
+     { text: "One lot is at risk on viscosity; its band is unanchored until the lab result arrives.", evidenceIds: ["EV-A-1188"], label: "Estimated" }],
+    { label: "Estimated", band: "lot viscosity 2540 to 2630 mPa·s" }, ["prop-102", "trial-1", "lot-a-3307"], 1),
+  scoped("ask-lb", "Line B today", { lineId: "line-b" }, "How is Line B doing this shift?",
+    [{ text: "1,840 parts so far with scrap at 3.2%, inside the 4% limit.", evidenceIds: ["EV-B-2214"], label: "Measured" },
+     { text: "Two proposals are waiting: hold pressure on Press P3 and melt temperature for the new resin lot.", evidenceIds: ["EV-B-2190"], label: "Measured" }],
+    { label: "Measured", band: "scrap 3.0 to 4.2% over the last 40 shift runs" }, ["prop-101", "prop-103", "line-b"], 0),
+);
 export const suggestedQuestions: string[] = ["What changed on Line B this shift?", "Which lots are at risk today?", "Is the hold temperature trial on track?", "What is waiting for my decision?"];
 export const savedAnswers: T.SavedAnswer[] = [
   { ...I, id: "sa-ans-1", threadId: "ask-2", title: "Tool T3 cycle change, value", savedBy: "Owner A.", at: at(-1), lineId: "line-b", topic: "Process",

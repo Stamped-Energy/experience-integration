@@ -1,3 +1,4 @@
+import { nameOf } from "@/lib/names";
 /**
  * The shared card (spec §7, design system decision item). One card for every agent proposal:
  * header, observation, reason with evidence ids, recommendation, confidence, limits, mode and what Stop does,
@@ -46,7 +47,7 @@ export function DecisionCard({ p, role, href, variant = "full" }: { p: Proposal;
       <div className="card-head">
         <span className="src">Process agent</span>
         <span className="dotsep">·</span><span>{line.short}</span><span className="dotsep">·</span><span>{asset.name}</span>
-        <span className="dotsep">·</span><span className="mono">{p.id}</span><span className="dotsep">·</span><span>{hhmm(p.createdAt)}</span>
+        <span className="dotsep">·</span><span>{nameOf(p.id)}</span><span className="dotsep">·</span><span>{hhmm(p.createdAt)}</span>
         <span className="right">
           {p.mode ? <ModeTag mode={p.mode} /> : null}
           {open ? <Tag tone="accent">Needs a decision</Tag> : <Tag>{p.state}</Tag>}

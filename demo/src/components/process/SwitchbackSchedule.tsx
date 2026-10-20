@@ -1,5 +1,6 @@
 /** Switchback schedule: one cell per run, arm A (prior) or B (change), skipped switches with their reason, planned runs still to come. */
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import type { Trial } from "@/lib/demo/types";
 import { runLabel } from "./common";
@@ -9,7 +10,7 @@ export function SwitchbackSchedule({ trial }: { trial: Trial }) {
   const todo = Math.max(0, (plan?.minBatches ?? trial.switches.length) - trial.switches.length);
   return (
     <>
-      <div className="sw-grid" style={{ gridTemplateColumns: `repeat(${Math.ceil((trial.switches.length + todo) / ((trial.switches.length + todo) > 12 ? 2 : 1))}, minmax(0, 1fr))` }} role="list" aria-label={`Switchback schedule for ${trial.id}`}>
+      <div className="sw-grid" style={{ gridTemplateColumns: `repeat(${Math.ceil((trial.switches.length + todo) / ((trial.switches.length + todo) > 12 ? 2 : 1))}, minmax(0, 1fr))` }} role="list" aria-label={`Switchback schedule for ${nameOf(trial.id)}`}>
         {trial.switches.map((s) => {
           const run = D.runs.find((r) => r.id === s.runId)!;
           return (

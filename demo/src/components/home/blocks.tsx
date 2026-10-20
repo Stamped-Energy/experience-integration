@@ -1,5 +1,6 @@
 /** Home building blocks shared by the four views. */
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import type { Line, ShiftEvent } from "@/lib/demo/types";
 import { dayMonth, hhmm, rel } from "@/lib/format";
@@ -106,7 +107,7 @@ export function RecentActivity({ limit = 6 }: { limit?: number }) {
       {D.auditEvents.slice(0, limit).map((a) => (
         <div className="row" key={a.id} style={{ gridTemplateColumns: "92px minmax(0,1fr) auto" }}>
           <span className="mono muted">{dayMonth(a.at)} {hhmm(a.at)}</span>
-          <span className="row-title" style={{ fontWeight: 400 }}>{D.byId.person(a.personId)!.display} <span className="secondary">{a.action.toLowerCase()}</span> <span className="mono muted">{a.objectId}</span></span>
+          <span className="row-title" style={{ fontWeight: 400 }}>{D.byId.person(a.personId)!.display} <span className="secondary">{a.action.toLowerCase()}</span> <span className="mono muted">{nameOf(a.objectId)}</span></span>
           <span className="muted" style={{ fontSize: 12 }}>{rel(a.at)}</span>
         </div>
       ))}

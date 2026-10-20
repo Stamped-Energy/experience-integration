@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
@@ -23,7 +24,7 @@ export default async function LinePacks({ searchParams }: { searchParams: Promis
       <div className="grid">
         <div className="span-4 xl-span-3 stack">
           <Section title="Packs" flush>
-            <div className="rows pack-list">{D.linePacks.map((x) => <Link key={x.id} href={`/plant/line-packs?pack=${x.id}`} scroll={false} className={`row${x.id === p.id ? " on" : ""}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title" style={{ display: "block" }}>{x.equipmentClass}</span><span className="row-sub">{x.runDefinition}</span></span><span className="mono muted">{x.id}</span></Link>)}</div>
+            <div className="rows pack-list">{D.linePacks.map((x) => <Link key={x.id} href={`/plant/line-packs?pack=${x.id}`} scroll={false} className={`row${x.id === p.id ? " on" : ""}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title" style={{ display: "block" }}>{x.equipmentClass}</span><span className="row-sub">{x.runDefinition}</span></span><span className="mono muted">{nameOf(x.id)}</span></Link>)}</div>
           </Section>
           <Section title="Words this pack sets">
             <dl className="facts-grid">
@@ -35,10 +36,10 @@ export default async function LinePacks({ searchParams }: { searchParams: Promis
           </Section>
         </div>
         <div className="span-8 xl-span-6 stack">
-          <Section title={p.equipmentClass} meta={<span className="mono">{p.id}</span>} actions={<Illustrative />}>
+          <Section title={p.equipmentClass} actions={<Illustrative />}>
             <dl className="facts-grid">
               <dt>Run definition</dt><dd>{p.runDefinition}</dd>
-              <dt>Model</dt><dd><Link className="link" href="/process/model-fit">{p.modelId}</Link></dd>
+              <dt>Model</dt><dd><Link className="link" href="/process/model-fit">{nameOf(p.modelId)}</Link></dd>
               <dt>Window template</dt><dd>{p.windowTemplate}</dd>
               <dt>Link threshold</dt><dd>{p.linkThreshold} · lot links below it wait for a person</dd>
             </dl>
@@ -66,7 +67,7 @@ export default async function LinePacks({ searchParams }: { searchParams: Promis
             <div className="rows">{D.assets.filter((a) => lines.some((l) => l.id === a.lineId)).map((a) => <Link key={a.id} className="row" href={`/plant/assets/${a.id}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span className="row-title">{a.name}</span><span className="muted">{tagsOf(a).length} tags</span></Link>)}</div>
           </Section>
           <Section title="Recent setpoint writes" flush>
-            <DataTable caption="Writes" rowKey={(w) => `${w.runId}-${w.param}`} rows={D.setpointWrites.filter((w) => lines.some((l) => l.id === D.runs.find((r) => r.id === w.runId)?.lineId)).slice(-6).reverse()} columns={[
+            <DataTable caption="Writes" rowKey={(w) => `${nameOf(w.runId)}-${w.param}`} rows={D.setpointWrites.filter((w) => lines.some((l) => l.id === D.runs.find((r) => r.id === w.runId)?.lineId)).slice(-6).reverse()} columns={[
               { key: "p", label: "Setting", render: (w) => w.param },
               { key: "v", label: "Value", align: "right", render: (w) => w.value },
               { key: "s", label: "Source", render: (w) => w.source },
@@ -80,7 +81,7 @@ export default async function LinePacks({ searchParams }: { searchParams: Promis
               { key: "r", label: "Run", render: (x) => x.runDefinition },
               { key: "s", label: "Series", render: (x) => x.series.join(", ") },
               { key: "p", label: "Setpoints", render: (x) => x.setpoints.join(", ") },
-              { key: "m", label: "Model", mono: true, render: (x) => x.modelId },
+              { key: "m", label: "Model", render: (x) => nameOf(x.modelId) },
               { key: "w", label: "Windows", render: (x) => x.windowTemplate },
               { key: "t", label: "Link threshold", align: "right", render: (x) => x.linkThreshold },
               { key: "l", label: "Lines", render: (x) => D.lines.filter((l) => l.linePackId === x.id).map((l) => l.short).join(", ") },

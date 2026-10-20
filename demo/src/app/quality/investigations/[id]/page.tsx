@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
@@ -57,7 +58,7 @@ export default async function Investigation({ params, searchParams }: { params: 
               { id: "n", label: "Add note", allowed: true, done: "Note added. Illustrative." },
             ]} />
           </Section>
-          {proof ? <Section title="Proof record" meta={<span className="mono">{proof.id}</span>}>
+          {proof ? <Section title="Proof record" meta={<span >{nameOf(proof.id)}</span>}>
             <Confidence kind="verdict" label={proof.questions[2].label} verdict={proof.verdict} rung={proof.rung} effect={`${proof.effect.measure} ${proof.effect.value > 0 ? "+" : ""}${proof.effect.value} ${proof.effect.unit}`} interval={`${proof.effect.low} to ${proof.effect.high} ${proof.effect.unit}`} diagnostics={proof.diagnostics} method="Before and after on matched lots" withheldNeeds={proof.withheldNeeds} />
             <Link className="btn btn-sm" style={{ marginTop: 8 }} href={`${base}?evidence=${proof.id}`} scroll={false}>Open the four questions</Link>
           </Section> : null}

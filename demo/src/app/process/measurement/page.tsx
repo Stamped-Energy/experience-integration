@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import { dayMonth, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
@@ -21,16 +22,16 @@ export default async function Measurement({ searchParams }: { searchParams: Prom
   const unit = line.type === "batch" ? "batches" : "shift runs";
   const progress = trial.switches.length;
   return (
-    <Workspace crumbs={crumbs({ label: "Measurement plans" }, { label: plan.id })} askContext={`Measurement plan ${plan.id}`}>
+    <Workspace crumbs={crumbs({ label: "Measurement plans" }, { label: nameOf(plan.id) })} askContext={`Measurement plan ${nameOf(plan.id)}`}>
       <PageHeader eyebrow="Process" title="Measurement plans and holding check" meta="How a change will be judged is locked, hashed and versioned before the first switch. The holding check looks again later."
-        actions={<AskButton context={plan.id} label="Ask about this plan" />} />
+        actions={<AskButton context={nameOf(plan.id)} label="Ask about this plan" />} />
       <ProcessTabs active="measurement" />
       <div className="grid">
         <div className="span-4 xl-span-4 stack ctx">
           <Section title="Plans" meta={`${D.measurementPlans.length} locked`} flush>
             <div className="rows">{D.measurementPlans.map((m) => { const t = D.byId.trial(m.trialId)!; return (
               <Link key={m.id} href={`/process/measurement?plan=${m.id}`} className="row" aria-current={m.id === plan.id ? "true" : undefined} style={{ gridTemplateColumns: "minmax(0,1fr) auto", background: m.id === plan.id ? "var(--accent-50)" : undefined }} scroll={false}>
-                <span style={{ minWidth: 0 }}><span className="row-title" style={{ display: "block" }}>{t.change}</span><span className="row-sub mono">{m.id} v{m.version} · {m.hash}</span></span>
+                <span style={{ minWidth: 0 }}><span className="row-title" style={{ display: "block" }}>{t.change}</span><span className="row-sub">{nameOf(m.id)} v{m.version} · {m.hash}</span></span>
                 <Tag tone={t.status === "running" ? "info" : "neutral"}>{t.status}</Tag>
               </Link>
             ); })}</div>
@@ -46,7 +47,7 @@ export default async function Measurement({ searchParams }: { searchParams: Prom
           </Section>
           <Section title="All holding checks" flush>
             <DataTable caption="All holding checks" rowKey={(h) => h.planId + h.checkedAt} rows={D.holdingChecks} columns={[
-              { key: "p", label: "Plan", mono: true, render: (h) => h.planId },
+              { key: "p", label: "Plan", render: (h) => nameOf(h.planId) },
               { key: "d", label: "Checked", render: (h) => dayMonth(h.checkedAt) },
               { key: "r", label: "Result", render: (h) => <Tag tone={htone(h.result)}>{h.result}</Tag> },
             ]} />
@@ -54,7 +55,7 @@ export default async function Measurement({ searchParams }: { searchParams: Prom
           </div>
         </div>
         <div className="span-8 xl-span-8 stack">
-          <Section title={trial.change} meta={<span className="mono">{plan.id} · version {plan.version} · hash {plan.hash}</span>} actions={<Tag>Locked {dayMonth(plan.lockedAt)}</Tag>} flush>
+          <Section title={trial.change} meta={<span >{nameOf(plan.id)} · version {plan.version} · hash {plan.hash}</span>} actions={<Tag>Locked {dayMonth(plan.lockedAt)}</Tag>} flush>
             <div className="stat-row">
               <div className="stat"><div className="label">Line</div><div className="v" style={{ fontSize: 16 }}>{line.short}</div><div className="s">{line.product}</div></div>
               <div className="stat"><div className="label">Minimum</div><div className="v">{plan.minBatches}<span className="unit">{unit}</span></div><div className="s">before a verdict</div></div>
@@ -69,12 +70,12 @@ export default async function Measurement({ searchParams }: { searchParams: Prom
           </Section>
           <Section title="Trial this plan judges" flush actions={<Link className="link" href={`/process/trials/${trial.id}`}>Trial detail</Link>}>
             <dl className="facts-grid" style={{ padding: "12px 16px" }}>
-              <dt>Trial</dt><dd className="mono">{trial.id}</dd>
+              <dt>Trial</dt><dd >{nameOf(trial.id)}</dd>
               <dt>Schedule</dt><dd>{trial.schedule.join("; ")}</dd>
               <dt>Restore</dt><dd>{Object.entries(trial.restoreTarget).map(([k, v]) => `${D.byId.window(trial.lineId, k)?.name ?? k} ${v}`).join(", ")}</dd>
               <dt>Drafted</dt><dd>{trial.draftedBy}</dd>
               <dt>Signed</dt><dd>{trial.signedAt ? `Plant head A. · ${dayMonth(trial.signedAt)}` : "Not yet"}</dd>
-              <dt>Proof</dt><dd>{proof ? <Link className="link" href={`/process/measurement?plan=${plan.id}&evidence=${proof.id}`} scroll={false}>{proof.id}, open the four questions</Link> : "None yet"}</dd>
+              <dt>Proof</dt><dd>{proof ? <Link className="link" href={`/process/measurement?plan=${plan.id}&evidence=${proof.id}`} scroll={false}>{nameOf(proof.id)}, open the four questions</Link> : "None yet"}</dd>
             </dl>
           </Section>
           {trial.switches.length ? <Section title="Switches so far" meta={`${trial.switches.length} of ${plan.minBatches} ${unit}`} flush><SwitchbackSchedule trial={trial} /></Section> : null}
@@ -87,7 +88,7 @@ export default async function Measurement({ searchParams }: { searchParams: Prom
           </Section>
           <Section title="All holding checks" flush>
             <DataTable caption="All holding checks" rowKey={(h) => h.planId + h.checkedAt} rows={D.holdingChecks} columns={[
-              { key: "p", label: "Plan", mono: true, render: (h) => h.planId },
+              { key: "p", label: "Plan", render: (h) => nameOf(h.planId) },
               { key: "d", label: "Checked", render: (h) => dayMonth(h.checkedAt) },
               { key: "r", label: "Result", render: (h) => <Tag tone={htone(h.result)}>{h.result}</Tag> },
             ]} />
