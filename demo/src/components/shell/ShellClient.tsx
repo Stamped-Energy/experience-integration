@@ -144,7 +144,7 @@ export function AskPanelFrame({ children, suggestions }: { children: ReactNode; 
       <form className="ask-foot" onSubmit={(e) => { e.preventDefault(); if (q.trim()) { setAsked((x) => [...x, q.trim()]); setQ(""); } }}>
         <div className="chips">{suggestions.slice(0, 3).map((s) => <button key={s} type="button" className="chip" onClick={() => setQ(s)}>{s}</button>)}</div>
         <div className="ask-input">
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ask about a line, lot or change" aria-label="Question" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} name="question" autoComplete="off" placeholder="Ask about a line, lot or change…" aria-label="Question" />
           <button className="btn btn-primary" type="submit">Ask</button>
         </div>
         <span className="muted" style={{ fontSize: 12 }}>Ask reads only. It cannot change a setting.</span>

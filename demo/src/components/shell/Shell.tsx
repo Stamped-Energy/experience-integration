@@ -24,6 +24,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
   const t = askThreads[0];
   return (
     <AskProvider>
+      <a className="skip" href="#main">Skip to content</a>
       <div className="app">
         <Rail inboxCount={waiting} />
         <div className="main" data-role={role}>
@@ -67,7 +68,7 @@ export async function Workspace({ crumbs, children, askContext }: { crumbs: Crum
         <div className="crumb-tools">
           <label className="search">
             <Icon.search width={14} height={14} />
-            <input type="search" placeholder="Search lines, lots, cards" aria-label="Search" />
+            <input type="search" name="q" autoComplete="off" placeholder="Search lines, lots, cards…" aria-label="Search" />
             <kbd>/</kbd>
           </label>
           <RoleSwitcher role={role} roles={roles.map((r) => ({ id: r.id, name: r.name }))} />
