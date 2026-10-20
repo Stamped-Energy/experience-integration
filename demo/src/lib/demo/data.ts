@@ -159,10 +159,22 @@ export const tagReadings: T.TagReading[] = runs.slice(-6).concat(runs.slice(34, 
   return Array.from({ length: 12 }, (_, k) => ({ ...I, tagId: tag, runId: run.id, at: at(0, 0, -k * 20), value: r1(base + Math.sin(k / 2) * 1.2 + (rnd() - 0.5)), qualityCode: (k === 7 ? "uncertain" : "good") as T.QualityCode, label: "Measured" as const }));
 });
 
-export const setpointWrites: T.SetpointWrite[] = runs.filter((r) => r.lineId === "line-a").slice(-10).map((r, i) => ({
-  ...I, runId: r.id, param: "hold-temp", value: r.setpoints["hold-temp"], source: i % 2 === 0 ? "proposal" : "prior",
-  byRole: "operator", at: r.start, status: i === 3 ? "skipped" : "written", reason: i === 3 ? "Charge mass outside recipe, switch skipped" : undefined,
-}));
+/** Every run on every line has its setpoint writes (one per line-pack setpoint). Trial-arm runs show the switches. */
+export const setpointWrites: T.SetpointWrite[] = runs.flatMap((r, idx) => {
+  const lineRuns = runs.filter((x) => x.lineId === r.lineId);
+  const k = lineRuns.indexOf(r);
+  const inTrialWindow = k >= lineRuns.length - 10;
+  return Object.entries(r.setpoints).map(([param, value], j) => {
+    const changed = r.lineId === "line-a" ? param === "hold-temp" && inTrialWindow : param === "cycle-time" && inTrialWindow;
+    const skipped = r.lineId === "line-a" && param === "hold-temp" && k === lineRuns.length - 7;
+    const byRole: T.RoleId = r.lineId === "line-b" && changed ? "operator" : j === 0 && idx % 9 === 0 ? "shift-lead" : "operator";
+    return {
+      ...I, runId: r.id, param, value, source: changed ? (k % 2 === 0 || r.lineId === "line-b" ? "proposal" : "prior") : idx % 11 === 0 && j === 1 ? "operator adjust" : "prior",
+      byRole, at: at(0, 0, (Date.parse(r.start) - NOW_MS) / 60000 + j), status: skipped ? "skipped" : "written",
+      reason: skipped ? "Charge mass outside recipe, switch skipped" : undefined,
+    } as T.SetpointWrite;
+  });
+});
 
 /* ---------------- Limits ---------------- */
 export const signedWindows: T.SignedWindow[] = [
