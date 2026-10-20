@@ -7,7 +7,7 @@ import { dayMonth, rel } from "@/lib/format";
 import { EvidenceTag, Tag } from "@/components/ui/primitives";
 import { evHref, proofFor } from "./common";
 import { SourceMark } from "./AskClient";
-import { nameOf, proposalShort } from "@/lib/names";
+import { nameOf, proposalName, proposalShort } from "@/lib/names";
 
 const ORDER: EvidenceLabel[] = ["Unknown", "Assumed", "Modelled", "Estimated", "Measured"];
 export type Source = { id: string; label: EvidenceLabel; what: string; href: string };
@@ -58,7 +58,7 @@ export function turnsOf(t: AskThread, base: string): Turn[] {
     out.push({
       q, lead: marked[0]?.text, leadMarks: marked[0]?.marks, rest: marked.slice(1), label: t.confidence?.label ?? weakestOf(cl.map((c) => c.label)), band, sources,
       why: t.confidence ? `Label and band recorded for this answer as a whole, from its ${cl.length} cited claim${cl.length === 1 ? "" : "s"}.` : `The answer takes the weakest label of its ${cl.length} cited claim${cl.length === 1 ? "" : "s"}${band ? `; the band comes from ${p ? "the line model behind the card" : "the proof record"}` : "; none of the evidence carries a band"}.`,
-      card: p ? { id: p.id, title: `${p.param}: ${p.current} to ${p.proposed}`, href: `/process/proposals/${p.id}`, state: p.state } : r ? { id: r.id, title: r.title, href: `${base}?evidence=${r.id}`, state: r.verdict } : undefined,
+      card: p ? { id: p.id, title: proposalName(p.id), href: `/process/proposals/${p.id}`, state: p.state } : r ? { id: r.id, title: r.title, href: `${base}?evidence=${r.id}`, state: r.verdict } : undefined,
       followUps: follow(t.title, p ? [`What happens if I accept ${proposalShort(p.id)}?`] : r ? ["Is the effect holding?"] : []),
     });
   }
