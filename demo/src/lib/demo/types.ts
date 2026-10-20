@@ -65,6 +65,9 @@ export interface SignedWindow extends Illustrative {
 export interface StandingApproval extends Illustrative {
   id: string; lineId: string; params: string[]; band: string; grantedBy: string;
   from: string; until: string; uses: number; reviewedAt: string;
+
+  /** Set when the approval was withdrawn before its end date. */
+  revokedBy?: string; revokedAt?: string; revokeReason?: string;
 }
 export interface Proposal extends Illustrative {
   id: string; lineId: string; assetId: string; param: string; current: number; proposed: number;
@@ -141,7 +144,7 @@ export interface Assignment extends Illustrative { scope: string; primary: strin
 export interface NotificationRule extends Illustrative { event: string; role: RoleId; channel: "in-app" | "email" }
 export interface Integration extends Illustrative { id: string; kind: string; name: string; status: "connected" | "degraded" | "not connected"; lastSync: string }
 export interface ApiKey extends Illustrative { id: string; label: string; created: string; lastUsed: string }
-export interface Webhook extends Illustrative { id: string; url: string; events: string[] }
+export interface Webhook extends Illustrative { id: string; url: string; events: string[]; status?: "healthy" | "failing" | "paused"; lastDelivery?: string; note?: string }
 export interface Shift extends Illustrative { id: string; name: string; start: string; end: string }
 export interface Price extends Illustrative { item: string; unit: string; value: number; currency: "INR"; effectiveFrom: string }
 export interface AskClaim { text: string; evidenceIds: string[]; label: EvidenceLabel }
