@@ -7,6 +7,7 @@ import { dayMonth, rel } from "@/lib/format";
 import { EvidenceTag, Tag } from "@/components/ui/primitives";
 import { evHref, proofFor } from "./common";
 import { SourceMark } from "./AskClient";
+import { SequenceMascot } from "@/components/mascot/StampedMascot";
 import { nameOf, proposalName, proposalShort } from "@/lib/names";
 
 const ORDER: EvidenceLabel[] = ["Unknown", "Assumed", "Modelled", "Estimated", "Measured"];
@@ -108,6 +109,8 @@ export function TurnView({ t, idx, compact }: { t: Turn; idx: number; compact?: 
   return (
     <div className="turn" id={anchor}>
       <div className="q-bubble">{t.q}</div>
+      <div className="a-row">
+      <span className="a-mascot"><SequenceMascot size={compact ? 22 : 28} label="Stamped assistant" steps={t.abstain ? [["thinking", 0.5], ["warning", 0]] : t.lead ? [["thinking", 0.5], ["answering", 1.6], ["idle", 0]] : [["thinking", 0]]} /></span>
       {t.abstain ? (
         <div className="a-prose">
           <p className="a-lead">{t.abstain.text}</p>
@@ -125,6 +128,7 @@ export function TurnView({ t, idx, compact }: { t: Turn; idx: number; compact?: 
             <ol>{t.sources.map((s, i) => <li key={s.id}><span className="smark">{i + 1}</span><Link className={`link${s.id.startsWith("EV-") ? " mono" : ""}`} href={s.href} scroll={false}>{s.id.startsWith("EV-") ? s.id : nameOf(s.id)}</Link><span className="src-what">{s.what}</span><EvidenceTag label={s.label} /></li>)}</ol></details> : null}
         </div>
       ) : <div className="a-prose"><p className="thinking">{t.step ?? "Reading plant data"}…</p></div>}
+      </div>
       {!compact && t.followUps.length ? <div className="followups">{t.followUps.map((f) => <Link key={f} prefetch={false} href={`/ask?q=${encodeURIComponent(f)}`}>{f}</Link>)}</div> : null}
     </div>
   );
