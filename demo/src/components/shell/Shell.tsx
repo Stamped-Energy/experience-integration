@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { inboxItems, leases, roles, suggestedQuestions } from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
 import { AskButton, AskPanelFrame, AskProvider, BottomBar, Rail, RoleSwitcher } from "./ShellClient";
-import { Icon } from "./icons";
+import { SearchLaunch } from "./Search";
 import { Tag } from "@/components/ui/primitives";
 import { AskPanelContents } from "@/components/ask/Panel";
 
@@ -46,11 +46,7 @@ export async function Workspace({ crumbs, children, askContext }: { crumbs: Crum
           ))}
         </nav>
         <div className="crumb-tools">
-          <label className="search">
-            <Icon.search width={14} height={14} />
-            <input type="search" name="q" autoComplete="off" placeholder="Search lines, lots, cards…" aria-label="Search" />
-            <kbd>/</kbd>
-          </label>
+          <SearchLaunch />
           <RoleSwitcher role={role} roles={roles.map((r) => ({ id: r.id, name: r.name }))} />
           <Tag tone={lease.state === "active" && lease.offlineMin === 0 ? "success" : "warning"} dot title={`Lease ${nameOf(lease.id)}: at most ${lease.maxOfflineH} h offline, never more than ${lease.hardCapH} h`}>
             {lease.offlineMin === 0 ? "Connected" : `Offline · ${lease.offlineMin} min of 4 h`}
