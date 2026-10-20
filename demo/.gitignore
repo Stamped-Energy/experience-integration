@@ -6,3 +6,5 @@ dist
 .env*
 *.tsbuildinfo
 .vercel
+.vinext/
+.cloudflare/

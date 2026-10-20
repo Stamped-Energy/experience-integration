@@ -59,6 +59,7 @@ The look follows the technical architecture site's operations design system. Gei
 - Exports and reports are illustrative.
 - Vercel does not build preview deployments for the `demo-stamped` project, so a branch cannot be seen online before merge. Run it locally to review.
 - Merging into main replaces the live showcase at showcase.stamped.work.
+- A separate copy runs on Cloudflare Workers at dev.stamped.work (worker `stamped-dev`). From `demo/`, `pnpm run deploy:vinext` publishes it. That needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment.
 - Phone layouts work, but wide tables scroll sideways.
 
 ## Next steps
