@@ -228,6 +228,10 @@ export const signedWindows: T.SignedWindow[] = [
 
 export const standingApprovals: T.StandingApproval[] = [
   { ...I, id: "sa-1", lineId: "line-b", params: ["cycle-time"], band: "32.5 to 34.5 s", grantedBy: "Plant head A.", from: at(-14), until: at(16), uses: 23, reviewedAt: at(-3) },
+  { ...I, id: "sa-2", lineId: "line-a", params: ["agitator"], band: "145 to 160 rpm on Grade A-12", grantedBy: "Plant head A.", from: at(-26), until: at(2), uses: 41, reviewedAt: at(-12) },
+  { ...I, id: "sa-3", lineId: "line-b", params: ["melt-temp"], band: "234 to 240 °C on Tool T3", grantedBy: "Plant head A.", from: at(-20), until: at(10), uses: 9, reviewedAt: at(-6),
+    revokedBy: "Shift lead A.", revokedAt: at(-4, 1), revokeReason: "New resin lot on the line; melt temperature back to per-run decisions until it settles." },
+  { ...I, id: "sa-4", lineId: "line-a", params: ["hold-time"], band: "52 to 58 min on Grade A-12", grantedBy: "Plant head A.", from: at(-5), until: at(25), uses: 6, reviewedAt: at(-5) },
 ];
 
 export const runningSettings: T.RunningSetting[] = [
@@ -473,12 +477,20 @@ export const integrations: T.Integration[] = [
   { ...I, id: "int-2", kind: "MES", name: "Production system", status: "connected", lastSync: at(0, 0, -4) },
   { ...I, id: "int-3", kind: "LIMS", name: "Lab system", status: "degraded", lastSync: at(0, -2) },
   { ...I, id: "int-4", kind: "Sign-in", name: "Microsoft sign-in", status: "connected", lastSync: at(-1) },
+  { ...I, id: "int-5", kind: "Quality system", name: "Quality system", status: "connected", lastSync: at(0, -1) },
+  { ...I, id: "int-6", kind: "Energy meters", name: "Line meters", status: "degraded", lastSync: at(0, -4) },
+  { ...I, id: "int-7", kind: "ERP", name: "Plant ERP export", status: "not connected", lastSync: at(-30) },
 ];
 export const apiKeys: T.ApiKey[] = [
   { ...I, id: "key-1", label: "Reporting export", created: at(-40), lastUsed: at(-1) },
   { ...I, id: "key-2", label: "Plant data warehouse", created: at(-20), lastUsed: at(0, -3) },
 ];
-export const webhooks: T.Webhook[] = [{ ...I, id: "wh-1", url: "https://hooks.example.invalid/stamped", events: ["card.decided", "stop.pressed"] }];
+export const webhooks: T.Webhook[] = [
+  { ...I, id: "wh-1", url: "https://hooks.example.invalid/stamped", events: ["card.decided", "stop.pressed"], status: "healthy", lastDelivery: at(0, 0, -6) },
+  { ...I, id: "wh-2", url: "https://mes.example.invalid/hooks/setpoints", events: ["setpoint.written", "setpoint.skipped"], status: "healthy", lastDelivery: at(0, -3) },
+  { ...I, id: "wh-3", url: "https://quality.example.invalid/hooks/lots", events: ["lot.at_risk", "correction.sent"], status: "failing", lastDelivery: at(0, -9), note: "Receiver returns 503 since 05:00; 14 deliveries queued for retry." },
+  { ...I, id: "wh-4", url: "https://reports.example.invalid/hooks/weekly", events: ["note.weekly"], status: "paused", lastDelivery: at(-8), note: "Paused by Plant head A. while the reporting system moves." },
+];
 
 /* ---------------- Ask ---------------- */
 export const askThreads: T.AskThread[] = [
@@ -501,7 +513,7 @@ export const askThreads: T.AskThread[] = [
 export const suggestedQuestions: string[] = ["What changed on Line B this shift?", "Which lots are at risk today?", "Is the hold temperature trial on track?", "What is waiting for my decision?"];
 export const savedAnswers: T.SavedAnswer[] = [
   { ...I, id: "sa-ans-1", threadId: "ask-2", title: "Tool T3 cycle change, value", savedBy: "Owner A.", at: at(-1), lineId: "line-b", topic: "Process",
-    summary: "Parts per shift rose 2.6% after the cycle change; Illustrative ₹2,14,000 a month at the plant's prices.", confidence: { label: "Measured", band: "1.9 to 3.3% parts per shift" }, refs: ["proof-3", "val-1", "prop-105"] },
+    summary: "Parts per shift rose 2.6% after the cycle change; the value at the plant's prices is on the owner's Home.", confidence: { label: "Measured", band: "1.9 to 3.3% parts per shift" }, refs: ["proof-3", "val-1", "prop-105"] },
   { ...I, id: "sa-ans-2", threadId: "ask-1", title: "Line A viscosity drift", savedBy: "Quality head A.", at: at(0, -1), lineId: "line-a", topic: "Quality",
     summary: "Viscosity rose 38 mPa·s over 9 batches with end-of-hold torque; a small agitator increase is modelled to bring it back.", confidence: { label: "Modelled", band: "2430 to 2560 mPa·s after the change" }, refs: ["drift-1", "prop-102", "inv-1"] },
   { ...I, id: "sa-ans-3", threadId: "ask-1", title: "Will a shorter hold work on Grade A-12?", savedBy: "Process engineer A.", at: at(-9), lineId: "line-a", topic: "Process",
@@ -527,7 +539,7 @@ export const notes: T.Note[] = [
     { text: "Lab system late; four lots unanchored until results arrive.", evidenceIds: ["EV-A-1185"], label: "Unknown" },
   ] },
   { ...I, id: "note-5", kind: "weekly", title: "Week 41 note", at: at(-8), topic: "Process", claims: [
-    { text: "Hold pressure 720 bar on Tool T3 verified at R3; Illustrative ₹1,38,000 a month at the plant's prices.", evidenceIds: ["EV-B-1902"], label: "Measured" },
+    { text: "Hold pressure 720 bar on Tool T3 verified at R3, with less scrap holding at both checks.", evidenceIds: ["EV-B-1902"], label: "Measured" },
     { text: "Hold temperature trial on Line A signed and started.", evidenceIds: ["EV-A-1102"], label: "Measured" },
   ] },
   { ...I, id: "note-6", kind: "weekly", title: "Week 40 note", at: at(-15), topic: "Quality", claims: [
