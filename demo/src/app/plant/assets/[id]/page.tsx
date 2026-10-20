@@ -57,6 +57,14 @@ export default async function AssetDetail({ params }: { params: Promise<{ id: st
           <Section title="Events" meta={line.short} flush>
             <ul className="tl" style={{ padding: "8px 16px" }}>{events.map((e) => <li key={e.at + e.text}><span className="t">{hhmm(e.at)}</span><span className={`k ${e.kind === "stop" ? "x" : "s"}`} /><span>{e.text}</span><span /></li>)}</ul>
           </Section>
+          <Section title="Reading quality" meta="All readings on this asset" flush>
+            <DataTable caption="Quality" rowKey={(t) => t.id} rows={tags} columns={[
+              { key: "t", label: "Tag", render: (t) => t.name },
+              { key: "g", label: "Good", align: "right", render: (t) => readingsOf(t).filter((r) => r.qualityCode === "good").length },
+              { key: "u", label: "Uncertain", align: "right", render: (t) => readingsOf(t).filter((r) => r.qualityCode === "uncertain").length },
+              { key: "b", label: "Bad", align: "right", render: (t) => readingsOf(t).filter((r) => r.qualityCode === "bad").length },
+            ]} />
+          </Section>
           <Section title="Setpoint writes" meta={line.short} flush>
             <DataTable caption="Writes" rowKey={(w) => `${w.runId}-${w.param}-${w.at}`} rows={writes} columns={[
               { key: "p", label: "Setting", render: (w) => w.param },
@@ -81,6 +89,9 @@ export default async function AssetDetail({ params }: { params: Promise<{ id: st
               <div className="rows">{settings.map((s) => <div key={s.param} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title" style={{ display: "block" }}>{s.name}</span><span className="row-sub">{s.value} {s.unit} · band {s.band[0]} to {s.band[1]} · until {hhmm(s.expiresAt)}</span></span><ModeTag mode={s.mode} /></div>)}</div>
             </Section>
           </div>
+          <Section title="Other assets on this line" flush>
+            <div className="rows">{siblings.filter((x) => x.id !== a.id).map((x) => { const k = D.tags.find((t) => t.id === x.keyReadingTagId); const v = k ? seriesFor(k).values.at(-1) : undefined; return <Link key={x.id} className="row" href={`/plant/assets/${x.id}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title" style={{ display: "block" }}>{x.name}</span><span className="row-sub">{k?.name}</span></span><span className="mono">{v !== undefined && k ? `${fmt(v)} ${k.unit}` : ""}</span></Link>; })}</div>
+          </Section>
           <Section title="Recent cards" flush>
             {cards.length ? <div className="rows">{cards.map((p) => <Link key={p.id} href={`/process/proposals/${p.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span className="row-title">{p.param}: {p.current} to {p.proposed}</span><Tag tone="accent">{p.state}</Tag></Link>)}</div> : <p className="muted" style={{ fontSize: 13, margin: 16 }}>No open cards on this asset.</p>}
           </Section>
