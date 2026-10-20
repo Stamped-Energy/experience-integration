@@ -1,7 +1,9 @@
 /** Ask area: tabs, evidence chips, answers with label and band only, abstain notes, sources and the evidence lookup. */
 import Link from "next/link";
+import { dayMonth as dayMonthS } from "@/lib/format";
 import * as D from "@/lib/demo/data";
-import type { AskClaim, AskThread, EvidenceLabel } from "@/lib/demo/types";
+import type { AskClaim, AskThread, EvidenceLabel, SavedAnswer } from "@/lib/demo/types";
+import type { ReactNode } from "react";
 import type { Crumb } from "@/components/shell/Shell";
 import { Confidence } from "@/components/ui/Confidence";
 import { EvidenceTag, Tabs, Tag } from "@/components/ui/primitives";
@@ -105,4 +107,37 @@ export function EvidenceItemSheet({ id, closeHref }: { id: string; closeHref: st
       </aside>
     </>
   );
+}
+
+/** Saved-answer and note helpers for the line and topic filters. */
+export const noPrice = (s?: string) => (s ?? "").split(/;\s*/).filter((x) => !x.includes("₹")).join("; ");
+export const lineShort = (id?: string) => (id ? D.byId.line(id)?.short ?? id : "Plant-wide");
+export const refHref = (r: string): string | undefined => {
+  if (r.startsWith("proof-")) return undefined;
+  if (r.startsWith("prop-")) return `/process/proposals/${r}`;
+  if (r.startsWith("trial-")) return `/process/trials/${r}`;
+  if (r.startsWith("drift-")) return "/quality/drift";
+  if (r.startsWith("inv-")) return `/quality/investigations/${r}`;
+  if (r.startsWith("corr-")) return "/quality/corrections";
+  if (r.startsWith("lot-")) return `/quality/lots/${r}`;
+  if (r.startsWith("model-")) return "/process/model-fit";
+  if (r.startsWith("val-")) return undefined;
+  return undefined;
+};
+export function FilterBar({ base, line, topic, extra }: { base: string; line?: string; topic?: string; extra?: ReactNode }) {
+  const q = (l?: string, t?: string) => { const p = new URLSearchParams(); if (l) p.set("line", l); if (t) p.set("topic", t); const s = p.toString(); return s ? `${base}?${s}` : base; };
+  return (
+    <div className="filters" role="group" aria-label="Filter">
+      <span className="label">Line</span>
+      {[undefined, ...D.lines.map((l) => l.id), "plant"].map((l) => <Link key={l ?? "all"} scroll={false} className={`fchip${line === l ? " on" : ""}`} href={q(l, topic)}>{l === undefined ? "All" : l === "plant" ? "Plant-wide" : lineShort(l)}</Link>)}
+      <span className="label" style={{ marginLeft: 12 }}>Topic</span>
+      {[undefined, "Process", "Quality"].map((t) => <Link key={t ?? "all"} scroll={false} className={`fchip${topic === t ? " on" : ""}`} href={q(line, t)}>{t ?? "All"}</Link>)}
+      {extra}
+    </div>
+  );
+}
+export const matches = (x: { lineId?: string; topic?: string }, line?: string, topic?: string) => (!line || (line === "plant" ? !x.lineId : x.lineId === line)) && (!topic || x.topic === topic);
+
+export function StaleTag({ s }: { s: SavedAnswer }) {
+  return s.stale ? <Tag tone="warning" title={s.stale.reason}>Stale since {dayMonthS(s.stale.since)}</Tag> : <Tag tone="success">Still current</Tag>;
 }

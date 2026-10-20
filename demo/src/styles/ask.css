@@ -23,3 +23,10 @@
 :root { --ask-w: 420px; }
 @media (min-width: 1800px) { :root { --ask-w: 520px; } }
 .panel-ask .claims { font-size: 13px; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: var(--space-4); }
+.fchip { font-size: 12px; border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; color: var(--text-secondary); background: var(--surface); text-decoration: none; }
+.fchip.on { border-color: var(--text-primary); color: var(--text-primary); font-weight: 600; }
+.stale-note { display: flex; flex-direction: column; gap: 4px; padding: var(--space-3); border: 1px solid var(--warning); border-radius: var(--radius-md); background: var(--warning-tint); font-size: 13px; }
+.refs { display: flex; flex-wrap: wrap; gap: 6px; }
+.refs a, .refs span { font-family: var(--font-mono); font-size: 11px; padding: 1px 6px; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-secondary); background: var(--surface-subtle); text-decoration: none; }
+.group-h { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-secondary); padding: 8px 16px; background: var(--surface-subtle); border-bottom: 1px solid var(--border); }
