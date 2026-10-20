@@ -10,6 +10,8 @@ import { EvidenceTag, Tag } from "@/components/ui/primitives";
 export function DemoBand() {
   return (
     <div className="demo-band" role="note">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/stamped-logo.png" alt="Stamped" width={16} height={16} className="band-logo" />
       <strong>Demonstration plant. Illustrative data.</strong>
       <span className="sep" />
       <span>Fictional plant, figures tagged Illustrative</span>
