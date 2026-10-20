@@ -71,7 +71,7 @@ export function Answer({ claims, abstain, cardRef, base, compact }: { claims?: A
   return (
     <div className="answer">
       <Confidence kind="label" label={weakest(cs)} note={`Weakest of ${cs.length} cited claim${cs.length === 1 ? "" : "s"}`} method="Each claim carries the label of its evidence; the answer takes the weakest. Uncited numbers are removed before an answer is shown." evidenceIds={cs.flatMap((c) => c.evidenceIds)} />
-      <ol className="claims">{cs.map((c, i) => <li key={i}><span>{noPrice(c.text)}</span><span className="claim-ev">{c.evidenceIds.map((e) => <EvidenceChip key={e} id={e} label={c.label} base={base} />)}</span></li>)}</ol>
+      <ol className="claims">{cs.map((c, i) => <li key={i}><span>{c.text}</span><span className="claim-ev">{c.evidenceIds.map((e) => <EvidenceChip key={e} id={e} label={c.label} base={base} />)}</span></li>)}</ol>
       {cardRef && !compact ? <AllowedCard refId={cardRef} base={base} /> : null}
     </div>
   );
@@ -99,7 +99,7 @@ export function EvidenceItemSheet({ id, closeHref }: { id: string; closeHref: st
           <p className="muted" style={{ fontSize: 13, margin: 0 }}>No proof record cites this id. It is a source record: a reading, a lab result or a log entry, labelled where it is used.</p>
           <div className="stack-sm">
             <span className="label">Cited by claims</span>
-            {claims.map((x, i) => <div key={x.where + i} className="ask-claim"><span>{noPrice(x.c.text)}</span><span className="meta"><EvidenceTag label={x.c.label} /><Link className="link" href={x.href}>{x.where}</Link></span></div>)}
+            {claims.map((x, i) => <div key={x.where + i} className="ask-claim"><span>{x.c.text}</span><span className="meta"><EvidenceTag label={x.c.label} /><Link className="link" href={x.href}>{x.where}</Link></span></div>)}
           </div>
           {props.length ? <div className="stack-sm"><span className="label">Cited by proposals</span>{props.map((p) => <Link key={p.id} className="link" href={`/process/proposals/${p.id}`}>{p.id}: {p.param} {p.current} to {p.proposed}</Link>)}</div> : null}
           {inv.length ? <div className="stack-sm"><span className="label">In investigations</span>{inv.map(({ e, i }) => <div key={i.id + e.at} className="ask-claim"><span>{e.text}</span><span className="meta"><EvidenceTag label={e.label} /><Link className="link" href={`/quality/investigations/${i.id}`}>{i.title}</Link></span></div>)}</div> : null}
@@ -110,7 +110,6 @@ export function EvidenceItemSheet({ id, closeHref }: { id: string; closeHref: st
 }
 
 /** Saved-answer and note helpers for the line and topic filters. */
-export const noPrice = (s?: string) => (s ?? "").split(/;\s*/).filter((x) => !x.includes("₹")).join("; ");
 export const lineShort = (id?: string) => (id ? D.byId.line(id)?.short ?? id : "Plant-wide");
 export const refHref = (r: string): string | undefined => {
   if (r.startsWith("proof-")) return undefined;
