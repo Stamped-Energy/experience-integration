@@ -153,11 +153,51 @@ export const runs: T.Run[] = [...makeRuns("line-a", 40, "batch"), ...makeRuns("l
 runs.find((r) => r.id === "run-a-2417")!.proofRecordId = "proof-1";
 runs.find((r) => r.id === "run-b-679")!.proofRecordId = "proof-3";
 
-export const tagReadings: T.TagReading[] = runs.slice(-6).concat(runs.slice(34, 40)).flatMap((run) => {
+const baseReadings: T.TagReading[] = runs.slice(-6).concat(runs.slice(34, 40)).flatMap((run) => {
   const tag = run.lineId === "line-a" ? "tag-a-mixer-3" : "tag-b-press-1";
   const base = run.lineId === "line-a" ? 84 : 236;
   return Array.from({ length: 12 }, (_, k) => ({ ...I, tagId: tag, runId: run.id, at: at(0, 0, -k * 20), value: r1(base + Math.sin(k / 2) * 1.2 + (rnd() - 0.5)), qualityCode: (k === 7 ? "uncertain" : "good") as T.QualityCode, label: "Measured" as const }));
 });
+
+
+/**
+ * Readings for every other tag: same shape as the base series (last 6 runs per line, 12 points per run),
+ * values inside each tag's normal band and tied to the run's setpoints. Separate seed so the rest of the
+ * dataset (which shares rnd) is unchanged.
+ */
+let tagSeed = 4242;
+function trnd(): number { tagSeed = (tagSeed * 1664525 + 1013904223) % 4294967296; return tagSeed / 4294967296; }
+type Profile = (run: T.Run, k: number) => number;
+const wave = (k: number, amp: number) => Math.sin(k / 2) * amp + (trnd() - 0.5) * amp * 0.8;
+const TAG_PROFILES: Record<string, Profile> = {
+  "tag-a-charge-1": (r, k) => r1(1200 + (k === 0 ? -40 : 0) + wave(k, 6)), // kg, charge mass settles after charging
+  "tag-a-mixer-1": (r, k) => r1(r.setpoints.agitator + wave(k, 1.5)), // rpm, follows setpoint
+  "tag-a-mixer-2": (r, k) => r1(380 + k * 3 + wave(k, 6)), // N·m, rises as viscosity builds in the hold
+  "tag-a-jacket-1": (r, k) => r1(r.setpoints["hold-temp"] + 4 + wave(k, 1)), // °C, jacket runs above batch
+  "tag-a-jacket-2": (_r, k) => r2(11 + wave(k, 0.4)), // m³/h
+  "tag-a-hold-1": (r, k) => r1(Math.min(r.setpoints["hold-time"], (k * r.setpoints["hold-time"]) / 11)), // min, elapsed hold
+  "tag-a-hold-2": (r, k) => Math.round(1900 + k * ((r.outcomes[0].value - 1900) / 11) + wave(k, 15)), // mPa·s, climbs to the run's outcome
+  "tag-a-pump-1": (_r, k) => r2(2.4 + wave(k, 0.12)), // bar
+  "tag-b-dryer-1": (_r, k) => r1(-40 + wave(k, 1.2)), // °C dew point
+  "tag-b-press-2": (r, k) => Math.round(r.setpoints["hold-pressure"] + wave(k, 6)), // bar
+  "tag-b-press-3": (r, k) => r2(r.setpoints["cycle-time"] + wave(k, 0.15)), // s
+  "tag-b-tool-1": (_r, k) => r1(62 + wave(k, 0.8)), // °C tool temperature
+  "tag-b-tool-2": (r, k) => Math.round(r.setpoints["hold-pressure"] * 0.62 + wave(k, 8)), // bar cavity pressure
+  "tag-b-robot-1": (_r, k) => r2(2.8 + wave(k, 0.08)), // s take-out
+  "tag-b-vision-1": (r, k) => r2(r.outcomes[2].value + wave(k, 0.08)), // g part weight around the run's mean
+  "tag-b-vision-2": (r) => Math.max(0, Math.round(r.outcomes[0].value * 0.9 + (trnd() - 0.5) * 2)), // parts rejected per interval
+};
+const readingRuns = runs.slice(-6).concat(runs.slice(34, 40));
+const extraReadings: T.TagReading[] = tags.filter((t) => TAG_PROFILES[t.id]).flatMap((tag) =>
+  readingRuns.filter((r) => r.lineId === tag.lineId).flatMap((run) => {
+    const step = tag.lineId === "line-a" ? 35 : 40;
+    return Array.from({ length: 12 }, (_, k) => ({
+      ...I, tagId: tag.id, runId: run.id, at: at(0, 0, (Date.parse(run.start) - NOW_MS) / 60000 + k * step), value: TAG_PROFILES[tag.id](run, k),
+      qualityCode: (k === 7 && tag.id.endsWith("-1") ? "uncertain" : "good") as T.QualityCode, label: "Measured" as const,
+    }));
+  }),
+);
+export const tagReadings: T.TagReading[] = [...baseReadings, ...extraReadings];
 
 /** Every run on every line has its setpoint writes (one per line-pack setpoint). Trial-arm runs show the switches. */
 export const setpointWrites: T.SetpointWrite[] = runs.flatMap((r, idx) => {

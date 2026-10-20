@@ -46,3 +46,11 @@ test("copy: no em dashes, no client names", () => {
 test("every run has setpoint writes", () => {
   for (const r of D.runs) assert.ok(D.setpointWrites.some((w) => w.runId === r.id), r.id);
 });
+
+test("every tag has readings, 12 per run, same shape", () => {
+  for (const t of D.tags) {
+    const rs = D.tagReadings.filter((r) => r.tagId === t.id);
+    assert.ok(rs.length >= 72, `${t.id} has ${rs.length}`);
+    for (const r of rs) assert.ok(Number.isFinite(r.value) && D.runs.find((x) => x.id === r.runId)?.lineId === t.lineId, t.id);
+  }
+});
