@@ -32,9 +32,9 @@ button { font: inherit; color: inherit; }
   padding: var(--space-3) 0; border-right: 1px solid var(--border); background: var(--canvas);
 }
 .rail-mark { width: 32px; height: 32px; display: grid; place-items: center; margin-bottom: var(--space-3); }
-.rail-mark img, .band-logo { display: block; object-fit: contain; border-radius: var(--radius-sm); }
+.rail-mark img { display: block; object-fit: contain; border-radius: var(--radius-sm); }
 /* Official logo PNG has a white background; keep it on a white tile in dark theme rather than redraw it. */
-[data-theme="dark"] .rail-mark img, [data-theme="dark"] .band-logo { background: #FFFFFF; }
+[data-theme="dark"] .rail-mark img { background: #FFFFFF; }
 .rail-item {
   position: relative; width: 40px; height: 40px; display: grid; place-items: center;
   border-radius: var(--radius-md); color: var(--text-secondary);
@@ -57,13 +57,6 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 .rail-item:hover .rail-tip, .rail-item:focus-visible .rail-tip { opacity: 1; }
 
 .main { min-width: 0; display: flex; flex-direction: column; }
-.demo-band {
-  height: var(--band-h); display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-5);
-  border-bottom: 1px solid var(--border); background: var(--surface-subtle); font-size: 12px; color: var(--text-secondary);
-}
-.demo-band strong { color: var(--text-primary); font-weight: 600; }
-.demo-band .sep { width: 1px; height: 12px; background: var(--border-strong); }
-.demo-band .authority { margin-left: auto; }
 
 .crumbbar {
   position: sticky; top: 0; z-index: var(--z-sticky); height: var(--crumb-h);
@@ -327,11 +320,11 @@ a.row:hover { background: var(--surface-subtle); }
   .bottombar a svg { width: 20px; height: 20px; }
   .bottombar a[aria-current="page"] { color: var(--accent-700); }
   .workspace { padding: var(--space-4) var(--space-4) calc(var(--bottom-bar-h) + var(--space-5)); }
-  .search, .demo-band .authority, .demo-band .sep, .demo-band > span:not(.authority), .crumbs .crumb-mid, .role-switch .label, .crumb-tools > .tag { display: none; }
+  .search, .crumbs .crumb-mid, .role-switch .label, .crumb-tools > .tag { display: none; }
   .section-body.flush { overflow-x: auto; }
   .table { min-width: 640px; }
   .crumbs { font-size: 13px; }
-  .crumbbar, .demo-band { padding: 0 var(--space-4); }
+  .crumbbar { padding: 0 var(--space-4); }
   .grid { grid-template-columns: minmax(0, 1fr); }
   .grid > * { grid-column: 1 / -1; }
   .kpis { grid-auto-flow: row; }

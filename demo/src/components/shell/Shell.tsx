@@ -9,19 +9,6 @@ import { Icon } from "./icons";
 import { Tag } from "@/components/ui/primitives";
 import { AskPanelContents } from "@/components/ask/Panel";
 
-export function DemoBand() {
-  return (
-    <div className="demo-band" role="note">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/stamped-logo.png" alt="Stamped" width={16} height={16} className="band-logo" />
-      <strong>Demonstration plant. Illustrative data.</strong>
-      <span className="sep" />
-      <span>Fictional plant, figures tagged Illustrative</span>
-      <span className="authority">Stamped works inside limits set beforehand.</span>
-    </div>
-  );
-}
-
 export async function AppShell({ children }: { children: ReactNode }) {
   const role = await currentRole();
   const waiting = inboxItems.filter((i) => i.bucket === "waiting").length;
@@ -31,7 +18,6 @@ export async function AppShell({ children }: { children: ReactNode }) {
       <div className="app">
         <Rail inboxCount={waiting} />
         <div className="main" data-role={role}>
-          <DemoBand />
           {children}
         </div>
       </div>

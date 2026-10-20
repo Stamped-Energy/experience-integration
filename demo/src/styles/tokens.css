@@ -94,7 +94,6 @@
 :root {
   --font-display: var(--font-brand), var(--font-sans);
   --bottom-bar-h: 56px;
-  --band-h: 28px;
   --ask-w: 400px;
   --type-display: 28px; --lh-display: 36px;
   --type-title: 20px;   --lh-title: 28px;

@@ -7,7 +7,7 @@ Stack: Next.js 16 App Router, React 19, TypeScript, plain CSS on design tokens. 
 Checks: `pnpm lint` (types plus the copy-rule check), `pnpm test` (dataset cross-links, RBAC, copy), `pnpm build`.
 
 ## 1. Tokens and theme
-- `src/styles/tokens.css`: the only place hex values live. Copied from the technical site, plus type sizes (`--type-display` 28/36, `--type-title` 20/28, `--type-heading` 16/24, `--type-body` 16/26, `--type-small` 14/22, `--type-meta` 12, `--type-label` 11), `--band-h`, `--ask-w`, `--bottom-bar-h`.
+- `src/styles/tokens.css`: the only place hex values live. Copied from the technical site, plus type sizes (`--type-display` 28/36, `--type-title` 20/28, `--type-heading` 16/24, `--type-body` 16/26, `--type-small` 14/22, `--type-meta` 12, `--type-label` 11), `--ask-w`, `--bottom-bar-h`.
 - Themes: light default. `html[data-theme="dark"]` for control rooms. `html[data-density="compact"]` (rows 32, section pad 16, body 14). Both toggled from the rail and saved in localStorage (`DISPLAY_SCRIPT` applies them before paint).
 - Fonts (`src/app/layout.tsx`, next/font): Geist `--font-geist` (everything), Geist Mono `--font-geist-mono` (ids, versions, tags, timers), Space Grotesk `--font-brand` only via `PageHeader brand` (used once: Home owner view). Do not use it anywhere else.
 - Spacing only `--space-1..8` (4 8 12 16 24 32 48 64). Radius 4 controls, 6 sections. 1px borders; 2px only for focus and active indicators. No shadows except floating things (Ask panel). No gradients, glow or pulsing. Coral at full strength only where a decision lives.
@@ -16,9 +16,8 @@ Checks: `pnpm lint` (types plus the copy-rule check), `pnpm test` (dataset cross
 ## 2. Shell (`src/components/shell/`)
 | Component | File | Props | Notes |
 |---|---|---|---|
-| `AppShell` | Shell.tsx | `children` | Rendered by layout. Rail, demo band, bottom bar, Ask panel. |
+| `AppShell` | Shell.tsx | `children` | Rendered by layout. Rail, bottom bar, Ask panel. |
 | `Workspace` | Shell.tsx | `crumbs: Crumb[]`, `askContext?: string`, `children` | Every page renders inside one. 44px breadcrumb bar (Plant / Area / Line / Asset), search, role switcher, lease tag, Ask button. |
-| `DemoBand` | Shell.tsx | none | "Demonstration plant. Illustrative data." plus the authority line. |
 | `Rail` | ShellClient.tsx | `inboxCount` | 56px. Order from `src/lib/nav.ts` `NAV`; same for all roles. Planning marked soon. Maintenance absent. |
 | `BottomBar` | ShellClient.tsx | none | Under 768px; items with `mobile: true`. |
 | `RoleSwitcher` | ShellClient.tsx | `role`, `roles` | Sets the `stamped-role` cookie and refreshes. |
