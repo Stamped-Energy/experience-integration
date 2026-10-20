@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import { notFound } from "next/navigation";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
@@ -22,8 +23,8 @@ export default async function CardDetail({ params }: { params: Promise<{ id: str
   const audit = D.auditEvents.filter((a) => a.objectId === item.ref).slice(0, 5);
   const proof = D.proofRecords.find((r) => r.objectId === D.trials.find((t) => t.lineId === lineId)?.id);
   return (
-    <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Inbox", href: "/inbox" }, { label: line.short, href: `/process?line=${line.id}` }, { label: p ? D.byId.asset(p.assetId)!.name : item.ref }]} askContext={item.ref}>
-      <PageHeader eyebrow={`Inbox · ${item.ref}`} title={item.title} actions={<><Link className="btn btn-sm btn-quiet" href="/inbox">Back to Inbox</Link><AskButton context={item.ref} label="Ask about this card" /></>} />
+    <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Inbox", href: "/inbox" }, { label: line.short, href: `/process?line=${line.id}` }, { label: p ? D.byId.asset(p.assetId)!.name : item.title }]} askContext={item.title}>
+      <PageHeader eyebrow={`Inbox · ${nameOf(item.ref)}`} title={item.title} actions={<><Link className="btn btn-sm btn-quiet" href="/inbox">Back to Inbox</Link><AskButton context={item.ref} label="Ask about this card" /></>} />
       <div className="grid">
         <div className="span-8 stack">
           <InboxCard item={item} role={role} link={false} />

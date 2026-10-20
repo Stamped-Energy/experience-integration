@@ -1,3 +1,4 @@
+import { nameOf } from "@/lib/names";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import type { HomeView, RoleId } from "@/lib/demo/types";
@@ -162,7 +163,7 @@ function LineView({ role, lineId }: { role: RoleId; lineId: string }) {
         </div>
         <div className="span-4 stack">
           <section className="section">
-            <div className="section-head"><h2>{trial ? "Trial running" : "Stop"}</h2>{trial ? <span className="section-meta mono">{trial.id}</span> : null}</div>
+            <div className="section-head"><h2>{trial ? "Trial running" : "Stop"}</h2>{trial ? <span className="section-meta">{nameOf(trial.id)}</span> : null}</div>
             <div className="section-body stack-sm" style={{ fontSize: 14 }}>
               {trial ? <><div style={{ fontWeight: 500 }}>{trial.change}</div><div className="secondary">{trial.switches.filter((s) => s.done).length} of 16 batches done · restore target {Object.values(trial.restoreTarget)[0]} °C</div></> : null}
               <div className="secondary">{trial ? "Stop restores the checked prior value from the next batch. If restore fails the line goes recommend-only." : "Stop keeps the current values and writes nothing new until a person decides."}</div>

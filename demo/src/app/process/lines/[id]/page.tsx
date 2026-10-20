@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import { notFound } from "next/navigation";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
@@ -76,7 +77,7 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
               <dt>Window</dt><dd>{pack.windowTemplate}</dd>
               <dt>Signer</dt><dd>Plant head, set per plant</dd>
               <dt>Constraints</dt><dd>{pack.constraints.join("; ")}</dd>
-              <dt>Model</dt><dd><Link className="link" href="/process/model-fit">{fit.modelId} {fit.version}</Link></dd>
+              <dt>Model</dt><dd><Link className="link" href="/process/model-fit">{nameOf(fit.modelId)} {fit.version}</Link></dd>
               <dt>Standing approval</dt><dd>{sa.length ? sa.map((s) => `${s.band}, until ${dayMonth(s.until)}`).join("; ") : "None"}</dd>
               <dt>Lease</dt><dd>Connected</dd>
             </dl>

@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { nameOf } from "@/lib/names";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import * as D from "@/lib/demo/data";
@@ -39,9 +40,9 @@ export default async function TrialDetail({ params, searchParams }: { params: Pr
   const done = t.switches.filter((s) => !s.skippedReason).length;
   const skipped = t.switches.filter((s) => s.skippedReason);
   return (
-    <Workspace crumbs={crumbs({ label: "Trials", href: "/process/trials" }, { label: t.id })} askContext={t.change}>
+    <Workspace crumbs={crumbs({ label: "Trials", href: "/process/trials" }, { label: nameOf(t.id) })} askContext={t.change}>
       <PageHeader eyebrow={`Trial · ${line.name}`} title={t.change}
-        meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><Tag tone={t.status === "running" ? "info" : t.status === "awaiting signature" ? "accent" : "neutral"}>{t.status}</Tag><span className="mono">{t.id}</span>Drafted by {t.draftedBy}{t.signedAt ? ` · signed by Plant head A. ${dayMonth(t.signedAt)}` : ""}</span>}
+        meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><Tag tone={t.status === "running" ? "info" : t.status === "awaiting signature" ? "accent" : "neutral"}>{t.status}</Tag><span >{nameOf(t.id)}</span>Drafted by {t.draftedBy}{t.signedAt ? ` · signed by Plant head A. ${dayMonth(t.signedAt)}` : ""}</span>}
         actions={<>{proof ? <Link className="btn btn-sm btn-accent" href={`${base}?evidence=${proof.id}`} scroll={false}>Evidence</Link> : null}<AskButton context={t.change} label="Ask about this trial" /></>} />
       <ProcessTabs active="trials" />
       <div className="grid">
@@ -67,7 +68,7 @@ export default async function TrialDetail({ params, searchParams }: { params: Pr
           <div className="split">
             <Section title="Skipped switches" flush>
               <DataTable caption="Skipped switches" rowKey={(s) => s.runId} rows={skipped} columns={[
-                { key: "r", label: "Run", mono: true, render: (s) => <Link className="link" href={`/process/runs/${s.runId}`}>{s.runId}</Link> },
+                { key: "r", label: "Run", render: (s) => <Link className="link" href={`/process/runs/${s.runId}`}>{nameOf(s.runId)}</Link> },
                 { key: "a", label: "Arm", render: (s) => s.arm },
                 { key: "w", label: "Reason", render: (s) => s.skippedReason },
               ]} />
@@ -83,7 +84,7 @@ export default async function TrialDetail({ params, searchParams }: { params: Pr
         </div>
         <div className="span-4 stack ctx">
           {win && rs ? <Section title="Restore target"><LimitsBand name={win.name} unit={win.unit} signed={[win.low, win.high]} narrowed={win.narrowedLow !== undefined ? [win.narrowedLow, win.narrowedHigh!] : undefined} current={rs.value} proposed={Object.values(t.restoreTarget)[0]} signedBy={win.signedBy} signedAt={dayMonth(win.signedAt)} /><div className="muted" style={{ fontSize: 12, marginTop: 4 }}>Tick shows the prior value Stop restores.</div></Section> : null}
-          <Section title="Measurement plan" meta={<span className="mono">{plan.id} v{plan.version}</span>} actions={<Tag>Locked</Tag>}>
+          <Section title="Measurement plan" meta={<span >{nameOf(plan.id)} v{plan.version}</span>} actions={<Tag>Locked</Tag>}>
             <dl className="facts-grid">
               <dt>Hash</dt><dd className="mono">{plan.hash}</dd>
               <dt>Locked</dt><dd>{dayMonth(plan.lockedAt)}, before the first switch</dd>
@@ -94,7 +95,7 @@ export default async function TrialDetail({ params, searchParams }: { params: Pr
           </Section>
           <Section title="Result so far">
             {proof ? <Confidence kind="verdict" label={proof.questions[2].label} verdict={proof.verdict} rung={proof.rung} effect={proof.verdict === "Withheld" ? "not measured" : `${proof.effect.measure} ${proof.effect.value > 0 ? "+" : ""}${proof.effect.value} ${proof.effect.unit}`}
-              interval={proof.verdict === "Withheld" ? "none" : `${proof.effect.low} to ${proof.effect.high} ${proof.effect.unit}`} diagnostics={proof.diagnostics} method={`Plan ${plan.id}`} withheldNeeds={proof.withheldNeeds} /> : <span className="muted">No proof record yet.</span>}
+              interval={proof.verdict === "Withheld" ? "none" : `${proof.effect.low} to ${proof.effect.high} ${proof.effect.unit}`} diagnostics={proof.diagnostics} method={`Plan ${nameOf(plan.id)}`} withheldNeeds={proof.withheldNeeds} /> : <span className="muted">No proof record yet.</span>}
           </Section>
           <Section title="Holding check" flush>
             <ul className="tl">{checks.length ? checks.map((h, i) => <li key={i}><span className="t">{dayMonth(h.checkedAt)}</span><span className="k" /><span>Checked again<span className="cell-sub">next {rel(h.nextAt)}</span></span><Tag tone={h.result === "holding" ? "success" : h.result === "faded" ? "critical" : "warning"}>{h.result}</Tag></li>) : <li><span className="t">None</span><span /><span className="muted">First check after the verdict</span><span /></li>}</ul>
