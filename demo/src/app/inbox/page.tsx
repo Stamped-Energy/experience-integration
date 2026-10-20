@@ -14,13 +14,14 @@ export default async function Inbox({ searchParams }: { searchParams: Promise<{ 
   const sp = await searchParams;
   const role = await currentRole();
   const tab = (TABS.some((t) => t.id === sp.tab) ? sp.tab : "waiting") as (typeof TABS)[number]["id"];
+  const heading = TABS.find((t) => t.id === tab)!;
   const items = D.inboxItems.filter((i) => i.bucket === tab);
   const mine = items.filter((i) => i.owner === role);
   const ordered = [...mine, ...items.filter((i) => i.owner !== role)];
   const [first, ...rest] = ordered;
   return (
-    <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Inbox" }, { label: TABS.find((t) => t.id === tab)!.label }]} askContext="Inbox">
-      <PageHeader eyebrow="Inbox" title="The action that has an owner, a due window and proof one click away" meta={`${mine.length} of ${items.length} are for the ${D.byId.role(role).name.toLowerCase()} role`} />
+    <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Inbox" }, { label: heading.label }]} askContext="Inbox">
+      <PageHeader eyebrow="Inbox" title={heading.label} meta={`${mine.length} of ${items.length} ${mine.length === 1 ? "is" : "are"} for the ${D.byId.role(role).name.toLowerCase()}. Each one names an owner, a due time and the proof.`} />
       <Tabs label="Inbox" items={TABS.map((t) => ({ href: `/inbox?tab=${t.id}`, label: t.label, count: D.inboxItems.filter((i) => i.bucket === t.id).length, active: t.id === tab }))} />
       <div className="grid">
         <div className="span-8 stack-sm">
