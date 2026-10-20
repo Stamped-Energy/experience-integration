@@ -103,3 +103,13 @@ a.h-item:hover, .h-item:hover { background: var(--surface-subtle); }
 .composer2 .thinking { display: inline-flex; align-items: center; gap: 6px; }
 .ask-head .mascot { flex: none; }
 .mascot { display: inline-block; overflow: visible; }
+
+/* ---------- Mascot lab (/mascot) ---------- */
+.mascot-lab .lab-live { display: flex; gap: var(--space-4, 24px); align-items: flex-start; flex-wrap: wrap; margin: var(--space-3, 16px) 0; }
+.mascot-lab .lab-modes { display: flex; flex-wrap: wrap; gap: 6px; }
+.mascot-lab .lab-fast { display: block; margin-top: 10px; font-size: 13px; }
+.mascot-lab .lab-log { font-size: 12px; color: var(--muted, #777); padding-left: 18px; min-height: 12em; }
+.mascot-lab .lab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 12px; }
+.mascot-lab .lab-row { display: flex; gap: 18px; flex-wrap: wrap; }
+.mascot-lab figure { margin: 0; text-align: center; }
+.mascot-lab figcaption { font-size: 12px; color: var(--muted, #777); }

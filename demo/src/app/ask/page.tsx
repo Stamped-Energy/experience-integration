@@ -16,7 +16,7 @@ export default async function AskHome({ searchParams }: { searchParams: Promise<
     if (t) redirect(`/ask/${t.id}`);
     if (sp.state === "error") return (
       <AskPage title="Ask" base="/ask" sp={sp}>
-        <div className="turn"><div className="q-bubble">{q}</div><div className="a-row"><span className="a-mascot"><StampedMascot state="error" size={28} label="Stamped assistant, error" /></span><div className="a-prose"><p className="a-lead">Ask could not reach plant data just now.</p><p className="muted">Nothing was changed. <Link className="link" href={`/ask?q=${encodeURIComponent(q)}`}>Try again</Link></p></div></div></div>
+        <div className="turn"><div className="q-bubble">{q}</div><div className="a-row"><span className="a-mascot"><StampedMascot mode="error" size={28} label="Stamped assistant, error" /></span><div className="a-prose"><p className="a-lead">Ask could not reach plant data just now.</p><p className="muted">Nothing was changed. <Link className="link" href={`/ask?q=${encodeURIComponent(q)}`}>Try again</Link></p></div></div></div>
       </AskPage>
     );
     return <AskPage title="Ask" base={`/ask?q=${encodeURIComponent(q)}`} sp={{ ...sp, q: undefined }}><TurnView t={liveTurn(q, `/ask?q=${encodeURIComponent(q)}`)} idx={0} /></AskPage>;
