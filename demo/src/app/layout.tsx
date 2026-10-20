@@ -5,6 +5,7 @@ import { DISPLAY_SCRIPT } from "@/components/shell/ShellClient";
 import "@/styles/tokens.css";
 import "@/styles/app.css";
 import "@/styles/process.css";
+import "@/styles/quality.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
