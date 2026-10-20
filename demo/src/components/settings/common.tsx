@@ -1,5 +1,6 @@
 /** Settings shell: section list on the left, content, and at 1920 an aside with help, history and who can change it. */
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import type { ReactNode } from "react";
 import * as D from "@/lib/demo/data";
 import type { ActionId } from "@/lib/demo/types";
@@ -29,7 +30,7 @@ export function SettingsPage({ section, title, meta, actions, children, help, ch
         <div className="rows">{changes.map((a) => <div key={a} className="row" style={{ gridTemplateColumns: "minmax(0,1fr)" }}><span><span className="row-title" style={{ display: "block" }}>{ACTION_LABELS[a]}</span><span className="row-sub">{whoCan(a).map(roleName).join(", ") || "Nobody"}</span></span></div>)}</div>
       </Section>
       <Section title="History" meta="From the audit log" flush>
-        {history.length ? <ul className="tl" style={{ padding: "8px 16px" }}>{history.map((h) => <li key={h.id}><span className="t">{dayMonth(h.at)}</span><span className="k s" /><span>{h.action} · <span className="mono">{h.objectId}</span><span className="cell-sub">{roleName(h.role)} {hhmm(h.at)}</span></span><span /></li>)}</ul> : <p className="muted" style={{ margin: 16, fontSize: 13 }}>No changes in the log yet.</p>}
+        {history.length ? <ul className="tl" style={{ padding: "8px 16px" }}>{history.map((h) => <li key={h.id}><span className="t">{dayMonth(h.at)}</span><span className="k s" /><span>{h.action} · <span >{nameOf(h.objectId)}</span><span className="cell-sub">{roleName(h.role)} {hhmm(h.at)}</span></span><span /></li>)}</ul> : <p className="muted" style={{ margin: 16, fontSize: 13 }}>No changes in the log yet.</p>}
       </Section>
     </>
   );

@@ -1,3 +1,4 @@
+import { nameOf } from "@/lib/names";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
@@ -51,7 +52,7 @@ export default async function PlantSetup() {
         </Section>
         <Section title="Plant Box" flush>
           <DataTable caption="Box" rowKey={(l) => l.id} rows={D.leases} columns={[
-            { key: "i", label: "Lease", mono: true, render: (l) => l.id },
+            { key: "i", label: "Lease", render: (l) => nameOf(l.id) },
             { key: "s", label: "State", render: (l) => <Tag>{l.state}</Tag> },
             { key: "m", label: "Limits", render: (l) => `${l.maxOfflineH} h, cap ${l.hardCapH} h` },
           ]} />

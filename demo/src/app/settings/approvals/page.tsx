@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
 import { can, grant, whoCan, ACTIONS, ACTION_LABELS, ROLE_ORDER } from "@/lib/rbac";
@@ -29,7 +30,7 @@ export default async function Approvals() {
         const revoked = !!a.revokedAt;
         const tag = revoked ? <Tag tone="neutral">Revoked</Tag> : days <= 3 ? <Tag tone="warning" dot>Expires in {days} days</Tag> : age >= 30 ? <Tag tone="info" dot>Active · running {age} days</Tag> : <Tag tone="success" dot>Active</Tag>;
         return (
-          <Section key={a.id} title={`${l.name} · ${w.map((x) => x!.name).join(", ")}`} meta={<span className="mono">{a.id}</span>} actions={tag}>
+          <Section key={a.id} title={`${l.name} · ${w.map((x) => x!.name).join(", ")}`} actions={tag}>
             <div className="stat-row">
               <div className="stat"><div className="label">Band</div><div className="v" style={{ fontSize: 16 }}>{a.band}</div><div className="s">inside {w[0] ? `${w[0].low} to ${w[0].high} ${w[0].unit}` : "the signed window"}</div></div>
               <div className="stat"><div className="label">Uses</div><div className="v">{a.uses}</div><div className="s">proposals let through</div></div>
@@ -59,7 +60,7 @@ export default async function Approvals() {
       })}
       <Section title="Recent writes under approval or per-run decision" flush>
         <DataTable caption="Writes" rowKey={(w) => w.runId + w.param} rows={writes} columns={[
-          { key: "r", label: "Run", render: (w) => <Link className="link" href={`/process/runs/${w.runId}`}>{w.runId}</Link> },
+          { key: "r", label: "Run", render: (w) => <Link className="link" href={`/process/runs/${w.runId}`}>{nameOf(w.runId)}</Link> },
           { key: "p", label: "Setting", render: (w) => w.param },
           { key: "v", label: "Value", align: "right", render: (w) => w.value },
           { key: "b", label: "By", render: (w) => roleName(w.byRole) },
