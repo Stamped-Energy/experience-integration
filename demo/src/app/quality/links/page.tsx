@@ -32,7 +32,7 @@ export default async function Links() {
             const thr = threshold(l.lotId);
             return (
               <Section key={l.id} title={`Lot ${lotNo(lot.id)} to ${runLabel(D.runs.find((r) => r.id === l.runId)!)}`} meta={`${gradeOf(lot).name} · ${l.candidates.length} candidate runs`} actions={<><Link className="link" href={`/quality/lots/${lot.id}`}>Lot detail</Link><RiskTag risk={lot.riskWord} /></>}>
-                <Confidence kind="link" label={l.label} score={l.link_confidence} threshold={thr} status={l.status} drivers={["time proximity", "recipe match", "sequence", "scanned id"]} method="Weights fitted on a verification sample (lot-join.md)" />
+                <Confidence kind="link" label={l.label} score={l.link_confidence} threshold={thr} status={l.status} drivers={["time proximity", "recipe match", "sequence", "scanned id"]} method="Weights fitted on a verification sample" />
                 <div className="parts" style={{ margin: "8px 0" }}>
                   <span>Time<b>{l.parts.timeProximity}</b></span><span>Recipe<b>{l.parts.recipeMatch}</b></span><span>Sequence<b>{l.parts.sequenceConsistency}</b></span><span>Scanned id<b>{l.parts.scannedIdAgreement}</b></span><span>Penalty<b>{l.parts.multiCandidatePenalty}</b></span>
                 </div>

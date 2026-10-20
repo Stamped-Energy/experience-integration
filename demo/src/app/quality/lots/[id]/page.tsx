@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import { notFound } from "next/navigation";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
@@ -37,7 +38,7 @@ export default async function LotDetail({ params, searchParams }: { params: Prom
   return (
     <Workspace crumbs={crumbs({ label: "Lots", href: "/quality" }, { label: `Lot ${lotNo(lot.id)}` })} askContext={`Lot ${lotNo(lot.id)}`}>
       <PageHeader eyebrow={`Lot detail and join · ${line.name}`} title={`Lot ${lotNo(lot.id)} · ${gradeOf(lot).name}`}
-        meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><RiskTag risk={lot.riskWord} /><span className="mono">{lot.id}</span>{lot.status} · started {dayMonth(lot.startedAt)} {hhmm(lot.startedAt)}</span>}
+        meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><RiskTag risk={lot.riskWord} /><span >{nameOf(lot.id)}</span>{lot.status} · started {dayMonth(lot.startedAt)} {hhmm(lot.startedAt)}</span>}
         actions={<>{proof ? <Link className="btn btn-sm btn-accent" href={`${base}?evidence=${proof.id}`} scroll={false}>Evidence</Link> : null}<AskButton context={`Lot ${lotNo(lot.id)}`} label="Ask about this lot" /></>} />
       <QualityTabs active="lots" />
       <NoReleaseLine />
@@ -51,8 +52,8 @@ export default async function LotDetail({ params, searchParams }: { params: Prom
                 const run = D.runs.find((r) => r.id === l.runId)!;
                 return (
                   <div key={l.id} className={`join-run${l.link_confidence < thr ? " weak" : ""}`}>
-                    <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13 }}><Link className="link" href={`/process/runs/${run.id}`} style={{ fontWeight: 600 }}>{runLabel(run)}</Link><span className="muted mono">{l.id}</span></div>
-                    <Confidence kind="link" label={l.label} score={l.link_confidence} threshold={thr} status={l.status} drivers={["time proximity", "recipe match", "sequence consistency", "scanned identifier"]} method="Weights fitted on a verification sample; penalty when several candidates fit (lot-join.md)" />
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13 }}><Link className="link" href={`/process/runs/${run.id}`} style={{ fontWeight: 600 }}>{runLabel(run)}</Link><span className="muted mono">{nameOf(l.id)}</span></div>
+                    <Confidence kind="link" label={l.label} score={l.link_confidence} threshold={thr} status={l.status} drivers={["time proximity", "recipe match", "sequence consistency", "scanned identifier"]} method="Weights fitted on a verification sample; penalty when several candidates fit" />
                     <div className="parts">
                       <span>Time<b>{l.parts.timeProximity}</b></span><span>Recipe<b>{l.parts.recipeMatch}</b></span><span>Sequence<b>{l.parts.sequenceConsistency}</b></span><span>Scanned id<b>{l.parts.scannedIdAgreement}</b></span><span>Penalty<b>{l.parts.multiCandidatePenalty}</b></span>
                     </div>
@@ -68,7 +69,7 @@ export default async function LotDetail({ params, searchParams }: { params: Prom
           <div className="split">
             <Section title={`${prop.name} against spec`} meta={spec.sourceDoc}>
               <Confidence kind="prediction" label={prop.anchored ? "Measured" : "Estimated"} measure={prop.name} unit={prop.unit} low={prop.predicted.low} point={prop.predicted.point} high={prop.predicted.high} spec={[spec.lsl, spec.usl]}
-                drivers={["Linked run outcomes", prop.anchored ? "Lab result" : "No lab result yet"]} fit="accepted" method={prop.anchored ? `Anchored to ${lab?.id}` : "Unanchored, cannot support a decision"} />
+                drivers={["Linked run outcomes", prop.anchored ? "Lab result" : "No lab result yet"]} fit="accepted" method={prop.anchored ? `Anchored to the lab result${lab ? ` of ${dayMonth(lab.at)}` : ""}` : "Unanchored, cannot support a decision"} />
               <div style={{ marginTop: 8, display: "flex", gap: 8, alignItems: "center", fontSize: 13 }}>{prop.anchored ? <Tag tone="success">Anchored</Tag> : <Tag tone="warning">Unanchored, cannot support a decision</Tag>}{lab ? <span className="muted">Lab {lab.value} {prop.unit} · {dayMonth(lab.at)}</span> : <span className="muted">Waiting for the lab system</span>}</div>
             </Section>
             <Section title={`${gradeOf(lot).name}, last ${same.length} lots`} meta="Predicted point per lot · spec dashed" flush>
@@ -105,7 +106,7 @@ export default async function LotDetail({ params, searchParams }: { params: Prom
               <dt>Release</dt><dd>In the plant&apos;s quality system only</dd>
             </dl>
           </Section>
-          <Section title="Evidence on demand" meta={proof ? <span className="mono">{proof.id}</span> : undefined}>
+          <Section title="Evidence on demand" meta={proof ? <span >{nameOf(proof.id)}</span> : undefined}>
             {proof ? <div className="stack-sm"><div style={{ fontWeight: 600, fontSize: 14 }}>{proof.title}</div>
               <Confidence kind="verdict" label={proof.questions[2].label} verdict={proof.verdict} rung={proof.rung} effect={`${proof.effect.measure} ${proof.effect.value > 0 ? "+" : ""}${proof.effect.value} ${proof.effect.unit}`} interval={`${proof.effect.low} to ${proof.effect.high} ${proof.effect.unit}`} diagnostics={proof.diagnostics} method="Before and after on matched lots" withheldNeeds={proof.withheldNeeds} />
               <Link className="btn btn-sm btn-accent" style={{ alignSelf: "flex-start" }} href={`${base}?evidence=${proof.id}`} scroll={false}>Open the four questions</Link></div>

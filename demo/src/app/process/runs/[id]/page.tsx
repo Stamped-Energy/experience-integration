@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import { notFound } from "next/navigation";
 import * as D from "@/lib/demo/data";
 import { dayMonth, hhmm } from "@/lib/format";
@@ -45,7 +46,7 @@ export default async function RunDetail({ params, searchParams }: { params: Prom
   return (
     <Workspace crumbs={crumbs({ label: line.short, href: `/process/lines/${line.id}` }, { label: runLabel(run) })} askContext={runLabel(run)}>
       <PageHeader eyebrow={`Process · ${line.name}`} title={runLabel(run)}
-        meta={<span className="mono">{run.id} · {dayMonth(run.start)} {hhmm(run.start)} to {hhmm(run.end)} · {run.product}</span>}
+        meta={<span >{nameOf(run.id)} · {dayMonth(run.start)} {hhmm(run.start)} to {hhmm(run.end)} · {run.product}</span>}
         actions={<>
           {prev ? <Link className="btn btn-sm btn-quiet" href={`/process/runs/${prev.id}`}>Previous</Link> : null}
           {next ? <Link className="btn btn-sm btn-quiet" href={`/process/runs/${next.id}`}>Next</Link> : null}
@@ -58,7 +59,7 @@ export default async function RunDetail({ params, searchParams }: { params: Prom
           <Section title="Outcomes" flush>
             <div className="stat-row">
               {run.outcomes.map((o) => <div className="stat" key={o.name}><div className="label">{o.name}</div><div className="v">{o.unit === "flag" ? (o.value ? "Yes" : "No") : o.value}{o.unit !== "flag" ? <span className="unit">{o.unit}</span> : null}</div><div className="s"><EvidenceTag label={o.label} /></div></div>)}
-              <div className="stat"><div className="label">Trial arm</div><div className="v" style={{ fontSize: 16 }}>{arm ? <Tag tone={arm.sw.arm === "B" ? "info" : "neutral"}>{arm.sw.arm === "B" ? "B, change" : "A, prior"}</Tag> : "None"}</div><div className="s">{arm ? arm.trial.id : "Normal run"}</div></div>
+              <div className="stat"><div className="label">Trial arm</div><div className="v" style={{ fontSize: 16 }}>{arm ? <Tag tone={arm.sw.arm === "B" ? "info" : "neutral"}>{arm.sw.arm === "B" ? "B, change" : "A, prior"}</Tag> : "None"}</div><div className="s">{arm ? nameOf(arm.trial.id) : "Normal run"}</div></div>
             </div>
             <div className="split" style={{ padding: "12px 16px 8px" }}>
               <div>
@@ -88,12 +89,12 @@ export default async function RunDetail({ params, searchParams }: { params: Prom
           </div>
         </div>
         <div className="span-4 stack ctx">
-          <Section title="Evidence on demand" meta={proof ? <span className="mono">{proof.id}</span> : undefined}>
+          <Section title="Evidence on demand" meta={proof ? <span >{nameOf(proof.id)}</span> : undefined}>
             {proof ? (
               <div className="stack-sm">
                 <div style={{ fontWeight: 600 }}>{proof.title}</div>
                 <Confidence kind="verdict" label={proof.questions[2].label} verdict={proof.verdict} rung={proof.rung} effect={`${proof.effect.measure} ${proof.effect.value > 0 ? "+" : ""}${proof.effect.value} ${proof.effect.unit}`}
-                  interval={`${proof.effect.low} to ${proof.effect.high} ${proof.effect.unit}`} diagnostics={proof.diagnostics} method={proof.measurementPlanId ? `Plan ${proof.measurementPlanId}` : "Matched runs"} withheldNeeds={proof.withheldNeeds} />
+                  interval={`${proof.effect.low} to ${proof.effect.high} ${proof.effect.unit}`} diagnostics={proof.diagnostics} method={proof.measurementPlanId ? `Plan ${nameOf(proof.measurementPlanId)}` : "Matched runs"} withheldNeeds={proof.withheldNeeds} />
                 <Link className="btn btn-sm btn-accent" href={`${base}?evidence=${proof.id}`} scroll={false} style={{ alignSelf: "flex-start" }}>Open the four questions</Link>
               </div>
             ) : <p className="muted" style={{ fontSize: 13, margin: 0 }}>This run is not part of a trial or a measured change, so it has no proof record. It still counts as a normal run in the line&apos;s history.</p>}
@@ -101,9 +102,9 @@ export default async function RunDetail({ params, searchParams }: { params: Prom
           <Section title="Lots from this run" meta="Quality owns the join" flush>
             {links.length ? <div className="stack-sm" style={{ padding: "12px 16px" }}>{links.map((l) => (
               <div key={l.id} className="stack-sm" style={{ gap: 4 }}>
-                <Link className="link mono" href={`/quality?lot=${l.lotId}`}>{l.lotId}</Link>
+                <Link className="link mono" href={`/quality?lot=${l.lotId}`}>{nameOf(l.lotId)}</Link>
                 <Confidence kind="link" label={l.label} score={l.link_confidence} threshold={pack.linkThreshold} status={l.status}
-                  drivers={["time proximity", "recipe match", "sequence", "scanned id"]} method="Weights fitted on a verification sample (lot-join.md)" />
+                  drivers={["time proximity", "recipe match", "sequence", "scanned id"]} method="Weights fitted on a verification sample" />
               </div>
             ))}</div> : <p className="muted" style={{ fontSize: 13, padding: "12px 16px", margin: 0 }}>No lot is linked to this run yet.</p>}
           </Section>

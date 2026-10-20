@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
@@ -34,7 +35,7 @@ export default async function Corrections() {
                   <dt>Expected</dt><dd>{c.estimate.low} to {c.estimate.high} {c.estimate.unit} <EvidenceTag label={c.label} /></dd>
                   <dt>Sent by</dt><dd>{c.sentBy}</dd>
                   <dt>Lot</dt><dd><Link className="link mono" href={`/quality/lots/${lot.id}`}>{lotNo(lot.id)}</Link> <RiskTag risk={lot.riskWord} /></dd>
-                  <dt>Proposal</dt><dd>{c.proposalId ? <Link className="link" href={`/process/proposals/${c.proposalId}`}>{c.proposalId}</Link> : "None, declined by Process"}</dd>
+                  <dt>Proposal</dt><dd>{c.proposalId ? <Link className="link" href={`/process/proposals/${c.proposalId}`}>{nameOf(c.proposalId)}</Link> : "None, declined by Process"}</dd>
                 </dl>
                 {c.status === "sent" ? <CardActions actions={[
                   { id: "a", label: "Accept in Process", primary: true, allowed: can(role, "accept-correction"), reason: deniedReason("accept-correction", "accept corrections"), done: "Accepted; the proposal goes through limits and approvals. Illustrative." },
