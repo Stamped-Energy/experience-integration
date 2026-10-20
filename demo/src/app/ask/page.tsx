@@ -1,9 +1,9 @@
-import { AreaStub } from "@/components/stub/AreaStub";
+import * as D from "@/lib/demo/data";
+import { ThreadView } from "@/components/ask/ThreadView";
+
 export const metadata = { title: "Ask" };
-export default function Page() {
-  return <AreaStub area="Ask" title="Ask" intro="Questions answered with an evidence id and label on every claim. Ask reads only and can say it does not know." screens={[
-    { name: "Conversation", what: "History, suggested questions, claims with evidence ids, cards from an allow-list", template: "T1 feed" },
-    { name: "Saved answers", what: "Answers kept by people for later", template: "T3 table" },
-    { name: "Handover and weekly note", what: "Shift handover and the weekly note, every claim cited", template: "T1 feed" },
-  ]} />;
+export default async function AskHome({ searchParams }: { searchParams: Promise<{ q?: string; evidence?: string; ev?: string }> }) {
+  const sp = await searchParams;
+  const t = D.askThreads.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).find((x) => x.messages.some((m) => m.cardRef)) ?? D.askThreads[0];
+  return <ThreadView t={t} {...sp} />;
 }
