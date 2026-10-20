@@ -27,8 +27,7 @@ export default async function Integrations() {
         ]} />
         <div className="card-foot"><Link className="link" href="/plant/data">Data health</Link><span className="spacer" /><ConfirmAction label="Add connection" allowed={ok} reason={reason} title="Add a data connection" body={<p>Historian, production system, lab system or quality system.</p>} confirm="Add" done="Added (illustrative)." /></div>
       </Section>
-      <div className="split">
-        <Section title="API keys" flush>
+      <Section title="API keys" flush>
           <DataTable caption="API keys" rowKey={(k) => k.id} rows={D.apiKeys} columns={[
             { key: "l", label: "Key", render: (k) => <>{k.label}<span className="cell-sub mono">{k.id}</span></> },
             { key: "c", label: "Created", render: (k) => dayMonth(k.created) },
@@ -40,11 +39,13 @@ export default async function Integrations() {
         <Section title="Webhooks" flush>
           <DataTable caption="Webhooks" rowKey={(w) => w.id} rows={D.webhooks} columns={[
             { key: "u", label: "Address", mono: true, render: (w) => w.url },
+            { key: "s", label: "Health", render: (w) => <>{w.status === "failing" ? <Tag tone="critical" dot>Failing</Tag> : w.status === "paused" ? <Tag tone="neutral">Paused</Tag> : <Tag tone="success" dot>Healthy</Tag>}{w.note && <span className="cell-sub">{w.note}</span>}</> },
+            { key: "d", label: "Last delivery", render: (w) => w.lastDelivery ? rel(w.lastDelivery) : "None yet" },
             { key: "e", label: "Events", render: (w) => <span className="scope-chips">{w.events.map((e) => <Tag key={e}>{e}</Tag>)}</span> },
+            { key: "a", label: "", render: (w) => w.status === "failing" ? <ConfirmAction label="Retry" allowed={ok} reason={reason} title="Retry queued deliveries" body={<p>Sends queued deliveries again in order. Payloads carry ids only.</p>} confirm="Retry" done="Retry queued (illustrative)." /> : w.status === "paused" ? <ConfirmAction label="Resume" allowed={ok} reason={reason} title="Resume webhook" body={<p>Deliveries start again from the next event.</p>} confirm="Resume" done="Resumed (illustrative)." /> : <ConfirmAction label="Pause" allowed={ok} reason={reason} title="Pause webhook" body={<p>Events are not sent until resumed.</p>} confirm="Pause" done="Paused (illustrative)." /> },
           ]} />
           <div className="card-foot"><ConfirmAction label="Add webhook" allowed={ok} reason={reason} title="Add a webhook" body={<p>Pick events. Payloads carry ids only.</p>} confirm="Add" done="Added (illustrative)." /></div>
         </Section>
-      </div>
       <Section title="Data sources behind the connections" flush>
         <DataTable caption="Sources" rowKey={(s) => s.id} rows={D.dataSources} columns={[
           { key: "n", label: "Source", render: (s) => s.name },
