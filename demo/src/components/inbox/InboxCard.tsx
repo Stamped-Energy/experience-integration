@@ -1,3 +1,4 @@
+import { nameOf } from "@/lib/names";
 /** Inbox items that are not per-run proposals use the same card shell: trial signatures, lot links, corrections, data gaps. */
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
@@ -18,7 +19,7 @@ export function InboxCard({ item, role, link = true }: { item: InboxItem; role: 
   const Head = ({ src, line, extra }: { src: string; line?: string; extra?: React.ReactNode }) => (
     <div className="card-head">
       <span className="src">{src}</span>{line ? <><span className="dotsep">·</span><span>{line}</span></> : null}
-      <span className="dotsep">·</span><span className="mono">{item.ref}</span>
+      <span className="dotsep">·</span><span className="mono">{nameOf(item.ref)}</span>
       <span className="right">{extra}{item.bucket === "waiting" ? <Tag tone="accent">Needs a decision</Tag> : item.bucket === "task" ? <Tag>Task</Tag> : <Tag>Decided</Tag>}{item.due ? <span className="muted">due {rel(item.due)}</span> : null}</span>
     </div>
   );
@@ -31,7 +32,7 @@ export function InboxCard({ item, role, link = true }: { item: InboxItem; role: 
         <div className="card-body">
           <div className="card-block"><Title /><p className="card-obs">{t.change}. Drafted by {t.draftedBy}. {t.schedule.join(". ")}.</p></div>
           <div className="card-cols">
-            <div className="card-block"><span className="label">Measurement plan</span><span className="secondary">{plan.id} v{plan.version} · hash <span className="mono">{plan.hash}</span> · locked {dayMonth(plan.lockedAt)} · at least {plan.minBatches} runs</span></div>
+            <div className="card-block"><span className="label">Measurement plan</span><span className="secondary">{nameOf(plan.id)} v{plan.version} · hash <span className="mono">{plan.hash}</span> · locked {dayMonth(plan.lockedAt)} · at least {plan.minBatches} runs</span></div>
             <div className="card-block"><span className="label">Confidence</span><Confidence kind="label" label="Unknown" note="No result yet. The verdict comes from the locked plan after the trial." method="Switchback trial, verdict per locked measurement plan" /></div>
           </div>
           <div className="mode-line"><span className="label" style={{ paddingTop: 2 }}>If stopped</span><span>Stop restores the checked prior value, {Object.entries(t.restoreTarget).map(([k, v]) => `${PARAM[k] ?? k} ${v}`).join(", ")}. If restore fails the line goes recommend-only.</span></div>
@@ -50,13 +51,13 @@ export function InboxCard({ item, role, link = true }: { item: InboxItem; role: 
       <article className="card">
         <Head src="Quality agent" line={D.byId.line(lot.lineIds[0])!.short} />
         <div className="card-body">
-          <div className="card-block"><Title /><p className="card-obs">Lot {lot.id.replace("lot-", "").toUpperCase()} could come from {l.runId}{l.candidates.length ? ` or ${l.candidates.join(", ")}` : ""}. Below the pack threshold, so it is a task and gates nothing.</p></div>
+          <div className="card-block"><Title /><p className="card-obs">Lot {lot.id.replace("lot-", "").toUpperCase()} could come from {nameOf(l.runId)}{l.candidates.length ? ` or ${l.candidates.map((c) => nameOf(c).toLowerCase()).join(", ")}` : ""}. Below the pack threshold, so it is a task and gates nothing.</p></div>
           <Confidence kind="link" label={l.label} score={l.link_confidence} threshold={0.8} status={l.status}
             drivers={[`time proximity ${l.parts.timeProximity}`, `recipe match ${l.parts.recipeMatch}`, `scanned id ${l.parts.scannedIdAgreement}`, `several candidates ${l.parts.multiCandidatePenalty}`]}
-            method="link_confidence from lot-join weights fitted on a verification sample" />
+            method="Link confidence from weights fitted on a verification sample" />
         </div>
         <CardActions actions={[
-          { id: "ok", label: `Confirm ${l.runId}`, primary: true, allowed: can(role, "confirm-lot-link"), reason: deniedReason("confirm-lot-link", "confirm links"), done: "Link confirmed. The join label becomes verified." },
+          { id: "ok", label: `Confirm ${nameOf(l.runId).toLowerCase()}`, primary: true, allowed: can(role, "confirm-lot-link"), reason: deniedReason("confirm-lot-link", "confirm links"), done: "Link confirmed. The join label becomes verified." },
           { id: "no", label: "Pick another run", allowed: can(role, "confirm-lot-link"), reason: deniedReason("confirm-lot-link", "confirm links"), done: "Candidate list opened." },
         ]} />
       </article>
@@ -72,7 +73,7 @@ export function InboxCard({ item, role, link = true }: { item: InboxItem; role: 
           <Confidence kind="label" label={c.label} note={`Expected effect ${c.estimate.low} to ${c.estimate.high} ${c.estimate.unit}`} method="Estimate behind the correction, carried with its label and band (D45)" />
         </div>
         <CardActions actions={[
-          { id: "acc", label: "Fold into a proposal", primary: true, allowed: can(role, "accept-correction"), reason: deniedReason("accept-correction", "accept corrections"), done: `Folded into ${c.proposalId}.` },
+          { id: "acc", label: "Fold into a proposal", primary: true, allowed: can(role, "accept-correction"), reason: deniedReason("accept-correction", "accept corrections"), done: `Folded into ${nameOf(c.proposalId)}.` },
           { id: "dec", label: "Decline with reason", allowed: can(role, "accept-correction"), reason: deniedReason("accept-correction", "accept corrections"), done: "Declined. Quality sees the reason." },
         ]} />
       </article>

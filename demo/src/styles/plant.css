@@ -98,3 +98,5 @@ dialog.confirm p { font-size: 13px; margin: 0 0 8px; }
 .ptile-badge { flex: none; }
 .ptile-tag { min-width: 0; }
 .pgrid { align-items: start; }
+.ptile-marks { flex-direction: column; align-items: flex-end; gap: 1px; }
+.isa-sec { font-size: 10px; color: var(--text-secondary); font-weight: 400; white-space: nowrap; }

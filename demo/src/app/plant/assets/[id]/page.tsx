@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
@@ -48,7 +49,7 @@ export default async function AssetDetail({ params }: { params: Promise<{ id: st
               { key: "v", label: "Value", align: "right", render: (r) => `${fmt(r.value)} ${r.t.unit}` },
               { key: "q", label: "Quality", render: (r) => <Tag tone={r.qualityCode === "good" ? "neutral" : r.qualityCode === "bad" ? "critical" : "warning"}>{r.qualityCode}</Tag> },
               { key: "l", label: "Label", render: (r) => <EvidenceTag label={r.label} /> },
-              { key: "r", label: "Run", render: (r) => <Link className="link" href={`/process/runs/${r.runId}`}>{r.runId}</Link> },
+              { key: "r", label: "Run", render: (r) => <Link className="link" href={`/process/runs/${r.runId}`}>{nameOf(r.runId)}</Link> },
               { key: "a", label: "At", mono: true, render: (r) => `${dayMonth(r.at)} ${hhmm(r.at)}` },
             ]} />
           </Section>
@@ -66,7 +67,7 @@ export default async function AssetDetail({ params }: { params: Promise<{ id: st
             ]} />
           </Section>
           <Section title="Setpoint writes" meta={line.short} flush>
-            <DataTable caption="Writes" rowKey={(w) => `${w.runId}-${w.param}-${w.at}`} rows={writes} columns={[
+            <DataTable caption="Writes" rowKey={(w) => `${nameOf(w.runId)}-${w.param}-${w.at}`} rows={writes} columns={[
               { key: "p", label: "Setting", render: (w) => w.param },
               { key: "v", label: "To", align: "right", render: (w) => `${w.value}` },
               { key: "s", label: "Source", render: (w) => w.source },

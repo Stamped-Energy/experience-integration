@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
@@ -53,15 +54,15 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
               <span className="label">{prop.name}, predicted against spec</span>
               {prop.anchored ? (
                 <Confidence kind="prediction" label="Measured" measure={prop.name} unit={prop.unit} low={prop.predicted.low} point={prop.predicted.point} high={prop.predicted.high} spec={[spec.lsl, spec.usl]}
-                  drivers={["Lab result", "Linked run outcomes"]} fit="accepted" method={`Anchored to lab result ${lab?.id ?? ""} (${lab?.value} ${prop.unit})`} />
+                  drivers={["Lab result", "Linked run outcomes"]} fit="accepted" method={`Anchored to the lab result (${lab?.value} ${prop.unit})`} />
               ) : (
                 <Confidence kind="prediction" label="Estimated" measure={prop.name} unit={prop.unit} low={prop.predicted.low} point={prop.predicted.point} high={prop.predicted.high} spec={[spec.lsl, spec.usl]}
                   drivers={["Linked run outcomes", "End-of-hold torque"]} fit="accepted" method="Property band from linked runs; unanchored, cannot support a decision until the lab result arrives" />
               )}
               <span className="label" style={{ marginTop: 8 }}>Links to runs · weakest <JoinTag label={weakestJoin(sel)} /></span>
               {links.map((l) => (
-                <Confidence key={l.id} kind="link" label={l.label} score={l.link_confidence} threshold={threshold(sel.id)} status={`${l.status}, run ${l.runId}`}
-                  drivers={["time proximity", "recipe match", "sequence", "scanned id"]} method="Weights fitted on a verification sample (lot-join.md)" />
+                <Confidence key={l.id} kind="link" label={l.label} score={l.link_confidence} threshold={threshold(sel.id)} status={`${l.status}, run ${nameOf(l.runId)}`}
+                  drivers={["time proximity", "recipe match", "sequence", "scanned id"]} method="Weights fitted on a verification sample" />
               ))}
               {proof ? <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13 }}><VerdictTag verdict={proof.verdict} /><Link className="link" href={`/quality?lot=${sel.id}&evidence=${proof.id}`} scroll={false}>Evidence on demand</Link></div> : null}
             </div>

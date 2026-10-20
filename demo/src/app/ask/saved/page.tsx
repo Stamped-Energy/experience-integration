@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import { dayMonth, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
@@ -59,11 +60,11 @@ export default async function Saved({ searchParams }: { searchParams: Promise<SP
           </div>
           <Section title="Evidence the thread behind each answer cites" flush>
             <DataTable caption="Evidence" rowKey={(r) => r.sid + r.id} rows={rows.flatMap((s) => citations(allClaims(D.askThreads.find((x) => x.id === s.threadId)!)).map((c) => ({ ...c, s: s.title, sid: s.id })))} columns={[
-              { key: "i", label: "Id", mono: true, render: (r) => <Link className="link" href={evHref(hrefFor(r.sid), r.id)} scroll={false}>{r.id}</Link> },
+              { key: "i", label: "Id", mono: true, render: (r) => <Link className="link" href={evHref(hrefFor(r.sid), r.id)} scroll={false}>{nameOf(r.id)}</Link> },
               { key: "l", label: "Label", render: (r) => <EvidenceTag label={r.label} /> },
               { key: "c", label: "Claim", render: (r) => r.texts[0] },
               { key: "s", label: "Saved answer", render: (r) => r.s },
-              { key: "p", label: "Proof", mono: true, render: (r) => proofFor(r.id)?.id ?? "source" },
+              { key: "p", label: "Proof", render: (r) => proofFor(r.id)?.title ?? "Source record" },
             ]} />
           </Section>
         </div>
@@ -73,7 +74,7 @@ export default async function Saved({ searchParams }: { searchParams: Promise<SP
               {sel.stale ? <div className="stale-note" role="note"><b>Stale since {dayMonth(sel.stale.since)} ({rel(sel.stale.since)})</b><span>{sel.stale.reason}</span></div> : null}
               {sel.summary ? <p style={{ margin: 0, fontSize: 14 }}>{sel.summary}</p> : null}
               {sel.confidence ? <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13 }}><EvidenceTag label={sel.confidence.label} />{sel.confidence.band ? <span>Band {sel.confidence.band}</span> : null}</div> : null}
-              {sel.refs?.length ? <div className="refs">{sel.refs.map((r) => { const h = r.startsWith("proof-") ? `${base}&evidence=${r}` : refHref(r); return h ? <Link key={r} href={h} scroll={false}>{r}</Link> : <span key={r}>{r}</span>; })}</div> : null}
+              {sel.refs?.length ? <div className="refs">{sel.refs.map((r) => { const h = r.startsWith("proof-") ? `${base}&evidence=${r}` : refHref(r); return h ? <Link key={r} href={h} scroll={false}>{nameOf(r)}</Link> : <span key={r}>{nameOf(r)}</span>; })}</div> : null}
               <span className="label" style={{ marginTop: 8 }}>Answer as saved, from the thread</span>
               <div className="turn-person" style={{ maxWidth: "100%" }}>{t.messages[0].text}</div>
               <Answer claims={ans.claims} abstain={ans.abstain} cardRef={ans.cardRef} base={base} />

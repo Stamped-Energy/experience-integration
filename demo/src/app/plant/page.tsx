@@ -80,7 +80,7 @@ export default async function PlantMap({ searchParams }: { searchParams: Promise
           </Section>
         </div>
         <div className="span-4 xl-span-3 stack ctx">
-          <Section title={a.name} meta={`${line.short}${parent ? ` · on ${parent.name}` : ""}`} actions={<StatusGlyph s={st.status} />} flush>
+          <Section title={a.name} meta={`${line.short}${parent ? ` · on ${parent.name}` : ""}`} actions={<span className="ptile-marks"><StatusGlyph s={st.status} />{st.secondary.length ? <span className="isa-sec">also {st.secondary.join(", ")}</span> : null}</span>} flush>
             {st.why.length ? <ul className="why">{st.why.map((w) => <li key={w}>{w}</li>)}</ul> : <p className="muted" style={{ margin: "10px 16px", fontSize: 13 }}>All readings inside their bands.</p>}
             <div className="panel-actions"><AskButton context={a.name} label={`Ask about ${a.name}`} className="btn btn-primary btn-sm" /><Link className="btn btn-sm" href={`/plant/assets/${a.id}`}>Explore asset</Link></div>
             <DataTable caption="Tags" rowKey={(t) => t.id} rows={tagsOf(a)} columns={[
