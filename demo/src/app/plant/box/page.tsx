@@ -1,3 +1,4 @@
+import { RevokeLease } from "@/components/plant/RevokeLease";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
@@ -37,9 +38,7 @@ export default async function Box() {
               <dt>Last sync</dt><dd>{rel(box.lastSync)}</dd>
               <dt>Box</dt><dd>{box.id} · {box.version}</dd>
             </dl>
-            <CardActions actions={[
-              { id: "r", label: "Revoke lease", allowed, reason: deniedReason("revoke-lease", "revoke the lease"), done: "Lease revoked on site. The box is recommend-only until a new lease is signed. Illustrative." },
-            ]} />
+            <RevokeLease leaseId={lease.id} allowed={allowed} reason={deniedReason("revoke-lease", "revoke the lease")} />
           </Section>
           <Section title="What the box does at each stage">
             <DataTable caption="Stages" rowKey={(r) => r.s} rows={[

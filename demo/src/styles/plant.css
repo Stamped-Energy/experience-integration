@@ -28,3 +28,8 @@
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chips span { font-size: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 2px 8px; background: var(--surface); }
 @media (min-width: 1800px) { .split.xl-stack { grid-template-columns: minmax(0, 1fr); } }
+dialog.confirm { border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: var(--space-5, 20px); max-width: 440px; background: var(--surface); color: var(--text-primary); }
+dialog.confirm::backdrop { background: rgba(0, 0, 0, .35); }
+dialog.confirm h2 { font-size: 16px; margin: 0 0 8px; }
+dialog.confirm p { font-size: 13px; margin: 0 0 8px; }
+.confirm-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
