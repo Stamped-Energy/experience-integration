@@ -2,7 +2,7 @@
   "name": "stamped-l6-demo",
   "version": "0.1.0",
   "private": true,
-  "description": "Stamped L6 control room with the Jaipur Works fixture pack — no API or database required",
+  "description": "Stamped product UI on a fictional demonstration plant with illustrative data. No API or database required.",
   "packageManager": "pnpm@11.15.1",
   "engines": {
     "node": ">=22.14.0"
@@ -12,13 +12,12 @@
     "build": "next build",
     "start": "next start --port 3010",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --import ./tests/register-css-stub.mjs --test tests/**/*.test.ts",
-    "test:e2e": "playwright test",
-    "test:e2e:install": "playwright install chromium"
+    "test": "tsx --test tests/*.test.ts",
+    "lint": "tsc --noEmit && node scripts/check-copy.mjs"
   },
   "dependencies": {
     "echarts": "^6.1.0",
-    "next": "16.3.3",
+    "next": "16.3.8",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },

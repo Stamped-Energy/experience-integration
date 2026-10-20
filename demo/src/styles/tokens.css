@@ -1,198 +1,138 @@
-/* Forge Industrial v2.0 - generated from external/design/forge-industrial-v2.tokens.yaml
- * Do not invent brand colors. Authority: external/design/
- */
+/* Stamped product tokens. Source: stamped-external site/src/styles/tokens.css (Operations UI design system v1.0).
+   The only place hex values live in this app. Fonts come from next/font (layout.tsx) as --font-geist, --font-geist-mono, --font-brand. */
 :root {
-  /* Surfaces - light industrial office */
-  --forge-surface: #f7faf5;
-  --forge-surface-dim: #d8dbd6;
-  --forge-surface-bright: #f7faf5;
-  --forge-surface-container-lowest: #ffffff;
-  --forge-surface-container-low: #f1f4f0;
-  --forge-surface-container: #ecefea;
-  --forge-surface-container-high: #e6e9e4;
-  --forge-surface-container-highest: #e0e3df;
-  --forge-surface-variant: #e0e3df;
-  --forge-background: #f7faf5;
-  --forge-on-background: #191c1a;
-  --forge-on-surface: #191c1a;
-  --forge-on-surface-variant: #5a403c;
-  --forge-inverse-surface: #2d312e;
-  --forge-inverse-on-surface: #eff2ed;
+  color-scheme: light;
+  --canvas: #FAFAF9;
+  --surface: #FFFFFF;
+  --surface-subtle: #F5F5F4;
+  --surface-sunken: #EFEFED;
+  --border: #E4E4E2;
+  --border-strong: #D4D4D1;
+  --text-primary: #202020;
+  --text-secondary: #5F5F5C;
+  --text-muted: #8A8A86;
+  --text-inverse: #FFFFFF;
 
-  /* Structure / brand */
-  /* Brand coral+white ~3.33 - CTAs use ≥16px/700; small text uses primary-fixed */
-  --forge-primary: #f75440;
-  --forge-on-primary: #ffffff;
-  --forge-primary-container: #f75440;
-  --forge-on-primary-container: #fffbff;
-  --forge-primary-fixed: #ffdad4;
-  --forge-primary-fixed-dim: #ffb4a8;
-  --forge-on-primary-fixed: #410000;
-  --forge-on-primary-fixed-variant: #920401;
-  --forge-primary-dim: rgba(247, 84, 64, 0.08);
-  --forge-inverse-primary: #ffb4a8;
-  --forge-surface-tint: #f75440;
-  /* Alias used by shell/primitives until migrated */
-  --forge-surface-lowest: var(--forge-surface-container-lowest);
-  --forge-secondary: #000a07;
-  --forge-on-secondary: #ffffff;
-  --forge-secondary-container: #bdd9c8;
-  --forge-on-secondary-container: #2a4034;
-  --forge-tertiary: #00666b;
-  --forge-on-tertiary: #ffffff;
-  --forge-tertiary-container: #008287;
-  --forge-on-tertiary-container: #f4ffff;
+  --accent-50: #FFF3F0;
+  --accent-100: #FFE3DC;
+  --accent-200: #FFC6B8;
+  --accent-300: #FDA08E;
+  --accent-500: #F75440;
+  --accent-600: #E23F2B;
+  --accent-700: #C2361F;
+  --accent-800: #962A18;
+  --accent-fill: var(--accent-500);
+  --focus-ring: var(--accent-700);
 
-  /* Feedback - always pair with text, never color alone */
-  --forge-error: #ba1a1a;
-  --forge-on-error: #ffffff;
-  --forge-error-container: #ffdad6;
-  --forge-on-error-container: #93000a;
-  --forge-warning: #c97a00;
-  --forge-on-warning: #ffffff;
-  --forge-good: #1b6b3a;
-  --forge-on-good: #ffffff;
-  --forge-info: #00666b;
+  --success: #2F9E6A;  --success-text: #25774F;  --success-tint: #E8F5EE;
+  --warning: #E0A526;  --warning-text: #94600B;  --warning-tint: #FCF4E1;
+  --critical: #D0312D; --critical-text: #B0241F; --critical-tint: #FCECEB;
+  --info: #3B79C4;     --info-text: #2C5E99;     --info-tint: #EAF2FB;
 
-  /* Lines */
-  --forge-outline: #8f706b;
-  --forge-outline-variant: #e3beb8;
+  --cat-1: var(--accent-500); --cat-1-tint: var(--accent-100); --cat-1-text: var(--accent-800);
+  --cat-2: #4A6FA5; --cat-2-tint: #E9EFF7; --cat-2-text: #2F4C77;
+  --cat-3: #2A9D8F; --cat-3-tint: #E3F4F1; --cat-3-text: #1C6B61;
+  --cat-4: #C99A2E; --cat-4-tint: #F8F0DC; --cat-4-text: #7A5B12;
+  --cat-5: #8E5B9A; --cat-5-tint: #F3ECF5; --cat-5-text: #62386D;
+  --cat-6: #7A8B3A; --cat-6-tint: #F0F3E3; --cat-6-text: #4E5A20;
+  --cat-other: #A3A3A0; --chart-muted: #C4C4C2;
+  /* Scrollbars follow the theme: --chart-muted is redefined in the dark blocks, and color-scheme above keeps the
+     UA scrollbar parts light even when the OS is dark (the meta tag alone would follow the OS, not the toggle). */
+  --scrollbar-thumb: var(--chart-muted); --scrollbar-track: transparent;
 
-  /* Typography - Space Grotesk titles/KPIs, Inter body/UI, IBM Plex Mono labels */
-  --forge-font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --forge-font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --forge-font-mono: "IBM Plex Mono", ui-monospace, monospace;
-  --forge-size-display: 2rem;
-  --forge-size-headline: 1.5rem;
-  --forge-size-title: 1.125rem;
-  --forge-size-body: 0.9375rem;
-  --forge-size-label: 0.6875rem;
-  --forge-leading-body: 1.5;
-  --forge-size-num: clamp(1.5rem, 2vw, 1.875rem);
+  --font-sans: var(--font-geist), "Geist", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
-  /* Spacing (4px base) */
-  --forge-space-xs: 4px;
-  --forge-space-sm: 8px;
-  --forge-space-md: 16px;
-  --forge-space-lg: 24px;
-  --forge-space-xl: 48px;
-  --forge-gutter: 12px;
-  --forge-main-inset-start: 16px;
-  --forge-margin-mobile: 12px;
-  --forge-margin-desktop: 24px;
-  --forge-content-max: 100%;
-  --forge-sidebar-width: 260px;
-  --forge-sidebar-collapsed: 60px;
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
 
-  /* Radius - industrial control room: cards 6px, controls 6px */
-  --forge-radius-sm: 0.25rem;
-  --forge-radius-md: 0.375rem;
-  --forge-radius-card: 6px;
-  --forge-radius-lg: 8px;
-  --forge-radius-xl: 12px;
-  --forge-radius-pill: 999px;
+  --radius-sm: 4px; --radius-md: 6px; --radius-full: 999px;
+  --elevation-1: 0 1px 2px rgba(32, 32, 32, 0.04), 0 4px 12px rgba(32, 32, 32, 0.05);
+  --overlay: rgba(32, 32, 32, 0.28);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 120ms; --duration: 180ms;
+  --z-rail: 10; --z-sticky: 20; --z-popover: 30; --z-dialog: 40; --z-toast: 50;
 
-  /* Motion - calm, reduce under prefers-reduced-motion */
-  --forge-motion-fast: 120ms;
-  --forge-motion-base: 200ms;
-  --forge-motion-slow: 320ms;
-  --forge-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --section-pad: var(--space-5);
+  --row-h: 40px;
+  --feed-text: 16px;
 
-  /* Elevation - restrained; no multi-layer glow */
-  --forge-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --forge-shadow-panel: var(--forge-shadow-card);
-  --forge-shadow-sheet: 0 -2px 16px rgba(25, 28, 26, 0.12);
-  --forge-shadow-hero: 0 4px 16px rgba(247, 84, 64, 0.1);
-
-  /* Status text labels (charter: never color-only) */
-  --forge-status-critical-label: "Critical";
-  --forge-status-warning-label: "Warning";
-  --forge-status-good-label: "Good";
-  --forge-status-neutral-label: "Neutral";
+  --rail-w: 56px;
+  --nav-w: 248px;
+  --reading-w: 760px;
+  --aside-w: 240px;
+  --crumb-h: 44px;
+  --read-w: var(--reading-w);
+  --wide-w: 1280px;
 }
 
-* {
-  box-sizing: border-box;
+/* Dark theme: same hues, warm near-black neutrals, accent-500 unchanged. The two blocks below must stay identical;
+   scripts/check-content.mjs fails the build if they drift. The media block is the no-JS fallback. */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #121110; --surface: #1A1817; --surface-subtle: #211F1D; --surface-sunken: #0E0D0C;
+  --border: #2E2B29; --border-strong: #3D3936;
+  --text-primary: #EDEBE9; --text-secondary: #B3AFAB; --text-muted: #85807B; --text-inverse: #121110;
+  --accent-50: #2A1612; --accent-100: #3A1C16; --accent-200: #5C2A1F; --accent-300: #8A3A2A;
+  --accent-500: #F75440; --accent-600: #FF6B58; --accent-700: #FF8B7A; --accent-800: #FFB3A6;
+  --focus-ring: var(--accent-600);
+  --success-text: #5CCB97; --success-tint: #14281F;
+  --warning-text: #EBC266; --warning-tint: #2C2312;
+  --critical-text: #F27470; --critical-tint: #311716;
+  --info-text: #7FAEE6; --info-tint: #142233;
+  --cat-2: #7193C6; --cat-2-tint: #18212F; --cat-2-text: #A3BEE3;
+  --cat-3: #3FBBAB; --cat-3-tint: #122925; --cat-3-text: #7FD6CA;
+  --cat-4-tint: #2A2312; --cat-4-text: #E2BF6C;
+  --cat-5-tint: #261A2A; --cat-5-text: #C79AD2;
+  --cat-6-tint: #1F2414; --cat-6-text: #B9C77A;
+  --cat-other: #6E6A66; --chart-muted: #4A4643;
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25);
+  --overlay: rgba(0, 0, 0, 0.55);
 }
-
-html,
-body {
-  margin: 0;
-  height: 100%;
-  overflow: hidden;
-  font-family: var(--forge-font-body);
-  font-size: var(--forge-size-body);
-  line-height: var(--forge-leading-body);
-  background: var(--forge-surface);
-  color: var(--forge-on-surface);
-  -webkit-font-smoothing: antialiased;
-}
-
-h1,
-h2,
-h3,
-.forge-display {
-  font-family: var(--forge-font-display);
-  letter-spacing: -0.025em;
-}
-
-button {
-  font-family: inherit;
-  cursor: pointer;
-  border: none;
-  background: none;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-:focus-visible {
-  outline: 2px solid var(--forge-secondary);
-  outline-offset: 2px;
-}
-
-.tabular {
-  font-variant-numeric: tabular-nums;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-
-@keyframes forge-skeleton {
-  0% {
-    background-position: 100% 0;
-  }
-  100% {
-    background-position: -100% 0;
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+  color-scheme: dark;
+  --canvas: #121110; --surface: #1A1817; --surface-subtle: #211F1D; --surface-sunken: #0E0D0C;
+  --border: #2E2B29; --border-strong: #3D3936;
+  --text-primary: #EDEBE9; --text-secondary: #B3AFAB; --text-muted: #85807B; --text-inverse: #121110;
+  --accent-50: #2A1612; --accent-100: #3A1C16; --accent-200: #5C2A1F; --accent-300: #8A3A2A;
+  --accent-500: #F75440; --accent-600: #FF6B58; --accent-700: #FF8B7A; --accent-800: #FFB3A6;
+  --focus-ring: var(--accent-600);
+  --success-text: #5CCB97; --success-tint: #14281F;
+  --warning-text: #EBC266; --warning-tint: #2C2312;
+  --critical-text: #F27470; --critical-tint: #311716;
+  --info-text: #7FAEE6; --info-tint: #142233;
+  --cat-2: #7193C6; --cat-2-tint: #18212F; --cat-2-text: #A3BEE3;
+  --cat-3: #3FBBAB; --cat-3-tint: #122925; --cat-3-text: #7FD6CA;
+  --cat-4-tint: #2A2312; --cat-4-text: #E2BF6C;
+  --cat-5-tint: #261A2A; --cat-5-text: #C79AD2;
+  --cat-6-tint: #1F2414; --cat-6-text: #B9C77A;
+  --cat-other: #6E6A66; --chart-muted: #4A4643;
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25);
+  --overlay: rgba(0, 0, 0, 0.55);
   }
 }
 
-@keyframes forge-sheet-in {
-  from {
-    transform: translateX(12px);
-    opacity: 0.85;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+[data-contrast="strict"] { --accent-fill: var(--accent-700); }
+
+:root {
+  --font-display: var(--font-brand), var(--font-sans);
+  --bottom-bar-h: 56px;
+  --band-h: 28px;
+  --ask-w: 400px;
+  --type-display: 28px; --lh-display: 36px;
+  --type-title: 20px;   --lh-title: 28px;
+  --type-heading: 16px; --lh-heading: 24px;
+  --type-body: 16px;    --lh-body: 26px;
+  --type-small: 14px;   --lh-small: 22px;
+  --type-meta: 12px;
+  --type-label: 11px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+/* Compact density for panel PCs and engineers. Toggled with data-density on <html>. */
+[data-density="compact"] {
+  --section-pad: var(--space-4);
+  --row-h: 32px;
+  --feed-text: 14px;
+  --type-body: 14px; --lh-body: 22px;
 }
