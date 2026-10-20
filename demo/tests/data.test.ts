@@ -80,3 +80,22 @@ test("settings data varied", () => {
   for (const a of sa) assert.ok(D.byId.line(a.lineId) && a.params.every((p) => D.signedWindows.some((w) => w.lineId === a.lineId && w.param === p)), a.id);
   assert.deepEqual([...new Set(D.webhooks.map((w) => w.status))].sort(), ["failing", "healthy", "paused"]);
 });
+
+test("running settings map to plant assets on their line", () => {
+  for (const r of D.runningSettings) { const a = D.byId.asset(r.assetId ?? ""); assert.ok(a && a.lineId === r.lineId, r.param); }
+});
+
+test("scoped Ask threads cover key assets and both lines", () => {
+  const scoped = D.askThreads.filter((t) => t.scope);
+  for (const a of ["a-mixer", "a-hold", "b-press", "b-tool"]) assert.ok(scoped.some((t) => t.scope!.assetId === a), a);
+  for (const l of ["line-a", "line-b"]) assert.ok(scoped.some((t) => t.scope!.lineId === l && !t.scope!.assetId), l);
+  const ids = new Set<string>([...D.proposals, ...D.proofRecords, ...D.lots, ...D.trials, ...D.signedWindows, ...D.standingApprovals, ...D.driftSignals, ...D.assets, ...D.lines].map((x) => x.id));
+  for (const t of scoped) {
+    assert.equal(t.messages.length, 2, t.id);
+    assert.ok(t.confidence?.label, t.id);
+    if (t.scope!.assetId) assert.equal(D.byId.asset(t.scope!.assetId)!.lineId, t.scope!.lineId, t.id);
+    for (const r of t.refs ?? []) assert.ok(ids.has(r), `${t.id} -> ${r}`);
+    const visible = JSON.stringify([t.title, t.messages.map((m) => [m.text, m.claims?.map((c) => c.text)])]);
+    assert.ok(!/₹|\u2014|\b(prop|trial|lot|win|run|proof|sa)-[a-z0-9]/i.test(visible), `${t.id} visible text`);
+  }
+});

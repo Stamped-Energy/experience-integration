@@ -1,5 +1,6 @@
 /** Model fit card (spec §7.2, twin.md, D14): four checks, interval coverage against the 85 to 95% band. */
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import { dayMonth } from "@/lib/format";
 import type { ModelFit } from "@/lib/demo/types";
@@ -22,7 +23,7 @@ export function FitChecks({ fit, compact }: { fit: ModelFit; compact?: boolean }
   const line = D.byId.line(fit.lineId)!;
   const failing = fit.checks.filter((c) => !c.pass);
   return (
-    <Section title={`Model fit · ${line.short}`} meta={<span className="mono">{fit.modelId} {fit.version}</span>} actions={<Tag tone={fit.state === "accepted" ? "success" : "warning"}>{fit.state === "accepted" ? "Accepted" : "Not accepted"}</Tag>} flush>
+    <Section title={`Model fit · ${line.short}`} meta={<span >{nameOf(fit.modelId)} {fit.version}</span>} actions={<Tag tone={fit.state === "accepted" ? "success" : "warning"}>{fit.state === "accepted" ? "Accepted" : "Not accepted"}</Tag>} flush>
       <div style={{ padding: "12px 16px 4px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}><span>90% interval coverage on {fit.heldOutN} held-out points</span><strong className="num">{Math.round(fit.coverage * 100)}%</strong></div>
         <Coverage value={fit.coverage} />

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
 import { dayMonth, hhmm } from "@/lib/format";
@@ -37,7 +38,7 @@ export default async function Proposals({ searchParams }: { searchParams: Promis
         <div className="span-4 xl-span-5 stack ctx">
           <Section title="All proposals, 14 days" meta={`${D.proposals.length} on record`} flush>
             <DataTable caption="All proposals" rowKey={(p) => p.id} rows={[...list, ...others]} columns={[
-              { key: "i", label: "Id", mono: true, render: (p) => <Link className="link" href={`/process/proposals/${p.id}`}>{p.id}</Link> },
+              { key: "i", label: "Proposal", render: (p) => <Link className="link" href={`/process/proposals/${p.id}`}>{nameOf(p.id)}</Link> },
               { key: "s", label: "Setting", render: (p) => <>{D.byId.window(p.lineId, p.param)?.name}<span className="cell-sub">{D.byId.line(p.lineId)!.short} · {p.current} to {p.proposed}</span></> },
               { key: "st", label: "State", render: (p) => <Tag tone={p.state === "Waiting" ? "accent" : p.state === "Withheld" || p.state === "Declined" ? "neutral" : "info"}>{p.state}</Tag> },
               { key: "m", label: "Mode", render: (p) => <ModeTag mode={p.mode} /> },

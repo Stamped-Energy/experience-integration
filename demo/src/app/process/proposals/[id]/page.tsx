@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import { notFound } from "next/navigation";
 import * as D from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
@@ -14,7 +15,7 @@ import { ProcessTabs, crumbs, outcome, runLabel, runsOf } from "@/components/pro
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return { title: `Proposal ${id}` };
+  return { title: nameOf(id) };
 }
 
 export default async function ProposalTest({ params }: { params: Promise<{ id: string }> }) {
@@ -31,10 +32,10 @@ export default async function ProposalTest({ params }: { params: Promise<{ id: s
   const corr = D.corrections.find((c) => c.proposalId === p.id);
   const withheld = p.state === "Withheld";
   return (
-    <Workspace crumbs={crumbs({ label: "Proposals", href: "/process/proposals" }, { label: p.id })} askContext={p.id}>
+    <Workspace crumbs={crumbs({ label: "Proposals", href: "/process/proposals" }, { label: nameOf(p.id) })} askContext={p.id}>
       <PageHeader eyebrow={`Proposal and test · ${line.name}`} title={`${win?.name ?? p.param}: ${withheld ? "no number offered" : `${p.current} to ${p.proposed} ${win?.unit ?? ""}`}`}
-        meta={<span className="mono">{p.id} · optimiser {p.optimiserVersion} · raised {dayMonth(p.createdAt)} {hhmm(p.createdAt)}</span>}
-        actions={<><Link className="btn btn-sm btn-quiet" href="/process/proposals">All proposals</Link><AskButton context={p.id} label="Ask about this proposal" /></>} />
+        meta={<span >{nameOf(p.id)} · optimiser {p.optimiserVersion} · raised {dayMonth(p.createdAt)} {hhmm(p.createdAt)}</span>}
+        actions={<><Link className="btn btn-sm btn-quiet" href="/process/proposals">All proposals</Link><AskButton context={nameOf(p.id)} label="Ask about this proposal" /></>} />
       <ProcessTabs active="proposals" />
       <div className="grid">
         <div className="span-8 stack">
@@ -44,7 +45,7 @@ export default async function ProposalTest({ params }: { params: Promise<{ id: s
               <div className="stack-sm">
                 <span className="label">Predicted {p.predicted.name.toLowerCase()}</span>
                 <Confidence kind="prediction" label={p.weakestLabel} measure={p.predicted.name} unit={p.predicted.unit} low={p.predicted.low} point={p.predicted.point} high={p.predicted.high}
-                  spec={p.predicted.spec} drivers={p.drivers} fit={p.fitState} safety={p.safetyFilter} method={`Model ${fit.modelId} ${fit.version}; band is the model's 90% interval; no single score is documented for proposals`} evidenceIds={p.evidenceIds} />
+                  spec={p.predicted.spec} drivers={p.drivers} fit={p.fitState} safety={p.safetyFilter} method={`Model ${nameOf(fit.modelId)} ${fit.version}; band is the model's 90% interval; no single score is documented for proposals`} evidenceIds={p.evidenceIds} />
               </div>
               <div className="stack-sm">
                 <span className="label">{p.predicted.name}, last {outVals.length} {line.type === "batch" ? "batches" : "shift runs"}</span>
@@ -55,7 +56,7 @@ export default async function ProposalTest({ params }: { params: Promise<{ id: s
               <thead><tr><th>Check</th><th>Result</th><th>Detail</th></tr></thead>
               <tbody>
                 <tr><td>Safety filter</td><td><Tag tone={p.safetyFilter.pass ? "success" : "critical"}>{p.safetyFilter.pass ? "Passed" : "Failed"}</Tag></td><td>{p.safetyFilter.rules.join("; ")}</td></tr>
-                <tr><td>Model fit</td><td><Tag tone={p.fitState === "accepted" ? "success" : "warning"}>{p.fitState === "accepted" ? "Accepted" : "Not accepted"}</Tag></td><td>{fit.modelId} {fit.version}, coverage {Math.round(fit.coverage * 100)}% on {fit.heldOutN} held-out points</td></tr>
+                <tr><td>Model fit</td><td><Tag tone={p.fitState === "accepted" ? "success" : "warning"}>{p.fitState === "accepted" ? "Accepted" : "Not accepted"}</Tag></td><td>{nameOf(fit.modelId)} {fit.version}, coverage {Math.round(fit.coverage * 100)}% on {fit.heldOutN} held-out points</td></tr>
                 <tr><td>Weakest input</td><td><EvidenceTag label={p.weakestLabel} /></td><td>A claim is as strong as its weakest load-bearing input</td></tr>
                 <tr><td>Inside the window</td><td><Tag tone="success">Yes</Tag></td><td>{win ? `Signed ${win.low} to ${win.high} ${win.unit}${win.narrowedLow !== undefined ? `, narrowed ${win.narrowedLow} to ${win.narrowedHigh}` : ""}` : "No window"}</td></tr>
               </tbody>
@@ -71,7 +72,7 @@ export default async function ProposalTest({ params }: { params: Promise<{ id: s
               { key: "o", label: p.predicted.name, align: "right", render: (r) => outcome(r, p.predicted.name)?.value ?? "None" },
             ]} />
           </Section>
-          {corr ? <Section title="Came from Quality"><div className="stack-sm" style={{ fontSize: 13 }}><span>{corr.reason}</span><span className="muted">{corr.sentBy} · lot <span className="mono">{corr.lotId}</span> · {corr.direction} {corr.param}</span><Link className="link" href="/quality/corrections">Corrections to process</Link></div></Section> : null}
+          {corr ? <Section title="Came from Quality"><div className="stack-sm" style={{ fontSize: 13 }}><span>{corr.reason}</span><span className="muted">{corr.sentBy} · lot <span >{nameOf(corr.lotId)}</span> · {corr.direction} {corr.param}</span><Link className="link" href="/quality/corrections">Corrections to process</Link></div></Section> : null}
           <Section title="History" flush>
             <ul className="tl">
               <li><span className="t">{dayMonth(p.createdAt)} {hhmm(p.createdAt)}</span><span className="k w" /><span>Proposed by optimiser {p.optimiserVersion}</span><span /></li>
