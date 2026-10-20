@@ -1,0 +1,29 @@
+/* Settings area */
+.set-nav .row.on { background: var(--surface-subtle); box-shadow: inset 2px 0 0 var(--text-primary); }
+.set-note { font-size: 12px; color: var(--text-secondary); padding: var(--space-2) var(--space-3); border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); }
+.set-done { font-size: 12px; color: var(--text-secondary); display: inline-flex; gap: 6px; align-items: center; }
+.confirm-body { font-size: 13px; margin-bottom: 8px; }
+.confirm-body blockquote { margin: 8px 0; padding: 8px 12px; border-left: 2px solid var(--text-primary); background: var(--surface-subtle); }
+.rbac { width: 100%; border-collapse: collapse; font-size: 12px; }
+.rbac th, .rbac td { border-bottom: 1px solid var(--border); padding: 6px 8px; text-align: center; }
+.rbac th:first-child, .rbac td:first-child { text-align: left; }
+.rbac thead th { font-weight: 500; color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; vertical-align: bottom; }
+.rbac td button { border: 1px solid transparent; background: none; padding: 2px 6px; border-radius: var(--radius-sm); font: inherit; font-size: 11px; cursor: pointer; min-width: 52px; }
+.rbac td button.allow { background: var(--success-tint, #E7F5EC); color: var(--success-text, #1F6B3B); }
+.rbac td button.view { border-color: var(--border); color: var(--text-secondary); }
+.rbac td button.hidden { color: var(--text-tertiary, var(--text-secondary)); opacity: .55; }
+.rbac td button:disabled { cursor: default; }
+.rbac td button.changed { outline: 2px dashed var(--accent-500); outline-offset: 1px; }
+.rbac tr.signing td:first-child::after { content: "set per plant"; margin-left: 6px; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--accent-700); }
+.amatrix { width: 100%; border-collapse: collapse; font-size: 12px; }
+.amatrix th, .amatrix td { border-bottom: 1px solid var(--border); padding: 6px; text-align: center; }
+.amatrix th:first-child, .amatrix td:first-child { text-align: left; }
+.amatrix thead th { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
+.amatrix td button { width: 28px; height: 24px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font: inherit; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--text-secondary); }
+.amatrix td button.p { background: var(--text-primary); color: var(--surface); border-color: var(--text-primary); }
+.amatrix td button.b { background: var(--surface-sunken); color: var(--text-primary); border-color: var(--border-strong); }
+.amatrix td button.rec { outline: 2px dashed var(--accent-300); }
+.field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3); }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary); }
+.field input, .field select { height: 30px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 0 8px; font: inherit; font-size: 13px; color: var(--text-primary); background: var(--surface); }
+.scope-chips { display: inline-flex; gap: 4px; flex-wrap: wrap; }
