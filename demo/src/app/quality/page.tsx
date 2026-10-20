@@ -11,7 +11,7 @@ import { deniedReason } from "@/components/cards/DecisionCard";
 import { Confidence } from "@/components/ui/Confidence";
 import { DataTable, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
-import { JoinTag, NoReleaseLine, QualityTabs, RiskTag, crumbs, gradeOf, labOf, linksOf, lotNo, proofForLot, propOf, specOf, threshold, weakestJoin } from "@/components/quality/common";
+import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, labOf, linksOf, lotNo, proofForLot, propOf, specOf, threshold, weakestJoin } from "@/components/quality/common";
 
 export const metadata = { title: "Quality" };
 const RANK = { "At risk": 0, Watch: 1, "On track": 2 } as const;
@@ -30,7 +30,6 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
       <PageHeader eyebrow="Quality" title="Lots at risk" meta="Whether each lot will meet spec, how sure, and what it rests on. Stamped works inside limits set beforehand."
         actions={<><Link className="btn btn-sm" href="/quality/links">{D.lotLinks.filter((l) => l.status === "suggested" && l.link_confidence < 0.8).length} links to confirm</Link><AskButton context="Lots at risk" label="Ask about lots" /></>} />
       <QualityTabs active="lots" />
-      <NoReleaseLine />
       <div className="grid">
         <div className="span-8 stack">
           <Section title="Lots" meta={`${atRisk.length} at risk · ${D.lots.filter((l) => l.riskWord === "Watch").length} to watch · ${D.lots.length} in 10 days`} flush

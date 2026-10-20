@@ -1,4 +1,4 @@
-/** Shared helpers for the Quality area: sub-navigation, crumbs, lot lookups and the fixed "no release here" line. */
+/** Shared helpers for the Quality area: sub-navigation, crumbs and lot lookups. */
 import * as D from "@/lib/demo/data";
 import type { Lot } from "@/lib/demo/types";
 import type { Crumb } from "@/components/shell/Shell";
@@ -43,8 +43,4 @@ export function RiskTag({ risk }: { risk: Lot["riskWord"] }) {
 }
 export function JoinTag({ label }: { label: "verified" | "estimated" | "unverified" }) {
   return <Tag tone={label === "unverified" ? "warning" : label === "verified" ? "success" : "neutral"} title="Join label">{label}</Tag>;
-}
-
-export function NoReleaseLine() {
-  return <div className="no-release" role="note">Holds and releases happen in your quality system. Stamped watches lots and recommends; it never releases a hold.</div>;
 }

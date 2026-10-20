@@ -12,7 +12,7 @@ import { RunChart } from "@/components/ui/charts";
 import { DataTable, EvidenceIds, EvidenceTag, Illustrative, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { runLabel } from "@/components/process/common";
-import { JoinTag, NoReleaseLine, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, specOf, threshold, weakestJoin, belowThreshold } from "@/components/quality/common";
+import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, specOf, threshold, weakestJoin, belowThreshold } from "@/components/quality/common";
 
 export const metadata = { title: "Link confirmations" };
 export default async function Links() {
@@ -24,7 +24,6 @@ export default async function Links() {
     <Workspace crumbs={crumbs({ label: "Link confirmations" })} askContext="Lot link confirmations">
       <PageHeader eyebrow="Quality" title="Link confirmations" meta="Links below the pack threshold wait for a person. Until confirmed, anything resting on them stays unverified." actions={<AskButton context="Link confirmations" label="Ask about links" />} />
       <QualityTabs active="links" />
-      <NoReleaseLine />
       <div className="grid">
         <div className="span-7 stack">
           {weak.map((l) => {

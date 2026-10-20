@@ -12,7 +12,7 @@ import { RunChart } from "@/components/ui/charts";
 import { DataTable, EvidenceIds, EvidenceTag, Illustrative, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { runLabel } from "@/components/process/common";
-import { JoinTag, NoReleaseLine, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, specOf, threshold, weakestJoin, belowThreshold } from "@/components/quality/common";
+import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, specOf, threshold, weakestJoin, belowThreshold } from "@/components/quality/common";
 
 export const metadata = { title: "Drift" };
 const series = (lineId: string, prop: string) => D.runs.filter((r) => r.lineId === lineId).sort((a, b) => a.end.localeCompare(b.end)).map((r) => r.outcomes.find((o) => o.name === prop)?.value).filter((v): v is number => v !== undefined).slice(-24);
@@ -24,7 +24,6 @@ export default async function Drift() {
     <Workspace crumbs={crumbs({ label: "Drift" })} askContext="Quality drift">
       <PageHeader eyebrow="Quality" title="Drift" meta="Slow movement in a property, caught before a lot leaves spec. Each signal is a pattern across runs, not a single alarm." actions={<AskButton context="Quality drift" label="Ask about drift" />} />
       <QualityTabs active="drift" />
-      <NoReleaseLine />
       <div className="grid">
         <div className="span-8 stack">
           {D.driftSignals.map((d) => {
