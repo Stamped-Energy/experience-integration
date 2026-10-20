@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import type { AuditEvent } from "@/lib/demo/types";
 import { currentRole } from "@/lib/role";
@@ -13,7 +14,7 @@ export const metadata = { title: "Audit log" };
 
 function Obj({ e }: { e: AuditEvent }) {
   const h = objHref(e);
-  return h ? <Link className="link mono" href={h}>{e.objectId}</Link> : <span className="mono">{e.objectId}</span>;
+  return h ? <Link className="link" href={h}>{nameOf(e.objectId)}</Link> : <span>{nameOf(e.objectId)}</span>;
 }
 function Diff({ e }: { e: AuditEvent }) {
   if (!e.before && !e.after) return <span className="muted">No value change</span>;
@@ -49,7 +50,7 @@ export default async function Audit({ searchParams }: { searchParams: Promise<Au
 
   const detail = sel && (
     <>
-      <Section title={sel.action} meta={<span className="mono">{sel.id}</span>} actions={<Illustrative />}>
+      <Section title={sel.action} meta={`${dayMonth(sel.at)} ${hhmm(sel.at)}`} actions={<Illustrative />}>
         <dl className="facts-grid">
           <dt>When</dt><dd>{dayMonth(sel.at)} {hhmm(sel.at)} IST · {rel(sel.at)}</dd>
           <dt>Person</dt><dd>{personName(sel.personId)}, {roleName(sel.role)}</dd>
@@ -65,7 +66,7 @@ export default async function Audit({ searchParams }: { searchParams: Promise<Au
       </Section>
       {(prop || trial || win || stop) && <Section title="Evidence on the object" flush>
         <dl className="facts-grid" style={{ padding: "12px 16px" }}>
-          {prop && <><dt>Proposal</dt><dd>{prop.param}: {prop.current} to {prop.proposed} <EvidenceTag label={prop.weakestLabel} /></dd><dt>State</dt><dd>{prop.state}{prop.declineReason ? `; ${prop.declineReason}` : ""}</dd><dt>Evidence</dt><dd className="mono">{prop.evidenceIds.join(", ")}</dd></>}
+          {prop && <><dt>Proposal</dt><dd>{nameOf(prop.id)} <EvidenceTag label={prop.weakestLabel} /></dd><dt>State</dt><dd>{prop.state}{prop.declineReason ? `; ${prop.declineReason}` : ""}</dd><dt>Evidence</dt><dd className="mono">{prop.evidenceIds.join(", ")}</dd></>}
           {trial && <><dt>Trial</dt><dd>{trial.change}</dd></>}
           {stop && <><dt>Stop</dt><dd>{stop.effect}; {stop.restoreResult}</dd></>}
           {win && <><dt>Window</dt><dd>{win.name}: {win.low} to {win.high} {win.unit}, signed by {win.signedBy}, v{win.version}</dd></>}

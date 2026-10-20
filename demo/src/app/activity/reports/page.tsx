@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nameOf } from "@/lib/names";
 import { Fragment } from "react";
 import * as D from "@/lib/demo/data";
 import type { Report } from "@/lib/demo/types";
@@ -29,13 +30,13 @@ function Preview({ r }: { r: Report }) {
       <div className="label">Preview · {r.formats.join(", ")} · Illustrative</div>
       <h4>{r.kind}, {r.period}</h4>
       <p className="muted" style={{ margin: "0 0 8px" }}>{contents[r.kind]}</p>
-      {r.kind === "Monthly value" && <table><thead><tr><th>Item</th><th>Status</th><th>Proof</th></tr></thead><tbody>{D.valueItems.map((v) => <tr key={v.id}><td>{v.title}<span className="cell-sub">{D.byId.line(v.lineId)?.short}</span></td><td><Tag tone={v.status === "Verified" ? "success" : "neutral"}>{v.status}</Tag></td><td className="mono">{v.proofRecordId}</td></tr>)}</tbody></table>}
+      {r.kind === "Monthly value" && <table><thead><tr><th>Item</th><th>Status</th><th>Proof</th></tr></thead><tbody>{D.valueItems.map((v) => <tr key={v.id}><td>{v.title}<span className="cell-sub">{D.byId.line(v.lineId)?.short}</span></td><td><Tag tone={v.status === "Verified" ? "success" : "neutral"}>{v.status}</Tag></td><td className="mono">{nameOf(v.proofRecordId)}</td></tr>)}</tbody></table>}
       {trial && <><dl className="facts-grid"><dt>Change</dt><dd>{trial.change}</dd><dt>Switches</dt><dd>{trial.switches.filter((s) => s.done).length} of {trial.switches.length} done</dd><dt>Status</dt><dd>{trial.status}</dd>{proof && <><dt>Verdict</dt><dd>{proof.verdict}; {proof.effect.measure} {proof.effect.value} ({proof.effect.low} to {proof.effect.high}) {proof.effect.unit}</dd></>}</dl>
         {proof && <table><tbody>{proof.questions.map((q) => <tr key={q.question}><td>{q.question}</td><td><EvidenceTag label={q.label} /></td></tr>)}</tbody></table>}</>}
       {note && <p style={{ margin: "4px 0" }}><strong>{note.title}</strong> · {dayMonth(note.at)}</p>}
       {note && <table><tbody>{note.claims.map((c, i) => <tr key={i}><td>{c.text}</td><td><EvidenceTag label={c.label} /></td></tr>)}</tbody></table>}
-      {note && <><div className="label" style={{ marginTop: 12 }}>Decisions taken</div><table><tbody>{D.auditEvents.filter((e) => /Accepted|Declined|Signed|Pressed/.test(e.action)).slice(0, 8).map((e) => <tr key={e.id}><td className="mono">{dayMonth(e.at)}</td><td>{e.action}</td><td className="mono">{e.objectId}</td><td>{personName(e.personId)}</td></tr>)}</tbody></table></>}
-      {r.kind === "Audit export" && <table><thead><tr><th>Time</th><th>Person</th><th>Action</th><th>Object</th></tr></thead><tbody>{D.auditEvents.slice(0, 8).map((e) => <tr key={e.id}><td className="mono">{dayMonth(e.at)} {hhmm(e.at)}</td><td>{personName(e.personId)}</td><td>{e.action}</td><td className="mono">{e.objectId}</td></tr>)}</tbody></table>}
+      {note && <><div className="label" style={{ marginTop: 12 }}>Decisions taken</div><table><tbody>{D.auditEvents.filter((e) => /Accepted|Declined|Signed|Pressed/.test(e.action)).slice(0, 8).map((e) => <tr key={e.id}><td className="mono">{dayMonth(e.at)}</td><td>{e.action}</td><td className="mono">{nameOf(e.objectId)}</td><td>{personName(e.personId)}</td></tr>)}</tbody></table></>}
+      {r.kind === "Audit export" && <table><thead><tr><th>Time</th><th>Person</th><th>Action</th><th>Object</th></tr></thead><tbody>{D.auditEvents.slice(0, 8).map((e) => <tr key={e.id}><td className="mono">{dayMonth(e.at)} {hhmm(e.at)}</td><td>{personName(e.personId)}</td><td>{e.action}</td><td className="mono">{nameOf(e.objectId)}</td></tr>)}</tbody></table>}
       <p className="muted" style={{ margin: "8px 0 0", fontSize: 12 }}>Every figure keeps its evidence label and the ILLUSTRATIVE tag in the export.</p>
     </div>
   );
@@ -72,7 +73,7 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
             <DataTable caption="Exports" rowKey={(e) => e.id} rows={exports} columns={[
               { key: "t", label: "When", render: (e) => `${dayMonth(e.at)} ${hhmm(e.at)}` },
               { key: "p", label: "Person", render: (e) => <>{personName(e.personId)}<span className="cell-sub">{roleName(e.role)}</span></> },
-              { key: "o", label: "Report", render: (e) => <Link className="link mono" href={objHref(e)!}>{e.objectId}</Link> },
+              { key: "o", label: "Report", render: (e) => <Link className="link" href={objHref(e)!}>{nameOf(e.objectId)}</Link> },
               { key: "a", label: "", render: (e) => <Link className="link" href={`/activity?e=${e.id}`}>In audit log</Link> },
             ]} />
           </Section>
@@ -96,7 +97,7 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
           </Section>
           <div className="xl-hide"><Section title="Preview">{<Preview r={sel} />}</Section></div>
         </div>
-        <div className="xl-only xl-span-4 stack"><Section title="Preview" meta={sel.id}><Preview r={sel} /></Section></div>
+        <div className="xl-only xl-span-4 stack"><Section title="Preview" meta={nameOf(sel.id)}><Preview r={sel} /></Section></div>
       </div>
     </Workspace>
   );
