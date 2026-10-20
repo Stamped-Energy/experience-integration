@@ -6,7 +6,7 @@ import { dayMonth, hhmm, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
-import { AbstainNote, Answer, AskTabs, EvidenceItemSheet, allClaims, citations, contextOf, crumbs, evHref, proofFor, StaleTag } from "./common";
+import { AbstainNote, Answer, AskTabs, EvidenceItemSheet, allClaims, citations, contextOf, crumbs, evHref, proofFor, StaleTag, noPrice } from "./common";
 
 export function ThreadView({ t, q, evidence, ev }: { t: AskThread; q?: string; evidence?: string; ev?: string }) {
   const base = `/ask/${t.id}`;
@@ -55,7 +55,7 @@ export function ThreadView({ t, q, evidence, ev }: { t: AskThread; q?: string; e
               ...D.investigations.flatMap((i) => i.entries.filter((e) => e.evidenceIds.some((x) => cites.some((y) => y.id === x))).map((e) => ({ k: i.id + e.at, where: i.title, href: `/quality/investigations/${i.id}`, text: e.text, label: e.label, kind: "Investigation" }))),
             ]} columns={[
               { key: "k", label: "Kind", render: (r) => <Tag>{r.kind}</Tag> },
-              { key: "t", label: "Claim", render: (r) => r.text },
+              { key: "t", label: "Claim", render: (r) => noPrice(r.text) },
               { key: "l", label: "Label", render: (r) => <EvidenceTag label={r.label} /> },
               { key: "w", label: "Where", render: (r) => <Link className="link" href={r.href}>{r.where}</Link> },
             ]} />
