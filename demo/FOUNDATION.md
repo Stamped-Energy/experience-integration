@@ -62,7 +62,7 @@ Rules: confidence follows the method. Proposals and Ask answers show a label and
 ## 6. Routes
 | Route | State |
 |---|---|
-| `/` Home, `?view=plant\|shift\|line\|owner` | Built. Default view comes from the role (`Role.home`). |
+| `/` Home, `?view=overview\|plant\|shift\|line\|owner` | Built. `/` opens on Overview. The other four views are unchanged. |
 | `/inbox?tab=waiting\|tasks\|decided`, `/inbox/[id]` | Built. |
 | `/process`, `/quality`, `/plant`, `/ask`, `/settings`, `/activity` | Stubs (`AreaStub`). Proto Bot builds these. |
 | `/planning` | Coming soon page. |

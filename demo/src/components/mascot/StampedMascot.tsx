@@ -57,12 +57,14 @@ export function StampedMascot({ mode = "ambient", state, expression, size = 64, 
   const small = size < 40;
   const [visible, setVisible] = useState(true);
   const [, tick] = useState(0);
+  const [ready, setReady] = useState(false);
   const beh = useRef<MascotBehaviour | null>(null);
   if (!beh.current) beh.current = new MascotBehaviour({ rng: seed === undefined ? Math.random : seeded(seed), small, fixed: state, boredAfter: idleTimes?.bored, sleepyAfter: idleTimes?.sleepy, dozeAfter: idleTimes?.doze });
   const c = useRef({ t0: 0, shown: (arrive ? "arrival" : state ?? RESTING[mode]) as MascotState, since: 0, from: undefined as Pose | undefined, last: undefined as Pose | undefined, face: NEUTRAL_FACE as Face, faceFrom: NEUTRAL_FACE as Face, faceId: "neutral" as MascotExpression, faceAt: 0, reported: 0, frame: undefined as BehaviourFrame | undefined }).current;
   const cb = useRef(onBehaviour);
   cb.current = onBehaviour;
 
+  useEffect(() => { setReady(true); }, []);
   useEffect(() => { beh.current?.setMode(mode, performance.now() / 1000); }, [mode]);
   useEffect(() => { beh.current?.setFixed(state); }, [state]);
 
@@ -109,16 +111,16 @@ export function StampedMascot({ mode = "ambient", state, expression, size = 64, 
     return () => cancelAnimationFrame(raf);
   }, [still, visible, small]);
 
-  const now = typeof performance === "undefined" ? 0 : performance.now() / 1000;
-  if (!c.t0) { c.t0 = now; c.since = now; }
-  const t = now - c.t0;
+  const now = ready && typeof performance !== "undefined" ? performance.now() / 1000 : 0;
+  if (ready && !c.t0) { c.t0 = now || 0.0001; c.since = c.t0; }
+  const t = c.t0 ? now - c.t0 : 0;
 
   let target: MascotState;
   let life: { dYaw: number; dPitch: number; dRoll: number; lid: number; breath: number } | undefined;
   let faceId: MascotExpression = expression ?? "neutral";
   if (still) target = state ?? RESTING[mode];
   else if (c.shown === "arrival" && t < 1.3) target = "arrival";
-  else if (!live) target = state ?? RESTING[mode];
+  else if (!live || !ready) target = state ?? RESTING[mode];
   else {
     const f = beh.current.update(now);
     c.frame = f;
