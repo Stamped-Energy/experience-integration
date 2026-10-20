@@ -6,7 +6,7 @@ import { dayMonth, hhmm, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
-import { AbstainNote, Answer, AskTabs, EvidenceItemSheet, allClaims, citations, contextOf, crumbs, evHref, proofFor } from "./common";
+import { AbstainNote, Answer, AskTabs, EvidenceItemSheet, allClaims, citations, contextOf, crumbs, evHref, proofFor, StaleTag } from "./common";
 
 export function ThreadView({ t, q, evidence, ev }: { t: AskThread; q?: string; evidence?: string; ev?: string }) {
   const base = `/ask/${t.id}`;
@@ -29,7 +29,7 @@ export function ThreadView({ t, q, evidence, ev }: { t: AskThread; q?: string; e
             <div className="qchips">{D.suggestedQuestions.map((s) => <Link key={s} prefetch={false} href={`${base}?q=${encodeURIComponent(s)}`}>{s}</Link>)}</div>
           </Section>
           <Section title="Saved answers" flush actions={<Link className="link" href="/ask/saved">All</Link>}>
-            <div className="rows">{D.savedAnswers.map((s) => <Link key={s.id} href={`/ask/saved?id=${s.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr)" }}><span><span className="row-title" style={{ display: "block" }}>{s.title}</span><span className="row-sub">{s.savedBy} · {dayMonth(s.at)}</span></span></Link>)}</div>
+            <div className="rows">{D.savedAnswers.slice(0, 5).map((s) => <Link key={s.id} href={`/ask/saved?id=${s.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title" style={{ display: "block" }}>{s.title}</span><span className="row-sub">{s.lineId ? D.byId.line(s.lineId)?.short : "Plant-wide"}{s.topic ? ` · ${s.topic}` : ""} · {dayMonth(s.at)}</span></span>{s.stale ? <Tag tone="warning">Stale</Tag> : null}</Link>)}</div>
           </Section>
         </div>
         <div className="span-6 stack">
@@ -44,6 +44,9 @@ export function ThreadView({ t, q, evidence, ev }: { t: AskThread; q?: string; e
               <div className="row-in"><input name="q" autoComplete="off" placeholder="Ask about a line, lot or change" aria-label="Question" /><button className="btn btn-primary btn-sm" type="submit">Ask</button></div>
               <span className="muted" style={{ fontSize: 12 }}>Ask reads only. It cannot change a setting, and it says so when it does not know.</span>
             </form>
+          </Section>
+          <Section title="Saved from this conversation" meta="Saved answers keep their own state" flush>
+            {D.savedAnswers.filter((s) => s.threadId === t.id).length ? <div className="rows">{D.savedAnswers.filter((s) => s.threadId === t.id).map((s) => <Link key={s.id} className="row" href={`/ask/saved?id=${s.id}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title" style={{ display: "block" }}>{s.title}</span><span className="row-sub">{s.savedBy} · {dayMonth(s.at)}{s.confidence?.band ? ` · band ${s.confidence.band}` : ""}{s.stale ? ` · ${s.stale.reason}` : ""}</span></span><StaleTag s={s} /></Link>)}</div> : <p className="muted" style={{ margin: 16, fontSize: 13 }}>Nobody has saved an answer from this conversation.</p>}
           </Section>
           <Section title="Same evidence elsewhere" meta="Other answers, notes and cards citing these ids" flush>
             <DataTable caption="Related" rowKey={(r) => r.k} rows={[
