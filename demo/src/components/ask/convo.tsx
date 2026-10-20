@@ -110,7 +110,7 @@ export function TurnView({ t, idx, compact }: { t: Turn; idx: number; compact?: 
     <div className="turn" id={anchor}>
       <div className="q-bubble">{t.q}</div>
       <div className="a-row">
-      <span className="a-mascot"><SequenceMascot size={compact ? 22 : 28} label="Stamped assistant" steps={t.abstain ? [["thinking", 0.5], ["warning", 0]] : t.lead ? [["thinking", 0.5], ["answering", 1.6], ["idle", 0]] : [["thinking", 0]]} /></span>
+      <span className="a-mascot"><SequenceMascot size={compact ? 22 : 28} label="Stamped assistant" steps={t.abstain ? [["thinking", 0.5], ["warning", 0]] : t.lead ? [["thinking", 0.6], ["answering", 2.2], ["success", 0]] : [["thinking", 0]]} /></span>
       {t.abstain ? (
         <div className="a-prose">
           <p className="a-lead">{t.abstain.text}</p>

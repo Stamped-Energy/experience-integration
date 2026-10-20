@@ -2,7 +2,7 @@
 /** Client bits of Ask: numbered source markers that open the Sources strip, and the composer with its thinking state. */
 import { useRouter } from "next/navigation";
 import { useState, type MouseEvent, type ReactNode } from "react";
-import { StampedMascot, type MascotState } from "@/components/mascot/StampedMascot";
+import { StampedMascot, type MascotMode } from "@/components/mascot/StampedMascot";
 
 export function SourceMark({ n }: { n: number }) {
   function open(e: MouseEvent<HTMLButtonElement>) {
@@ -18,7 +18,7 @@ export function SourceMark({ n }: { n: number }) {
   return <button type="button" className="smark" onClick={open} aria-label={`Source ${n}`}>{n}</button>;
 }
 
-export function Composer({ big, steps, autoFocus, placeholder = "Ask about a line, a lot or a change", footnote, onMood }: { big?: boolean; steps: Record<string, string>; autoFocus?: boolean; placeholder?: string; footnote?: boolean; onMood?: (m: MascotState) => void }) {
+export function Composer({ big, steps, autoFocus, placeholder = "Ask about a line, a lot or a change", footnote, onMood }: { big?: boolean; steps: Record<string, string>; autoFocus?: boolean; placeholder?: string; footnote?: boolean; onMood?: (m: MascotMode) => void }) {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [step, setStep] = useState<string | null>(null);
@@ -32,9 +32,9 @@ export function Composer({ big, steps, autoFocus, placeholder = "Ask about a lin
   }
   return (
     <form className={`composer2${big ? " big" : ""}`} onSubmit={go} role="search">
-      {step ? <p className="thinking" role="status">{onMood ? null : <StampedMascot state="thinking" size={20} />}{step}…</p> : null}
+      {step ? <p className="thinking" role="status">{onMood ? null : <StampedMascot mode="thinking" size={20} />}{step}…</p> : null}
       <div className="c-row">
-        <input value={q} onChange={(e) => { setQ(e.target.value); onMood?.(e.target.value.trim() ? "listening" : "idle"); }} onBlur={() => { if (!step) onMood?.("idle"); }} autoFocus={autoFocus} name="q" autoComplete="off" placeholder={placeholder} aria-label="Question" />
+        <input value={q} onChange={(e) => { setQ(e.target.value); onMood?.(e.target.value.trim() ? "listening" : "ambient"); }} onBlur={() => { if (!step) onMood?.("ambient"); }} autoFocus={autoFocus} name="q" autoComplete="off" placeholder={placeholder} aria-label="Question" />
         <button className="btn btn-primary" type="submit" disabled={!!step}>Ask</button>
       </div>
       {footnote ? <span className="c-foot">Ask reads only.</span> : null}
@@ -44,10 +44,10 @@ export function Composer({ big, steps, autoFocus, placeholder = "Ask about a lin
 
 /** Ask empty state: the mascot above the heading, listening while you type and thinking once you ask. */
 export function AskHero({ steps, children }: { steps: Record<string, string>; children?: ReactNode }) {
-  const [mood, setMood] = useState<MascotState>("idle");
+  const [mood, setMood] = useState<MascotMode>("ambient");
   return (
     <>
-      <div className="ask-mascot"><StampedMascot state={mood} size={96} arrive label="Stamped assistant" /></div>
+      <div className="ask-mascot"><StampedMascot mode={mood} size={96} arrive label="Stamped assistant" /></div>
       <h1>Ask about your plant</h1>
       <p>Reads plant data and cites it. It cannot change a setting.</p>
       <Composer big autoFocus steps={steps} onMood={setMood} />
