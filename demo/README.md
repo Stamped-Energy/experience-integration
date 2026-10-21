@@ -59,8 +59,50 @@ The look follows the technical architecture site's operations design system. Gei
 - Exports and reports are illustrative.
 - Vercel does not build preview deployments for the `demo-stamped` project, so a branch cannot be seen online before merge. Run it locally to review.
 - Merging into main replaces the live showcase at showcase.stamped.work.
-- A separate copy runs on Cloudflare Workers at dev.stamped.work (worker `stamped-dev`). From `demo/`, `pnpm run deploy:vinext` publishes it. That needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment.
+- dev.stamped.work is a separate Cloudflare copy. Deploy steps are below.
 - Phone layouts work, but wide tables scroll sideways.
+
+## Deploy dev.stamped.work
+
+This publishes the `demo/` app as the Cloudflare Worker `stamped-dev` on https://dev.stamped.work. It does not update showcase.stamped.work. That host is the Vercel project `demo-stamped` and changes when `main` is merged.
+
+Deploy a clean `origin/main`. Leave local uncommitted edits out of the publish.
+
+From `experience-integration`:
+
+```bash
+git fetch origin
+git checkout main
+git pull
+```
+
+Credentials are `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the repo-root `.env` (gitignored). Copy them from `stamped-external/site/.env` if they are missing. Names are listed in `.env.example`. Do not commit `.env`.
+
+From `demo/`, load those two variables and publish. Node 22.14+ and pnpm 11. Run `pnpm install` in `demo/` first if `node_modules` is missing.
+
+PowerShell:
+
+```powershell
+cd demo
+Get-Content ..\.env | ForEach-Object {
+  if ($_ -match '^(CLOUDFLARE_API_TOKEN|CLOUDFLARE_ACCOUNT_ID)=(.*)$') {
+    Set-Item -Path "Env:$($Matches[1])" -Value $Matches[2].Trim().Trim('"')
+  }
+}
+pnpm run deploy:vinext
+```
+
+bash:
+
+```bash
+cd demo
+set -a
+source <(grep -E '^(CLOUDFLARE_API_TOKEN|CLOUDFLARE_ACCOUNT_ID)=' ../.env)
+set +a
+pnpm run deploy:vinext
+```
+
+`pnpm run deploy:vinext` is `vinext-cloudflare deploy`. It builds the Vite app and publishes the worker named in `cloudflare.config.ts`. The domain on that worker is `dev.stamped.work`.
 
 ## Next steps
 
