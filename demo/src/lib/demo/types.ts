@@ -189,3 +189,19 @@ export interface InboxItem extends Illustrative {
   ref: string; bucket: "waiting" | "task" | "decided"; owner: RoleId; due?: string; title: string;
 }
 export interface ShiftEvent extends Illustrative { at: string; lineId: string; text: string; kind: "proposal" | "accepted" | "stop" | "lot" | "data" | "handover"; ref?: string }
+
+/** One step of the chain Stamped runs: see it, explain it, change it within limits, try it, check it, keep what works. */
+export type ActionStep = "Detect" | "Explain" | "Propose" | "Trial" | "Verify" | "Learn" | "Decide";
+/** A worked example action for the Process and Quality overviews. Illustrative; shows how an outcome is reached. */
+export interface ExampleAction extends Illustrative {
+  id: string; area: "Process" | "Quality"; lineId: string; steps: ActionStep[]; mechanism: string;
+  title: string; seen: string; evidence: { text: string; label: EvidenceLabel; id?: string }[];
+  action: string;
+  /** Who acts, and how: on its own under a standing approval, a named role decides, or recommend only. */
+  who: { how: "On its own, inside the signed band" | "A person decides" | "Recommend only" | "Record only"; roles: RoleId[]; note: string };
+  options?: { id: string; label: string; primary?: boolean; done: string }[];
+  expected?: { label: EvidenceLabel; band: string };
+  /** One plain sentence on how this step moves the result. */
+  why: string;
+  href?: string; hrefLabel?: string;
+}

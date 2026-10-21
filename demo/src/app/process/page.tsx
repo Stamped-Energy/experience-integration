@@ -9,6 +9,7 @@ import { DecisionCard } from "@/components/cards/DecisionCard";
 import { Sparkline } from "@/components/ui/charts";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, EvidenceTag, LineModeTag, ModeTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
+import { ExampleActions } from "@/components/cards/ExampleActions";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { ProcessTabs, crumbs, outcome, outcomeName, packOf, proofForRun, runLabel, runsOf, specOf } from "@/components/process/common";
 
@@ -26,6 +27,7 @@ export default async function ProcessLines({ searchParams }: { searchParams: Pro
       <PageHeader eyebrow="Process" title="Lines" meta={<>Two lines on the demonstration plant. Stamped works inside limits set beforehand.</>}
         actions={<><Link className="btn btn-sm" href="/process/proposals">{open.length} proposals waiting</Link><AskButton context="Process lines" label="Ask about lines" /></>} />
       <ProcessTabs active="lines" />
+      <div style={{ marginBottom: "var(--space-5)" }}><ExampleActions area="Process" role={role} /></div>
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
           <Section title="Lines" meta="Mode, running settings against the signed band, last runs" flush>

@@ -102,3 +102,27 @@
 .ev-body > * { flex-shrink: 0; }
 .ev-rows th { position: static; }
 @media (min-width: 1800px) { .xl-hide { display: none !important; } .xl-only.stack { display: flex; } }
+
+/* ---------- Worked example actions (Process and Quality overviews) ---------- */
+.ex-chain { list-style: none; margin: 0 0 var(--space-4); padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; counter-reset: ex; }
+.ex-chain li { counter-increment: ex; display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-subtle); font-size: 12px; color: var(--text-secondary); }
+.ex-chain li b { font-size: 13px; color: var(--text-primary); }
+.ex-chain li b::before { content: counter(ex) ". "; color: var(--text-muted); font-weight: 500; }
+.ex-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: var(--space-4); align-items: start; }
+.ex-card .card-title { margin-top: 2px; }
+.ex-step { display: inline-flex; align-items: center; font-size: 11px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border-strong); color: var(--text-secondary); background: var(--surface); }
+.ex-step[data-step="Decide"] { border-color: var(--info); color: var(--info-text); background: var(--info-tint); }
+.ex-ev { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.ex-ev li { display: flex; gap: 8px; align-items: baseline; }
+.ex-ev li .tag { flex: none; }
+.ex-grid { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 8px 12px; font-size: 13px; line-height: 1.5; align-items: baseline; }
+.ex-why { margin: 0; font-size: 13px; line-height: 1.5; padding: 8px 10px; border-left: 2px solid var(--border-strong); background: var(--surface-subtle); display: flex; flex-direction: column; gap: 2px; }
+@media (max-width: 1100px) { .ex-chain { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 767px) {
+  .ex-chain { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ex-chain li { padding: 4px 10px; border-radius: 999px; }
+  .ex-chain li span { display: none; }
+  .ex-cards { grid-template-columns: minmax(0, 1fr); }
+  .ex-grid { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .ex-grid > .label { margin-top: 6px; }
+}
