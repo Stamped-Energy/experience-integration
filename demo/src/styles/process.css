@@ -24,7 +24,7 @@
 .cell-sub { display: block; font-size: 12px; color: var(--text-muted); }
 .table td .tag + .tag { margin-left: 4px; }
 .table tr.is-sel td { background: var(--accent-50); }
-.mini-band { width: 120px; }
+.mini-band { width: 180px; max-width: 100%; }
 .chart-pad { padding: var(--space-3) var(--space-4) var(--space-2); }
 .chart-legend { display: flex; gap: var(--space-4); font-size: 12px; color: var(--text-secondary); padding: 0 var(--space-4) var(--space-3); flex-wrap: wrap; }
 .chart-legend i { display: inline-block; width: 10px; height: 2px; margin-right: 6px; vertical-align: middle; background: var(--accent-500); }
