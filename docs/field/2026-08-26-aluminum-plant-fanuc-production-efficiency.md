@@ -5,7 +5,7 @@
 **Systems seen:** FANUC MT-LINKi Web Client (`192.168.10.106` / `192.168.10.10`), ForgeLink MES tab open, in-house ERP / scheduling claimed, cameras available  
 **Sample machine:** `CNC_14_S2` · product `1774*P/M` · fleet footer **31 machines**  
 **Field lock:** Shop-floor people are **not living in FANUC**. MT-LINKi is collected and under-used. IT is the main human interface (daily report).  
-**Status:** Field thinking for the 27/29 demo. Does **not** reopen ADR-026 or start the parked production-efficiency Rx track.
+**Status:** Field thinking for the 27/29 demo. Does **not** reopen ADR-W026 or start the parked production-efficiency Rx track.
 
 ---
 
@@ -286,7 +286,7 @@ Copy this onto a phone. These decide whether the opportunity is real.
 
 - Connect: MT-LINKi northbound — [`connectors-edge/docs/research/FANUC_CONNECTIVITY.md`](../../../connectors-edge/docs/research/FANUC_CONNECTIVITY.md)
 - Signals we already have for CNC: `cnc_alarm_dwell`, idle spindle, state energy split — [`intelligence-core/docs/PRECISION_MFG_DATA_TO_SIGNALS.md`](../../../Intellience - L3/intelligence-core/docs/PRECISION_MFG_DATA_TO_SIGNALS.md)
-- Policy: two pillars + shared context — ADR-026. This visit is **Level 1 availability**, not permission to build parked [`future/later/production-efficiency-prescriptions.md`](../../external/future/later/production-efficiency-prescriptions.md)
+- Policy: two pillars + shared context — ADR-W026. This visit is **Level 1 availability**, not permission to build parked [`future/later/production-efficiency-prescriptions.md`](../../external/future/later/production-efficiency-prescriptions.md)
 - Cameras: only if FANUC is mute — [`external/research/concepts/06-plant-camera-perception.md`](../../external/research/concepts/06-plant-camera-perception.md)
 - Prior market lock (2026-08-24): don’t build production-hero Rx unless a pilot **demands** it. This visit is a **demand signal**. It is still not a build order.
 

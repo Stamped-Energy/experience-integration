@@ -5,22 +5,9 @@ import type { ReactNode } from "react";
 import { inboxItems, leases, roles, suggestedQuestions } from "@/lib/demo/data";
 import { currentRole } from "@/lib/role";
 import { AskButton, AskPanelFrame, AskProvider, BottomBar, Rail, RoleSwitcher } from "./ShellClient";
-import { Icon } from "./icons";
-import { StampedMark } from "./StampedMark";
+import { SearchLaunch } from "./Search";
 import { Tag } from "@/components/ui/primitives";
 import { AskPanelContents } from "@/components/ask/Panel";
-
-export function DemoBand() {
-  return (
-    <div className="demo-band" role="note">
-      <StampedMark size={16} className="band-logo" />
-      <strong>Demonstration plant. Illustrative data.</strong>
-      <span className="sep" />
-      <span>Fictional plant, figures tagged Illustrative</span>
-      <span className="authority">Stamped works inside limits set beforehand.</span>
-    </div>
-  );
-}
 
 export async function AppShell({ children }: { children: ReactNode }) {
   const role = await currentRole();
@@ -31,7 +18,6 @@ export async function AppShell({ children }: { children: ReactNode }) {
       <div className="app">
         <Rail inboxCount={waiting} />
         <div className="main" data-role={role}>
-          <DemoBand />
           {children}
         </div>
       </div>
@@ -60,16 +46,12 @@ export async function Workspace({ crumbs, children, askContext }: { crumbs: Crum
           ))}
         </nav>
         <div className="crumb-tools">
-          <label className="search">
-            <Icon.search width={14} height={14} />
-            <input type="search" name="q" autoComplete="off" placeholder="Search lines, lots, cards…" aria-label="Search" />
-            <kbd>/</kbd>
-          </label>
+          <SearchLaunch />
           <RoleSwitcher role={role} roles={roles.map((r) => ({ id: r.id, name: r.name }))} />
           <Tag tone={lease.state === "active" && lease.offlineMin === 0 ? "success" : "warning"} dot title={`Lease ${nameOf(lease.id)}: at most ${lease.maxOfflineH} h offline, never more than ${lease.hardCapH} h`}>
             {lease.offlineMin === 0 ? "Connected" : `Offline · ${lease.offlineMin} min of 4 h`}
           </Tag>
-          <AskButton context={askContext} className="btn btn-sm btn-accent" />
+          <AskButton context={askContext} className="btn btn-sm btn-accent" mascot />
         </div>
       </header>
       <main className="workspace" id="main"><div className="page">{children}</div></main>

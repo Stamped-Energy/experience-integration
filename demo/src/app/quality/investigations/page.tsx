@@ -12,7 +12,7 @@ import { RunChart } from "@/components/ui/charts";
 import { DataTable, EvidenceIds, EvidenceTag, Illustrative, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { runLabel } from "@/components/process/common";
-import { JoinTag, NoReleaseLine, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, specOf, threshold, weakestJoin, belowThreshold } from "@/components/quality/common";
+import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, specOf, threshold, weakestJoin, belowThreshold } from "@/components/quality/common";
 
 export const metadata = { title: "Investigations" };
 export default async function Investigations() {
@@ -20,7 +20,6 @@ export default async function Investigations() {
     <Workspace crumbs={crumbs({ label: "Investigations" })} askContext="Quality investigations">
       <PageHeader eyebrow="Quality" title="Investigations" meta="A case file per question: lots, linked runs, evidence and a conclusion that ends in a proof record." actions={<AskButton context="Investigations" label="Ask about investigations" />} />
       <QualityTabs active="investigations" />
-      <NoReleaseLine />
       <div className="grid">
         {D.investigations.map((i) => {
           const proof = D.proofRecords.find((p) => p.id === i.proofRecordId);

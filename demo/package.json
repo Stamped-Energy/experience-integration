@@ -13,20 +13,33 @@
     "start": "next start --port 3010",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
-    "lint": "tsc --noEmit && node scripts/check-copy.mjs"
+    "lint": "tsc --noEmit && node scripts/check-copy.mjs",
+    "dev:vinext": "vite dev --port 3001",
+    "build:vinext": "vite build",
+    "start:vinext": "vite preview",
+    "deploy:vinext": "vinext-cloudflare deploy"
   },
   "dependencies": {
+    "@vinext/cloudflare": "^1.1.1",
     "echarts": "^6.1.0",
     "next": "16.3.8",
-    "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-server-dom-webpack": "^19.3.1",
+    "vinext": "^1.2.1"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "2.0.0-beta.v.2",
     "@playwright/test": "1.55.1",
     "@types/node": "22.20.1",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "^6.1.2",
+    "@vitejs/plugin-rsc": "^0.5.38",
+    "cf": "1.0.0-beta.18",
     "tsx": "4.23.1",
-    "typescript": "5.9.3"
-  }
+    "typescript": "5.9.3",
+    "vite": "8.3.0"
+  },
+  "type": "module"
 }

@@ -62,8 +62,8 @@ flowchart LR
 
 Precedence is:
 
-1. Accepted ADRs under `external/decisions/`, especially ADR-020, ADR-022, and
-   ADR-023.
+1. Accepted ADRs under `external/decisions/`, especially ADR-014, ADR-016, and
+   ADR-W023.
 2. `external/technical/layers/L6-experience-and-integration.md`.
 3. L6 architecture, UI, and build handoffs under `external/handoff/`.
 4. This repository's `DECISIONS.md` for implementation choices that do not

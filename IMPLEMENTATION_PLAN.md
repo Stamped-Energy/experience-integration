@@ -46,7 +46,7 @@ isProject: false
 - **Stack:** Node.js 22+, pnpm 11 workspace, Next.js App Router + React + TypeScript, Fastify BFF, Better Auth, PostgreSQL + Drizzle, pg-boss, Tailwind/shadcn adapted to Forge Industrial, Apache ECharts 6.1+, Playwright, AWS CDK.
 - **Version rule:** Resolve latest stable compatible dependency versions during scaffold; commit one `pnpm-lock.yaml`; run audit and license checks before accepting each dependency.
 - **Base branch:** `main`; implementation branch follows `cursor/<scope>-fa8d` policy.
-- **Authority:** [L6 SSOT](/workspace/external/technical/layers/L6-experience-and-integration.md), [architecture handoff](/workspace/external/handoff/stamped-l6-architecture-handoff.md), [UI charter](/workspace/external/handoff/stamped-l6-ui-ux-charter.md), [ADR-020](/workspace/external/decisions/ADR-020-l5-mv-claim-governance.md), [ADR-022](/workspace/external/decisions/ADR-022-l6-bff-runtime-boundary.md), [ADR-023](/workspace/external/decisions/ADR-023-l6-ems-and-analyst-context.md), and [Forge Industrial](/workspace/external/design/forge-industrial-design-system.md).
+- **Authority:** [L6 SSOT](/workspace/external/technical/layers/L6-experience-and-integration.md), [architecture handoff](/workspace/external/handoff/stamped-l6-architecture-handoff.md), [UI charter](/workspace/external/handoff/stamped-l6-ui-ux-charter.md), [ADR-014](/workspace/external/decisions/011-015/ADR-014-l5-mv-claim-governance.md), [ADR-016](/workspace/external/decisions/016-020/ADR-016-l6-bff-runtime-boundary.md), [ADR-W023](/workspace/external/decisions/ADR-023-l6-ems-and-analyst-context.md), and [Forge Industrial](/workspace/external/design/forge-industrial-design-system.md).
 - **Estimated commits:** 48–55 independently gated commits. This is one complete L6 program; P0/P1/P2 labels classify capabilities but do not create artificial delivery stops.
 - **Lead:** Own integration, commits, documentation, quality gates, upstream prompts, PR, and cutover.
 
@@ -85,7 +85,7 @@ Ship a professional, production-capable L6 control room where all roles can swit
 
 ## §2 Prerequisites and blockers
 
-- **L5 alarm writes:** Published L5 HTTP exposes list/silence but not all ack/escalate/clear actions required by ADR-023. Create an exact agent prompt and local mock contract first. Live alarm-action cutover remains blocked until L5 publishes and pins OpenAPI routes. L6 must never invent alarm truth.
+- **L5 alarm writes:** Published L5 HTTP exposes list/silence but not all ack/escalate/clear actions required by ADR-W023. Create an exact agent prompt and local mock contract first. Live alarm-action cutover remains blocked until L5 publishes and pins OpenAPI routes. L6 must never invent alarm truth.
 - **L2 reads:** Customer-safe ledger and baseline reads must be promoted to the L2 query API. Create an agent prompt and fixture contract. Never use L2 admin or database access.
 - **L4 live analyst:** Mode A can use a fixture adapter; Mode B live activation requires L4 session/message endpoints and context mapping. The rest of L6 must remain independent.
 - **Email:** Local auth development uses a captured mail adapter; production verification/invitation/reset requires approved SES identity in `ap-south-1`.
@@ -351,7 +351,7 @@ If a row grows beyond one concern, split it; never merge rows to reduce count.
 - **Reports:** Playwright `page.pdf()` selected for shared React/print CSS and tagged PDF support; XLSX remains a separate streaming artifact.
 - **Power BI:** Push semantic model pilot selected for a concrete acceptance integration. Respect current limits (including 10,000 rows/request and no service-principal profiles) and document Microsoft’s streaming deprecation distinction.
 - **Infrastructure:** AWS CDK TypeScript with stateful resources isolated, termination protection, strict synth, diff-before-deploy and cdk-nag.
-- **Recorded overrides:** ADR-022 topology retained; Redis/BullMQ recommendation is replaced locally by PostgreSQL/pg-boss and must be proposed back to stamped-external.
+- **Recorded overrides:** ADR-016 topology retained; Redis/BullMQ recommendation is replaced locally by PostgreSQL/pg-boss and must be proposed back to stamped-external.
 
 ## §12 Documentation and artifact synchronization
 

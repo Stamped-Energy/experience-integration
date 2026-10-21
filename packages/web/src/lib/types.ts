@@ -111,7 +111,7 @@ export interface Prescription {
   risks?: string[];
   /** Rich full-case detail - overrides builder defaults when present. */
   caseDetail?: PrescriptionCaseDetail;
-  /** ADR-024 - management classes show Discuss + tradeoff. */
+  /** ADR-W024 - management classes show Discuss + tradeoff. */
   decisionClass?: "maint" | "mgmt_schedule" | "mgmt_capacity" | "mgmt_cross_dept";
   tradeoff?: PrescriptionTradeoff;
   /** Per-Rx operator feedback after acknowledge (not Improve nav). */

@@ -23,7 +23,7 @@ export default async function AskHome({ searchParams }: { searchParams: Promise<
   }
   const recent = D.askThreads.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 3);
   return (
-    <AskPage title="Ask" base="/ask" sp={sp} composer={false}>
+    <AskPage title="Ask" base="/ask" sp={sp} composer="mobile">
       <div className="ask-empty">
         <AskHero steps={steps()}>
           <div className="sugg">{suggestions().map((s) => <Link key={s.q} prefetch={false} href={s.href}>{s.q}</Link>)}</div>

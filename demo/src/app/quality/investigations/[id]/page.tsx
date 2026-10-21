@@ -13,7 +13,7 @@ import { RunChart } from "@/components/ui/charts";
 import { DataTable, EvidenceIds, EvidenceTag, Illustrative, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { runLabel } from "@/components/process/common";
-import { JoinTag, NoReleaseLine, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, specOf, threshold, weakestJoin, belowThreshold } from "@/components/quality/common";
+import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, specOf, threshold, weakestJoin, belowThreshold } from "@/components/quality/common";
 import { notFound } from "next/navigation";
 
 export default async function Investigation({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ evidence?: string }> }) {
@@ -30,7 +30,6 @@ export default async function Investigation({ params, searchParams }: { params: 
       <PageHeader eyebrow={`Investigation · ${inv.status}`} title={inv.title} meta={`Opened by ${inv.openedBy} · ${inv.lotIds.length} lots · ${inv.runIds.length} runs`}
         actions={<>{proof ? <Link className="btn btn-sm btn-accent" href={`${base}?evidence=${proof.id}`} scroll={false}>Evidence</Link> : null}<AskButton context={inv.title} label="Ask about this case" /></>} />
       <QualityTabs active="investigations" />
-      <NoReleaseLine />
       <div className="grid">
         <div className="span-8 stack">
           <Section title="Case file" flush>

@@ -7,6 +7,8 @@ import { can, grant } from "@/lib/rbac";
 import { dayMonth, hhmm, inr, lakh, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
+import { HomeAsk } from "@/components/ask/AskClient";
+import { stepFor, suggestions } from "@/components/ask/convo";
 import { DecisionCard, deniedReason } from "@/components/cards/DecisionCard";
 import { CardActions } from "@/components/cards/CardActions";
 import { LimitsBand } from "@/components/ui/LimitsBand";
@@ -14,21 +16,26 @@ import { PairedBars } from "@/components/ui/charts";
 import { DataTable, EmptyState, Illustrative, KpiRow, LineModeTag, ModeTag, PageHeader, Section, Tabs, Tag, VerdictTag } from "@/components/ui/primitives";
 import { LineStrip, LotsAtRisk, NoteClaims, ProofUpdates, RecentActivity, ShiftTimeline, proofHref } from "@/components/home/blocks";
 
-const VIEWS: { id: HomeView; label: string }[] = [
-  { id: "plant", label: "Plant" }, { id: "shift", label: "Shift" }, { id: "line", label: "My line now" }, { id: "owner", label: "Owner" },
+type ViewId = "overview" | HomeView;
+const VIEWS: { id: ViewId; label: string }[] = [
+  { id: "overview", label: "Overview" }, { id: "plant", label: "Plant" }, { id: "shift", label: "Shift" }, { id: "line", label: "My line now" }, { id: "owner", label: "Owner" },
 ];
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ view?: string; line?: string }> }) {
   const sp = await searchParams;
   const role = await currentRole();
-  const view = (VIEWS.some((v) => v.id === sp.view) ? sp.view : D.byId.role(role).home) as HomeView;
-  const title = { plant: "Plant today", shift: "Shift 2, starting", line: "My line now", owner: "Value and what happened" }[view];
-  const meta = { plant: `${D.site.name} · ${dayMonth(D.DEMO_NOW)} · ${hhmm(D.DEMO_NOW)} IST`, shift: "Shift 1 handed over at 14:00 IST. Here is what changed and what is waiting.", line: "Current settings inside the signed band, and the next proposal.", owner: "Value at the plant's own prices. Verified and Indicative are shown apart and never added." }[view];
+  const view = (VIEWS.some((v) => v.id === sp.view) ? sp.view : "overview") as ViewId;
+  const title = { overview: "Demonstration plant", plant: "Plant today", shift: "Shift 2, starting", line: "My line now", owner: "Value and what happened" }[view];
+  const meta = { overview: `${dayMonth(D.DEMO_NOW)} · ${hhmm(D.DEMO_NOW)} IST. A proposal stays inside a band a named person signed. Nothing is written until that person accepts it.`, plant: `${D.site.name} · ${dayMonth(D.DEMO_NOW)} · ${hhmm(D.DEMO_NOW)} IST`, shift: "Shift 1 handed over at 14:00 IST. Here is what changed and what is waiting.", line: "Current settings inside the signed band, and the next proposal.", owner: "Value at the plant's own prices. Verified and Indicative are shown apart and never added." }[view];
+  const askSteps = Object.fromEntries(suggestions().map((s) => [s.q, stepFor(s.q)]));
   return (
     <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Home" }, { label: VIEWS.find((v) => v.id === view)!.label }]} askContext={`Home · ${view}`}>
       <PageHeader eyebrow="Home" title={title} meta={meta} brand={view === "owner"}
-        actions={<><Tag>{D.byId.role(role).name} view</Tag><AskButton label="Ask about this view" className="btn btn-sm" context={`Home · ${view}`} /></>} />
+        actions={view === "overview" ? <Illustrative /> : <><Tag>{D.byId.role(role).name} view</Tag><AskButton label="Ask about this view" className="btn btn-sm" context={`Home · ${view}`} /></>} />
+      {view === "overview" && grant(role, "see-plant-value") !== "hidden" ? <OverviewValue /> : null}
+      {view === "overview" ? <HomeAsk steps={askSteps} /> : null}
       <Tabs label="Home views" items={VIEWS.map((v) => ({ href: `/?view=${v.id}`, label: v.label, active: v.id === view }))} />
+      {view === "overview" ? <Overview /> : null}
       {view === "plant" ? <PlantView role={role} /> : null}
       {view === "shift" ? <ShiftView role={role} /> : null}
       {view === "line" ? <LineView role={role} lineId={sp.line === "line-b" ? "line-b" : "line-a"} /> : null}
@@ -40,6 +47,57 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ v
 const verified = D.valueItems.filter((v) => v.status === "Verified");
 const indicative = D.valueItems.filter((v) => v.status === "Indicative");
 const sum = (xs: { inrPerMonth: number }[]) => xs.reduce((a, b) => a + b.inrPerMonth, 0);
+
+function OverviewValue() {
+  const lotsCaught = D.lots.filter((l) => l.riskWord === "At risk").length;
+  return (
+    <div className="stack" style={{ marginBottom: "var(--space-5)" }}>
+      <KpiRow label="Value at this plant's prices" items={[
+        { label: "Verified", value: lakh(sum(verified)), unit: "/month", tags: <Illustrative />, foot: <>{verified.length} measured changes. Open Owner for the proof.</>, href: "/?view=owner" },
+        { label: "Indicative", value: lakh(sum(indicative)), unit: "/month", tags: <Illustrative />, foot: <>Still being measured. Kept separate from Verified.</>, href: "/?view=owner" },
+        { label: "Lots caught early", value: String(lotsCaught), foot: <>Flagged this week, before discharge</>, href: "/quality" },
+      ]} />
+    </div>
+  );
+}
+
+function placeOf(i: (typeof D.inboxItems)[number]): string | undefined {
+  if (i.kind === "proposal") {
+    const p = D.byId.proposal(i.ref);
+    return p ? D.byId.asset(p.assetId)?.name ?? D.byId.line(p.lineId)?.short : undefined;
+  }
+  if (i.kind === "correction") {
+    const c = D.byId.correction(i.ref);
+    return c ? D.byId.line(c.toLineId)?.short : undefined;
+  }
+  if (i.kind === "trial-signature") {
+    const t = D.byId.trial(i.ref);
+    return t ? D.byId.line(t.lineId)?.short : undefined;
+  }
+  return undefined;
+}
+
+function Overview() {
+  const waiting = D.inboxItems.filter((i) => i.bucket === "waiting");
+  return (
+    <div className="stack">
+      <LineStrip />
+      <p className="secondary" style={{ margin: 0 }}>On Line A, hold step is the mix hold. Quality holds stay on the Quality page.</p>
+      <Section title="Waiting for a person" meta={`${waiting.length} open`} actions={<Link className="link" href="/inbox">Open Inbox</Link>} flush>
+        <div className="rows">
+          {waiting.map((i) => (
+            <Link key={i.id} href={`/inbox/${i.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
+              <span style={{ minWidth: 0 }}>
+                <span className="row-title" style={{ display: "block" }}>{i.title}</span>
+                <span className="row-sub">{[placeOf(i), D.byId.role(i.owner).name, i.due ? `due ${rel(i.due)}` : ""].filter(Boolean).join(" · ")}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </Section>
+    </div>
+  );
+}
 
 function PlantView({ role }: { role: RoleId }) {
   const waiting = D.proposals.filter((p) => p.state === "Waiting");
@@ -61,7 +119,7 @@ function PlantView({ role }: { role: RoleId }) {
             <div className="stack-sm" style={{ padding: "var(--space-3)" }}>
               <DecisionCard p={waiting[0]} role={role} href="/inbox/in-1" />
               {waiting.slice(1).map((p) => (
-                <Link key={p.id} href={`/inbox/${D.inboxItems.find((i) => i.ref === p.id)!.id}`} className="row card" style={{ gridTemplateColumns: "minmax(0,1fr) auto auto auto" }}>
+                <Link key={p.id} href={`/inbox/${D.inboxItems.find((i) => i.ref === p.id)!.id}`} className="row card row-proposal" style={{ gridTemplateColumns: "minmax(0,1fr) auto auto auto" }}>
                   <span style={{ minWidth: 0 }}>
                     <span className="row-title" style={{ display: "block" }}>{D.inboxItems.find((i) => i.ref === p.id)!.title}</span>
                     <span className="row-sub">{D.byId.line(p.lineId)!.short} · {p.predicted.name} {p.predicted.low} to {p.predicted.high} {p.predicted.unit} · {p.weakestLabel}</span>
@@ -137,9 +195,9 @@ function LineView({ role, lineId }: { role: RoleId; lineId: string }) {
   const writes = D.setpointWrites.filter((w) => w.param === (lineId === "line-a" ? "hold-temp" : "cycle-time") && D.runs.find((r) => r.id === w.runId)?.lineId === lineId).slice(-6).reverse();
   return (
     <div className="stack">
-      <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
+      <div className="line-pick">
         {D.lines.map((l) => <Link key={l.id} href={`/?view=line&line=${l.id}`} className={`btn btn-sm${l.id === lineId ? " btn-accent" : ""}`} aria-current={l.id === lineId ? "page" : undefined}>{l.name}</Link>)}
-        <span style={{ marginLeft: "auto" }} className="secondary">{line.product} · {line.status}</span>
+        <span className="secondary">{line.product} · {line.status}</span>
         <LineModeTag mode={line.mode} />
       </div>
       <div className="grid">
@@ -147,7 +205,7 @@ function LineView({ role, lineId }: { role: RoleId; lineId: string }) {
           {next ? <DecisionCard p={next} role={role} variant="operator" href={`/inbox/${D.inboxItems.find((i) => i.ref === next.id)!.id}`} />
             : <Section title="Next proposal"><EmptyState title="No proposal waiting" body="The line is running inside its signed band. A proposal appears here when the next run can do better." /></Section>}
           <Section title="Current settings" meta="Inside the signed band" flush>
-            <div style={{ display: "grid", gridTemplateColumns: `repeat(${settings.length}, minmax(0,1fr))` }}>
+            <div className="fit-cols" style={{ display: "grid", gridTemplateColumns: `repeat(${settings.length}, minmax(0,1fr))` }}>
               {settings.map((s, i) => {
                 const w = D.byId.window(lineId, s.param)!;
                 return (
@@ -171,7 +229,7 @@ function LineView({ role, lineId }: { role: RoleId; lineId: string }) {
             <CardActions actions={[]} large stop={{ effect: trial ? "Prior value 84 °C restores from the next batch." : "Values kept; nothing new is written.", allowed: can(role, "press-stop", lineId), reason: deniedReason("press-stop", "press Stop") }} />
           </section>
           <Section title="This shift" meta={line.short} flush>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))" }}>
+            <div className="fit-cols" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))" }}>
               {line.kpis.map((k, i) => <div key={k.label} className="kpi" style={{ borderLeft: i ? undefined : 0 }}><span className="label">{k.label}</span><div className="kpi-value" style={{ fontSize: 20 }}>{k.value}{k.unit ? <span className="unit">{k.unit}</span> : null}</div></div>)}
             </div>
           </Section>

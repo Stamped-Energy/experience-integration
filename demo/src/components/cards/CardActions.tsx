@@ -1,10 +1,10 @@
 "use client";
 /** Card actions with RBAC: disabled actions name who can. Showcase actions record locally and write nothing. */
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Icon } from "@/components/shell/icons";
 import { AdjustInBand, type AdjustSpec } from "@/components/process/AdjustInBand";
 
-export interface ActionSpec { id: string; label: string; primary?: boolean; allowed: boolean; reason?: string; done: string }
+export interface ActionSpec { id: string; label: string; primary?: boolean; allowed: boolean; reason?: string; done: ReactNode }
 export interface StopSpec { effect: string; allowed: boolean; reason?: string }
 
 export function CardActions({ actions, stop, large, adjust }: { actions: ActionSpec[]; stop?: StopSpec; large?: boolean; adjust?: AdjustSpec }) {

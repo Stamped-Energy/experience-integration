@@ -20,7 +20,7 @@ pnpm start      # serve the build on port 3010
 
 ## What it shows
 
-Every screen carries the band "Demonstration plant. Illustrative data." and the authority line "Stamped works inside limits set beforehand." The left rail has the areas below in the same order for every role.
+The left rail has the areas below in the same order for every role.
 
 - **Home** has four views. Plant shows each line's mode, what needs a decision, what Stamped did this shift, lots at risk and proof updates. Shift shows the shift timeline, the handover and open items. My line now is the operator view: current settings inside the signed band, the next proposal with large controls, and Stop with its stated effect. Owner shows value at the plant's prices, with Verified (proof rungs R3 and R4) and Indicative shown side by side and never added, plus recent activity and plant-wide context. Every value figure opens its proof record.
 - **Inbox** has Waiting for me, Tasks and Decided, plus a detail page for each card. Proposals, trial signatures, lot links, corrections from Quality and data gaps all use the same shared card.
@@ -59,6 +59,7 @@ The look follows the technical architecture site's operations design system. Gei
 - Exports and reports are illustrative.
 - Vercel does not build preview deployments for the `demo-stamped` project, so a branch cannot be seen online before merge. Run it locally to review.
 - Merging into main replaces the live showcase at showcase.stamped.work.
+- A separate copy runs on Cloudflare Workers at dev.stamped.work (worker `stamped-dev`). From `demo/`, `pnpm run deploy:vinext` publishes it. That needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment.
 - Phone layouts work, but wide tables scroll sideways.
 
 ## Next steps

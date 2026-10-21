@@ -18,7 +18,7 @@ export function SourceMark({ n }: { n: number }) {
   return <button type="button" className="smark" onClick={open} aria-label={`Source ${n}`}>{n}</button>;
 }
 
-export function Composer({ big, steps, autoFocus, placeholder = "Ask about a line, a lot or a change", footnote, onMood }: { big?: boolean; steps: Record<string, string>; autoFocus?: boolean; placeholder?: string; footnote?: boolean; onMood?: (m: MascotMode) => void }) {
+export function Composer({ big, steps, autoFocus, placeholder = "Ask about a line, a lot or a change", footnote, foot, onMood }: { big?: boolean; steps: Record<string, string>; autoFocus?: boolean; placeholder?: string; footnote?: boolean; foot?: string; onMood?: (m: MascotMode) => void }) {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [step, setStep] = useState<string | null>(null);
@@ -37,8 +37,19 @@ export function Composer({ big, steps, autoFocus, placeholder = "Ask about a lin
         <input value={q} onChange={(e) => { setQ(e.target.value); onMood?.(e.target.value.trim() ? "listening" : "ambient"); }} onBlur={() => { if (!step) onMood?.("ambient"); }} autoFocus={autoFocus} name="q" autoComplete="off" placeholder={placeholder} aria-label="Question" />
         <button className="btn btn-primary" type="submit" disabled={!!step}>Ask</button>
       </div>
-      {footnote ? <span className="c-foot">Ask reads only.</span> : null}
+      {foot || footnote ? <span className="c-foot">{foot ?? "Ask reads only."}</span> : null}
     </form>
+  );
+}
+
+/** Overview opening: the same mascot as Ask, listening while you type. */
+export function HomeAsk({ steps }: { steps: Record<string, string> }) {
+  const [mood, setMood] = useState<MascotMode>("ambient");
+  return (
+    <div className="home-ask">
+      <div className="ask-mascot"><StampedMascot mode={mood} size={160} arrive label="Stamped assistant" /></div>
+      <Composer big steps={steps} foot="Ask the Stamped agent" onMood={setMood} />
+    </div>
   );
 }
 
@@ -50,7 +61,7 @@ export function AskHero({ steps, children }: { steps: Record<string, string>; ch
       <div className="ask-mascot"><StampedMascot mode={mood} size={96} arrive label="Stamped assistant" /></div>
       <h1>Ask about your plant</h1>
       <p>Reads plant data and cites it. It cannot change a setting.</p>
-      <Composer big autoFocus steps={steps} onMood={setMood} />
+      <div className="d-only"><Composer big autoFocus steps={steps} onMood={setMood} /></div>
       {children}
     </>
   );

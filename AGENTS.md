@@ -4,7 +4,7 @@
 
 **If you want to understand what Stamped is:** read [`external/Stamped_Master_Document.md`](external/Stamped_Master_Document.md) in the stamped-external submodule. Run `git submodule update --init` first. That file is the only company policy. On conflict with older memos, prefer it.
 
-**Supporting history (in `external/` after pin, does not override the master document):** `external/research/plant-efficiency-exploration-2026-09/AGENT-START.md` → `09` → `10` → `external/decisions/028-032/ADR-030-five-domain-decision-loop.md`.
+**Supporting history (in `external/` after pin, does not override the master document):** `external/research/plant-efficiency-exploration-2026-09/AGENT-START.md` → `09` → `10` → `external/decisions/016-020/ADR-018-five-domain-decision-loop.md`.
 
 Prior product snapshot: platform tag `v2026.09.24`.
 
@@ -36,9 +36,9 @@ test -f external/VERSION
 2. `external/handoff/stamped-l6-architecture-handoff.md`
 3. `external/handoff/stamped-l6-ui-ux-charter.md`
 4. `external/handoff/stamped-l6-build-plan.md`
-5. `external/decisions/ADR-022-l6-bff-runtime-boundary.md`
+5. `external/decisions/016-020/ADR-016-l6-bff-runtime-boundary.md`
 6. `external/decisions/ADR-023-l6-ems-and-analyst-context.md`
-7. `external/decisions/ADR-020-l5-mv-claim-governance.md`
+7. `external/decisions/011-015/ADR-014-l5-mv-claim-governance.md`
 8. `external/design/forge-industrial-design-system.md`
 9. `packages/web/TRANSFER.md` (+ seed history under `external/consumers/stamped-l6/`)
 10. `external/consumers/readmes/closure-verification.md` (Connect L6)
@@ -52,8 +52,8 @@ test -f external/VERSION
 - HTTP only to L2/L4/L5 â€” **never** `L2_DATABASE_URL` or OT writes.
 - `ops_confirmed` â‰  bill `verified`. Never imply DISCOM verification from ops.
 - Workflow/alarm truth is **L5**; L6 renders and forwards actions with `Idempotency-Key`.
-- Analyst RAG is **L4**; send explicit removable context envelopes only (ADR-023).
-- English only through P2 (ADR-018).
+- Analyst RAG is **L4**; send explicit removable context envelopes only (ADR-W023).
+- English only through P2 (ADR-W018).
 - Schema changes â†’ PR in stamped-external + bump submodule; run `./external/scripts/contracts/contract-check.sh`.
 
 ### NOT in scope

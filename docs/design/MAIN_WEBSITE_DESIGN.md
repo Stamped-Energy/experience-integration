@@ -173,7 +173,7 @@ Last synced from shipped code: **2026-08-25**.
 
 Stamped Energy’s marketing surface should feel like a bright plant office at mid-morning: a director scanning cost and next actions, not a SaaS landing page performing “innovation.” The system is industrial, rupee-clear, and sparse. Color commits (coral on near-black green against demo-deck beige). Type is grotesk display + clean body + mono labels. Structure favors one job per section, real plant photography where imagery matters, and progressive motion (GSAP pin/scrub, Reveal, looping SVG chromes) rather than decorative noise.
 
-Runtime color source of truth remains `styles/theme.css` for **chrome**. MotionSlots use a separate **scene-mode** palette (forest, acid, ember, wine, cream, lime) documented in §8. Homepage narrative (ADR-016 stack) is the reference composition: Hero → Problem (dark) → What is → How it works (pin) → Impact → Solutions → Industries photo strip → Resources → Closing CTA.
+Runtime color source of truth remains `styles/theme.css` for **chrome**. MotionSlots use a separate **scene-mode** palette (forest, acid, ember, wine, cream, lime) documented in §8. Homepage narrative (ADR-W016 stack) is the reference composition: Hero → Problem (dark) → What is → How it works (pin) → Impact → Solutions → Industries photo strip → Resources → Closing CTA.
 
 **Rejects:** purple SaaS gradients, glassmorphism as default, hero-metric template strips, identical icon-card grids, thick colored side-stripes, cloning Infinite Uptime / Greenovative / CVector visuals (structure and motion grammar inspiration only), MES/plant-OS claims.
 
@@ -325,7 +325,7 @@ SVG motion hardcodes `"Space Grotesk, sans-serif"`, `"Inter, sans-serif"`, and `
 - Do not invent fleet metrics or bill-verified claims without evidence language.
 - Do not nest cards or default every section to identical icon + title + text grids.
 - Do not add bounce/elastic motion; ease-out exponentials only.
-- Do not use Plus Jakarta Sans, Public Sans, or Helvetica Neue on this site (superseded by ADR-017).
+- Do not use Plus Jakarta Sans, Public Sans, or Helvetica Neue on this site (superseded by ADR-W017).
 - Do not treat forest / wine / acid / ember as button or nav colors.
 
 ## 7. Video and OpenMontage

@@ -28,6 +28,17 @@
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chips span { font-size: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 2px 8px; background: var(--surface); }
 @media (min-width: 1800px) { .split.xl-stack { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 767px) {
+  .lane-tiles { flex-wrap: wrap; gap: var(--space-3); }
+  .ptile-wrap { flex-basis: 100%; min-width: 0; }
+  .lane-tiles .ptile-wrap + .ptile-wrap::before,
+  .lane-tiles .ptile-wrap + .ptile-wrap::after { content: none; }
+  .lane-kpis { margin-left: 0; }
+  .pmap-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; }
+  .lease { grid-template-columns: minmax(0, 1fr); }
+  .lease > div { border-right: 0; border-top: 1px solid var(--border); }
+  .lease > div:first-child { border-top: 0; }
+}
 dialog.confirm { border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: var(--space-5, 20px); max-width: 440px; background: var(--surface); color: var(--text-primary); }
 dialog.confirm::backdrop { background: rgba(0, 0, 0, .35); }
 dialog.confirm h2 { font-size: 16px; margin: 0 0 8px; }

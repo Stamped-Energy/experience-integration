@@ -36,16 +36,6 @@ export default async function Proposals({ searchParams }: { searchParams: Promis
           {list.length ? <div className="stack">{list.map((p) => <DecisionCard key={p.id} p={p} role={role} href={`/process/proposals/${p.id}`} />)}</div> : <EmptyState title="Nothing in this view" body="When the optimiser finds a better setting inside the signed window, the proposal appears here." />}
         </div>
         <div className="span-4 xl-span-5 stack ctx">
-          <Section title="All proposals, 14 days" meta={`${D.proposals.length} on record`} flush>
-            <DataTable caption="All proposals" rowKey={(p) => p.id} rows={[...list, ...others]} columns={[
-              { key: "i", label: "Proposal", render: (p) => <Link className="link" href={`/process/proposals/${p.id}`}>{nameOf(p.id)}</Link> },
-              { key: "s", label: "Setting", render: (p) => <>{D.byId.window(p.lineId, p.param)?.name}<span className="cell-sub">{D.byId.line(p.lineId)!.short} · {p.current} to {p.proposed}</span></> },
-              { key: "st", label: "State", render: (p) => <Tag tone={p.state === "Waiting" ? "accent" : p.state === "Withheld" || p.state === "Declined" ? "neutral" : "info"}>{p.state}</Tag> },
-              { key: "m", label: "Mode", render: (p) => <ModeTag mode={p.mode} /> },
-              { key: "l", label: "Weakest", render: (p) => <EvidenceTag label={p.weakestLabel} /> },
-              { key: "t", label: "Raised", mono: true, render: (p) => `${dayMonth(p.createdAt)} ${hhmm(p.createdAt)}` },
-            ]} />
-          </Section>
           <div className="stack">
             <Section title="Running and measuring" meta="Written values and what Stop does" flush>
               <div className="rows">{D.proposals.filter((p) => GROUP.running.includes(p.state) && inLine(p.lineId)).map((p) => (
@@ -62,6 +52,18 @@ export default async function Proposals({ searchParams }: { searchParams: Promis
                 </Link>))}</div>
             </Section>
           </div>
+        </div>
+        <div className="span-12">
+          <Section title="All proposals, 14 days" meta={`${D.proposals.length} on record`} flush>
+            <DataTable caption="All proposals" rowKey={(p) => p.id} rows={[...list, ...others]} columns={[
+              { key: "i", label: "Proposal", render: (p) => <Link className="link" href={`/process/proposals/${p.id}`}>{nameOf(p.id)}</Link> },
+              { key: "s", label: "Setting", render: (p) => <>{D.byId.window(p.lineId, p.param)?.name}<span className="cell-sub">{D.byId.line(p.lineId)!.short} · {p.current} to {p.proposed}</span></> },
+              { key: "st", label: "State", render: (p) => <Tag tone={p.state === "Waiting" ? "accent" : p.state === "Withheld" || p.state === "Declined" ? "neutral" : "info"}>{p.state}</Tag> },
+              { key: "m", label: "Mode", render: (p) => <ModeTag mode={p.mode} /> },
+              { key: "l", label: "Weakest", render: (p) => <EvidenceTag label={p.weakestLabel} /> },
+              { key: "t", label: "Raised", mono: true, render: (p) => `${dayMonth(p.createdAt)} ${hhmm(p.createdAt)}` },
+            ]} />
+          </Section>
         </div>
       </div>
     </Workspace>

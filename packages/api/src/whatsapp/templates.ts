@@ -1,4 +1,4 @@
-/** ADR-021 P0 utility templates (Meta Cloud API names). */
+/** ADR-015 P0 utility templates (Meta Cloud API names). */
 export const WHATSAPP_TEMPLATES = {
   issue: "issue",
   reminder: "reminder",

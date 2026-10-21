@@ -3,6 +3,7 @@
 .diff del { color: var(--text-secondary); }
 .diff ins { text-decoration: none; font-weight: 600; }
 .diff-box { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+@media (max-width: 767px) { .diff-box { grid-template-columns: minmax(0, 1fr); } }
 .diff-box > div { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--space-3); }
 .diff-box > div:first-child .v { text-decoration: line-through; color: var(--text-secondary); }
 .diff-box .v { font-size: 16px; margin-top: 4px; }

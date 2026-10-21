@@ -10,11 +10,16 @@ import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { Confidence } from "@/components/ui/Confidence";
 import { DataTable, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
+import { ExampleActions } from "@/components/cards/ExampleActions";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
-import { JoinTag, NoReleaseLine, QualityTabs, RiskTag, crumbs, gradeOf, labOf, linksOf, lotNo, proofForLot, propOf, specOf, threshold, weakestJoin } from "@/components/quality/common";
+import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, labOf, linksOf, lotNo, proofForLot, propOf, specOf, threshold, weakestJoin } from "@/components/quality/common";
 
 export const metadata = { title: "Quality" };
 const RANK = { "At risk": 0, Watch: 1, "On track": 2 } as const;
+
+function NoReleaseLine() {
+  return <p className="secondary" style={{ margin: "0 0 var(--space-4)" }}>Releasing a hold happens in your quality system, not here.</p>;
+}
 
 export default async function LotsAtRisk({ searchParams }: { searchParams: Promise<{ lot?: string; evidence?: string; all?: string }> }) {
   const sp = await searchParams;
@@ -90,6 +95,7 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
           </Section>
         </div>
       </div>
+      <div style={{ marginTop: "var(--space-5)" }}><ExampleActions area="Quality" role={role} /></div>
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref={sp.lot ? `/quality?lot=${sp.lot}` : "/quality"} /> : null}
     </Workspace>
   );

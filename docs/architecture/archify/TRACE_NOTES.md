@@ -39,7 +39,7 @@ Product BFF boot **requires** `DATABASE_URL` for auth (`packages/api/src/index.t
 ### Ask Analyst turn
 
 1. **Trigger:** user sends message from Mode A/B (`packages/web/src/lib/analyst-live.ts`).
-2. **BFF:** `POST /api/analyst/sessions/:id/messages/stream` with ADR-023 envelope (`packages/api/src/analyst/routes.ts:214+`).
+2. **BFF:** `POST /api/analyst/sessions/:id/messages/stream` with ADR-W023 envelope (`packages/api/src/analyst/routes.ts:214+`).
 3. **L4:** live stream to `v1/chat/.../messages/stream` or fixture SSE (`packages/api/src/upstream/l4/client.ts:380-397`).
 4. **L4 main (2026):** Ask ReAct orchestrator retired — unconditional `503 ASK_MOVED` when live (`knowledge-reasoning` `stamped_l4/analyst/graph.py`; BFF `UpstreamError` → `analyst/routes.ts:287-294`).
 5. **Output:** with `L4_LIVE` off, web `fixtureAnalystReply` + Preview; with `L4_LIVE` on, `Analyst unavailable: …` in the assistant bubble (`analyst-live.ts:256-266`, `ContextualAnalyst.tsx:235-244`) — not fixture fallback on 503.

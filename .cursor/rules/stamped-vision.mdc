@@ -14,7 +14,7 @@ Supporting history in this repo's `external/` pin. These do not override the mas
 1. `external/research/plant-efficiency-exploration-2026-09/AGENT-START.md`
 2. `external/research/plant-efficiency-exploration-2026-09/09-stamped-founder-vision.md`
 3. `external/research/plant-efficiency-exploration-2026-09/10-stamped-vision-agent-alignment.md`
-4. `external/decisions/028-032/ADR-030-five-domain-decision-loop.md`
+4. `external/decisions/016-020/ADR-018-five-domain-decision-loop.md`
 5. `external/technical/STAMPED_ARCHITECTURE.md`
 
 Cursor loads rules from this repo's `.cursor/rules/`, not from `external/.cursor/rules/`. This file points at the master document for that reason.

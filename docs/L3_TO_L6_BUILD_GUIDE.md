@@ -58,7 +58,7 @@ duplicate cards, and bypass L4 constraints and L5 assignment.
 2. `external/handoff/l6/stamped-l6-architecture-handoff.md`
 3. `external/handoff/l6/stamped-l6-ui-ux-charter.md`
 4. `external/handoff/l6/stamped-l6-build-plan.md`
-5. `external/decisions/020-023/ADR-022-l6-bff-runtime-boundary.md`
+5. `external/decisions/016-020/ADR-016-l6-bff-runtime-boundary.md`
 6. `external/decisions/020-023/ADR-023-l6-ems-and-analyst-context.md`
 7. `docs/architecture/layer-interfaces.md`
 8. `docs/EXTENSIVE.md`

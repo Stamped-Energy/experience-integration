@@ -12,7 +12,7 @@ import { RunChart } from "@/components/ui/charts";
 import { DataTable, EvidenceIds, EvidenceTag, Illustrative, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { runLabel } from "@/components/process/common";
-import { JoinTag, NoReleaseLine, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, specOf, threshold, weakestJoin, belowThreshold } from "@/components/quality/common";
+import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, specOf, threshold, weakestJoin, belowThreshold } from "@/components/quality/common";
 
 export const metadata = { title: "Specs and grades" };
 export default async function Specs() {
@@ -20,7 +20,6 @@ export default async function Specs() {
     <Workspace crumbs={crumbs({ label: "Specs and grades" })} askContext="Specs and grades">
       <PageHeader eyebrow="Quality" title="Specs and grades" meta="Read from the plant's spec documents. Stamped reads specs; it does not change them." actions={<AskButton context="Specs" label="Ask about specs" />} />
       <QualityTabs active="specs" />
-      <NoReleaseLine />
       <div className="grid">
         {D.specs.map((s) => {
           const g = D.grades.find((x) => x.id === s.gradeId)!;

@@ -36,7 +36,7 @@
   --cat-5: #8E5B9A; --cat-5-tint: #F3ECF5; --cat-5-text: #62386D;
   --cat-6: #7A8B3A; --cat-6-tint: #F0F3E3; --cat-6-text: #4E5A20;
   --cat-other: #A3A3A0; --chart-muted: #C4C4C2;
-  /* Scrollbars follow the theme: --chart-muted is redefined in the dark blocks, and color-scheme above keeps the
+  /* Scrollbars follow the theme: --chart-muted is redefined in the dark theme, and color-scheme above keeps the
      UA scrollbar parts light even when the OS is dark (the meta tag alone would follow the OS, not the toggle). */
   --scrollbar-thumb: var(--chart-muted); --scrollbar-track: transparent;
 
@@ -66,8 +66,7 @@
   --wide-w: 1280px;
 }
 
-/* Dark theme: same hues, warm near-black neutrals, accent-500 unchanged. The two blocks below must stay identical;
-   scripts/check-content.mjs fails the build if they drift. The media block is the no-JS fallback. */
+/* Dark theme is opt-in via the rail toggle (data-theme="dark"). The default stays light even when the OS prefers dark. */
 [data-theme="dark"] {
   color-scheme: dark;
   --canvas: #121110; --surface: #1A1817; --surface-subtle: #211F1D; --surface-sunken: #0E0D0C;
@@ -89,36 +88,12 @@
   --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25);
   --overlay: rgba(0, 0, 0, 0.55);
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-  color-scheme: dark;
-  --canvas: #121110; --surface: #1A1817; --surface-subtle: #211F1D; --surface-sunken: #0E0D0C;
-  --border: #2E2B29; --border-strong: #3D3936;
-  --text-primary: #EDEBE9; --text-secondary: #B3AFAB; --text-muted: #85807B; --text-inverse: #121110;
-  --accent-50: #2A1612; --accent-100: #3A1C16; --accent-200: #5C2A1F; --accent-300: #8A3A2A;
-  --accent-500: #F75440; --accent-600: #FF6B58; --accent-700: #FF8B7A; --accent-800: #FFB3A6;
-  --focus-ring: var(--accent-600);
-  --success-text: #5CCB97; --success-tint: #14281F;
-  --warning-text: #EBC266; --warning-tint: #2C2312;
-  --critical-text: #F27470; --critical-tint: #311716;
-  --info-text: #7FAEE6; --info-tint: #142233;
-  --cat-2: #7193C6; --cat-2-tint: #18212F; --cat-2-text: #A3BEE3;
-  --cat-3: #3FBBAB; --cat-3-tint: #122925; --cat-3-text: #7FD6CA;
-  --cat-4-tint: #2A2312; --cat-4-text: #E2BF6C;
-  --cat-5-tint: #261A2A; --cat-5-text: #C79AD2;
-  --cat-6-tint: #1F2414; --cat-6-text: #B9C77A;
-  --cat-other: #6E6A66; --chart-muted: #4A4643;
-  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25);
-  --overlay: rgba(0, 0, 0, 0.55);
-  }
-}
 
 [data-contrast="strict"] { --accent-fill: var(--accent-700); }
 
 :root {
   --font-display: var(--font-brand), var(--font-sans);
   --bottom-bar-h: 56px;
-  --band-h: 28px;
   --ask-w: 400px;
   --type-display: 28px; --lh-display: 36px;
   --type-title: 20px;   --lh-title: 28px;

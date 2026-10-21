@@ -114,7 +114,7 @@ const EnvSchema = z.object({
     .enum(["true", "false"])
     .default("false")
     .transform((v) => v === "true"),
-  /** ADR-024 Discuss panel + negotiation proxies (rollback: DISCUSS_ENABLED=0). */
+  /** ADR-W024 Discuss panel + negotiation proxies (rollback: DISCUSS_ENABLED=0). */
   DISCUSS_ENABLED: z
     .enum(["0", "1", "true", "false"])
     .default("1")
