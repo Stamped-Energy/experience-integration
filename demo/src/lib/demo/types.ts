@@ -204,4 +204,6 @@ export interface ExampleAction extends Illustrative {
   /** One plain sentence on how this step moves the result. */
   why: string;
   href?: string; hrefLabel?: string;
+  /** Set when the change is already done: accepted or kept, with who, when and the result. */
+  closed?: { state: "Accepted" | "Kept"; changed: string; by: string; at: string; result: { status: "Verified" | "Indicative"; label: EvidenceLabel; band: string } };
 }

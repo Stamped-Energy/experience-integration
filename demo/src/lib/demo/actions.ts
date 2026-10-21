@@ -5,6 +5,7 @@
  * Figures agree with data.ts (lots, proofs, trials, standing approvals). None is a customer result.
  */
 import type * as T from "./types";
+import { at } from "./data";
 
 const I = { illustrative: true } as const;
 
@@ -54,6 +55,22 @@ export const exampleActions: T.ExampleAction[] = [
     expected: { label: "Measured", band: "parts per shift 1.9 to 3.3% higher" },
     why: "Each gain is checked against the plant's own records before anyone counts it, and the agent learns from what held.",
     href: "/process?evidence=proof-3", hrefLabel: "See the proof" },
+  { ...I, id: "ex-p6", area: "Process", lineId: "line-b", steps: ["Propose", "Learn"], mechanism: "Tightening a limit, never widening it",
+    title: "Hold pressure band on Tool T3 narrowed to 640 to 820 bar",
+    seen: "Every short shot and every flash defect in 40 shift runs came from hold pressure below 640 or above 820 bar, inside the signed band of 600 to 850 bar.",
+    evidence: [{ text: "Defects by hold pressure, 40 shift runs", label: "Measured", id: "EV-B-2120" }, { text: "Signed band 600 to 850 bar", label: "Measured" }],
+    action: "Narrow the band Stamped may use to 640 to 820 bar. Stamped can tighten a signed limit; it can never widen one.",
+    who: { how: "A person decides", roles: ["plant-head"], note: "The Plant head accepted the narrower band. Only the Plant head can widen it again." },
+    closed: { state: "Accepted", changed: "Hold pressure band 600 to 850 bar narrowed to 640 to 820 bar", by: "Plant head A.", at: at(-12, -3), result: { status: "Verified", label: "Measured", band: "no hold pressure defects in 34 shift runs since" } },
+    why: "Learning which part of a signed range causes defects keeps every later change away from it." },
+  { ...I, id: "ex-p7", area: "Process", lineId: "line-a", steps: ["Detect", "Explain", "Propose"], mechanism: "Catching equipment that slowly loses performance",
+    title: "Jacket flow raised after the heat exchanger began to foul",
+    seen: "Heat-up time on Line A crept up over three weeks while charge mass and recipe stayed the same. The jacket outlet temperature pointed to fouling on the heat exchanger.",
+    evidence: [{ text: "Heat-up time, 3 weeks of batches", label: "Measured", id: "EV-A-0970" }, { text: "Jacket inlet and outlet temperature gap", label: "Measured", id: "EV-A-0972" }],
+    action: "Raise jacket flow from 18 to 20 m³/h until the next planned clean, inside the signed band.",
+    who: { how: "A person decides", roles: ["process-engineer", "plant-head"], note: "The Process engineer accepted it and booked the clean for the next batch gap." },
+    closed: { state: "Kept", changed: "Jacket flow 18 to 20 m³/h, kept until the planned clean", by: "Process engineer A.", at: at(-9, -5), result: { status: "Indicative", label: "Estimated", band: "heat-up 3 to 6 min shorter per batch, still being measured" } },
+    why: "Making up for slow wear until the next planned stop keeps batch times steady without an unplanned shutdown." },
 
   /* ---------------- Quality ---------------- */
   { ...I, id: "ex-q1", area: "Quality", lineId: "line-b", steps: ["Detect", "Decide"], mechanism: "A decision on the floor",
@@ -105,4 +122,20 @@ export const exampleActions: T.ExampleAction[] = [
     expected: { label: "Measured", band: "part weight 0.1 to 0.3 g heavier, scrap 0.3 to 0.9 points lower" },
     why: "A fix only counts once the quality records show it held, and the next drift starts from what worked.",
     href: "/quality/investigations/inv-2", hrefLabel: "Open the investigation" },
+  { ...I, id: "ex-q6", area: "Quality", lineId: "line-b", steps: ["Explain"], mechanism: "Joining a lot to the runs that made it",
+    title: "Lot 7721 linked to shift run 681 after a scanner gap",
+    seen: "The lot label scan was missing for one hour, so Stamped matched lot 7721 to its run from timing, recipe and sequence. The link was below the confidence threshold, so it went to a person.",
+    evidence: [{ text: "Time, recipe and sequence agree; scanned id missing", label: "Estimated", id: "EV-B-2150" }, { text: "Packing record for lot 7721", label: "Measured" }],
+    action: "Confirm the link so lot 7721 carries the readings of shift run 681.",
+    who: { how: "A person decides", roles: ["quality-head"], note: "The Quality head confirmed the link after checking the packing record." },
+    closed: { state: "Accepted", changed: "Lot 7721 linked to shift run 681", by: "Quality head A.", at: at(-4, -2), result: { status: "Verified", label: "Measured", band: "link confirmed against the packing record" } },
+    why: "A lot that carries the readings of the run that made it can be traced in minutes when a complaint comes in." },
+  { ...I, id: "ex-q7", area: "Quality", lineId: "line-a", steps: ["Learn", "Decide"], mechanism: "A sampling plan that follows the product",
+    title: "Grade A-14 now sampled at the end of hold",
+    seen: "On Grade A-14, viscosity at the end of hold matched the after-discharge lab result within the lab's own repeatability on 20 batches.",
+    evidence: [{ text: "End of hold against after-discharge results, 20 batches", label: "Measured", id: "EV-A-1012" }],
+    action: "Move the A-14 lab sample to the end of hold, so a correction can still be made before discharge.",
+    who: { how: "A person decides", roles: ["quality-head"], note: "The Quality head changed the sampling plan for A-14." },
+    closed: { state: "Kept", changed: "A-14 sample moved from after discharge to end of hold", by: "Quality head A.", at: at(-15, -4), result: { status: "Indicative", label: "Estimated", band: "1 to 2 fewer reworked A-14 batches a month, still being measured" } },
+    why: "Sampling earlier turns a lab result from a verdict into a chance to correct the batch." },
 ];

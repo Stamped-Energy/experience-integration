@@ -8,7 +8,7 @@ test("example actions are illustrative, on real lines, with valid roles", () => 
     assert.equal(a.illustrative, true, a.id);
     assert.ok(D.byId.line(a.lineId), a.id);
     for (const r of a.who.roles) assert.ok(D.roles.some((x) => x.id === r), `${a.id} ${r}`);
-    if (a.who.how === "A person decides" || a.who.how === "Recommend only") assert.ok(a.options?.length || a.href, `${a.id} needs options or a link`);
+    if (!a.closed && (a.who.how === "A person decides" || a.who.how === "Recommend only")) assert.ok(a.options?.length || a.href, `${a.id} needs options or a link`);
   }
 });
 
@@ -30,4 +30,30 @@ test("no rupees, no confidence percentages, no WhatsApp", () => {
     if (a.expected) assert.ok(!/confiden/i.test(a.expected.band), a.id);
     assert.ok(!/whatsapp/i.test(all), a.id);
   }
+});
+
+test("each area has closed cards with who, when and a Verified or Indicative band", () => {
+  for (const area of ["Process", "Quality"] as const) {
+    const closed = exampleActions.filter((a) => a.area === area && a.closed);
+    assert.ok(closed.length >= 1 && closed.length <= 2, area);
+    for (const a of closed) {
+      assert.ok(a.closed!.by && Date.parse(a.closed!.at) <= Date.parse(D.DEMO_NOW), a.id);
+      assert.ok(["Verified", "Indicative"].includes(a.closed!.result.status) && a.closed!.result.band, a.id);
+      assert.ok(!a.options, `${a.id} is closed and offers no actions`);
+    }
+    const open = exampleActions.filter((a) => a.area === area && !a.closed).map((a) => a.mechanism);
+    for (const a of closed) assert.ok(!open.includes(a.mechanism), `${a.id} repeats a mechanism`);
+  }
+});
+
+test("the six-step strip is gone", async () => {
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../src/components/cards/ExampleActions.tsx", import.meta.url), "utf8");
+  assert.ok(!/ex-chain|How Stamped gets the result/.test(src));
+});
+
+test("cards fold as an accessible disclosure", async () => {
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../src/components/cards/FoldCard.tsx", import.meta.url), "utf8");
+  assert.ok(/<button[^>]*aria-expanded=\{open\}[^>]*aria-controls/.test(src));
 });
