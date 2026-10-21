@@ -30,10 +30,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ v
   const askSteps = Object.fromEntries(suggestions().map((s) => [s.q, stepFor(s.q)]));
   return (
     <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Home" }, { label: VIEWS.find((v) => v.id === view)!.label }]} askContext={`Home · ${view}`}>
-      {view === "overview" ? <HomeAsk steps={askSteps} /> : null}
       <PageHeader eyebrow="Home" title={title} meta={meta} brand={view === "owner"}
         actions={view === "overview" ? <Illustrative /> : <><Tag>{D.byId.role(role).name} view</Tag><AskButton label="Ask about this view" className="btn btn-sm" context={`Home · ${view}`} /></>} />
       {view === "overview" && grant(role, "see-plant-value") !== "hidden" ? <OverviewValue /> : null}
+      {view === "overview" ? <HomeAsk steps={askSteps} /> : null}
       <Tabs label="Home views" items={VIEWS.map((v) => ({ href: `/?view=${v.id}`, label: v.label, active: v.id === view }))} />
       {view === "overview" ? <Overview /> : null}
       {view === "plant" ? <PlantView role={role} /> : null}
@@ -61,35 +61,36 @@ function OverviewValue() {
   );
 }
 
-const GUIDE = [
-  { href: "/?view=plant", title: "Plant", body: "What needs a decision today, and which lots are at risk." },
-  { href: "/?view=shift", title: "Shift", body: "What the last shift handed over, and the settings now running." },
-  { href: "/?view=line", title: "My line now", body: "The current setting inside its signed band, and the next proposal." },
-  { href: "/?view=owner", title: "Owner", body: "Value at this plant's prices, each figure tied to its proof." },
-];
+function placeOf(i: (typeof D.inboxItems)[number]): string | undefined {
+  if (i.kind === "proposal") {
+    const p = D.byId.proposal(i.ref);
+    return p ? D.byId.asset(p.assetId)?.name ?? D.byId.line(p.lineId)?.short : undefined;
+  }
+  if (i.kind === "correction") {
+    const c = D.byId.correction(i.ref);
+    return c ? D.byId.line(c.toLineId)?.short : undefined;
+  }
+  if (i.kind === "trial-signature") {
+    const t = D.byId.trial(i.ref);
+    return t ? D.byId.line(t.lineId)?.short : undefined;
+  }
+  return undefined;
+}
 
 function Overview() {
   const waiting = D.inboxItems.filter((i) => i.bucket === "waiting");
   return (
     <div className="stack">
-      <Section title="Where to look" meta="The four working views">
-        <div className="grid">
-          {GUIDE.map((g) => (
-            <Link key={g.href} href={g.href} className="span-3" style={{ textDecoration: "none", color: "inherit" }}>
-              <div className="row-title">{g.title}</div>
-              <div className="secondary" style={{ marginTop: 4 }}>{g.body}</div>
-            </Link>
-          ))}
-        </div>
-      </Section>
       <LineStrip />
       <p className="secondary" style={{ margin: 0 }}>On Line A, hold step is the mix hold. Quality holds stay on the Quality page.</p>
       <Section title="Waiting for a person" meta={`${waiting.length} open`} actions={<Link className="link" href="/inbox">Open Inbox</Link>} flush>
         <div className="rows">
           {waiting.map((i) => (
-            <Link key={i.id} href={`/inbox/${i.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
-              <span className="row-title">{i.title}</span>
-              <Tag tone="accent">Decision</Tag>
+            <Link key={i.id} href={`/inbox/${i.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
+              <span style={{ minWidth: 0 }}>
+                <span className="row-title" style={{ display: "block" }}>{i.title}</span>
+                <span className="row-sub">{[placeOf(i), D.byId.role(i.owner).name, i.due ? `due ${rel(i.due)}` : ""].filter(Boolean).join(" · ")}</span>
+              </span>
             </Link>
           ))}
         </div>

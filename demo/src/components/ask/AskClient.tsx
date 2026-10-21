@@ -37,7 +37,7 @@ export function Composer({ big, steps, autoFocus, placeholder = "Ask about a lin
         <input value={q} onChange={(e) => { setQ(e.target.value); onMood?.(e.target.value.trim() ? "listening" : "ambient"); }} onBlur={() => { if (!step) onMood?.("ambient"); }} autoFocus={autoFocus} name="q" autoComplete="off" placeholder={placeholder} aria-label="Question" />
         <button className="btn btn-primary" type="submit" disabled={!!step}>Ask</button>
       </div>
-      {foot || footnote ? <span className="c-foot">{foot ?? "Ask reads only."}</span> : null}
+      {footnote ? <span className="c-foot">Ask reads only.</span> : null}
     </form>
   );
 }
@@ -47,7 +47,7 @@ export function HomeAsk({ steps }: { steps: Record<string, string> }) {
   const [mood, setMood] = useState<MascotMode>("ambient");
   return (
     <div className="home-ask">
-      <div className="ask-mascot"><StampedMascot mode={mood} size={160} arrive label="Stamped assistant" /></div>
+      <div className="ask-mascot"><StampedMascot mode={mood} size={64} arrive label="Stamped assistant" /></div>
       <Composer big steps={steps} foot="Ask the Stamped agent" onMood={setMood} />
     </div>
   );

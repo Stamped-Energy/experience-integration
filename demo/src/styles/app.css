@@ -105,7 +105,9 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 
 .workspace { flex: 1; padding: var(--space-5) var(--space-5) var(--space-7); }
 .page { width: 100%; }
-.home-ask { max-width: 720px; margin: 0 auto var(--space-6); }
+.home-ask { display: flex; align-items: center; gap: var(--space-4); margin: 0 0 var(--space-5); }
+.home-ask .ask-mascot { margin: 0; flex: none; }
+.home-ask .composer2 { flex: 1; min-width: 0; }
 .home-ask .c-foot { font-size: 13px; }
 
 /* ---------- Page header, tabs, sections ---------- */
