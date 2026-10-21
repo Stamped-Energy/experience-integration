@@ -45,7 +45,7 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
         meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><LineModeTag mode={line.mode} />{line.product} · {line.status}</span>}
         actions={<><Link className="btn btn-sm" href={`/plant`}>Line on plant map</Link><AskButton context={line.name} label="Ask about this line" /></>} />
       <ProcessTabs active="lines" />
-      <div className="grid">
+      <div className="grid line-grid">
         <div className="span-8 xl-span-9 stack">
           <Section title={`${name} per ${pack.labels.unit}`} meta={`Last ${shown.length} ${pack.labels.runs.toLowerCase()} · spec dashed${trialStart >= 0 ? " · shaded: trial running" : ""}`} flush>
             <div className="stat-row">
@@ -62,14 +62,13 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
               { key: "r", label: pack.labels.run, render: (r) => <Link className="link" href={`/process/runs/${r.id}`}>{runLabel(r)}</Link> },
               { key: "e", label: "Ended", mono: true, render: (r) => `${dayMonth(r.end)} ${hhmm(r.end)}` },
               ...pack.setpoints.map((sp_) => ({ key: sp_, label: D.byId.window(line.id, sp_)?.name ?? sp_, align: "right" as const, render: (r: typeof table[number]) => r.setpoints[sp_] })),
-              { key: "o", label: name, align: "right", render: (r) => `${outcome(r, name)!.value} ${outcome(r, name)!.unit}` },
-              { key: "l", label: "Label", render: (r) => <EvidenceTag label={outcome(r, name)!.label} /> },
+              { key: "o", label: name, align: "right", render: (r) => <span style={{ display: "inline-flex", gap: 8, alignItems: "center", whiteSpace: "nowrap" }}>{outcome(r, name)!.value} {outcome(r, name)!.unit}<EvidenceTag label={outcome(r, name)!.label} /></span> },
               { key: "a", label: "Trial arm", render: (r) => { const t = trialArm(r.id); return t ? <Tag tone={t.sw.arm === "B" ? "info" : "neutral"}>{t.sw.arm === "B" ? "B, change" : "A, prior"}{t.sw.skippedReason ? ", skipped" : ""}</Tag> : <span className="muted">None</span>; } },
               { key: "v", label: "Proof", render: (r) => { const p = proofForRun(r); return p ? <Link href={`${base}?evidence=${p.id}`} scroll={false}><VerdictTag verdict={p.verdict} /></Link> : <span className="muted">None</span>; } },
             ]} />
           </Section>
         </div>
-        <div className="span-4 xl-span-3 stack ctx">
+        <div className="span-4 xl-span-3 stack ctx line-side">
           <Section title="Facts">
             <dl className="facts-grid">
               <dt>Line pack</dt><dd>{pack.equipmentClass}</dd>
@@ -83,11 +82,11 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
             </dl>
           </Section>
           <Section title="Running settings" meta="Inside the signed band" flush>
-            <div className="stack-sm" style={{ padding: "12px 16px" }}>
+            <div className="stack-sm line-bands">
               {settings.map((r) => { const w = wins.find((x) => x.param === r.param)!; return <LimitsBand key={r.param} name={r.name} unit={r.unit} signed={[w.low, w.high]} narrowed={w.narrowedLow !== undefined ? [w.narrowedLow, w.narrowedHigh!] : undefined} current={r.value} signedBy={w.signedBy} signedAt={dayMonth(w.signedAt)} legend={false} />; })}
             </div>
           </Section>
-          {open.length ? <Section title="Needs a decision" flush><div className="stack-sm" style={{ padding: 12 }}>{open.map((p) => <DecisionCard key={p.id} p={p} role={role} variant="compact" href={`/process/proposals/${p.id}`} />)}</div></Section> : null}
+          {open.map((p) => <DecisionCard key={p.id} p={p} role={role} variant="compact" href={`/process/proposals/${p.id}`} />)}
           <Section title="Trials" flush>
             <div className="rows">{trials.map((t) => (
               <Link key={t.id} href={`/process/trials/${t.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>

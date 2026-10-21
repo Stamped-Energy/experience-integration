@@ -24,6 +24,6 @@
 .amatrix td button.b { background: var(--surface-sunken); color: var(--text-primary); border-color: var(--border-strong); }
 .amatrix td button.rec { outline: 2px dashed var(--accent-300); }
 .field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3); }
-.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary); }
-.field input, .field select { height: 30px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 0 8px; font: inherit; font-size: 13px; color: var(--text-primary); background: var(--surface); }
+.field { min-width: 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary); }
+.field input, .field select { width: 100%; min-width: 0; height: 30px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 0 8px; font: inherit; font-size: 13px; color: var(--text-primary); background: var(--surface); }
 .scope-chips { display: inline-flex; gap: 4px; flex-wrap: wrap; }

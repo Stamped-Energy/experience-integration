@@ -135,3 +135,25 @@
 @media (max-width: 767px) {
   .ex-cards { gap: var(--space-2); }
 }
+/* Line page: a fixed, compact side column so the batches table keeps its columns. */
+@media (min-width: 1024px) {
+  .grid.line-grid { grid-template-columns: minmax(0, 1fr) 288px; gap: var(--space-4); }
+  .grid.line-grid > .span-8 { grid-column: 1; } .grid.line-grid > .span-4 { grid-column: 2; }
+}
+.line-side { gap: var(--space-3); }
+.line-side .facts-grid { font-size: 12px; row-gap: 6px; }
+.line-bands { padding: 8px 12px; gap: 10px; }
+.line-bands .limits { font-size: 12px; gap: 2px; }
+.line-bands .limits-scale { height: 18px; }
+.line-bands .limits-scale .axis { top: 9px; }
+.line-bands .limits-scale .signed, .line-bands .limits-scale .narrowed { top: 3px; height: 13px; }
+.line-bands .limits-scale .current { top: 5px; }
+.line-bands .limits-ticks { font-size: 10px; }
+.line-bands .muted { font-size: 11px !important; }
+.line-grid .table th, .line-grid .table td { padding: 0 10px; }
+.line-grid .table th { white-space: normal; line-height: 14px; padding-block: 6px; }
+@media (min-width: 1024px) { .line-grid .section-body.flush > .table { width: 100%; } }
+.line-grid .table td { white-space: nowrap; }
+.line-side .facts-grid { grid-template-columns: 96px minmax(0, 1fr); column-gap: 10px; }
+.line-side .facts-grid dt { font-size: 10px; }
+.line-side .section-head { flex-wrap: wrap; row-gap: 2px; }
