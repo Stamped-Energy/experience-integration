@@ -20,7 +20,7 @@ export function InboxCard({ item, role, link = true }: { item: InboxItem; role: 
     <div className="card-head">
       <span className="src">{src}</span>{line ? <><span className="dotsep">·</span><span>{line}</span></> : null}
       <span className="dotsep">·</span><span className="mono">{nameOf(item.ref)}</span>
-      <span className="right">{extra}{item.bucket === "waiting" ? <Tag tone="accent">Needs a decision</Tag> : item.bucket === "task" ? <Tag>Task</Tag> : <Tag>Decided</Tag>}{item.due ? <span className="muted">due {rel(item.due)}</span> : null}</span>
+      <span className="right">{extra}{item.bucket === "waiting" ? <Tag tone="accent">Needs a decision</Tag> : item.bucket === "task" ? <Tag>Task</Tag> : <Tag>Decided</Tag>}{item.bucket === "waiting" && item.due ? <span className="muted">expires {rel(item.due)}, then nothing changes</span> : item.due ? <span className="muted">due {rel(item.due)}</span> : null}</span>
     </div>
   );
   if (item.kind === "trial-signature") {

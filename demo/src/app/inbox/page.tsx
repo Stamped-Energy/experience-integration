@@ -30,11 +30,13 @@ export default async function Inbox({ searchParams }: { searchParams: Promise<{ 
             <Section title="Also in this list" meta={`${rest.length} items`} flush>
               <div className="rows">
                 {rest.map((i) => (
-                  <Link key={i.id} href={`/inbox/${i.id}`} className="row" style={{ gridTemplateColumns: "120px minmax(0,1fr) 120px 110px 64px" }}>
+                  <Link key={i.id} href={`/inbox/${i.id}`} className="row" style={{ gridTemplateColumns: "120px minmax(0,1fr) 140px 64px" }}>
                     <Tag>{KIND[i.kind]}</Tag>
-                    <span className="row-title">{i.title}</span>
+                    <span style={{ minWidth: 0 }}>
+                      <span className="row-title" style={{ display: "block" }}>{i.title}</span>
+                      {i.bucket === "waiting" && i.due ? <span className="row-sub">expires {rel(i.due)}, then nothing changes</span> : i.due ? <span className="row-sub">due {rel(i.due)}</span> : null}
+                    </span>
                     <span className="secondary" style={{ fontSize: 12 }}>{D.byId.role(i.owner).name}{i.owner === role ? " (you)" : ""}</span>
-                    <span className="muted" style={{ fontSize: 12 }}>{i.due ? `due ${rel(i.due)}` : ""}</span>
                     <span className="link" style={{ fontSize: 13, textAlign: "right" }}>Open</span>
                   </Link>
                 ))}

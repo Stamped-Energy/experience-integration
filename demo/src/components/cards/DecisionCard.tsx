@@ -51,7 +51,7 @@ export function DecisionCard({ p, role, href, variant = "full" }: { p: Proposal;
         <span className="right">
           {p.mode ? <ModeTag mode={p.mode} /> : null}
           {open ? <Tag tone="accent">Needs a decision</Tag> : <Tag>{p.state}</Tag>}
-          {open ? <span className="muted">expires {rel(p.expiresAt)}</span> : null}
+          {open ? <span className="muted">expires {rel(p.expiresAt)}, then nothing changes</span> : null}
         </span>
       </div>
       <div className="card-body">

@@ -61,7 +61,7 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
         {a.href ? <Link className="link" href={a.href} scroll={false}>{a.hrefLabel ?? "Open"}</Link> : null}
       </div>
       {!c && (a.options || stop) ? (canAct
-        ? <CardActions actions={(a.options ?? []).map((o) => ({ ...o, allowed, reason: `${names(a.who.roles)} can decide` }))} stop={stop} />
+        ? <CardActions actions={(a.options ?? []).map((o) => ({ ...o, allowed, reason: `${names(a.who.roles)} can decide`, done: <span>{o.done} <Link href="/activity">Recorded in Activity.</Link></span> }))} stop={stop} />
         : <p className="ex-who">{names(a.who.roles)} decides.</p>) : null}
     </FoldCard>
   );
