@@ -31,7 +31,6 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
       <PageHeader eyebrow="Quality" title="Lots at risk" meta="Whether each lot will meet spec, how sure, and what it rests on. Stamped works inside limits set beforehand."
         actions={<><Link className="btn btn-sm" href="/quality/links">{D.lotLinks.filter((l) => l.status === "suggested" && l.link_confidence < 0.8).length} links to confirm</Link><AskButton context="Lots at risk" label="Ask about lots" /></>} />
       <QualityTabs active="lots" />
-      <div style={{ marginBottom: "var(--space-5)" }}><ExampleActions area="Quality" role={role} /></div>
       <div className="grid">
         <div className="span-8 stack">
           <Section title="Lots" meta={`${atRisk.length} at risk · ${D.lots.filter((l) => l.riskWord === "Watch").length} to watch · ${D.lots.length} in 10 days`} flush
@@ -91,6 +90,7 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
           </Section>
         </div>
       </div>
+      <div style={{ marginTop: "var(--space-5)" }}><ExampleActions area="Quality" role={role} /></div>
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref={sp.lot ? `/quality?lot=${sp.lot}` : "/quality"} /> : null}
     </Workspace>
   );

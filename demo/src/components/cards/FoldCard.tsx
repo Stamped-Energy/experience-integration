@@ -1,5 +1,5 @@
 "use client";
-/** On phones a card folds to a summary row that opens on tap or Enter/Space (a real button with aria-expanded). Desktop always shows the full card. */
+/** A card folds to a summary row that opens on tap or Enter/Space (a real button with aria-expanded). */
 import { useId, useState, type ReactNode } from "react";
 
 export function FoldCard({ summary, children, labelledBy }: { summary: ReactNode; children: ReactNode; labelledBy: string }) {

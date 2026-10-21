@@ -118,16 +118,20 @@
   .ex-grid { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .ex-grid > .label { margin-top: 6px; }
 }
-.ex-fold { display: none; }
+.ex-group { display: flex; flex-direction: column; gap: var(--space-3); }
+.ex-group + .ex-group { margin-top: var(--space-5); }
+.ex-group h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.ex-group > p { margin: 0; font-size: 13px; color: var(--text-secondary); }
+.ex-who { margin: 0; padding: var(--space-3) var(--space-4); border-top: 1px solid var(--border); font-size: 13px; color: var(--text-secondary); }
+.ex-fold { display: flex; gap: 8px; align-items: flex-start; width: 100%; padding: 12px 14px; border: 0; background: none; font: inherit; cursor: pointer; }
+.ex-fold:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -2px; }
+.ex-chev { flex: none; margin-top: 2px; transition: transform .15s; color: var(--text-secondary); }
+.ex-card[data-open="true"] .ex-chev { transform: rotate(180deg); }
+.ex-card[data-open="false"] .ex-body { display: none; }
+.ex-card[data-open="true"] .ex-fold { border-bottom: 1px solid var(--border); }
 .ex-sum { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; text-align: left; }
 .ex-sum-t { font-size: 15px; font-weight: 600; line-height: 1.35; color: var(--text-primary); }
 .ex-sum-m { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; color: var(--text-secondary); }
 @media (max-width: 767px) {
-  .ex-fold { display: flex; gap: 8px; align-items: flex-start; width: 100%; padding: 12px 14px; border: 0; background: none; font: inherit; cursor: pointer; }
-  .ex-fold:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -2px; }
-  .ex-chev { flex: none; margin-top: 2px; transition: transform .15s; color: var(--text-secondary); }
-  .ex-card[data-open="true"] .ex-chev { transform: rotate(180deg); }
-  .ex-card[data-open="false"] .ex-body { display: none; }
-  .ex-card[data-open="true"] .ex-fold { border-bottom: 1px solid var(--border); }
   .ex-cards { gap: var(--space-2); }
 }

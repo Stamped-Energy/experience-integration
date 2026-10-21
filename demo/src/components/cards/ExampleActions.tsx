@@ -22,7 +22,9 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
   const allowed = a.who.roles.includes(role);
   const stop = a.who.how === "On its own, inside the signed band" ? { effect: "Stopped. The previous setting comes back and nothing new is written.", allowed: can(role, "press-stop", a.lineId), reason: deniedReason("press-stop", "press Stop") } : undefined;
   const c = a.closed;
-  const status = c ? c.state : a.who.how === "On its own, inside the signed band" ? "Running on its own" : a.who.how === "Record only" ? "Checked" : a.who.how === "Recommend only" ? "Recommend only" : "Needs a decision";
+  const trialing = !c && a.steps.includes("Trial");
+  const status = c ? c.state : trialing ? "Trial running" : a.who.how === "On its own, inside the signed band" ? "Running on its own" : a.who.how === "Record only" ? "Checked" : a.who.how === "Recommend only" ? "Recommend only" : "Needs a decision";
+  const canAct = allowed || !!stop?.allowed;
   const summary = (
     <span className="ex-sum">
       <span className="ex-sum-t">{a.title}</span>
@@ -58,16 +60,33 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
         <p className="ex-why"><span className="label">Why it matters</span>{a.why}</p>
         {a.href ? <Link className="link" href={a.href} scroll={false}>{a.hrefLabel ?? "Open"}</Link> : null}
       </div>
-      {!c && (a.options || stop) ? <CardActions actions={(a.options ?? []).map((o) => ({ ...o, allowed, reason: `${names(a.who.roles)} can decide` }))} stop={stop} /> : null}
+      {!c && (a.options || stop) ? (canAct
+        ? <CardActions actions={(a.options ?? []).map((o) => ({ ...o, allowed, reason: `${names(a.who.roles)} can decide` }))} stop={stop} />
+        : <p className="ex-who">{names(a.who.roles)} decides.</p>) : null}
     </FoldCard>
   );
 }
 
+const OPEN_RANK: Record<string, number> = { "A person decides": 0, "Recommend only": 1, "On its own, inside the signed band": 3 };
+function openRank(a: ExampleAction) { return a.steps.includes("Trial") ? 2 : OPEN_RANK[a.who.how] ?? 0; }
+function isAccepted(a: ExampleAction) { return !!a.closed || a.who.how === "Record only"; }
+
 export function ExampleActions({ area, role }: { area: "Process" | "Quality"; role: RoleId }) {
   const list = exampleActions.filter((a) => a.area === area);
+  const open = list.filter((a) => !isAccepted(a)).sort((a, b) => openRank(a) - openRank(b));
+  const accepted = list.filter(isAccepted);
   return (
     <Section title="Example actions" meta={<>Worked examples on the demonstration plant <Illustrative /></>} id={`ex-${area.toLowerCase()}`}>
-      <div className="ex-cards">{list.map((a) => <ExampleActionCard key={a.id} a={a} role={role} />)}</div>
+      <div className="ex-group">
+        <h3>Open now</h3>
+        <p>Waiting for a person, or running now.</p>
+        <div className="ex-cards">{open.map((a) => <ExampleActionCard key={a.id} a={a} role={role} />)}</div>
+      </div>
+      <div className="ex-group">
+        <h3>Already accepted</h3>
+        <p>A named person accepted it, or the records show it held.</p>
+        <div className="ex-cards">{accepted.map((a) => <ExampleActionCard key={a.id} a={a} role={role} />)}</div>
+      </div>
     </Section>
   );
 }

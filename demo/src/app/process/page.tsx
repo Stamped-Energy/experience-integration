@@ -27,7 +27,6 @@ export default async function ProcessLines({ searchParams }: { searchParams: Pro
       <PageHeader eyebrow="Process" title="Lines" meta={<>Two lines on the demonstration plant. Stamped works inside limits set beforehand.</>}
         actions={<><Link className="btn btn-sm" href="/process/proposals">{open.length} proposals waiting</Link><AskButton context="Process lines" label="Ask about lines" /></>} />
       <ProcessTabs active="lines" />
-      <div style={{ marginBottom: "var(--space-5)" }}><ExampleActions area="Process" role={role} /></div>
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
           <Section title="Lines" meta="Mode, running settings against the signed band, last runs" flush>
@@ -81,6 +80,7 @@ export default async function ProcessLines({ searchParams }: { searchParams: Pro
           </Section>
         </div>
       </div>
+      <div style={{ marginTop: "var(--space-5)" }}><ExampleActions area="Process" role={role} /></div>
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref="/process" /> : null}
     </Workspace>
   );
