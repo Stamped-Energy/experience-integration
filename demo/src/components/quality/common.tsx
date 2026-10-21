@@ -37,6 +37,39 @@ const JOIN_ORDER = ["unverified", "estimated", "verified"] as const;
 export const weakestJoin = (lot: Lot) => linksOf(lot).map((l) => l.label).sort((a, b) => JOIN_ORDER.indexOf(a) - JOIN_ORDER.indexOf(b))[0] ?? "unverified";
 export const proofForLot = (lot: Lot) => D.proofRecords.find((p) => p.objectType === "lot" && p.objectId === lot.id) ?? D.proofRecords.find((p) => p.id === D.investigations.find((i) => i.lotIds.includes(lot.id))?.proofRecordId);
 
+/** Three or four plain sentences on why this lot carries its risk word. Uses only figures already on the lot. */
+export function whyRisk(lot: Lot): string[] {
+  const prop = propOf(lot);
+  const spec = specOf(lot);
+  const { low, point, high } = prop.predicted;
+  const name = prop.name.toLowerCase();
+  const over = high > spec.usl;
+  const under = low < spec.lsl;
+  const lines = [
+    over && under
+      ? `The estimated ${name} band is ${low} to ${high} ${prop.unit}, and it crosses both spec limits, ${spec.lsl} to ${spec.usl}.`
+      : over
+        ? `The estimated ${name} is ${point} ${prop.unit}, with a band of ${low} to ${high}. Spec stops at ${spec.usl} ${prop.unit}, so the high end is already past the limit.`
+        : under
+          ? `The estimated ${name} is ${point} ${prop.unit}, with a band of ${low} to ${high}. Spec starts at ${spec.lsl} ${prop.unit}, so the low end is already under the limit.`
+          : `The estimated ${name} is ${point} ${prop.unit}, inside the spec of ${spec.lsl} to ${spec.usl} ${prop.unit}.`,
+  ];
+  const drift = D.driftSignals.find((d) => d.lineId === lot.lineIds[0] && d.property === prop.name);
+  if (drift) lines.push(`${drift.property} on ${D.byId.line(drift.lineId)!.short} has been ${drift.direction === "up" ? "rising" : "falling"}, measured ${drift.magnitude}.`);
+  const lab = labOf(lot);
+  lines.push(prop.anchored && lab
+    ? `The lab measured ${lab.value} ${prop.unit}, so this band is anchored to a result.`
+    : "No lab result has come in yet, so this is an estimate from the linked runs and cannot support a release.");
+  const note = D.investigations.find((i) => i.lotIds.includes(lot.id))?.entries.find((e) => e.type === "note");
+  if (note) {
+    const text = note.text.replace(/\.$/, "");
+    lines.push(text.includes("torque") && text.includes("charge mass")
+      ? "Torque at the end of the hold was high on the linked batches, and the charge mass stayed inside the recipe."
+      : `${text}.`);
+  }
+  return lines;
+}
+
 const RISK_TONE: Record<Lot["riskWord"], Tone> = { "At risk": "critical", Watch: "warning", "On track": "neutral" };
 export function RiskTag({ risk }: { risk: Lot["riskWord"] }) {
   return <Tag tone={RISK_TONE[risk]} dot>{risk}</Tag>;

@@ -14,7 +14,7 @@ import { RunChart } from "@/components/ui/charts";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { runLabel } from "@/components/process/common";
-import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, labOf, linksOf, lotNo, proofForLot, propOf, specOf, threshold, weakestJoin } from "@/components/quality/common";
+import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, labOf, linksOf, lotNo, proofForLot, propOf, specOf, threshold, weakestJoin, whyRisk } from "@/components/quality/common";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -43,6 +43,9 @@ export default async function LotDetail({ params, searchParams }: { params: Prom
       <QualityTabs active="lots" />
       <div className="grid">
         <div className="span-8 stack">
+          <Section title={lot.riskWord === "At risk" ? "Why this lot is at risk" : lot.riskWord === "Watch" ? "Why this lot is on watch" : "Why this lot is on track"}>
+            {whyRisk(lot).map((line) => <p key={line} style={{ margin: "0 0 8px", lineHeight: 1.5 }}>{line}</p>)}
+          </Section>
           <Section title="Join" meta={`Quality owns the lot join; every link carries its confidence · pack threshold ${thr} · weakest label sets the lot`} flush actions={<JoinTag label={weakestJoin(lot)} />}>
             <div className="join" style={{ padding: 16 }}>
               <div className="join-lot"><div className="label">Lot</div><div className="mono" style={{ fontWeight: 600 }}>{lotNo(lot.id)}</div><div className="cell-sub">{lot.stages.join(" · ")}</div></div>
