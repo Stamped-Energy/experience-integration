@@ -8,9 +8,10 @@ export const dayMonth = (iso: string) => {
   const d = new Date(iso.slice(0, 10) + "T00:00:00Z");
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
 };
-/** Relative to demo now: "in 2 h", "40 min ago", "3 d ago". */
+/** Relative to demo now: "just now", "in 2 h", "40 min ago", "3 d ago". */
 export function rel(iso: string): string {
   const m = Math.round((Date.parse(iso) - NOW) / 60000);
+  if (m === 0) return "just now";
   const a = Math.abs(m);
   const s = a < 60 ? `${a} min` : a < 48 * 60 ? `${Math.round(a / 60)} h` : `${Math.round(a / 1440)} d`;
   return m >= 0 ? `in ${s}` : `${s} ago`;

@@ -14,7 +14,7 @@ const ICON: Record<string, (p: object) => ReactNode> = Icon as never;
 export function Rail({ inboxCount }: { inboxCount: number }) {
   const area = areaFor(usePathname());
   const g1 = NAV.filter((n) => n.group === 1);
-  const g2 = NAV.filter((n) => n.group === 2);
+  const g2 = NAV.filter((n) => n.group === 2 && !n.soon);
   const item = (n: (typeof NAV)[number]) => (
     <Link key={n.key} href={n.href} className="rail-item" aria-current={area === n.key ? "page" : undefined} aria-label={n.label}>
       {ICON[n.key]({})}
