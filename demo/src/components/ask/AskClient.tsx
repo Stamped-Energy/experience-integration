@@ -61,7 +61,7 @@ export function AskHero({ steps, children }: { steps: Record<string, string>; ch
       <div className="ask-mascot"><StampedMascot mode={mood} size={96} arrive label="Stamped assistant" /></div>
       <h1>Ask about your plant</h1>
       <p>Reads plant data and cites it. It cannot change a setting.</p>
-      <Composer big autoFocus steps={steps} onMood={setMood} />
+      <div className="d-only"><Composer big autoFocus steps={steps} onMood={setMood} /></div>
       {children}
     </>
   );
