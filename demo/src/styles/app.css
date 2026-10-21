@@ -197,6 +197,7 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 .table td { height: var(--row-h); padding: 0 var(--space-3); border-bottom: 1px solid var(--border); vertical-align: middle; }
 /* Size to the columns, then scroll inside the card. A 100% table crushes the last header and lets a chart paint over the next cell. */
 .section-body.flush > .table { width: max-content; min-width: 100%; }
+.section-body.flush .table th { position: static; }
 .table tr:last-child td { border-bottom: 0; }
 .table tbody tr:hover td { background: var(--surface-subtle); }
 .table .right { text-align: right; }
@@ -285,10 +286,10 @@ a.row:hover { background: var(--surface-subtle); }
 .row .row-title { font-weight: 500; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .row .row-sub { color: var(--text-muted); font-size: 12px; }
 .timeline { list-style: none; margin: 0; padding: var(--space-2) var(--space-4); }
-.timeline li { display: grid; grid-template-columns: 52px 14px 1fr; gap: var(--space-2); padding: 6px 0; font-size: 13px; position: relative; }
+.timeline li { display: grid; grid-template-columns: 96px 14px 1fr; gap: var(--space-2); padding: 6px 0; font-size: 13px; position: relative; }
 .timeline li .t { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); padding-top: 1px; }
 .timeline li .m { width: 9px; height: 9px; border-radius: 999px; border: 1px solid var(--text-muted); background: var(--surface); margin-top: 6px; position: relative; z-index: 1; }
-.timeline li::before { content: ""; position: absolute; left: 66px; top: 0; bottom: 0; width: 1px; background: var(--border); }
+.timeline li::before { content: ""; position: absolute; left: 110px; top: 0; bottom: 0; width: 1px; background: var(--border); }
 .timeline li:first-child::before { top: 12px; } .timeline li:last-child::before { bottom: calc(100% - 12px); }
 .timeline li .m.k-proposal { border-color: var(--accent-500); background: var(--accent-500); }
 .timeline li .m.k-stop { border-color: var(--critical); background: var(--critical); }
@@ -352,7 +353,10 @@ a.row:hover { background: var(--surface-subtle); }
   .search, .crumbs .crumb-mid, .role-switch .label, .crumb-tools > .tag { display: none; }
   .section-body.flush { overflow-x: auto; }
   .table { min-width: 640px; }
-  .crumbs { font-size: 13px; }
+  .crumbs { font-size: 13px; flex: 1 1 auto; min-width: 0; }
+  .crumbs [aria-current] { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .section-body { overflow-x: auto; }
+  .section-body .table th { position: static; }
   .crumbbar { padding: 0 var(--space-4); }
   .grid { grid-template-columns: minmax(0, 1fr); }
   .grid > * { grid-column: 1 / -1; }

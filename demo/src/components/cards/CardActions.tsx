@@ -8,7 +8,7 @@ export interface ActionSpec { id: string; label: string; primary?: boolean; allo
 export interface StopSpec { effect: string; allowed: boolean; reason?: string }
 
 export function CardActions({ actions, stop, large, adjust }: { actions: ActionSpec[]; stop?: StopSpec; large?: boolean; adjust?: AdjustSpec }) {
-  const [done, setDone] = useState<string | null>(null);
+  const [done, setDone] = useState<ReactNode>(null);
   const [adjusting, setAdjusting] = useState(false);
   const denied = actions.find((a) => !a.allowed);
   const size = large ? " btn-lg" : "";

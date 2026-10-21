@@ -56,18 +56,6 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
             <div className="chart-pad"><RunChart values={values} spec={specOf(line)} width={980} height={180} label={`${name} on ${line.short}`} highlightFrom={trialStart >= 0 ? trialStart : undefined} /></div>
             <div className="chart-legend"><span><i />{name}</span><span><i className="d" />Spec {specOf(line).join(" to ")}</span>{trialStart >= 0 ? <span><i className="t" />Trial running</span> : null}</div>
           </Section>
-          <Section title={pack.labels.runs} meta={`${all.length} on record · run definition: ${pack.runDefinition}`} flush
-            actions={Number(sp.n ?? 16) < all.length ? <Link className="link" href={`${base}?n=${all.length}`} scroll={false}>Show all {all.length}</Link> : null}>
-            <DataTable caption={pack.labels.runs} rowKey={(r) => r.id} rows={table} columns={[
-              { key: "r", label: pack.labels.run, render: (r) => <Link className="link" href={`/process/runs/${r.id}`}>{runLabel(r)}</Link> },
-              { key: "e", label: "Ended", mono: true, render: (r) => `${dayMonth(r.end)} ${hhmm(r.end)}` },
-              ...pack.setpoints.map((sp_) => ({ key: sp_, label: D.byId.window(line.id, sp_)?.name ?? sp_, align: "right" as const, render: (r: typeof table[number]) => r.setpoints[sp_] })),
-              { key: "o", label: name, align: "right", render: (r) => `${outcome(r, name)!.value} ${outcome(r, name)!.unit}` },
-              { key: "l", label: "Label", render: (r) => <EvidenceTag label={outcome(r, name)!.label} /> },
-              { key: "a", label: "Trial arm", render: (r) => { const t = trialArm(r.id); return t ? <Tag tone={t.sw.arm === "B" ? "info" : "neutral"}>{t.sw.arm === "B" ? "B, change" : "A, prior"}{t.sw.skippedReason ? ", skipped" : ""}</Tag> : <span className="muted">None</span>; } },
-              { key: "v", label: "Proof", render: (r) => { const p = proofForRun(r); return p ? <Link href={`${base}?evidence=${p.id}`} scroll={false}><VerdictTag verdict={p.verdict} /></Link> : <span className="muted">None</span>; } },
-            ]} />
-          </Section>
         </div>
         <div className="span-4 xl-span-3 stack ctx">
           <Section title="Facts">
@@ -87,7 +75,7 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
               {settings.map((r) => { const w = wins.find((x) => x.param === r.param)!; return <LimitsBand key={r.param} name={r.name} unit={r.unit} signed={[w.low, w.high]} narrowed={w.narrowedLow !== undefined ? [w.narrowedLow, w.narrowedHigh!] : undefined} current={r.value} signedBy={w.signedBy} signedAt={dayMonth(w.signedAt)} legend={false} />; })}
             </div>
           </Section>
-          {open.length ? <Section title="Needs a decision" flush><div className="stack-sm" style={{ padding: 12 }}>{open.map((p) => <DecisionCard key={p.id} p={p} role={role} variant="compact" href={`/process/proposals/${p.id}`} />)}</div></Section> : null}
+          {open.map((p) => <DecisionCard key={p.id} p={p} role={role} variant="compact" href={`/process/proposals/${p.id}`} />)}
           <Section title="Trials" flush>
             <div className="rows">{trials.map((t) => (
               <Link key={t.id} href={`/process/trials/${t.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
@@ -97,6 +85,20 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
             ))}</div>
           </Section>
         </div>
+      </div>
+      <div className="stack" style={{ marginTop: "var(--space-4)" }}>
+          <Section title={pack.labels.runs} meta={`${all.length} on record · run definition: ${pack.runDefinition}`} flush
+            actions={Number(sp.n ?? 16) < all.length ? <Link className="link" href={`${base}?n=${all.length}`} scroll={false}>Show all {all.length}</Link> : null}>
+            <DataTable caption={pack.labels.runs} rowKey={(r) => r.id} rows={table} columns={[
+              { key: "r", label: pack.labels.run, render: (r) => <Link className="link" href={`/process/runs/${r.id}`}>{runLabel(r)}</Link> },
+              { key: "e", label: "Ended", mono: true, render: (r) => `${dayMonth(r.end)} ${hhmm(r.end)}` },
+              ...pack.setpoints.map((sp_) => ({ key: sp_, label: D.byId.window(line.id, sp_)?.name ?? sp_, align: "right" as const, render: (r: typeof table[number]) => r.setpoints[sp_] })),
+              { key: "o", label: name, align: "right", render: (r) => `${outcome(r, name)!.value} ${outcome(r, name)!.unit}` },
+              { key: "l", label: "Label", render: (r) => <EvidenceTag label={outcome(r, name)!.label} /> },
+              { key: "a", label: "Trial arm", render: (r) => { const t = trialArm(r.id); return t ? <Tag tone={t.sw.arm === "B" ? "info" : "neutral"}>{t.sw.arm === "B" ? "B, change" : "A, prior"}{t.sw.skippedReason ? ", skipped" : ""}</Tag> : <span className="muted">None</span>; } },
+              { key: "v", label: "Proof", render: (r) => { const p = proofForRun(r); return p ? <Link href={`${base}?evidence=${p.id}`} scroll={false}><VerdictTag verdict={p.verdict} /></Link> : <span className="muted">None</span>; } },
+            ]} />
+          </Section>
       </div>
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref={base} /> : null}
     </Workspace>
