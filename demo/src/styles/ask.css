@@ -43,7 +43,7 @@
   .askx-hist { border-right: 0; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: var(--space-2); }
   .ask-empty { min-height: 0; }
   .ask-empty h1 { font-size: 24px; }
-  .sugg-wrap { width: 100%; }
+  .sugg { grid-template-columns: minmax(0, 1fr); }
   .why-pop { width: min(320px, calc(100vw - 48px)); }
 }
 .askx-hist { min-height: 0; border-right: 1px solid var(--border); padding-right: var(--space-4); display: flex; flex-direction: column; }
@@ -63,8 +63,8 @@ a.h-item:hover, .h-item:hover { background: var(--surface-subtle); }
 .ask-empty { min-height: 62vh; display: flex; flex-direction: column; justify-content: center; align-items: stretch; gap: var(--space-4); text-align: center; }
 .ask-empty h1 { margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -.01em; }
 .ask-empty > p { margin: 0; color: var(--text-secondary); }
-.sugg-wrap { align-self: flex-start; width: min(100%, 480px); display: flex; flex-direction: column; align-items: flex-start; gap: 8px; text-align: left; }
-.sugg { display: flex; flex-direction: column; gap: var(--space-2); width: 100%; }
+.sugg { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+.h-more { margin: 8px 8px 4px; }
 .sugg a { text-align: left; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 14px; color: var(--text-primary); text-decoration: none; background: var(--surface); font-size: 14px; }
 .sugg a:hover { border-color: var(--text-secondary); }
 .recent { display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap; font-size: 12px; }

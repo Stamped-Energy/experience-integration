@@ -1,8 +1,7 @@
 "use client";
 /** Client bits of Ask: numbered source markers that open the Sources strip, and the composer with its thinking state. */
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type MouseEvent, type ReactNode } from "react";
+import { Children, isValidElement, useState, type MouseEvent, type ReactNode } from "react";
 import { StampedMascot, type MascotMode } from "@/components/mascot/StampedMascot";
 
 export function SourceMark({ n }: { n: number }) {
@@ -68,16 +67,29 @@ export function AskHero({ steps, children }: { steps: Record<string, string>; ch
   );
 }
 
-const SUGGEST_PAGE = 8;
+const HIST_PAGE = 10;
+const isHead = (c: ReactNode) => isValidElement(c) && !!(c.props as { "data-head"?: boolean })["data-head"];
 
-/** Eight example questions at a time. Open more reveals the next eight. */
-export function SuggestList({ items }: { items: { q: string; href: string }[] }) {
-  const [n, setN] = useState(SUGGEST_PAGE);
-  const more = items.length - n;
+/** Past conversations: ten rows, then Open more at the bottom of the scroll. */
+export function HistScroll({ children }: { children: ReactNode }) {
+  const all = Children.toArray(children);
+  const items = all.filter((c) => !isHead(c));
+  const openAt = items.findIndex((c) => isValidElement(c) && String((c.props as { className?: string }).className ?? "").split(" ").includes("on"));
+  const [n, setN] = useState(openAt >= 0 ? Math.ceil((openAt + 1) / HIST_PAGE) * HIST_PAGE : HIST_PAGE);
+  let seen = 0;
+  const shown: ReactNode[] = [];
+  for (const child of all) {
+    if (isHead(child)) { shown.push(child); continue; }
+    if (seen >= n) break;
+    seen++;
+    shown.push(child);
+  }
+  while (shown.length && isHead(shown[shown.length - 1])) shown.pop();
+  const more = items.length - seen;
   return (
-    <div className="sugg-wrap">
-      <div className="sugg">{items.slice(0, n).map((s) => <Link key={s.q} prefetch={false} href={s.href}>{s.q}</Link>)}</div>
-      {more > 0 ? <button type="button" className="btn btn-sm show-more" onClick={() => setN((x) => x + SUGGEST_PAGE)}>Open more</button> : null}
+    <div className="h-scroll">
+      {shown}
+      {more > 0 ? <button type="button" className="btn btn-sm h-more" onClick={() => setN((x) => x + HIST_PAGE)}>Open more</button> : null}
     </div>
   );
 }

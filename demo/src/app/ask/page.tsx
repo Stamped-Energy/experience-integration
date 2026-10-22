@@ -4,7 +4,7 @@ import * as D from "@/lib/demo/data";
 import { rel } from "@/lib/format";
 import { AskPage, steps, type AskSP } from "@/components/ask/AskPage";
 import { TurnView, liveTurn, suggestions } from "@/components/ask/convo";
-import { AskHero, SuggestList } from "@/components/ask/AskClient";
+import { AskHero } from "@/components/ask/AskClient";
 import { StampedMascot } from "@/components/mascot/StampedMascot";
 
 export const metadata = { title: "Ask" };
@@ -26,7 +26,7 @@ export default async function AskHome({ searchParams }: { searchParams: Promise<
     <AskPage title="Ask" base="/ask" sp={sp} composer="mobile">
       <div className="ask-empty">
         <AskHero steps={steps()}>
-          <SuggestList items={suggestions()} />
+          <div className="sugg">{suggestions().map((s) => <Link key={s.q} prefetch={false} href={s.href}>{s.q}</Link>)}</div>
           <div className="recent">{recent.map((t) => <Link key={t.id} prefetch={false} href={`/ask/${t.id}`}>{t.title}<span>{rel(t.updatedAt)}</span></Link>)}</div>
         </AskHero>
       </div>
