@@ -11,7 +11,9 @@ import { RunChart } from "@/components/ui/charts";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, EvidenceTag, LineModeTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { ExampleActions } from "@/components/cards/ExampleActions";
-import { AnsweredChip, ControlStack, LayerProposal, Onboarding, WorkingOn } from "@/components/agent/blocks";
+import { AnsweredChip, ControlStack, LayerProposal, Learned, Onboarding, WorkingOn } from "@/components/agent/blocks";
+import { Tabs } from "@/components/ui/primitives";
+import * as A from "@/lib/demo/agent";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { ProcessTabs, crumbs, outcome, outcomeName, packOf, proofForRun, runLabel, runsOf, specOf, trialArm } from "@/components/process/common";
 
@@ -20,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: D.byId.line(id)?.name ?? "Line" };
 }
 
-export default async function LineDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ evidence?: string; n?: string }> }) {
+export default async function LineDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ evidence?: string; n?: string; tab?: string }> }) {
   const { id } = await params;
   const sp = await searchParams;
   const line = D.byId.line(id);
@@ -40,14 +42,49 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
   const trials = D.trials.filter((t) => t.lineId === line.id);
   const sa = D.standingApprovals.filter((s) => s.lineId === line.id);
   const base = `/process/lines/${line.id}`;
+  const tab = sp.tab === "agent" || sp.tab === "controls" ? sp.tab : "overview";
   const table = all.slice().reverse().slice(0, Number(sp.n ?? 16));
   return (
     <Workspace crumbs={crumbs({ label: line.short, href: base }, { label: "Line detail" })} askContext={line.name}>
       <PageHeader eyebrow={`Process · ${pack.equipmentClass}`} title={line.name}
-        meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><LineModeTag mode={line.mode} />{line.product} · {line.status}<AnsweredChip qid={line.id === "line-a" ? "q-5" : "q-8"} /></span>}
+        meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><LineModeTag mode={line.mode} />{line.product} · {line.status}</span>}
         actions={<><Link className="btn btn-sm" href={`/plant`}>Line on plant map</Link><AskButton context={line.name} label="Ask about this line" /></>} />
       <ProcessTabs active="lines" />
-      <WorkingOn lineId={line.id} />
+      <Tabs label={`${line.short} sections`} items={[
+        { href: base, label: "Overview", active: tab === "overview" },
+        { href: `${base}?tab=agent`, label: "Agent work", count: A.workingOn.filter((w) => w.lineId === line.id).length, active: tab === "agent" },
+        { href: `${base}?tab=controls`, label: "Controls", count: A.controlStacks[line.id]?.length, active: tab === "controls" },
+      ]} />
+      {tab === "agent" ? (
+        <div className="grid">
+          <div className="span-8 stack">
+            <WorkingOn lineId={line.id} />
+            {A.onboarding.lineId === line.id ? <Onboarding /> : <Section title="New parts"><p className="secondary" style={{ margin: 0, fontSize: 13 }}>No new part is being onboarded on {line.short}. When one arrives, the agent finds similar parts, borrows their settings, plans test moves, tries them on the twin and hands it to a person to promote.</p></Section>}
+          </div>
+          <div className="span-4 stack">
+            <Section title="Questions it asked here" flush>
+              <div className="rows">{A.questions.filter((q) => q.lineId === line.id).map((q) => (
+                <div key={q.id} className="row" style={{ gridTemplateColumns: "minmax(0,1fr)", height: "auto", padding: "8px 16px" }}>
+                  <span><span className="row-title" style={{ display: "block" }}>{q.title}</span><span className="row-sub">{q.type} · sent to {D.byId.role(q.routedTo).name}{q.answered ? null : " · open"}</span>{q.answered ? <AnsweredChip qid={q.id} /> : <Link className="link" href="/inbox?tab=questions" style={{ fontSize: 12, marginLeft: 6 }}>Answer</Link>}</span>
+                </div>))}</div>
+            </Section>
+            <Section title="What it learned" flush><Learned limit={3} /></Section>
+          </div>
+        </div>
+      ) : tab === "controls" ? (
+        <div className="grid">
+          <div className="span-7 stack"><ControlStack lineId={line.id} /></div>
+          <div className="span-5 stack">
+            {A.layerProposal.lineId === line.id ? <LayerProposal role={role} /> : <Section title="New control layers"><p className="secondary" style={{ margin: 0, fontSize: 13 }}>Nothing being simulated on {line.short} right now. The RL hold-time policy is learning in shadow and writes nothing.</p></Section>}
+            <Section title="Tuned parameters" meta="Inside the signed band" flush>
+              <div className="stack-sm line-bands" style={{ padding: "var(--space-3) var(--space-4)" }}>
+                {settings.map((r) => { const w = wins.find((x) => x.param === r.param)!; return <LimitsBand key={r.param} name={r.name} unit={r.unit} signed={[w.low, w.high]} narrowed={w.narrowedLow !== undefined ? [w.narrowedLow, w.narrowedHigh!] : undefined} current={r.value} signedBy={w.signedBy} signedAt={dayMonth(w.signedAt)} legend={false} />; })}
+              </div>
+            </Section>
+          </div>
+        </div>
+      ) : (<>
+      <div style={{ marginBottom: "var(--space-5)" }}><ExampleActions area="Process" role={role} lineId={line.id} title={`Example actions on ${line.short}`} /></div>
       <div className="grid line-grid">
         <div className="span-8 xl-span-9 stack">
           <Section title={`${name} per ${pack.labels.unit}`} meta={`Last ${shown.length} ${pack.labels.runs.toLowerCase()} · spec dashed${trialStart >= 0 ? " · shaded: trial running" : ""}`} flush>
@@ -59,10 +96,6 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
             <div className="chart-pad"><RunChart values={values} spec={specOf(line)} width={980} height={180} label={`${name} on ${line.short}`} highlightFrom={trialStart >= 0 ? trialStart : undefined} /></div>
             <div className="chart-legend"><span><i />{name}</span><span><i className="d" />Spec {specOf(line).join(" to ")}</span>{trialStart >= 0 ? <span><i className="t" />Trial running</span> : null}</div>
           </Section>
-          <ExampleActions area="Process" role={role} lineId={line.id} title={`Example actions on ${line.short}`} />
-          <ControlStack lineId={line.id} />
-          {line.id === "line-b" ? <LayerProposal role={role} /> : null}
-          {line.id === "line-b" ? <Onboarding /> : null}
           <Section title={pack.labels.runs} meta={`${all.length} on record · run definition: ${pack.runDefinition}`} flush
             actions={Number(sp.n ?? 16) < all.length ? <Link className="link" href={`${base}?n=${all.length}`} scroll={false}>Show all {all.length}</Link> : null}>
             <DataTable caption={pack.labels.runs} rowKey={(r) => r.id} rows={table} columns={[
@@ -104,6 +137,7 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
           </Section>
         </div>
       </div>
+      </>)}
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref={base} /> : null}
     </Workspace>
   );

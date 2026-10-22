@@ -25,7 +25,7 @@ export const questions: Question[] = [
     title: "Step 3 of 5: run the next 50 shots of Housing B-52 with hold pressure 740 bar. Done?",
     why: "Housing B-52 is new on Line B. The agent borrowed settings from Housing B-40 with a wider band and needs three planned moves to tune them.",
     evidence: [{ text: "Move 1 of 3 done at 720 bar, part weight 52.1 g", label: "Measured", id: "EV-B-2231" }, { text: "740 bar is inside the signed window 680 to 780 bar", label: "Measured" }],
-    waits: { text: "New-part onboarding, Housing B-52, step 3", href: "/process/lines/line-b#onboarding" },
+    waits: { text: "New-part onboarding, Housing B-52, step 3", href: "/process/lines/line-b?tab=agent" },
     meanwhile: "Line B stays recommend-only for Housing B-52. Housing B-40 runs as normal.",
     answers: [{ id: "done", label: "Done", then: "I record the 50 shots, refit the borrowed model and plan move 3." }, { id: "skip", label: "Skipped, with a reason", then: "I log the reason and move the test to the next B-52 order." }],
     photo: "Photo of the setting screen (optional)" },
@@ -48,11 +48,11 @@ export const questions: Question[] = [
     title: "Housing B-52 arrived with no resin grade on the job card. Is it PA66-GF30 like Housing B-40?",
     why: "The agent can only borrow settings from parts with the same resin. The job card field is empty.",
     evidence: [{ text: "Job card for order B-52-001, resin field empty", label: "Unknown" }, { text: "Drawing revision C lists glass-filled polyamide", label: "Measured", id: "EV-B-2219" }],
-    waits: { text: "New-part onboarding, Housing B-52, step 1", href: "/process/lines/line-b#onboarding" },
+    waits: { text: "New-part onboarding, Housing B-52, step 1", href: "/process/lines/line-b?tab=agent" },
     meanwhile: "Housing B-52 runs on the operator's own settings.",
     answers: [{ id: "pa", label: "Yes, PA66-GF30", then: "I borrow settings from Housing B-40 and B-44 with a wider band." }, { id: "other", label: "Another grade", then: "I look for parts with that grade first." }],
     photo: "Photo of the bag label",
-    answered: { by: "operator", person: "Operator B.", at: at(-1, -1, -20), answer: "Yes, PA66-GF30 (photo of the bag label)", changed: "Resin for Housing B-52 set to PA66-GF30, source: operator. Settings borrowed from Housing B-40 and B-44.", unblocked: { text: "Onboarding moved to step 2", href: "/process/lines/line-b#onboarding" } } },
+    answered: { by: "operator", person: "Operator B.", at: at(-1, -1, -20), answer: "Yes, PA66-GF30 (photo of the bag label)", changed: "Resin for Housing B-52 set to PA66-GF30, source: operator. Settings borrowed from Housing B-40 and B-44.", unblocked: { text: "Onboarding moved to step 2", href: "/process/lines/line-b?tab=agent" } } },
   { id: "q-5", type: "Mode label", lineId: "line-a", askedAt: at(0, -5), routedTo: "operator", plantWide: false, urgency: "Low",
     title: "Mixer M1 sat at 70 °C with the agitator off for 12 min at 09:05. Changeover or idle?",
     why: "The line pack mode rule could not tell a changeover from an idle wait. Idle minutes count against energy per batch, changeovers do not.",
@@ -96,8 +96,8 @@ export function questionsFor(role: RoleId) {
 /* ---------------- Working on ---------------- */
 export interface WorkItem { id: string; status: "Investigating" | "Simulating" | "Waiting on you" | "Onboarding"; lineId: string; title: string; step: string; waits?: string; href: string }
 export const workingOn: WorkItem[] = [
-  { id: "w-1", status: "Simulating", lineId: "line-b", title: "An MPC layer over the barrel loops on Press P3", step: "240 simulated shifts done, comparing against the current stack", href: "/process/lines/line-b#control" },
-  { id: "w-2", status: "Onboarding", lineId: "line-b", title: "New part Housing B-52", step: "Step 3 of 5, planned test moves", waits: "Operator, next 50 shots", href: "/process/lines/line-b#onboarding" },
+  { id: "w-1", status: "Simulating", lineId: "line-b", title: "An MPC layer over the barrel loops on Press P3", step: "240 simulated shifts done, comparing against the current stack", href: "/process/lines/line-b?tab=controls" },
+  { id: "w-2", status: "Onboarding", lineId: "line-b", title: "New part Housing B-52", step: "Step 3 of 5, planned test moves", waits: "Operator, next 50 shots", href: "/process/lines/line-b?tab=agent" },
   { id: "w-3", status: "Investigating", lineId: "line-a", title: "Why lot 3307 viscosity is drifting up", step: "4 of 6 likely causes ruled out", href: "/quality/investigations" },
   { id: "w-4", status: "Waiting on you", lineId: "line-a", title: "Jacket inlet sensor on Mixer M1", step: "Asked if it is stuck", waits: "Shift lead", href: "/inbox?tab=questions" },
 ];
