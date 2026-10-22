@@ -170,7 +170,7 @@ export function AskPanelFrame({ children, suggestions }: { children: ReactNode; 
             <div className="ask-msg-person">{a}</div>
             <div className="ask-claims">
               <div className="ask-claim">
-                <span>I can&apos;t answer that: the data this question needs is not available in the demonstration plant.</span>
+                <span>Not enough plant data to answer that yet. Try the full Ask page, or ask about a line, lot or action.</span>
                 <span className="meta"><span className="tag tag-warning">Abstained</span><a className="link" href={`/ask?q=${encodeURIComponent(a)}`}>Open in Ask</a></span>
               </div>
             </div>

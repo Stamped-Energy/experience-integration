@@ -174,3 +174,43 @@ a.h-item:hover, .h-item:hover { background: var(--surface-subtle); }
   .followups { flex-direction: column; align-items: flex-start; }
   .followups a { font-size: 14px; padding: 8px 14px; }
 }
+
+/* Rich answers */
+.turn.rich .a-prose { display: grid; gap: 8px; min-width: 0; }
+.rb-h { font-size: 13px; font-weight: 600; margin: 6px 0 0; }
+.rb-p { margin: 0; line-height: 1.55; }
+.rb-ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; line-height: 1.5; }
+.rb-fig { margin: 2px 0; border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; background: var(--surface); }
+.rb-fig figcaption { font-size: 12px; font-weight: 500; margin-bottom: 4px; }
+.rb-fig .chart { width: 100%; height: 110px; display: block; }
+.rb-cmp { display: grid; gap: 10px; }
+.rb-cmp-row { display: grid; gap: 4px; }
+.rb-m { font-size: 12px; color: var(--muted); }
+.rb-pair { display: grid; grid-template-columns: 48px 1fr 92px; align-items: center; gap: 8px; font-size: 12px; }
+.rb-k { color: var(--muted); }
+.rb-v { font-variant-numeric: tabular-nums; text-align: right; }
+.rb-track { position: relative; height: 10px; border-radius: 5px; background: var(--surface-2, #f1f1ef); }
+.rb-band { position: absolute; top: 0; bottom: 0; border-radius: 5px; background: var(--border-strong); }
+.rb-band.now { background: var(--info); }
+.rb-flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 4px; }
+.rb-flow-i { display: inline-flex; align-items: center; gap: 4px; }
+.rb-arrow { color: var(--muted); font-size: 13px; }
+.rb-node { display: grid; gap: 1px; border: 1px solid var(--border); border-radius: 8px; padding: 5px 9px; font-size: 12px; background: var(--surface); color: inherit; text-decoration: none; }
+.rb-node span { color: var(--muted); font-size: 11px; }
+a.rb-node:hover { border-color: var(--border-strong); }
+.rb-node.flag { border-color: var(--warning, #c98a14); }
+.rb-tw { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+.rb-t { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.rb-t th { text-align: left; font-weight: 500; color: var(--muted); padding: 6px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.rb-t td { padding: 6px 10px; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+.rb-t tr:last-child td { border-bottom: 0; }
+.rb-conf { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.rb-ev { display: flex; flex-wrap: wrap; gap: 6px; }
+.rb-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px 2px 4px; font-size: 11.5px; color: inherit; text-decoration: none; max-width: 100%; }
+.rb-chip:hover { border-color: var(--border-strong); }
+.rb-what { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rb-next { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--surface); }
+.rb-next > div:first-child { display: grid; gap: 2px; font-size: 13px; }
+.rb-next .muted { font-size: 12px; }
+.rb-next-a { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+@media (max-width: 767px) { .rb-pair { grid-template-columns: 44px 1fr 80px; } .rb-what { max-width: 150px; } }

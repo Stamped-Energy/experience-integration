@@ -6,6 +6,8 @@ import type { AskThread, EvidenceLabel } from "@/lib/demo/types";
 import { dayMonth, rel } from "@/lib/format";
 import { EvidenceTag, Tag } from "@/components/ui/primitives";
 import { evHref, proofFor } from "./common";
+import { SUGGESTED, richConvs } from "@/lib/demo/askRich";
+import { currentRole } from "@/lib/role";
 import { HistScroll, SourceMark } from "./AskClient";
 import { SequenceMascot } from "@/components/mascot/StampedMascot";
 import { nameOf, proposalName, proposalShort } from "@/lib/names";
@@ -27,15 +29,7 @@ export type Turn = {
 
 /* ---------- Suggested questions, built from live data ---------- */
 export function suggestions(): { q: string; href: string }[] {
-  const out: { q: string; href: string }[] = [];
-  const d = D.driftSignals[0];
-  if (d) { const t = D.askThreads.find((x) => x.objectRef === d.id); out.push({ q: `Why is ${D.byId.line(d.lineId)!.short} ${d.property.toLowerCase()} drifting?`, href: t ? `/ask/${t.id}` : `/ask?q=${encodeURIComponent(d.property)}` }); }
-  const risk = D.lots.filter((l) => l.riskWord === "At risk").length;
-  if (risk) out.push({ q: "Which lots are at risk today?", href: `/ask?q=${encodeURIComponent("Which lots are at risk today?")}` });
-  if (D.inboxItems.some((i) => i.bucket === "waiting")) out.push({ q: "What is waiting for my decision?", href: `/ask?q=${encodeURIComponent("What is waiting for my decision?")}` });
-  const tr = D.trials.find((t) => t.status === "running");
-  if (tr) out.push({ q: `How is the ${tr.change.split(" ").slice(0, 2).join(" ").toLowerCase()} trial doing?`, href: `/ask?q=${encodeURIComponent(`How is the ${tr.change.split(" ").slice(0, 2).join(" ").toLowerCase()} trial doing?`)}` });
-  return out.slice(0, 4);
+  return SUGGESTED.map((q) => ({ q, href: `/ask?q=${encodeURIComponent(q)}` }));
 }
 const follow = (except: string, extra: string[] = []) => [...extra, ...suggestions().map((s) => s.q).filter((q) => q !== except)].slice(0, 3);
 const weakestOf = (ls: EvidenceLabel[]) => ls.slice().sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b))[0] ?? "Unknown";
@@ -135,13 +129,14 @@ export function TurnView({ t, idx, compact }: { t: Turn; idx: number; compact?: 
 }
 
 /* ---------- History: Today, This week, Saved, Notes ---------- */
-export function History({ current, filter, base }: { current?: string; filter?: string; base: string }) {
+export async function History({ current, filter, base }: { current?: string; filter?: string; base: string }) {
   const now = Date.parse(D.DEMO_NOW);
-  const th = D.askThreads.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const role = await currentRole();
+  const th: AskThread[] = [...D.askThreads, ...richConvs.filter((c) => c.role !== "owner" || role === "owner").map((c) => ({ ...c, messages: [], sub: `${D.roles.find((r) => r.id === c.role)?.name} · ${c.area}` }) as unknown as AskThread)].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   const today = th.filter((t) => now - Date.parse(t.updatedAt) < 864e5);
   const week = th.filter((t) => now - Date.parse(t.updatedAt) >= 864e5);
   const f = (v?: string) => `${base}${base.includes("?") ? "&" : "?"}${v ? `h=${v}` : ""}`.replace(/[?&]$/, "");
-  const item = (t: AskThread) => <Link key={t.id} href={`/ask/${t.id}`} prefetch={false} className={`h-item${t.id === current ? " on" : ""}`}>{t.title}<span>{rel(t.updatedAt)}</span></Link>;
+  const item = (t: AskThread) => <Link key={t.id} href={`/ask/${t.id}`} prefetch={false} className={`h-item${t.id === current ? " on" : ""}`}>{t.title}<span>{(t as { sub?: string }).sub ? `${(t as { sub?: string }).sub} · ` : ""}{rel(t.updatedAt)}</span></Link>;
   return (
     <nav className="hist2" aria-label="Ask history">
       <Link className="btn btn-sm h-new" href="/ask" prefetch={false}>New question</Link>
