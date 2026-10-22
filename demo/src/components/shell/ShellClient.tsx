@@ -20,17 +20,19 @@ export function Rail({ inboxCount }: { inboxCount: number }) {
       {ICON[n.key]({})}
       {n.key === "inbox" && inboxCount > 0 ? <span className="rail-count">{inboxCount}</span> : null}
       {n.soon ? <span className="rail-soon" /> : null}
+      <span className="rail-label">{n.label}</span>
       <span className="rail-tip">{n.label}</span>
     </Link>
   );
   return (
-    <nav className="rail" aria-label="Areas">
+    <nav className="rail" id="app-rail" aria-label="Areas">
       <Link href="/" className="rail-mark" aria-label="Stamped home"><StampedMark size={28} /></Link>
       {g1.map(item)}
       <div className="rail-sep" />
       {g2.map(item)}
       <div className="rail-spacer" />
       <DisplayToggles />
+      <RailToggle />
     </nav>
   );
 }
@@ -64,17 +66,37 @@ function DisplayToggles() {
   return (
     <>
       <button className="rail-item" type="button" aria-pressed={density === "compact"} aria-label="Compact density for panel PCs" onClick={() => flip("density", density === "compact" ? "comfortable" : "compact")}>
-        <Icon.density /><span className="rail-tip">{density === "compact" ? "Comfortable density" : "Compact density"}</span>
+        <Icon.density /><span className="rail-label">{density === "compact" ? "Comfortable" : "Compact"}</span><span className="rail-tip">{density === "compact" ? "Comfortable density" : "Compact density"}</span>
       </button>
       <button className="rail-item" type="button" aria-pressed={theme === "dark"} aria-label="Dark theme for panel PCs" onClick={() => flip("theme", theme === "dark" ? "light" : "dark")}>
-        <Icon.moon /><span className="rail-tip">{theme === "dark" ? "Light theme" : "Dark theme"}</span>
+        <Icon.moon /><span className="rail-label">{theme === "dark" ? "Light theme" : "Dark theme"}</span><span className="rail-tip">{theme === "dark" ? "Light theme" : "Dark theme"}</span>
       </button>
     </>
   );
 }
 
-/** Inline script for <head>: applies saved theme and density before paint. */
-export const DISPLAY_SCRIPT = `try{var d=document.documentElement,t=localStorage.getItem('stamped-theme'),n=localStorage.getItem('stamped-density');if(t)d.dataset.theme=t;if(n)d.dataset.density=n;}catch(e){}`;
+/** Expands the desktop rail to show labels. The saved state is applied to <html data-rail> before paint, so the server markup never differs. */
+function RailToggle() {
+  const [expanded, setExpanded] = useState(false);
+  useEffect(() => { setExpanded(document.documentElement.dataset.rail === "expanded"); }, []);
+  const flip = () => {
+    const next = !expanded;
+    document.documentElement.dataset.rail = next ? "expanded" : "collapsed";
+    try { localStorage.setItem("stamped-rail", next ? "expanded" : "collapsed"); } catch {}
+    setExpanded(next);
+  };
+  const label = expanded ? "Collapse sidebar" : "Expand sidebar to show labels";
+  return (
+    <button className="rail-item rail-toggle" type="button" aria-expanded={expanded} aria-controls="app-rail" aria-label={label} onClick={flip}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="4" y="5" width="16" height="14" rx="1.5" /><path d="M9 5v14" /><path className="rail-toggle-chev" d="m13 10 2 2-2 2" /></svg>
+      <span className="rail-label">{expanded ? "Collapse" : "Expand"}</span>
+      <span className="rail-tip">{expanded ? "Collapse sidebar" : "Expand sidebar"}</span>
+    </button>
+  );
+}
+
+/** Inline script for <head>: applies saved theme, density and sidebar state before paint. */
+export const DISPLAY_SCRIPT = `try{var d=document.documentElement,t=localStorage.getItem('stamped-theme'),n=localStorage.getItem('stamped-density'),r=localStorage.getItem('stamped-rail');if(t)d.dataset.theme=t;if(n)d.dataset.density=n;if(r)d.dataset.rail=r;}catch(e){}`;
 
 export function RoleSwitcher({ role, roles }: { role: RoleId; roles: { id: RoleId; name: string }[] }) {
   const router = useRouter();
