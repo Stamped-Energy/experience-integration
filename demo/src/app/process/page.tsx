@@ -25,7 +25,7 @@ export default async function ProcessLines({ searchParams }: { searchParams: Pro
   const fits = Object.fromEntries(D.modelFits.map((f) => [f.lineId, f]));
   return (
     <Workspace crumbs={crumbs({ label: "Lines" })} askContext="Process lines">
-      <PageHeader eyebrow="Process" title="Lines" meta={<>Two lines on the demonstration plant. Stamped works inside limits set beforehand.</>}
+      <PageHeader eyebrow="Process" title="Lines" meta="What the agent suggests on each line, and what needs your decision."
         actions={<><Link className="btn btn-sm" href="/process/proposals">{open.length} proposals waiting</Link><AskButton context="Process lines" label="Ask about lines" /></>} />
       <ProcessTabs active="lines" />
       <div style={{ marginBottom: "var(--space-5)" }}><ExampleActions area="Process" role={role} only="open" /></div>

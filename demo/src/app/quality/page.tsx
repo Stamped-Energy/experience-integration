@@ -11,7 +11,9 @@ import { deniedReason } from "@/components/cards/DecisionCard";
 import { Confidence } from "@/components/ui/Confidence";
 import { DataTable, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { ExampleActions } from "@/components/cards/ExampleActions";
-import { ExampleStrip } from "@/components/agent/blocks";
+import { AskedHere, ExampleStrip, Learned, Qualification, WorkingOn } from "@/components/agent/blocks";
+import * as A from "@/lib/demo/agent";
+import { Tabs } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, labOf, linksOf, lotNo, proofForLot, propOf, specOf, threshold, weakestJoin } from "@/components/quality/common";
 
@@ -22,7 +24,7 @@ function NoReleaseLine() {
   return <p className="secondary" style={{ margin: "0 0 var(--space-4)" }}>Releasing a hold happens in your quality system, not here.</p>;
 }
 
-export default async function LotsAtRisk({ searchParams }: { searchParams: Promise<{ lot?: string; evidence?: string; all?: string }> }) {
+export default async function LotsAtRisk({ searchParams }: { searchParams: Promise<{ lot?: string; evidence?: string; all?: string; tab?: string }> }) {
   const sp = await searchParams;
   const role = await currentRole();
   const sorted = D.lots.slice().sort((a, b) => RANK[a.riskWord] - RANK[b.riskWord] || b.startedAt.localeCompare(a.startedAt));
@@ -30,12 +32,30 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
   const sel = D.byId.lot(sp.lot ?? "") ?? sorted[0];
   const prop = propOf(sel), spec = specOf(sel), lab = labOf(sel), links = linksOf(sel);
   const proof = proofForLot(sel);
+  const agent = sp.tab === "agent";
   const atRisk = D.lots.filter((l) => l.riskWord === "At risk");
   return (
     <Workspace crumbs={crumbs({ label: "Lots at risk" })} askContext="Lots at risk">
-      <PageHeader eyebrow="Quality" title="Lots at risk" meta="Whether each lot will meet spec, how sure, and what it rests on. Stamped works inside limits set beforehand."
+      <PageHeader eyebrow="Quality" title="Lots at risk" meta="Lots that may miss spec, and how sure the agent is. Select a lot to see why."
         actions={<><Link className="btn btn-sm" href="/quality/links">{D.lotLinks.filter((l) => l.status === "suggested" && l.link_confidence < 0.8).length} links to confirm</Link><AskButton context="Lots at risk" label="Ask about lots" /></>} />
       <QualityTabs active="lots" />
+      <Tabs label="Lots at risk sections" items={[
+        { href: "/quality", label: "Lots", active: !agent },
+        { href: "/quality?tab=agent", label: "Agent work", count: A.qualityWork.length, active: agent },
+      ]} />
+      {agent ? <p className="tab-intro">What the agent is doing on quality right now, and what it needs from you.</p> : null}
+      {agent ? (
+        <div className="grid">
+          <div className="span-8 stack">
+                        <WorkingOn items={A.qualityWork} />
+            <Qualification />
+          </div>
+          <div className="span-4 stack">
+            <AskedHere list={A.questions.filter((q) => A.QUALITY_Q.includes(q.type))} />
+            <Section title="What it learned" flush><Learned items={A.qualityLearned} /></Section>
+          </div>
+        </div>
+      ) : (<>
       <ExampleStrip area="Quality" />
       <NoReleaseLine />
       <div className="grid">
@@ -47,11 +67,12 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
               { key: "l", label: "Lot", render: (l) => <><Link className="link mono row-stretch" href={`/quality/lots/${l.id}`} style={{ fontWeight: 600 }} aria-label={`Open lot ${lotNo(l.id)}`}>{lotNo(l.id)}</Link><span className="cell-sub nowrap">{gradeOf(l).name}</span></> },
               { key: "r", label: "Risk", render: (l) => <RiskTag risk={l.riskWord} /> },
               { key: "p", label: "Predicted against spec", align: "right", render: (l) => { const p = propOf(l), s = specOf(l); return <>{p.predicted.point} {p.unit}<span className="cell-sub nowrap">spec {s.lsl} to {s.usl}</span></>; } },
-              { key: "e", label: "Rests on", render: (l) => <span className="tag-pair">{propOf(l).anchored ? <Tag tone="success">Lab result</Tag> : <Tag tone="warning">Unanchored</Tag>}<JoinTag label={weakestJoin(l)} /></span> },
+              { key: "e", label: "Based on", render: (l) => <span className="tag-pair">{propOf(l).anchored ? <Tag tone="success">Lab result</Tag> : <Tag tone="warning">Unanchored</Tag>}<JoinTag label={weakestJoin(l)} /></span> },
               { key: "st", label: "Status", render: (l) => <>{l.status}<span className="cell-sub">started {rel(l.startedAt)}</span></> },
               { key: "v", label: "", align: "right", render: (l) => <Link className={`btn btn-sm row-over${sel.id === l.id ? " btn-accent" : ""}`} href={`/quality?lot=${l.id}${sp.all ? "&all=1" : ""}`} scroll={false}>{sel.id === l.id ? "Previewing" : "Preview"}</Link> },
             ]} />
             </div>
+            <p className="cstack-foot"><b>Based on:</b> Lab result or Unanchored says if the lab has measured the lot yet; Verified, Estimated or Unverified says how sure the link is to the runs that made it.</p>
           </Section>
         </div>
         <div className="span-4 stack ctx">
@@ -97,6 +118,7 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
         </div>
       </div>
       <div style={{ marginTop: "var(--space-5)" }}><ExampleActions area="Quality" role={role} /></div>
+      </>)}
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref={sp.lot ? `/quality?lot=${sp.lot}` : "/quality"} /> : null}
     </Workspace>
   );

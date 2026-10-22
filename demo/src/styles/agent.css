@@ -159,3 +159,8 @@
 }
 .stack > .working { margin-bottom: 0; }
 .chip .cnt { background: none !important; color: inherit !important; border: 0 !important; padding: 0 !important; }
+.term { text-decoration: underline dotted var(--text-muted); text-underline-offset: 3px; cursor: help; position: relative; }
+.term:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.term:focus::after { content: attr(data-tip); position: absolute; z-index: 40; left: 0; top: calc(100% + 6px); width: 240px; padding: 8px 10px; font-size: 12px; font-weight: 400; line-height: 1.45; text-transform: none; letter-spacing: 0; color: var(--text-primary); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--elevation-1); white-space: normal; }
+.tab-intro { margin: 0 0 var(--space-4); color: var(--text-secondary); font-size: 14px; }
+.learned li b, .idle-row .row-title { white-space: normal; }

@@ -37,10 +37,11 @@ export default async function LotDetail({ params, searchParams }: { params: Prom
   const base = `/quality/lots/${lot.id}`;
   return (
     <Workspace crumbs={crumbs({ label: "Lots", href: "/quality" }, { label: `Lot ${lotNo(lot.id)}` })} askContext={`Lot ${lotNo(lot.id)}`}>
-      <PageHeader eyebrow={`Lot detail and join · ${line.name}`} title={`Lot ${lotNo(lot.id)} · ${gradeOf(lot).name}`}
-        meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><RiskTag risk={lot.riskWord} /><span >{nameOf(lot.id)}</span>{lot.status} · started {dayMonth(lot.startedAt)} {hhmm(lot.startedAt)}</span>}
+      <PageHeader eyebrow={`Lot · ${line.name}`} title={`Lot ${lotNo(lot.id)} · ${gradeOf(lot).name}`}
+        meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><RiskTag risk={lot.riskWord} />{lot.status} · started {dayMonth(lot.startedAt)} {hhmm(lot.startedAt)}</span>}
         actions={<>{proof ? <Link className="btn btn-sm btn-accent" href={`${base}?evidence=${proof.id}`} scroll={false}>Evidence</Link> : null}<AskButton context={`Lot ${lotNo(lot.id)}`} label="Ask about this lot" /></>} />
       <QualityTabs active="lots" />
+      <p className="tab-intro">Whether this lot will meet spec, why, and which runs made it.</p>
       <div className="grid">
         <div className="span-8 stack">
           <Section title={lot.riskWord === "At risk" ? "Why this lot is at risk" : lot.riskWord === "Watch" ? "Why this lot is on watch" : "Why this lot is on track"}>

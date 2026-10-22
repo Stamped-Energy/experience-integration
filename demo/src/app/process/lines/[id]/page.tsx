@@ -11,7 +11,7 @@ import { RunChart } from "@/components/ui/charts";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, EvidenceTag, LineModeTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { ExampleActions } from "@/components/cards/ExampleActions";
-import { AnsweredChip, ControlStack, LayerProposal, Learned, Onboarding, WorkingOn } from "@/components/agent/blocks";
+import { AskedHere, ControlStack, LayerProposal, Learned, Onboarding, WorkingOn } from "@/components/agent/blocks";
 import { Tabs } from "@/components/ui/primitives";
 import * as A from "@/lib/demo/agent";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
@@ -55,6 +55,7 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
         { href: `${base}?tab=agent`, label: "Agent work", count: A.workingOn.filter((w) => w.lineId === line.id).length, active: tab === "agent" },
         { href: `${base}?tab=controls`, label: "Controls", count: A.controlStacks[line.id]?.length, active: tab === "controls" },
       ]} />
+      <p className="tab-intro">{tab === "agent" ? `What the agent is doing on ${line.short} right now, and what it needs from you.` : tab === "controls" ? `The controllers that run ${line.short}, and any new layer the agent is testing.` : `How ${line.short} is running, what the agent suggests, and every ${pack.labels.run.toLowerCase()} on record.`}</p>
       {tab === "agent" ? (
         <div className="grid">
           <div className="span-8 stack">
@@ -62,12 +63,7 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
             {A.onboarding.lineId === line.id ? <Onboarding /> : <Section title="New parts"><p className="secondary" style={{ margin: 0, fontSize: 13 }}>No new part is being onboarded on {line.short}. When one arrives, the agent finds similar parts, borrows their settings, plans test moves, tries them on the twin and hands it to a person to promote.</p></Section>}
           </div>
           <div className="span-4 stack">
-            <Section title="Questions it asked here" flush>
-              <div className="rows">{A.questions.filter((q) => q.lineId === line.id).map((q) => (
-                <div key={q.id} className="row" style={{ gridTemplateColumns: "minmax(0,1fr)", height: "auto", padding: "8px 16px" }}>
-                  <span><span className="row-title" style={{ display: "block" }}>{q.title}</span><span className="row-sub">{q.type} · sent to {D.byId.role(q.routedTo).name}{q.answered ? null : " · open"}</span>{q.answered ? <AnsweredChip qid={q.id} /> : <Link className="link" href="/inbox?tab=questions" style={{ fontSize: 12, marginLeft: 6 }}>Answer</Link>}</span>
-                </div>))}</div>
-            </Section>
+            <AskedHere list={A.questions.filter((q) => q.lineId === line.id && !A.QUALITY_Q.includes(q.type))} />
             <Section title="What it learned" flush><Learned limit={3} /></Section>
           </div>
         </div>
@@ -76,7 +72,7 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
           <div className="span-7 stack"><ControlStack lineId={line.id} /></div>
           <div className="span-5 stack">
             {A.layerProposal.lineId === line.id ? <LayerProposal role={role} /> : <Section title="New control layers"><p className="secondary" style={{ margin: 0, fontSize: 13 }}>Nothing being simulated on {line.short} right now. The RL hold-time policy is learning in shadow and writes nothing.</p></Section>}
-            <Section title="Tuned parameters" meta="Inside the signed band" flush>
+            <Section title="Tuned settings" meta="Where each one sits inside its signed limits" flush>
               <div className="stack-sm line-bands" style={{ padding: "var(--space-3) var(--space-4)" }}>
                 {settings.map((r) => { const w = wins.find((x) => x.param === r.param)!; return <LimitsBand key={r.param} name={r.name} unit={r.unit} signed={[w.low, w.high]} narrowed={w.narrowedLow !== undefined ? [w.narrowedLow, w.narrowedHigh!] : undefined} current={r.value} signedBy={w.signedBy} signedAt={dayMonth(w.signedAt)} legend={false} />; })}
               </div>

@@ -7,7 +7,7 @@ import type { EvidenceLabel, RoleId } from "./types";
 import { at, prices } from "./data";
 
 /* ---------------- Questions from the agent ---------------- */
-export type QuestionType = "New part material" | "Data discrepancy" | "Mode label" | "Unlinked lot" | "Sensor looks wrong" | "After a trial" | "Shift context" | "New-part test move";
+export type QuestionType = "Lab sample" | "New part material" | "Data discrepancy" | "Mode label" | "Unlinked lot" | "Sensor looks wrong" | "After a trial" | "Shift context" | "New-part test move";
 export interface QAnswer { id: string; label: string; then: string }
 export interface Question {
   id: string; type: QuestionType; lineId?: string; askedAt: string; due?: string;
@@ -83,6 +83,14 @@ export const questions: Question[] = [
     meanwhile: "The runs are kept, marked for review.",
     answers: [{ id: "plan", label: "Planned stop", then: "I leave those runs out of the model and the proof." }, { id: "mat", label: "Waited for material", then: "I keep the runs and tag the wait." }, { id: "else", label: "Something else", then: "I add your words to the handover note." }],
     answered: { by: "shift-lead", person: "Shift lead A.", at: at(0, -6, -10), answer: "Waited for material, resin dryer was late", changed: "Night runs kept and tagged as a material wait. Line B model refit queued.", unblocked: { text: "Handover note updated", href: "/ask/notes" } } },
+  { id: "q-9", type: "Lab sample", lineId: "line-b", askedAt: at(-1, -5), routedTo: "quality-head", plantWide: false, urgency: "Medium",
+    title: "Lot 7731 part weight came back 48.2 g, near the upper limit. Was the sample taken from the start or the end of the run?",
+    why: "Parts from the start of a run are often heavier while the tool warms up. The answer decides if the whole lot is near the limit or only the first parts.",
+    evidence: [{ text: "Lab result lot 7731, part weight 48.2 g", label: "Measured", id: "EV-B-2188" }],
+    waits: { text: "Risk word for lot 7731", href: "/quality?lot=lot-b-7731" },
+    meanwhile: "Lot 7731 stays on Watch.",
+    answers: [{ id: "start", label: "Start of the run", then: "I treat the result as a warm-up part and lower the lot's predicted weight." }, { id: "end", label: "End of the run", then: "I keep the result as typical for the lot." }],
+    answered: { by: "quality-head", person: "Quality head A.", at: at(-1, -4), answer: "Start of the run", changed: "Lot 7731 predicted weight lowered to 47.9 to 48.3 g. Sampling rule for Line B now asks for a mid-run part.", unblocked: { text: "Lot 7731 band redrawn", href: "/quality?lot=lot-b-7731" } } },
 ];
 
 export const WORKER_ROLES: RoleId[] = ["operator", "shift-lead", "process-engineer", "quality-head", "plant-head"];
@@ -236,3 +244,25 @@ export const summaries = {
     next: ["Close the Line A trial and publish its verdict", "Put the Line B MPC layer through a switchback trial", "Cut proposals waiting more than 5 days to zero"],
   },
 };
+
+/* ---------------- Quality agent work ---------------- */
+export const QUALITY_Q: QuestionType[] = ["Data discrepancy", "Unlinked lot", "Lab sample"];
+export const qualityWork: WorkItem[] = [
+  { id: "qw-1", status: "Investigating", lineId: "line-a", title: "Why lot 3307 viscosity is drifting up", step: "4 of 6 likely causes ruled out; end-of-hold torque is the lead", href: "/quality/investigations" },
+  { id: "qw-2", status: "Waiting on you", lineId: "line-a", title: "Lab result for lot 3304 does not match its batch", step: "Asked which record is right", waits: "Quality head", href: "/inbox?tab=questions" },
+  { id: "qw-3", status: "Simulating", lineId: "line-b", title: "Part weight band for Housing B-52", step: "Checking the borrowed band against 120 held-back parts", href: "/quality?tab=agent" },
+];
+export const qualification = {
+  title: "Property band for Housing B-52", started: at(-1, -1), current: 3,
+  steps: [
+    { n: 1, title: "Start from similar parts", detail: "Part weight band borrowed from Housing B-40 and B-44, drawn twice as wide.", state: "done" as const },
+    { n: 2, title: "Collect first lab results", detail: "6 of 6 first-order parts weighed in the lab.", state: "done" as const },
+    { n: 3, title: "Check against held-back parts", detail: "Testing the band on 120 parts it has not seen.", state: "live" as const },
+    { n: 4, title: "Ready for you to approve", detail: "The quality head approves the band before lots are flagged with it.", state: "next" as const },
+  ],
+};
+export const qualityLearned = [
+  { id: "ql-1", at: at(-1, -4), kind: "Answer used", text: "On Line B, a lab sample from the start of a run reads heavier. Ask for a mid-run part.", from: "Quality head A. answered a question", state: "In use" },
+  { id: "ql-2", at: at(-2), kind: "Decline reason", text: "Do not send a correction while the lab result is less than 2 h old and unconfirmed.", from: "Process engineer A. declined a correction with a reason", state: "In shadow, waiting for the quality head to promote" },
+  { id: "ql-3", at: at(-4), kind: "Playbook", text: "When torque at the end of hold rises, sample the lot early instead of waiting for discharge.", from: "2 lots caught early", state: "Promoted by Quality head A." },
+];
