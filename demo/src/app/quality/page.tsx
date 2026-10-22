@@ -36,17 +36,11 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
   const actions = sp.tab === "actions";
   const atRisk = D.lots.filter((l) => l.riskWord === "At risk");
   return (
-    <Workspace crumbs={crumbs({ label: "Lots at risk" })} askContext="Lots at risk">
-      <PageHeader eyebrow="Quality" title="Lots at risk" meta="Lots that may miss spec, and how sure the agent is. Select a lot to see why."
+    <Workspace crumbs={crumbs({ label: sp.tab === "actions" ? "Actions" : sp.tab === "agent" ? "Agent work" : "Lots at risk" })} askContext="Lots at risk">
+      <PageHeader eyebrow="Quality" title={actions ? "Quality actions" : agent ? "Agent work on quality" : "Lots at risk"} meta={actions ? "Every quality action, grouped by what it needs from you." : agent ? "What the agent is doing on quality, and what it needs from you." : "Lots that may miss spec, and how sure the agent is. Select a lot to see why."}
         actions={<><Link className="btn btn-sm" href="/quality/links">{D.lotLinks.filter((l) => l.status === "suggested" && l.link_confidence < 0.8).length} links to confirm</Link><AskButton context="Lots at risk" label="Ask about lots" /></>} />
-      <QualityTabs active="lots" />
-      <Tabs label="Lots at risk sections" items={[
-        { href: "/quality", label: "Lots", active: !agent && !actions },
-        { href: "/quality?tab=actions", label: "Actions", count: listActions("Quality").length, active: actions },
-        { href: "/quality?tab=agent", label: "Agent work", count: A.qualityWork.length, active: agent },
-      ]} />
-      {actions ? <><p className="tab-intro">Every quality action: what needs a decision, what is being checked, and what was accepted.</p><ActionsBoard area="Quality" role={role} base="/quality" status={sp.status} line={sp.line} mine={sp.mine} /></> : null}
-      {agent ? <p className="tab-intro">What the agent is doing on quality right now, and what it needs from you.</p> : null}
+      <QualityTabs active={actions ? "actions" : agent ? "agent" : "lots"} />
+      {actions ? <><ActionsBoard area="Quality" role={role} base="/quality" status={sp.status} line={sp.line} mine={sp.mine} /></> : null}
       {actions ? null : agent ? (
         <div className="grid">
           <div className="span-8 stack">

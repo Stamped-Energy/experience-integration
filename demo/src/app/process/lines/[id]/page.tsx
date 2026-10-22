@@ -49,14 +49,12 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
       <PageHeader eyebrow={`Process · ${pack.equipmentClass}`} title={line.name}
         meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><LineModeTag mode={line.mode} />{line.product} · {line.status}</span>}
         actions={<><Link className="btn btn-sm" href={`/plant`}>Line on plant map</Link><AskButton context={line.name} label="Ask about this line" /></>} />
-      <ProcessTabs active="lines" />
       <Tabs label={`${line.short} sections`} items={[
         { href: base, label: "Overview", active: tab === "overview" },
         { href: `${base}?tab=actions`, label: "Actions", count: listActions("Process", line.id).length, active: tab === "actions" },
         { href: `${base}?tab=agent`, label: "Agent work", count: A.workingOn.filter((w) => w.lineId === line.id).length, active: tab === "agent" },
         { href: `${base}?tab=controls`, label: "Controls", count: A.controlStacks[line.id]?.length, active: tab === "controls" },
       ]} />
-      <p className="tab-intro">{tab === "actions" ? `Every action on ${line.short}, grouped by what it needs from you.` : tab === "agent" ? `What the agent is doing on ${line.short} right now, and what it needs from you.` : tab === "controls" ? `The controllers that run ${line.short}, and any new layer the agent is testing.` : `How ${line.short} is running, what the agent suggests, and every ${pack.labels.run.toLowerCase()} on record.`}</p>
       {tab === "actions" ? <ActionsBoard area="Process" role={role} lineId={line.id} base={base} status={sp.status} mine={sp.mine} /> : tab === "agent" ? (
         <div className="grid">
           <div className="span-8 stack">

@@ -10,6 +10,7 @@ import { can } from "@/lib/rbac";
 import { EvidenceTag, Tag } from "@/components/ui/primitives";
 import { dayMonth, hhmm } from "@/lib/format";
 import { FoldCard } from "./FoldCard";
+import { ShowMore } from "./ShowMore";
 import * as A from "@/lib/demo/agent";
 import { Assign } from "@/components/agent/Assign";
 import { CardActions } from "./CardActions";
@@ -39,13 +40,15 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
         <span className="src">{a.area} agent</span><span className="dotsep">·</span><span>{line.short}</span>
         <span className="right">{a.steps.map((s) => <span key={s} className="ex-step" data-step={s}>{STEP_WORD[s]}</span>)}{c ? <Tag tone="success">{c.state}</Tag> : null}</span>
       </div>
-      <div className="card-body">
-        <div className="card-block">
+      <div className="card-body ex-h">
+        <div className="ex-left">
           <span className="label">{a.mechanism}</span>
           <h3 className="card-title" id={`${a.id}-t`}>{a.title}</h3>
           <p className="card-obs">{a.seen}</p>
           <ul className="ex-ev">{a.evidence.map((e) => <li key={e.text}><EvidenceTag label={e.label} /><span>{e.text}{e.id ? <span className="mono muted"> · {e.id}</span> : null}</span></li>)}</ul>
+          <p className="ex-why"><b>Why it matters:</b> {a.why}</p>
         </div>
+        <div className="ex-right">
         {c ? (
           <div className="ex-grid">
             <span className="label">Changed</span><span>{c.changed}</span>
@@ -56,29 +59,29 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
           <div className="ex-grid">
             <span className="label">{a.who.how === "Record only" ? "Result" : "The change"}</span><span>{a.action}</span>
             {a.expected ? <><span className="label">Expected</span><span><b>{a.expected.label}</b>, band {a.expected.band}</span></> : null}
-            <span className="label">Who decides</span><span><Tag tone={HOW_TONE[a.who.how]}>{a.who.how}</Tag> {a.who.note}</span>
+            <span className="label">Who decides</span><span><Tag tone={HOW_TONE[a.who.how]}>{a.who.how}</Tag> <span className="muted">{names(a.who.roles)}</span></span>
           </div>
         )}
-        <p className="ex-why"><span className="label">Why it matters</span>{a.why}</p>
         <div className="ex-meta">
           {a.href ? <Link className="link" href={a.href} scroll={false}>{a.hrefLabel ?? "Open"}</Link> : null}
           <span className="spacer" />
           <Assign initial={A.assigned[a.id]} people={A.PEOPLE} canAssign={A.ASSIGNERS.includes(role)} by={A.ME[role] ?? "Plant head A."} />
         </div>
+        </div>
       </div>
       {!c && (a.options || stop) ? (canAct
         ? <CardActions actions={(a.options ?? []).map((o) => ({ ...o, allowed, reason: `${names(a.who.roles)} can decide`, done: <span>{o.done} <Link href="/activity">Recorded in Activity.</Link></span> }))} stop={stop} />
-        : <p className="ex-who">{names(a.who.roles)} decides.</p>) : null}
+        : null) : null}
     </FoldCard>
   );
 }
 
 export type ActionGroup = "decision" | "running" | "trial" | "closed";
 export const GROUPS: { id: ActionGroup; label: string; sub: string }[] = [
-  { id: "decision", label: "Needs a decision", sub: "Nothing changes until the named person decides." },
-  { id: "trial", label: "Being tried", sub: "Running as a planned trial. Stop restores the previous setting." },
-  { id: "running", label: "Running on its own", sub: "Inside a band someone signed. Anyone on the line can press Stop." },
-  { id: "closed", label: "Accepted and closed", sub: "A named person accepted it, or the records show it held." },
+  { id: "decision", label: "Needs a decision", sub: "nothing changes until they do" },
+  { id: "trial", label: "Being tried", sub: "planned trials; Stop restores the previous setting" },
+  { id: "running", label: "Running on its own", sub: "inside a signed band; anyone can press Stop" },
+  { id: "closed", label: "Accepted and closed", sub: "accepted by a named person, or held on the records" },
 ];
 export function groupOf(a: ExampleAction): ActionGroup {
   if (a.closed || a.who.how === "Record only") return "closed";
@@ -144,11 +147,11 @@ export function ActionsBoard({ area, role, lineId, base, status, line, mine }: {
   const chip = (on: boolean, href: string, label: string, n?: number) => <Link className={`chip${on ? " on" : ""}`} href={href} scroll={false}>{label}{n !== undefined ? <span className="cnt">{n}</span> : null}</Link>;
   const lines = [...new Set(listActions(area).map((a) => a.lineId))];
   return (
-    <div className="stack">
+    <div className="act-board">
       <div className="act-filters" role="group" aria-label="Filter actions">
         <span className="chips">
           {chip(!status, q({ status: undefined }), "All", all.length)}
-          {GROUPS.map((g) => chip(status === g.id, q({ status: g.id }), g.label, all.filter((a) => groupOf(a) === g.id).length))}
+          {GROUPS.filter((g) => status === g.id || all.some((a) => groupOf(a) === g.id)).map((g) => chip(status === g.id, q({ status: g.id }), g.label, all.filter((a) => groupOf(a) === g.id).length))}
         </span>
         {lineId ? null : <span className="chips">{chip(!line, q({ line: undefined }), "All lines")}{lines.map((l) => chip(line === l, q({ line: l }), byId.line(l)!.short))}</span>}
         {me ? <span className="chips">{chip(!!mine, q({ mine: mine ? undefined : "1" }), "Assigned to me", all.filter((a) => A.assigned[a.id]?.to === me).length)}</span> : null}
@@ -158,10 +161,9 @@ export function ActionsBoard({ area, role, lineId, base, status, line, mine }: {
         const xs = list.filter((a) => groupOf(a) === g.id);
         if (!xs.length) return null;
         return (
-          <section key={g.id} className="ex-group" aria-label={g.label}>
-            <h3>{g.label} <span className="cnt muted">{xs.length}</span></h3>
-            <p>{g.sub}</p>
-            <div className="ex-cards">{xs.map((a) => <ExampleActionCard key={a.id} a={a} role={role} />)}</div>
+          <section key={g.id} className="ex-group act-group" aria-label={g.label}>
+            <h3>{g.label} <span className="cnt">{xs.length}</span><span className="act-sub">{g.sub}</span></h3>
+            <ShowMore className="ex-cards act-cards">{xs.map((a) => <ExampleActionCard key={a.id} a={a} role={role} />)}</ShowMore>
           </section>
         );
       })}
