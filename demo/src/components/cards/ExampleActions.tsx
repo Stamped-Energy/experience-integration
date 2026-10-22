@@ -89,6 +89,52 @@ export function groupOf(a: ExampleAction): ActionGroup {
   if (a.who.how === "On its own, inside the signed band") return "running";
   return "decision";
 }
+function GroupHead({ g, n, className }: { g: (typeof GROUPS)[number]; n: number; className?: string }) {
+  return <h3 className={className}>{g.label} <span className="cnt">{n}</span><span className="act-sub">{g.sub}</span></h3>;
+}
+
+/** One two-column grid. A group with a spare cell takes the next group's card instead of leaving a hole. */
+function ActionGrid({ list, role }: { list: ExampleAction[]; role: RoleId }) {
+  const blocks = GROUPS.map((g) => ({ g, xs: list.filter((a) => groupOf(a) === g.id) })).filter((b) => b.xs.length);
+  if (blocks.length <= 1) {
+    return <>{blocks.map(({ g, xs }) => (
+      <section key={g.id} className="ex-group act-group" aria-label={g.label}>
+        <GroupHead g={g} n={xs.length} />
+        <ShowMore className="ex-cards act-cards">{xs.map((a) => <ExampleActionCard key={a.id} a={a} role={role} />)}</ShowMore>
+      </section>
+    ))}</>;
+  }
+  const slots = blocks.flatMap(({ g, xs }) => xs.map((a, i) => ({ g, a, lead: i === 0, n: xs.length })));
+  const rows: (typeof slots)[] = [];
+  for (let i = 0; i < slots.length; i += 2) rows.push(slots.slice(i, i + 2));
+  return (
+    <div className="act-pack">
+      {rows.map((row) => {
+        const same = row.length === 2 && row[0].g.id === row[1].g.id;
+        if (same) {
+          const head = row[0].lead || row[1].lead;
+          return (
+            <div key={row[0].a.id} className="act-pack-row">
+              {head ? <GroupHead g={row[0].g} n={row[0].n} className="act-pack-span" /> : null}
+              {row.map((s) => <ExampleActionCard key={s.a.id} a={s.a} role={role} />)}
+            </div>
+          );
+        }
+        return (
+          <div key={row[0].a.id} className="act-pack-row">
+            {row.map((s) => (
+              <div key={s.a.id} className="act-slot">
+                {s.lead ? <GroupHead g={s.g} n={s.n} /> : <div className="act-slot-gap" aria-hidden />}
+                <ExampleActionCard a={s.a} role={role} />
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 const NEEDS: Record<ActionGroup, (a: ExampleAction) => string> = {
   decision: (a) => `${names(a.who.roles)} to decide`,
   trial: () => "Nothing needed while it runs",
@@ -157,16 +203,7 @@ export function ActionsBoard({ area, role, lineId, base, status, line, mine }: {
         {me ? <span className="chips">{chip(!!mine, q({ mine: mine ? undefined : "1" }), "Assigned to me", all.filter((a) => A.assigned[a.id]?.to === me).length)}</span> : null}
       </div>
       {list.length === 0 ? <p className="secondary" style={{ margin: 0 }}>No actions match these filters.</p> : null}
-      {GROUPS.map((g) => {
-        const xs = list.filter((a) => groupOf(a) === g.id);
-        if (!xs.length) return null;
-        return (
-          <section key={g.id} className="ex-group act-group" aria-label={g.label}>
-            <h3>{g.label} <span className="cnt">{xs.length}</span><span className="act-sub">{g.sub}</span></h3>
-            <ShowMore className="ex-cards act-cards">{xs.map((a) => <ExampleActionCard key={a.id} a={a} role={role} />)}</ShowMore>
-          </section>
-        );
-      })}
+      <ActionGrid list={list} role={role} />
     </div>
   );
 }

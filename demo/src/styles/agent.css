@@ -204,7 +204,13 @@
 .act-sub::before { content: "· "; }
 .act-cards { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; align-items: stretch !important; gap: var(--space-3) !important; }
 .act-cards > .ex-card { display: flex; flex-direction: column; }
-@media (min-width: 768px) { .act-cards > .ex-card > .ex-body { flex: 1; display: flex; flex-direction: column; } }
+.act-pack { display: flex; flex-direction: column; gap: var(--space-4); }
+.act-pack-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); column-gap: var(--space-3); row-gap: 8px; align-items: stretch; }
+.act-pack-span { grid-column: 1 / -1; }
+.act-slot { display: grid; grid-template-rows: subgrid; grid-row: span 2; min-width: 0; }
+.act-pack h3 { margin: 0; font-size: 14px; font-weight: 600; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.act-pack-row > .ex-card, .act-slot > .ex-card { display: flex; flex-direction: column; min-width: 0; }
+@media (min-width: 768px) { .act-cards > .ex-card > .ex-body, .act-pack .ex-card > .ex-body { flex: 1; display: flex; flex-direction: column; } }
 .act-cards .card-body { flex: 1; }
 .ex-h { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--space-4); padding: var(--space-3) var(--space-4) !important; }
 .ex-left, .ex-right { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
@@ -220,4 +226,9 @@
 .ex-why b { color: var(--text-primary); font-weight: 500; }
 .show-more { align-self: flex-start; }
 @media (max-width: 1199px) { .ex-h { grid-template-columns: minmax(0, 1fr); } .ex-right { border-left: 0; padding-left: 0; border-top: 1px solid var(--border); padding-top: var(--space-3); } }
-@media (max-width: 899px) { .act-cards { grid-template-columns: minmax(0, 1fr) !important; } }
+@media (max-width: 899px) {
+  .act-cards { grid-template-columns: minmax(0, 1fr) !important; }
+  .act-pack-row { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+  .act-slot { display: flex; flex-direction: column; grid-row: auto; gap: 8px; }
+  .act-pack-span { grid-column: auto; }
+}
