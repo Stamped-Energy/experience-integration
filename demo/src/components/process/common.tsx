@@ -1,16 +1,18 @@
 /** Shared helpers for the Process area: sub-navigation, crumbs and run lookups. */
+import { exampleActions } from "@/lib/demo/actions";
 import * as D from "@/lib/demo/data";
 import type { Line, Run } from "@/lib/demo/types";
 import type { Crumb } from "@/components/shell/Shell";
 import { Tabs } from "@/components/ui/primitives";
 
-export type ProcessTab = "lines" | "proposals" | "trials" | "measurement" | "settings" | "model-fit";
+export type ProcessTab = "lines" | "actions" | "proposals" | "trials" | "measurement" | "settings" | "model-fit";
 
 export function ProcessTabs({ active }: { active: ProcessTab }) {
   const open = D.proposals.filter((p) => p.state === "Waiting").length;
   const trials = D.trials.filter((t) => t.status === "running" || t.status === "awaiting signature").length;
   const items = [
     { key: "lines", href: "/process", label: "Lines", count: D.lines.length },
+    { key: "actions", href: "/process?tab=actions", label: "Actions", count: exampleActions.filter((a) => a.area === "Process" && !a.closed && a.who.how !== "Record only").length },
     { key: "proposals", href: "/process/proposals", label: "Proposals", count: open },
     { key: "trials", href: "/process/trials", label: "Trials and stops", count: trials },
     { key: "measurement", href: "/process/measurement", label: "Measurement plans" },

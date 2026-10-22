@@ -30,7 +30,7 @@ export function VerdictTag({ verdict }: { verdict: Verdict }) {
 }
 
 export function Illustrative() {
-  return <Tag title="Showcase figure, not a real result">Illustrative</Tag>;
+  return null;
 }
 
 export function PageHeader({ eyebrow, title, meta, actions, brand }: { eyebrow?: string; title: string; meta?: ReactNode; actions?: ReactNode; brand?: boolean }) {

@@ -37,8 +37,8 @@ export default async function LotDetail({ params, searchParams }: { params: Prom
   const base = `/quality/lots/${lot.id}`;
   return (
     <Workspace crumbs={crumbs({ label: "Lots", href: "/quality" }, { label: `Lot ${lotNo(lot.id)}` })} askContext={`Lot ${lotNo(lot.id)}`}>
-      <PageHeader eyebrow={`Lot detail and join · ${line.name}`} title={`Lot ${lotNo(lot.id)} · ${gradeOf(lot).name}`}
-        meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><RiskTag risk={lot.riskWord} /><span >{nameOf(lot.id)}</span>{lot.status} · started {dayMonth(lot.startedAt)} {hhmm(lot.startedAt)}</span>}
+      <PageHeader eyebrow={`Lot · ${line.name}`} title={`Lot ${lotNo(lot.id)} · ${gradeOf(lot).name}`}
+        meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><RiskTag risk={lot.riskWord} />{lot.status} · started {dayMonth(lot.startedAt)} {hhmm(lot.startedAt)}</span>}
         actions={<>{proof ? <Link className="btn btn-sm btn-accent" href={`${base}?evidence=${proof.id}`} scroll={false}>Evidence</Link> : null}<AskButton context={`Lot ${lotNo(lot.id)}`} label="Ask about this lot" /></>} />
       <QualityTabs active="lots" />
       <div className="grid">
@@ -60,8 +60,8 @@ export default async function LotDetail({ params, searchParams }: { params: Prom
                       <span>Time<b>{l.parts.timeProximity}</b></span><span>Recipe<b>{l.parts.recipeMatch}</b></span><span>Sequence<b>{l.parts.sequenceConsistency}</b></span><span>Scanned id<b>{l.parts.scannedIdAgreement}</b></span><span>Penalty<b>{l.parts.multiCandidatePenalty}</b></span>
                     </div>
                     {l.link_confidence < thr ? <CardActions actions={[
-                      { id: "ok", label: "Confirm link", primary: true, allowed: can(role, "confirm-lot-link"), reason: deniedReason("confirm-lot-link", "confirm links"), done: "Link confirmed. Illustrative." },
-                      { id: "no", label: "Reject", allowed: can(role, "confirm-lot-link"), reason: deniedReason("confirm-lot-link", "confirm links"), done: "Link rejected. Illustrative." },
+                      { id: "ok", label: "Confirm link", primary: true, allowed: can(role, "confirm-lot-link"), reason: deniedReason("confirm-lot-link", "confirm links"), done: "Link confirmed." },
+                      { id: "no", label: "Reject", allowed: can(role, "confirm-lot-link"), reason: deniedReason("confirm-lot-link", "confirm links"), done: "Link rejected." },
                     ]} /> : null}
                   </div>
                 );
@@ -116,7 +116,7 @@ export default async function LotDetail({ params, searchParams }: { params: Prom
           </Section>
           <Section title="Corrections to process" flush>
             {corr.length ? <div className="rows">{corr.map((c) => <Link key={c.id} href="/quality/corrections" className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span><span className="row-title" style={{ display: "block" }}>{c.direction} {D.byId.window(c.toLineId, c.param)?.name.toLowerCase()}</span><span className="row-sub">{c.reason}</span></span><Tag tone={c.status === "accepted" ? "success" : c.status === "sent" ? "accent" : "neutral"}>{c.status}</Tag></Link>)}</div>
-              : <CardActions actions={[{ id: "c", label: "Send correction to process", allowed: can(role, "send-correction"), reason: deniedReason("send-correction", "send corrections"), done: "Correction sent as a recommendation. Illustrative." }]} />}
+              : <CardActions actions={[{ id: "c", label: "Send correction to process", allowed: can(role, "send-correction"), reason: deniedReason("send-correction", "send corrections"), done: "Correction sent as a recommendation." }]} />}
           </Section>
           {inv.length ? <Section title="Investigations" flush><div className="rows">{inv.map((i) => <Link key={i.id} href={`/quality/investigations/${i.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}><span className="row-title">{i.title}</span><Tag tone={i.status === "open" ? "info" : "neutral"}>{i.status}</Tag></Link>)}</div></Section> : null}
           <Section title={`Lab results, ${gradeOf(lot).name}`} meta="From the lab system" flush>

@@ -14,7 +14,7 @@ export function RbacMatrix({ roles, rows, editable }: { roles: { id: string; sho
       <div className="card-foot" style={{ borderTop: 0, borderBottom: "1px solid var(--border)" }}>
         <span className="muted" style={{ fontSize: 12 }}>{editable ? "Click a cell to cycle allow, view, hidden." : "Read only for your role."} Release a hold is not an action in any role.</span>
         <span className="spacer" />
-        {changed ? <><span className="feedback" role="status">{changed} change{changed === 1 ? "" : "s"}, not saved (illustrative)</span><button type="button" className="btn btn-sm btn-quiet" onClick={() => setCells(rows.map((r) => r.cells.slice()))}>Reset</button></> : null}
+        {changed ? <><span className="feedback" role="status">{changed} change{changed === 1 ? "" : "s"}, not saved</span><button type="button" className="btn btn-sm btn-quiet" onClick={() => setCells(rows.map((r) => r.cells.slice()))}>Reset</button></> : null}
       </div>
       <div style={{ overflowX: "auto" }}>
         <table className="rbac">
@@ -32,14 +32,14 @@ export function RbacMatrix({ roles, rows, editable }: { roles: { id: string; sho
   );
 }
 
-/** Who signs is set per plant: plant head by default, another named role if the plant chooses. Illustrative. */
+/** Who signs is set per plant: plant head by default, another named role if the plant chooses. */
 export function SignerPicker({ items, roles, editable }: { items: { action: string; label: string; current: string }[]; roles: { id: string; name: string }[]; editable: boolean }) {
   const [v, setV] = useState(() => Object.fromEntries(items.map((i) => [i.action, i.current])));
   return (
     <div className="field-grid">{items.map((i) => (
       <label key={i.action} className="field">{i.label}
         <select value={v[i.action]} disabled={!editable} onChange={(e) => setV((x) => ({ ...x, [i.action]: e.target.value }))}>{roles.filter((r) => r.id !== "stamped-engineer" && r.id !== "viewer").map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}</select>
-        {v[i.action] !== i.current ? <span className="feedback">Changed, not saved (illustrative)</span> : <span>Stamped staff can never sign</span>}
+        {v[i.action] !== i.current ? <span className="feedback">Changed, not saved</span> : <span>Stamped staff can never sign</span>}
       </label>
     ))}</div>
   );

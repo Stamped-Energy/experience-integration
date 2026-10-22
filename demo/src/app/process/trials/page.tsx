@@ -49,7 +49,7 @@ export default async function Trials() {
               <article key={t.id} className="card decision" style={{ margin: 12 }}>
                 <div className="card-head"><span className="src">Process engineer A.</span><span className="dotsep">·</span><span>{D.byId.line(t.lineId)!.short}</span><span className="right"><Tag tone="accent">Needs a signature</Tag></span></div>
                 <div className="card-body"><div className="card-block"><h3 className="card-title"><Link href={`/process/trials/${t.id}`}>{t.change}</Link></h3><p className="card-obs">{t.schedule.join(". ")}. Restores {Object.values(t.restoreTarget)[0]} on Stop.</p></div></div>
-                <CardActions actions={[{ id: "sign", label: "Sign trial order", primary: true, allowed: can(role, "sign-trial"), reason: deniedReason("sign-trial", "sign"), done: "Signed. Illustrative: nothing was written." }]} />
+                <CardActions actions={[{ id: "sign", label: "Sign trial order", primary: true, allowed: can(role, "sign-trial"), reason: deniedReason("sign-trial", "sign"), done: "Signed." }]} />
               </article>
             ))}
           </Section>

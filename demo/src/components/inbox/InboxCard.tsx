@@ -38,7 +38,7 @@ export function InboxCard({ item, role, link = true }: { item: InboxItem; role: 
           <div className="mode-line"><span className="label" style={{ paddingTop: 2 }}>If stopped</span><span>Stop restores the checked prior value, {Object.entries(t.restoreTarget).map(([k, v]) => `${PARAM[k] ?? k} ${v}`).join(", ")}. If restore fails the line goes recommend-only.</span></div>
         </div>
         <CardActions actions={[
-          { id: "sign", label: "Sign trial order", primary: true, allowed: can(role, "sign-trial"), reason: deniedReason("sign-trial", "sign"), done: "Signed. Illustrative: no trial was started." },
+          { id: "sign", label: "Sign trial order", primary: true, allowed: can(role, "sign-trial"), reason: deniedReason("sign-trial", "sign"), done: "Signed." },
           { id: "back", label: "Send back with a note", allowed: can(role, "sign-trial"), reason: deniedReason("sign-trial", "sign"), done: "Sent back to Process engineer A." },
         ]} />
       </article>

@@ -10,7 +10,10 @@ import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { Confidence } from "@/components/ui/Confidence";
 import { DataTable, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
-import { ExampleActions } from "@/components/cards/ExampleActions";
+import { ActionsBoard, ActionsBrief, listActions } from "@/components/cards/ExampleActions";
+import { AskedHere, Learned, Qualification, WorkingOn } from "@/components/agent/blocks";
+import * as A from "@/lib/demo/agent";
+import { Tabs } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, labOf, linksOf, lotNo, proofForLot, propOf, specOf, threshold, weakestJoin } from "@/components/quality/common";
 
@@ -21,7 +24,7 @@ function NoReleaseLine() {
   return <p className="secondary" style={{ margin: "0 0 var(--space-4)" }}>Releasing a hold happens in your quality system, not here.</p>;
 }
 
-export default async function LotsAtRisk({ searchParams }: { searchParams: Promise<{ lot?: string; evidence?: string; all?: string }> }) {
+export default async function LotsAtRisk({ searchParams }: { searchParams: Promise<{ lot?: string; evidence?: string; all?: string; tab?: string; status?: string; line?: string; mine?: string }> }) {
   const sp = await searchParams;
   const role = await currentRole();
   const sorted = D.lots.slice().sort((a, b) => RANK[a.riskWord] - RANK[b.riskWord] || b.startedAt.localeCompare(a.startedAt));
@@ -29,28 +32,44 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
   const sel = D.byId.lot(sp.lot ?? "") ?? sorted[0];
   const prop = propOf(sel), spec = specOf(sel), lab = labOf(sel), links = linksOf(sel);
   const proof = proofForLot(sel);
+  const agent = sp.tab === "agent";
+  const actions = sp.tab === "actions";
   const atRisk = D.lots.filter((l) => l.riskWord === "At risk");
   return (
-    <Workspace crumbs={crumbs({ label: "Lots at risk" })} askContext="Lots at risk">
-      <PageHeader eyebrow="Quality" title="Lots at risk" meta="Whether each lot will meet spec, how sure, and what it rests on. Stamped works inside limits set beforehand."
+    <Workspace crumbs={crumbs({ label: sp.tab === "actions" ? "Actions" : sp.tab === "agent" ? "Agent work" : "Lots at risk" })} askContext="Lots at risk">
+      <PageHeader eyebrow="Quality" title={actions ? "Quality actions" : agent ? "Agent work on quality" : "Lots at risk"} meta={actions ? "Every quality action, grouped by what it needs from you." : agent ? "What the agent is doing on quality, and what it needs from you." : "Lots that may miss spec, and how sure the agent is. Select a lot to see why."}
         actions={<><Link className="btn btn-sm" href="/quality/links">{D.lotLinks.filter((l) => l.status === "suggested" && l.link_confidence < 0.8).length} links to confirm</Link><AskButton context="Lots at risk" label="Ask about lots" /></>} />
-      <QualityTabs active="lots" />
+      <QualityTabs active={actions ? "actions" : agent ? "agent" : "lots"} />
+      {actions ? <><ActionsBoard area="Quality" role={role} base="/quality" status={sp.status} line={sp.line} mine={sp.mine} /></> : null}
+      {actions ? null : agent ? (
+        <div className="grid">
+          <div className="span-8 stack">
+                        <WorkingOn items={A.qualityWork} />
+            <Qualification />
+          </div>
+          <div className="span-4 stack">
+            <AskedHere list={A.questions.filter((q) => A.QUALITY_Q.includes(q.type))} />
+            <Section title="What it learned" flush><Learned items={A.qualityLearned} /></Section>
+          </div>
+        </div>
+      ) : (<>
+      <ActionsBrief area="Quality" href="/quality?tab=actions" limit={3} />
       <NoReleaseLine />
       <div className="grid">
         <div className="span-8 stack">
           <Section title="Lots" meta={`${atRisk.length} at risk · ${D.lots.filter((l) => l.riskWord === "Watch").length} to watch · ${D.lots.length} in 10 days`} flush
             actions={<Link className="link" href={sp.all ? "/quality" : "/quality?all=1"} scroll={false}>{sp.all ? "Open lots only" : `Show all ${D.lots.length}`}</Link>}>
-            <DataTable caption="Lots" rowKey={(l) => l.id} rows={rows} columns={[
-              { key: "l", label: "Lot", render: (l) => <><Link className="link mono" href={`/quality/lots/${l.id}`} style={{ fontWeight: 600 }}>{lotNo(l.id)}</Link><span className="cell-sub">{gradeOf(l).name}</span></> },
+            <div className="table-click">
+            <DataTable caption="Lots. Select a row to open the lot" rowKey={(l) => l.id} rows={rows} columns={[
+              { key: "l", label: "Lot", render: (l) => <><Link className="link mono row-stretch" href={`/quality/lots/${l.id}`} style={{ fontWeight: 600 }} aria-label={`Open lot ${lotNo(l.id)}`}>{lotNo(l.id)}</Link><span className="cell-sub nowrap">{gradeOf(l).name}</span></> },
               { key: "r", label: "Risk", render: (l) => <RiskTag risk={l.riskWord} /> },
-              { key: "p", label: "Property, predicted", align: "right", render: (l) => { const p = propOf(l); return <>{p.predicted.point} {p.unit}<span className="cell-sub">{p.predicted.low} to {p.predicted.high}</span></>; } },
-              { key: "s", label: "Spec", align: "right", render: (l) => { const s = specOf(l); return `${s.lsl} to ${s.usl}`; } },
-              { key: "a", label: "Anchor", render: (l) => (propOf(l).anchored ? <Tag tone="success">Lab result</Tag> : <Tag tone="warning">Unanchored</Tag>) },
-              { key: "j", label: "Join", render: (l) => <JoinTag label={weakestJoin(l)} /> },
-              { key: "st", label: "Status", render: (l) => l.status },
-              { key: "t", label: "Started", render: (l) => rel(l.startedAt) },
-              { key: "v", label: "", render: (l) => <Link className="link" href={`/quality?lot=${l.id}`} scroll={false}>Preview</Link> },
+              { key: "p", label: "Predicted against spec", align: "right", render: (l) => { const p = propOf(l), s = specOf(l); return <>{p.predicted.point} {p.unit}<span className="cell-sub nowrap">spec {s.lsl} to {s.usl}</span></>; } },
+              { key: "e", label: "Based on", render: (l) => <span className="tag-pair">{propOf(l).anchored ? <Tag tone="success">Lab result</Tag> : <Tag tone="warning">Unanchored</Tag>}<JoinTag label={weakestJoin(l)} /></span> },
+              { key: "st", label: "Status", render: (l) => <>{l.status}<span className="cell-sub">started {rel(l.startedAt)}</span></> },
+              { key: "v", label: "", align: "right", render: (l) => <Link className={`btn btn-sm row-over${sel.id === l.id ? " btn-accent" : ""}`} href={`/quality?lot=${l.id}${sp.all ? "&all=1" : ""}`} scroll={false}>{sel.id === l.id ? "Previewing" : "Preview"}</Link> },
             ]} />
+            </div>
+            <p className="cstack-foot"><b>Based on:</b> Lab result or Unanchored says if the lab has measured the lot yet; Verified, Estimated or Unverified says how sure the link is to the runs that made it.</p>
           </Section>
         </div>
         <div className="span-4 stack ctx">
@@ -72,7 +91,7 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
               {proof ? <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13 }}><VerdictTag verdict={proof.verdict} /><Link className="link" href={`/quality?lot=${sel.id}&evidence=${proof.id}`} scroll={false}>Evidence on demand</Link></div> : null}
             </div>
             <CardActions actions={[
-              { id: "corr", label: "Send correction to process", primary: sel.riskWord === "At risk", allowed: can(role, "send-correction"), reason: deniedReason("send-correction", "send corrections"), done: "Correction sent to Process as a recommendation. Illustrative: nothing was written." },
+              { id: "corr", label: "Send correction to process", primary: sel.riskWord === "At risk", allowed: can(role, "send-correction"), reason: deniedReason("send-correction", "send corrections"), done: "Correction sent to Process as a recommendation." },
               { id: "open", label: "Investigate", allowed: true, done: "Opened an investigation draft." },
             ]} />
           </Section>
@@ -95,7 +114,7 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
           </Section>
         </div>
       </div>
-      <div style={{ marginTop: "var(--space-5)" }}><ExampleActions area="Quality" role={role} /></div>
+      </>)}
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref={sp.lot ? `/quality?lot=${sp.lot}` : "/quality"} /> : null}
     </Workspace>
   );

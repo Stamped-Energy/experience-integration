@@ -49,7 +49,7 @@ test("each area has closed cards with who, when and a Verified or Indicative ban
 test("open examples stay apart from accepted ones, and a live trial is labelled", async () => {
   const { readFileSync } = await import("node:fs");
   const src = readFileSync(new URL("../src/components/cards/ExampleActions.tsx", import.meta.url), "utf8");
-  assert.ok(src.includes("Open now") && src.includes("Already accepted"));
+  assert.ok(src.includes("Needs a decision") && src.includes("Accepted and closed"));
   assert.ok(src.includes("Trial running"));
   assert.ok(!exampleActions.some((a) => a.id === "ex-p7" || a.id === "ex-q7"));
   for (const area of ["Process", "Quality"] as const) {
