@@ -1,7 +1,7 @@
 "use client";
 /** Client bits of Ask: numbered source markers that open the Sources strip, and the composer with its thinking state. */
 import { useRouter } from "next/navigation";
-import { useState, type MouseEvent, type ReactNode } from "react";
+import { Children, isValidElement, useState, type MouseEvent, type ReactNode } from "react";
 import { StampedMascot, type MascotMode } from "@/components/mascot/StampedMascot";
 
 export function SourceMark({ n }: { n: number }) {
@@ -58,11 +58,38 @@ export function AskHero({ steps, children }: { steps: Record<string, string>; ch
   const [mood, setMood] = useState<MascotMode>("ambient");
   return (
     <>
-      <div className="ask-mascot"><StampedMascot mode={mood} size={96} arrive label="Stamped assistant" /></div>
+      <div className="ask-mascot"><StampedMascot mode={mood} size={128} arrive label="Stamped assistant" /></div>
       <h1>Ask about your plant</h1>
       <p>Reads plant data and cites it. It cannot change a setting.</p>
       <div className="d-only"><Composer big autoFocus steps={steps} onMood={setMood} /></div>
       {children}
     </>
+  );
+}
+
+const HIST_PAGE = 10;
+const isHead = (c: ReactNode) => isValidElement(c) && !!(c.props as { "data-head"?: boolean })["data-head"];
+
+/** Past conversations: ten rows, then Open more at the bottom of the scroll. */
+export function HistScroll({ children }: { children: ReactNode }) {
+  const all = Children.toArray(children);
+  const items = all.filter((c) => !isHead(c));
+  const openAt = items.findIndex((c) => isValidElement(c) && String((c.props as { className?: string }).className ?? "").split(" ").includes("on"));
+  const [n, setN] = useState(openAt >= 0 ? Math.ceil((openAt + 1) / HIST_PAGE) * HIST_PAGE : HIST_PAGE);
+  let seen = 0;
+  const shown: ReactNode[] = [];
+  for (const child of all) {
+    if (isHead(child)) { shown.push(child); continue; }
+    if (seen >= n) break;
+    seen++;
+    shown.push(child);
+  }
+  while (shown.length && isHead(shown[shown.length - 1])) shown.pop();
+  const more = items.length - seen;
+  return (
+    <div className="h-scroll">
+      {shown}
+      {more > 0 ? <button type="button" className="btn btn-sm h-more" onClick={() => setN((x) => x + HIST_PAGE)}>Open more</button> : null}
+    </div>
   );
 }

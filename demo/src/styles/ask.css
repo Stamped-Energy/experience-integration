@@ -64,6 +64,7 @@ a.h-item:hover, .h-item:hover { background: var(--surface-subtle); }
 .ask-empty h1 { margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -.01em; }
 .ask-empty > p { margin: 0; color: var(--text-secondary); }
 .sugg { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+.h-more { margin: 8px 8px 4px; }
 .sugg a { text-align: left; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 14px; color: var(--text-primary); text-decoration: none; background: var(--surface); font-size: 14px; }
 .sugg a:hover { border-color: var(--text-secondary); }
 .recent { display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap; font-size: 12px; }
@@ -155,7 +156,7 @@ a.h-item:hover, .h-item:hover { background: var(--surface-subtle); }
   .c-foot { font-size: 11px; }
   /* Empty state: small mascot, greeting and suggestions centred; the composer waits at the bottom */
   .ask-empty { min-height: calc(100dvh - 52px - 96px); justify-content: center; align-items: center; gap: 12px; padding: 0 4px; }
-  .ask-empty .ask-mascot svg { width: 56px; height: 56px; }
+  .ask-empty .ask-mascot svg { width: 80px; height: 80px; }
   .ask-empty h1 { font-size: 22px; }
   .ask-empty > p { font-size: 14px; max-width: 30ch; }
   .ask-empty .sugg { display: flex; flex-direction: column; align-items: stretch; width: 100%; max-width: 340px; gap: 8px; margin-top: 8px; }
