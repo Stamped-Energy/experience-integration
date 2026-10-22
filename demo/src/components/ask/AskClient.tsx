@@ -1,5 +1,6 @@
 "use client";
 /** Client bits of Ask: numbered source markers that open the Sources strip, and the composer with its thinking state. */
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type MouseEvent, type ReactNode } from "react";
 import { StampedMascot, type MascotMode } from "@/components/mascot/StampedMascot";
@@ -58,11 +59,25 @@ export function AskHero({ steps, children }: { steps: Record<string, string>; ch
   const [mood, setMood] = useState<MascotMode>("ambient");
   return (
     <>
-      <div className="ask-mascot"><StampedMascot mode={mood} size={96} arrive label="Stamped assistant" /></div>
+      <div className="ask-mascot"><StampedMascot mode={mood} size={128} arrive label="Stamped assistant" /></div>
       <h1>Ask about your plant</h1>
       <p>Reads plant data and cites it. It cannot change a setting.</p>
       <div className="d-only"><Composer big autoFocus steps={steps} onMood={setMood} /></div>
       {children}
     </>
+  );
+}
+
+const SUGGEST_PAGE = 8;
+
+/** Eight example questions at a time. Open more reveals the next eight. */
+export function SuggestList({ items }: { items: { q: string; href: string }[] }) {
+  const [n, setN] = useState(SUGGEST_PAGE);
+  const more = items.length - n;
+  return (
+    <div className="sugg-wrap">
+      <div className="sugg">{items.slice(0, n).map((s) => <Link key={s.q} prefetch={false} href={s.href}>{s.q}</Link>)}</div>
+      {more > 0 ? <button type="button" className="btn btn-sm show-more" onClick={() => setN((x) => x + SUGGEST_PAGE)}>Open more</button> : null}
+    </div>
   );
 }

@@ -35,7 +35,24 @@ export function suggestions(): { q: string; href: string }[] {
   if (D.inboxItems.some((i) => i.bucket === "waiting")) out.push({ q: "What is waiting for my decision?", href: `/ask?q=${encodeURIComponent("What is waiting for my decision?")}` });
   const tr = D.trials.find((t) => t.status === "running");
   if (tr) out.push({ q: `How is the ${tr.change.split(" ").slice(0, 2).join(" ").toLowerCase()} trial doing?`, href: `/ask?q=${encodeURIComponent(`How is the ${tr.change.split(" ").slice(0, 2).join(" ").toLowerCase()} trial doing?`)}` });
-  return out.slice(0, 4);
+  const seen = new Set(out.map((s) => s.q.toLowerCase()));
+  const add = (q: string, href: string) => { const k = q.toLowerCase(); if (seen.has(k)) return; seen.add(k); out.push({ q, href }); };
+  for (const t of D.askThreads) add(t.title, `/ask/${t.id}`);
+  // ponytail: each extra must contain "trial", or "lots"+"risk", or "waiting"/"decision", so liveTurn answers it
+  for (const q of [
+    "Is the hold temperature trial on track?",
+    "What has the running trial shown so far?",
+    "How many switches has the trial finished?",
+    "Which lots are at risk of missing spec?",
+    "How many lots are at risk today?",
+    "Are lots at risk on both lines?",
+    "Which decisions are waiting?",
+    "What is waiting in the inbox?",
+    "Who has a decision waiting?",
+    "What is the trial result so far?",
+    "Which lots at risk still need a lab result?",
+  ]) add(q, `/ask?q=${encodeURIComponent(q)}`);
+  return out;
 }
 const follow = (except: string, extra: string[] = []) => [...extra, ...suggestions().map((s) => s.q).filter((q) => q !== except)].slice(0, 3);
 const weakestOf = (ls: EvidenceLabel[]) => ls.slice().sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b))[0] ?? "Unknown";
