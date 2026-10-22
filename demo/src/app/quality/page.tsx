@@ -11,6 +11,7 @@ import { deniedReason } from "@/components/cards/DecisionCard";
 import { Confidence } from "@/components/ui/Confidence";
 import { DataTable, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { ExampleActions } from "@/components/cards/ExampleActions";
+import { ExampleStrip } from "@/components/agent/blocks";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, labOf, linksOf, lotNo, proofForLot, propOf, specOf, threshold, weakestJoin } from "@/components/quality/common";
 
@@ -35,22 +36,22 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
       <PageHeader eyebrow="Quality" title="Lots at risk" meta="Whether each lot will meet spec, how sure, and what it rests on. Stamped works inside limits set beforehand."
         actions={<><Link className="btn btn-sm" href="/quality/links">{D.lotLinks.filter((l) => l.status === "suggested" && l.link_confidence < 0.8).length} links to confirm</Link><AskButton context="Lots at risk" label="Ask about lots" /></>} />
       <QualityTabs active="lots" />
+      <ExampleStrip area="Quality" />
       <NoReleaseLine />
       <div className="grid">
         <div className="span-8 stack">
           <Section title="Lots" meta={`${atRisk.length} at risk · ${D.lots.filter((l) => l.riskWord === "Watch").length} to watch · ${D.lots.length} in 10 days`} flush
             actions={<Link className="link" href={sp.all ? "/quality" : "/quality?all=1"} scroll={false}>{sp.all ? "Open lots only" : `Show all ${D.lots.length}`}</Link>}>
-            <DataTable caption="Lots" rowKey={(l) => l.id} rows={rows} columns={[
-              { key: "l", label: "Lot", render: (l) => <><Link className="link mono" href={`/quality/lots/${l.id}`} style={{ fontWeight: 600 }}>{lotNo(l.id)}</Link><span className="cell-sub">{gradeOf(l).name}</span></> },
+            <div className="table-click">
+            <DataTable caption="Lots. Select a row to open the lot" rowKey={(l) => l.id} rows={rows} columns={[
+              { key: "l", label: "Lot", render: (l) => <><Link className="link mono row-stretch" href={`/quality/lots/${l.id}`} style={{ fontWeight: 600 }} aria-label={`Open lot ${lotNo(l.id)}`}>{lotNo(l.id)}</Link><span className="cell-sub nowrap">{gradeOf(l).name}</span></> },
               { key: "r", label: "Risk", render: (l) => <RiskTag risk={l.riskWord} /> },
-              { key: "p", label: "Property, predicted", align: "right", render: (l) => { const p = propOf(l); return <>{p.predicted.point} {p.unit}<span className="cell-sub">{p.predicted.low} to {p.predicted.high}</span></>; } },
-              { key: "s", label: "Spec", align: "right", render: (l) => { const s = specOf(l); return `${s.lsl} to ${s.usl}`; } },
-              { key: "a", label: "Anchor", render: (l) => (propOf(l).anchored ? <Tag tone="success">Lab result</Tag> : <Tag tone="warning">Unanchored</Tag>) },
-              { key: "j", label: "Join", render: (l) => <JoinTag label={weakestJoin(l)} /> },
-              { key: "st", label: "Status", render: (l) => l.status },
-              { key: "t", label: "Started", render: (l) => rel(l.startedAt) },
-              { key: "v", label: "", render: (l) => <Link className="link" href={`/quality?lot=${l.id}`} scroll={false}>Preview</Link> },
+              { key: "p", label: "Predicted against spec", align: "right", render: (l) => { const p = propOf(l), s = specOf(l); return <>{p.predicted.point} {p.unit}<span className="cell-sub nowrap">spec {s.lsl} to {s.usl}</span></>; } },
+              { key: "e", label: "Rests on", render: (l) => <span className="tag-pair">{propOf(l).anchored ? <Tag tone="success">Lab result</Tag> : <Tag tone="warning">Unanchored</Tag>}<JoinTag label={weakestJoin(l)} /></span> },
+              { key: "st", label: "Status", render: (l) => <>{l.status}<span className="cell-sub">started {rel(l.startedAt)}</span></> },
+              { key: "v", label: "", align: "right", render: (l) => <Link className={`btn btn-sm row-over${sel.id === l.id ? " btn-accent" : ""}`} href={`/quality?lot=${l.id}${sp.all ? "&all=1" : ""}`} scroll={false}>{sel.id === l.id ? "Previewing" : "Preview"}</Link> },
             ]} />
+            </div>
           </Section>
         </div>
         <div className="span-4 stack ctx">

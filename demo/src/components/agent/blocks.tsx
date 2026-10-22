@@ -1,0 +1,159 @@
+/** Server blocks that show the agent at work: working-on strip, onboarding tracker, control stack, a new layer tried on the twin,
+ *  what it learned, proposals left on the table, answered-by chips and the compact example-action strip. Illustrative. */
+import Link from "next/link";
+import * as D from "@/lib/demo/data";
+import * as A from "@/lib/demo/agent";
+import type { RoleId } from "@/lib/demo/types";
+import { exampleActions } from "@/lib/demo/actions";
+import { dayMonth, hhmm, inr, rel } from "@/lib/format";
+import { Illustrative, Section, Tag, type Tone } from "@/components/ui/primitives";
+import { CardActions } from "@/components/cards/CardActions";
+import { Assign } from "./Assign";
+
+const W_TONE: Record<A.WorkItem["status"], Tone> = { Investigating: "neutral", Simulating: "info", "Waiting on you": "accent", Onboarding: "neutral" };
+
+export function WorkingOn({ lineId }: { lineId?: string }) {
+  const items = A.workingOn.filter((w) => !lineId || w.lineId === lineId);
+  if (!items.length) return null;
+  return (
+    <section className="working" aria-label="What the agent is working on">
+      <div className="working-head"><span className="pulse" aria-hidden /><b>Working on</b><span className="muted">{items.length} now</span><Illustrative /></div>
+      <div className="working-items">
+        {items.map((w) => (
+          <Link key={w.id} href={w.href} className="work">
+            <span className="work-top"><Tag tone={W_TONE[w.status]}>{w.status}</Tag>{lineId ? null : <span className="muted">{D.byId.line(w.lineId)!.short}</span>}</span>
+            <span className="work-t">{w.title}</span>
+            <span className="work-s">{w.step}{w.waits ? <> · waits on <b>{w.waits}</b></> : null}</span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function AnsweredChip({ qid }: { qid: string }) {
+  const q = A.questions.find((x) => x.id === qid);
+  if (!q?.answered) return null;
+  return <Link href="/inbox?tab=questions" className="answered-chip" title={q.answered.changed}>Answered by {D.byId.role(q.answered.by).name}, {hhmm(q.answered.at)}</Link>;
+}
+
+export function Onboarding() {
+  const o = A.onboarding;
+  return (
+    <Section title={`New part: ${o.part}`} meta={`Started ${rel(o.started)} · step ${o.current} of 5`} id="onboarding" actions={<Illustrative />}>
+      <ol className="onb">
+        {o.steps.map((s) => (
+          <li key={s.n} data-state={s.state}>
+            <span className="onb-n">{s.state === "done" ? "✓" : s.n}</span>
+            <span className="onb-b"><b>{s.title}</b>{s.state === "live" ? <Tag tone="info">Now</Tag> : null}<span className="secondary">{s.detail}</span>
+              {"answeredBy" in s && s.answeredBy ? <AnsweredChip qid="q-4" /> : null}
+              {s.state === "live" ? <Link className="link" href="/inbox?tab=questions">Asked the operator to run the next move</Link> : null}</span>
+          </li>
+        ))}
+      </ol>
+      <p className="muted" style={{ margin: "8px 0 0", fontSize: 12 }}>Until step 5 the line stays recommend-only for this part. A person promotes it.</p>
+    </Section>
+  );
+}
+
+const K_TONE: Record<A.ControlLayer["state"], Tone> = { Active: "success", "In shadow": "neutral", "Prebuilt, not on": "neutral", Simulating: "info" };
+export function ControlStack({ lineId }: { lineId: string }) {
+  const layers = A.controlStacks[lineId];
+  return (
+    <Section title="Control stack" meta="Prebuilt for this equipment, tuned at integration" id="control" flush>
+      <ol className="cstack">
+        {layers.map((l) => (
+          <li key={l.id} data-state={l.state}>
+            <span className="ck">{l.kind}</span>
+            <span className="cb"><b>{l.name}</b><span className="secondary">{l.scope}</span><span className="muted">{l.tuned}</span></span>
+            <Tag tone={K_TONE[l.state]}>{l.state}</Tag>
+          </li>
+        ))}
+      </ol>
+      <p className="cstack-foot">Each controller comes ready for this class of equipment; only its parameters are tuned to this line. The agent can also try a new layer on the twin before anyone sees it.</p>
+    </Section>
+  );
+}
+
+export function LayerProposal({ role }: { role: RoleId }) {
+  const p = A.layerProposal;
+  const allowed = ["process-engineer", "plant-head"].includes(role);
+  return (
+    <article className="card decision" id="layer">
+      <div className="card-head"><span className="src">Process agent</span><span className="dotsep">·</span><span>{D.byId.line(p.lineId)!.short}</span>
+        <span className="right"><Tag tone="info">New control layer</Tag><Tag tone="accent">Needs a decision</Tag></span></div>
+      <div className="card-body">
+        <div className="card-block"><h3 className="card-title">{p.title}</h3><p className="card-obs">{p.summary}</p></div>
+        <TwinBlock rows={p.rows} runs={p.sim.runs} fit={p.sim.fit} label={p.sim.label} />
+        <p className="mode-line" style={{ margin: 0 }}><span className="label" style={{ paddingTop: 2 }}>Safety</span><span>{p.guard}</span></p>
+        <p className="mode-line" style={{ margin: 0 }}><span className="label" style={{ paddingTop: 2 }}>Next</span><span>{p.next}</span></p>
+      </div>
+      <CardActions actions={[
+        { id: "draft", label: "Draft a trial", primary: true, allowed, reason: "Process engineer or Plant head can decide", done: "Trial draft opened for the plant head to sign. Illustrative: nothing was written." },
+        { id: "no", label: "Not now, with a reason", allowed, reason: "Process engineer or Plant head can decide", done: "Kept on the twin. Your reason is logged." },
+      ]} />
+    </article>
+  );
+}
+
+export function TwinBlock({ rows, runs, fit, label }: { rows: { m: string; unit: string; now: string; with: string }[]; runs: string; fit: string; label: string }) {
+  return (
+    <div className="twin">
+      <div className="twin-head"><b>Tried on the twin first</b><Tag>{label}</Tag><span className="muted">Twin fit: {fit}</span></div>
+      <table className="twin-t"><thead><tr><th>Measure</th><th className="right">Today</th><th className="right">With the change, band</th></tr></thead>
+        <tbody>{rows.map((r) => <tr key={r.m}><td>{r.m}</td><td className="right num">{r.now} {r.unit}</td><td className="right num"><b>{r.with} {r.unit}</b></td></tr>)}</tbody></table>
+      <span className="muted" style={{ fontSize: 12 }}>{runs}. Inside the signed windows.</span>
+    </div>
+  );
+}
+
+export function Learned({ limit }: { limit?: number }) {
+  return (
+    <ul className="learned">
+      {A.learned.slice(0, limit).map((l) => (
+        <li key={l.id}><Tag>{l.kind}</Tag><span><b>{l.text}</b><span className="cell-sub">{l.from} · {dayMonth(l.at)} · {l.state}</span></span></li>
+      ))}
+    </ul>
+  );
+}
+
+/** Proposals nobody has decided. Units on worker pages; rupees only on the Owner view. */
+export function IdleList({ rupees, role }: { rupees: boolean; role: RoleId }) {
+  const can = A.ASSIGNERS.includes(role);
+  const me = A.ME[role] ?? "Plant head A.";
+  return (
+    <div className="rows">
+      {A.idleProposals.map((p) => {
+        const r = A.idleInr(p);
+        return (
+          <div key={p.id} className="row idle-row">
+            <span style={{ minWidth: 0 }}><span className="row-title" style={{ display: "block" }}>{p.title}</span>
+              <span className="row-sub">{D.byId.line(p.lineId)!.short} · waiting {p.waitingDays} days · {p.lastSeen}</span></span>
+            <span className="idle-loss">{rupees ? <><b>{inr(r.perWeek)}</b><span className="cell-sub">lost per week · {inr(r.lostSoFar)} so far</span></>
+              : <><b>{p.loss.perWeek.toLocaleString("en-IN")} {p.loss.unit}</b><span className="cell-sub">{p.loss.what} per week</span></>}</span>
+            {rupees ? null : <Assign initial={A.assigned[p.id]} people={A.PEOPLE} canAssign={can} by={me} />}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Compact row of open example actions near the top; each tile jumps to its full card further down. */
+export function ExampleStrip({ area, lineId, limit = 3 }: { area: "Process" | "Quality"; lineId?: string; limit?: number }) {
+  const list = exampleActions.filter((a) => a.area === area && (!lineId || a.lineId === lineId) && !a.closed && a.who.how !== "Record only").slice(0, limit);
+  return (
+    <section className="ex-strip" aria-label="Example actions">
+      <div className="ex-strip-head"><b>Example actions</b><span className="muted">What the agent is doing right now on {area.toLowerCase()}</span><Illustrative /><Link className="link" href={`#ex-${area.toLowerCase()}`} style={{ marginLeft: "auto" }}>See all with evidence</Link></div>
+      <div className="ex-tiles">
+        {list.map((a) => (
+          <Link key={a.id} href={`#${a.id}`} className="ex-tile">
+            <span className="label">{a.mechanism}</span>
+            <span className="ex-tile-t">{a.title}</span>
+            <span className="ex-tile-m"><Tag tone={a.who.how === "A person decides" ? "info" : "neutral"}>{a.who.how === "A person decides" ? "Needs a decision" : a.who.how === "Recommend only" ? "Recommend only" : a.steps.includes("Trial") ? "Trial running" : "Running on its own"}</Tag>{a.expected ? <span className="muted">{a.expected.label}</span> : null}</span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}

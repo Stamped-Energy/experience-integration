@@ -32,7 +32,7 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
     </span>
   );
   return (
-    <FoldCard summary={summary} labelledBy={`${a.id}-t`}>
+    <FoldCard summary={summary} labelledBy={`${a.id}-t`} anchor={a.id}>
       <div className="card-head">
         <span className="src">{a.area} agent</span><span className="dotsep">·</span><span>{line.short}</span>
         <span className="right">{a.steps.map((s) => <span key={s} className="ex-step" data-step={s}>{STEP_WORD[s]}</span>)}{c ? <Tag tone="success">{c.state}</Tag> : null}</span>
@@ -71,22 +71,22 @@ const OPEN_RANK: Record<string, number> = { "A person decides": 0, "Recommend on
 function openRank(a: ExampleAction) { return a.steps.includes("Trial") ? 2 : OPEN_RANK[a.who.how] ?? 0; }
 function isAccepted(a: ExampleAction) { return !!a.closed || a.who.how === "Record only"; }
 
-export function ExampleActions({ area, role }: { area: "Process" | "Quality"; role: RoleId }) {
-  const list = exampleActions.filter((a) => a.area === area);
+export function ExampleActions({ area, role, lineId, only, title = "Example actions" }: { area: "Process" | "Quality"; role: RoleId; lineId?: string; only?: "open" | "accepted"; title?: string }) {
+  const list = exampleActions.filter((a) => a.area === area && (!lineId || a.lineId === lineId));
   const open = list.filter((a) => !isAccepted(a)).sort((a, b) => openRank(a) - openRank(b));
   const accepted = list.filter(isAccepted);
   return (
-    <Section title="Example actions" meta={<>Worked examples on the demonstration plant <Illustrative /></>} id={`ex-${area.toLowerCase()}`}>
-      <div className="ex-group">
+    <Section title={title} meta={<>Worked examples on the demonstration plant <Illustrative /></>} id={only === "accepted" ? undefined : `ex-${area.toLowerCase()}${lineId ? `-${lineId}` : ""}`}>
+      {only === "accepted" ? null : <div className="ex-group">
         <h3>Open now</h3>
         <p>Waiting for a person, or running now.</p>
         <div className="ex-cards">{open.map((a) => <ExampleActionCard key={a.id} a={a} role={role} />)}</div>
-      </div>
-      <div className="ex-group">
+      </div>}
+      {only === "open" || !accepted.length ? null : <div className="ex-group">
         <h3>Already accepted</h3>
         <p>A named person accepted it, or the records show it held.</p>
         <div className="ex-cards">{accepted.map((a) => <ExampleActionCard key={a.id} a={a} role={role} />)}</div>
-      </div>
+      </div>}
     </Section>
   );
 }

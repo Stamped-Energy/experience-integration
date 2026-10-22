@@ -7,8 +7,8 @@ import { can, grant } from "@/lib/rbac";
 import { dayMonth, hhmm, inr, lakh, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { HomeAsk } from "@/components/ask/AskClient";
-import { stepFor, suggestions } from "@/components/ask/convo";
+import * as A from "@/lib/demo/agent";
+import { IdleList, WorkingOn } from "@/components/agent/blocks";
 import { DecisionCard, deniedReason } from "@/components/cards/DecisionCard";
 import { CardActions } from "@/components/cards/CardActions";
 import { LimitsBand } from "@/components/ui/LimitsBand";
@@ -27,13 +27,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ v
   const view = (VIEWS.some((v) => v.id === sp.view) ? sp.view : "overview") as ViewId;
   const title = { overview: "Demonstration plant", plant: "Plant today", shift: "Shift 2, starting", line: "My line now", owner: "Value and what happened" }[view];
   const meta = { overview: `${dayMonth(D.DEMO_NOW)} · ${hhmm(D.DEMO_NOW)} IST. A proposal stays inside a band a named person signed. Nothing is written until that person accepts it.`, plant: `${D.site.name} · ${dayMonth(D.DEMO_NOW)} · ${hhmm(D.DEMO_NOW)} IST`, shift: "Shift 1 handed over at 14:00 IST. Here is what changed and what is waiting.", line: "Current settings inside the signed band, and the next proposal.", owner: "Value at the plant's own prices. Verified and Indicative are shown apart and never added." }[view];
-  const askSteps = Object.fromEntries(suggestions().map((s) => [s.q, stepFor(s.q)]));
   return (
     <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Home" }, { label: VIEWS.find((v) => v.id === view)!.label }]} askContext={`Home · ${view}`}>
       <PageHeader eyebrow="Home" title={title} meta={meta} brand={view === "owner"}
-        actions={view === "overview" ? <Illustrative /> : <><Tag>{D.byId.role(role).name} view</Tag><AskButton label="Ask about this view" className="btn btn-sm" context={`Home · ${view}`} /></>} />
+        actions={view === "overview" ? <><Link className="btn btn-sm" href="/activity/summary">This week's summary</Link><Illustrative /></> : <><Tag>{D.byId.role(role).name} view</Tag><AskButton label="Ask about this view" className="btn btn-sm" context={`Home · ${view}`} /></>} />
       {view === "overview" && grant(role, "see-plant-value") !== "hidden" ? <OverviewValue /> : null}
-      {view === "overview" ? <HomeAsk steps={askSteps} /> : null}
       <Tabs label="Home views" items={VIEWS.map((v) => ({ href: `/?view=${v.id}`, label: v.label, active: v.id === view }))} />
       {view === "overview" ? <Overview /> : null}
       {view === "plant" ? <PlantView role={role} /> : null}
@@ -81,6 +79,7 @@ function Overview() {
   const waiting = D.inboxItems.filter((i) => i.bucket === "waiting");
   return (
     <div className="stack">
+      <WorkingOn />
       <LineStrip />
       <p className="secondary" style={{ margin: 0 }}>On Line A, hold step is the mix hold. Quality holds stay on the Quality page.</p>
       <Section title="Waiting for a person" meta={`${waiting.length} open`} actions={<Link className="link" href="/inbox">Open Inbox</Link>} flush>
@@ -272,6 +271,14 @@ function OwnerView({ role }: { role: RoleId }) {
               <span><i style={{ background: "var(--accent-500)" }} />Verified</span>
               <span><i style={{ border: "1px dashed var(--text-muted)" }} />Indicative</span>
             </div>
+          </Section>
+          <Section title="Value left on the table" meta={`${A.idleProposals.length} proposals nobody has decided`} actions={<Link className="link" href="/activity/summary">Summary</Link>} flush>
+            <div className="idle-total">
+              <div><span className="label">Lost per week while they wait</span><b>{inr(A.idleProposals.reduce((a, p) => a + A.idleInr(p).perWeek, 0))}</b></div>
+              <div><span className="label">Lost so far</span><b>{inr(A.idleProposals.reduce((a, p) => a + A.idleInr(p).lostSoFar, 0))}</b></div>
+              <div><span className="label">Worth per month if accepted</span><b>{inr(A.idleProposals.reduce((a, p) => a + A.idleInr(p).perMonth, 0))}</b><Illustrative /></div>
+            </div>
+            <IdleList rupees role={role} />
           </Section>
           <Section title="Where the value comes from" meta="Every figure opens its proof record" flush>
             <DataTable caption="Value items" rowKey={(v) => v.id} rows={D.valueItems} columns={[

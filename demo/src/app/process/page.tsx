@@ -10,6 +10,7 @@ import { Sparkline } from "@/components/ui/charts";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, EvidenceTag, LineModeTag, ModeTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { ExampleActions } from "@/components/cards/ExampleActions";
+import { IdleList } from "@/components/agent/blocks";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { ProcessTabs, crumbs, outcome, outcomeName, packOf, proofForRun, runLabel, runsOf, specOf } from "@/components/process/common";
 
@@ -27,6 +28,7 @@ export default async function ProcessLines({ searchParams }: { searchParams: Pro
       <PageHeader eyebrow="Process" title="Lines" meta={<>Two lines on the demonstration plant. Stamped works inside limits set beforehand.</>}
         actions={<><Link className="btn btn-sm" href="/process/proposals">{open.length} proposals waiting</Link><AskButton context="Process lines" label="Ask about lines" /></>} />
       <ProcessTabs active="lines" />
+      <div style={{ marginBottom: "var(--space-5)" }}><ExampleActions area="Process" role={role} only="open" /></div>
       <div className="grid">
         <div className="span-12">
           <Section title="Lines" meta="Mode, running settings against the signed band, last runs" flush>
@@ -65,6 +67,7 @@ export default async function ProcessLines({ searchParams }: { searchParams: Pro
           </div>
         </div>
         <div className="span-4 xl-span-3 stack ctx">
+          <Section title="Left on the table" meta="Proposals nobody has decided" flush><IdleList rupees={false} role={role} /></Section>
           <Section title="Needs a decision" meta={`${open.length} waiting`} flush>
             <div className="stack-sm" style={{ padding: 12 }}>
               {open.slice(0, 2).map((p) => <DecisionCard key={p.id} p={p} role={role} variant="compact" href={`/process/proposals/${p.id}`} />)}
@@ -82,7 +85,7 @@ export default async function ProcessLines({ searchParams }: { searchParams: Pro
           </Section>
         </div>
       </div>
-      <div style={{ marginTop: "var(--space-5)" }}><ExampleActions area="Process" role={role} /></div>
+      <div style={{ marginTop: "var(--space-5)" }}><ExampleActions area="Process" role={role} only="accepted" title="Example actions, already accepted" /></div>
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref="/process" /> : null}
     </Workspace>
   );

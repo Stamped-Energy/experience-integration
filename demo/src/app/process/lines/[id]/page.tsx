@@ -10,6 +10,8 @@ import { DecisionCard } from "@/components/cards/DecisionCard";
 import { RunChart } from "@/components/ui/charts";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, EvidenceTag, LineModeTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
+import { ExampleActions } from "@/components/cards/ExampleActions";
+import { AnsweredChip, ControlStack, LayerProposal, Onboarding, WorkingOn } from "@/components/agent/blocks";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { ProcessTabs, crumbs, outcome, outcomeName, packOf, proofForRun, runLabel, runsOf, specOf, trialArm } from "@/components/process/common";
 
@@ -42,9 +44,10 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
   return (
     <Workspace crumbs={crumbs({ label: line.short, href: base }, { label: "Line detail" })} askContext={line.name}>
       <PageHeader eyebrow={`Process · ${pack.equipmentClass}`} title={line.name}
-        meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><LineModeTag mode={line.mode} />{line.product} · {line.status}</span>}
+        meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><LineModeTag mode={line.mode} />{line.product} · {line.status}<AnsweredChip qid={line.id === "line-a" ? "q-5" : "q-8"} /></span>}
         actions={<><Link className="btn btn-sm" href={`/plant`}>Line on plant map</Link><AskButton context={line.name} label="Ask about this line" /></>} />
       <ProcessTabs active="lines" />
+      <WorkingOn lineId={line.id} />
       <div className="grid line-grid">
         <div className="span-8 xl-span-9 stack">
           <Section title={`${name} per ${pack.labels.unit}`} meta={`Last ${shown.length} ${pack.labels.runs.toLowerCase()} · spec dashed${trialStart >= 0 ? " · shaded: trial running" : ""}`} flush>
@@ -56,6 +59,10 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
             <div className="chart-pad"><RunChart values={values} spec={specOf(line)} width={980} height={180} label={`${name} on ${line.short}`} highlightFrom={trialStart >= 0 ? trialStart : undefined} /></div>
             <div className="chart-legend"><span><i />{name}</span><span><i className="d" />Spec {specOf(line).join(" to ")}</span>{trialStart >= 0 ? <span><i className="t" />Trial running</span> : null}</div>
           </Section>
+          <ExampleActions area="Process" role={role} lineId={line.id} title={`Example actions on ${line.short}`} />
+          <ControlStack lineId={line.id} />
+          {line.id === "line-b" ? <LayerProposal role={role} /> : null}
+          {line.id === "line-b" ? <Onboarding /> : null}
           <Section title={pack.labels.runs} meta={`${all.length} on record · run definition: ${pack.runDefinition}`} flush
             actions={Number(sp.n ?? 16) < all.length ? <Link className="link" href={`${base}?n=${all.length}`} scroll={false}>Show all {all.length}</Link> : null}>
             <DataTable caption={pack.labels.runs} rowKey={(r) => r.id} rows={table} columns={[
