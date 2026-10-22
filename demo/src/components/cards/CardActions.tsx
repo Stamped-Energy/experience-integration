@@ -22,7 +22,7 @@ export function CardActions({ actions, stop, large, adjust }: { actions: ActionS
     );
   }
   if (adjusting && adjust) {
-    return <AdjustInBand spec={adjust} onCancel={() => setAdjusting(false)} onSend={(v) => { setAdjusting(false); setDone(`Sent ${v} ${adjust.unit} as your adjustment. Illustrative: nothing was written.`); }} />;
+    return <AdjustInBand spec={adjust} onCancel={() => setAdjusting(false)} onSend={(v) => { setAdjusting(false); setDone(`Sent ${v} ${adjust.unit} as your adjustment.`); }} />;
   }
   return (
     <div className="card-foot">

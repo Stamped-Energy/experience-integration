@@ -48,7 +48,7 @@ export function SettingsPage({ section, title, meta, actions, children, help, ch
         <nav className="set-side" aria-label="Settings sections">
           <div className="set-side-h">Settings</div>
           {SECTIONS.map((x) => <Link key={x.key} href={x.href} className={`set-link${x.key === section ? " on" : ""}`} aria-current={x.key === section ? "page" : undefined}><span>{x.label}</span><span className="set-sub">{x.sub}</span></Link>)}
-          <p className="set-side-note">Demonstration plant. Changes are illustrative and nothing is saved.</p>
+          
         </nav>
         <div className="set-main">
           <PageHeader eyebrow="Settings" title={title} meta={meta} actions={actions} />

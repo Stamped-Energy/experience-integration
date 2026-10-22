@@ -33,7 +33,7 @@ export function DecisionCard({ p, role, href, variant = "full" }: { p: Proposal;
   const unit = win?.unit ?? "";
   const actions: ActionSpec[] = open
     ? [
-        { id: "accept", label: `Accept ${p.proposed} ${unit}`, primary: true, allowed, reason, done: `Accepted ${p.proposed} ${unit}. Illustrative: nothing was written.` },
+        { id: "accept", label: `Accept ${p.proposed} ${unit}`, primary: true, allowed, reason, done: `Accepted ${p.proposed} ${unit}.` },
         { id: "adjust", label: "Adjust in band", allowed, reason, done: "Adjust opened. Any value inside the signed band can be sent." },
         { id: "decline", label: "Decline with reason", allowed, reason, done: "Declined. The reason is recorded and the agent learns from it." },
       ]

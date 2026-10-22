@@ -9,16 +9,18 @@ import { DecisionCard } from "@/components/cards/DecisionCard";
 import { Sparkline } from "@/components/ui/charts";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, EvidenceTag, LineModeTag, ModeTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
-import { ExampleActions } from "@/components/cards/ExampleActions";
+import { ActionsBoard, ActionsBrief } from "@/components/cards/ExampleActions";
+import { Tabs } from "@/components/ui/primitives";
 import { IdleList } from "@/components/agent/blocks";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { ProcessTabs, crumbs, outcome, outcomeName, packOf, proofForRun, runLabel, runsOf, specOf } from "@/components/process/common";
 
 export const metadata = { title: "Process" };
 
-export default async function ProcessLines({ searchParams }: { searchParams: Promise<{ line?: string; evidence?: string }> }) {
+export default async function ProcessLines({ searchParams }: { searchParams: Promise<{ line?: string; evidence?: string; tab?: string; status?: string; mine?: string }> }) {
   const sp = await searchParams;
-  if (sp.line && D.byId.line(sp.line)) redirect(`/process/lines/${sp.line}`);
+  const actions = sp.tab === "actions";
+  if (!actions && sp.line && D.byId.line(sp.line)) redirect(`/process/lines/${sp.line}`);
   const role = await currentRole();
   const open = D.proposals.filter((p) => p.state === "Waiting");
   const recent = D.runs.slice().sort((a, b) => b.end.localeCompare(a.end)).slice(0, 10);
@@ -28,7 +30,9 @@ export default async function ProcessLines({ searchParams }: { searchParams: Pro
       <PageHeader eyebrow="Process" title="Lines" meta="What the agent suggests on each line, and what needs your decision."
         actions={<><Link className="btn btn-sm" href="/process/proposals">{open.length} proposals waiting</Link><AskButton context="Process lines" label="Ask about lines" /></>} />
       <ProcessTabs active="lines" />
-      <div style={{ marginBottom: "var(--space-5)" }}><ExampleActions area="Process" role={role} only="open" /></div>
+      <Tabs label="Lines sections" items={[{ href: "/process", label: "Overview", active: !actions }, { href: "/process?tab=actions", label: "Actions", active: actions }]} />
+      {actions ? <><p className="tab-intro">Every action on both lines: what needs a decision, what is being tried, what runs on its own, and what was accepted.</p><ActionsBoard area="Process" role={role} base="/process" status={sp.status} line={sp.line} mine={sp.mine} /></> : (<>
+      <ActionsBrief area="Process" href="/process?tab=actions" />
       <div className="grid">
         <div className="span-12">
           <Section title="Lines" meta="Mode, running settings against the signed band, last runs" flush>
@@ -85,7 +89,7 @@ export default async function ProcessLines({ searchParams }: { searchParams: Pro
           </Section>
         </div>
       </div>
-      <div style={{ marginTop: "var(--space-5)" }}><ExampleActions area="Process" role={role} only="accepted" title="Example actions, already accepted" /></div>
+      </>)}
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref="/process" /> : null}
     </Workspace>
   );

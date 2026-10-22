@@ -41,7 +41,7 @@ export default async function Drift() {
                     <span className="label">Lots exposed</span>
                     <div className="rows">{lots.slice(0, 5).map((l) => <Link key={l.id} className="row" href={`/quality/lots/${l.id}`} style={{ gridTemplateColumns: "auto minmax(0,1fr) auto" }}><span className="mono">{lotNo(l.id)}</span><span className="row-sub">{propOf(l).predicted.point} {propOf(l).unit}</span><RiskTag risk={l.riskWord} /></Link>)}</div>
                     <CardActions actions={[
-                      { id: "c", label: "Send correction to process", primary: true, allowed: can(role, "send-correction"), reason: deniedReason("send-correction", "send corrections"), done: "Correction sent as a recommendation. Illustrative." },
+                      { id: "c", label: "Send correction to process", primary: true, allowed: can(role, "send-correction"), reason: deniedReason("send-correction", "send corrections"), done: "Correction sent as a recommendation." },
                       { id: "i", label: "Open investigation", allowed: true, done: "Investigation draft opened." },
                     ]} />
                   </div>
@@ -53,7 +53,7 @@ export default async function Drift() {
         <div className="span-4 stack ctx">
           <Section title="Alarm budget" meta={b.period} actions={<Illustrative />}>
             <div className="stat-row"><div className="stat"><div className="label">Raised</div><div className="v">{b.used}</div></div><div className="stat"><div className="label">Budget</div><div className="v">{b.limit}</div></div><div className="stat"><div className="label">Left</div><div className="v">{b.limit - b.used}</div></div></div>
-            <p className="muted" style={{ fontSize: 12, margin: "8px 0 0" }}>Illustrative note: drift signals count against a weekly budget so quality staff are not flooded. Weaker signals wait in this list rather than alerting.</p>
+            <p className="muted" style={{ fontSize: 12, margin: "8px 0 0" }}>drift signals count against a weekly budget so quality staff are not flooded. Weaker signals wait in this list rather than alerting.</p>
           </Section>
           <Section title="How a signal is raised">
             <ol style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.6 }}>

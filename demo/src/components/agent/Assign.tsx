@@ -1,5 +1,5 @@
 "use client";
-/** Assign a card to a person. Shift lead, process engineer, quality head and plant head can assign; others see the chip only. Illustrative. */
+/** Assign a card to a person. Shift lead, process engineer, quality head and plant head can assign; others see the chip only. */
 import { useState } from "react";
 
 export function Assign({ initial, people, canAssign, by }: { initial?: { to: string; by: string }; people: string[]; canAssign: boolean; by: string }) {

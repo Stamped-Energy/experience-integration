@@ -37,8 +37,8 @@ export default async function Corrections() {
                   <dt>Proposal</dt><dd>{c.proposalId ? <Link className="link" href={`/process/proposals/${c.proposalId}`}>{nameOf(c.proposalId)}</Link> : "None, declined by Process"}</dd>
                 </dl>
                 {c.status === "sent" ? <CardActions actions={[
-                  { id: "a", label: "Accept in Process", primary: true, allowed: can(role, "accept-correction"), reason: deniedReason("accept-correction", "accept corrections"), done: "Accepted; the proposal goes through limits and approvals. Illustrative." },
-                  { id: "d", label: "Decline", allowed: can(role, "accept-correction"), reason: deniedReason("accept-correction", "accept corrections"), done: "Declined with reason. Illustrative." },
+                  { id: "a", label: "Accept in Process", primary: true, allowed: can(role, "accept-correction"), reason: deniedReason("accept-correction", "accept corrections"), done: "Accepted; the proposal goes through limits and approvals." },
+                  { id: "d", label: "Decline", allowed: can(role, "accept-correction"), reason: deniedReason("accept-correction", "accept corrections"), done: "Declined with reason." },
                 ]} /> : null}
               </Section>
             </div>

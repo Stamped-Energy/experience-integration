@@ -1,10 +1,9 @@
 /** Server blocks that show the agent at work: working-on strip, onboarding tracker, control stack, a new layer tried on the twin,
- *  what it learned, proposals left on the table, answered-by chips and the compact example-action strip. Illustrative. */
+ *  what it learned, proposals left on the table, answered-by chips and the compact example-action strip. */
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import * as A from "@/lib/demo/agent";
 import type { RoleId } from "@/lib/demo/types";
-import { exampleActions } from "@/lib/demo/actions";
 import { dayMonth, hhmm, inr, rel } from "@/lib/format";
 import { Illustrative, Section, Tag, type Tone } from "@/components/ui/primitives";
 import { CardActions } from "@/components/cards/CardActions";
@@ -90,7 +89,7 @@ export function LayerProposal({ role }: { role: RoleId }) {
         <p className="mode-line" style={{ margin: 0 }}><span className="label" style={{ paddingTop: 2 }}>Next</span><span>{p.next}</span></p>
       </div>
       <CardActions actions={[
-        { id: "draft", label: "Draft a trial", primary: true, allowed, reason: "Process engineer or Plant head can decide", done: "Trial draft opened for the plant head to sign. Illustrative: nothing was written." },
+        { id: "draft", label: "Draft a trial", primary: true, allowed, reason: "Process engineer or Plant head can decide", done: "Trial draft opened for the plant head to sign." },
         { id: "no", label: "Not now, with a reason", allowed, reason: "Process engineer or Plant head can decide", done: "Kept on the twin. Your reason is logged." },
       ]} />
     </article>
@@ -137,25 +136,6 @@ export function IdleList({ rupees, role }: { rupees: boolean; role: RoleId }) {
         );
       })}
     </div>
-  );
-}
-
-/** Compact row of open example actions near the top; each tile jumps to its full card further down. */
-export function ExampleStrip({ area, lineId, limit = 3 }: { area: "Process" | "Quality"; lineId?: string; limit?: number }) {
-  const list = exampleActions.filter((a) => a.area === area && (!lineId || a.lineId === lineId) && !a.closed && a.who.how !== "Record only").slice(0, limit);
-  return (
-    <section className="ex-strip" aria-label="Example actions">
-      <div className="ex-strip-head"><b>Example actions</b><span className="muted">What the agent is doing right now on {area.toLowerCase()}</span><Illustrative /><Link className="link" href={`#ex-${area.toLowerCase()}`} style={{ marginLeft: "auto" }}>See all with evidence</Link></div>
-      <div className="ex-tiles">
-        {list.map((a) => (
-          <Link key={a.id} href={`#${a.id}`} className="ex-tile">
-            <span className="label">{a.mechanism}</span>
-            <span className="ex-tile-t">{a.title}</span>
-            <span className="ex-tile-m"><Tag tone={a.who.how === "A person decides" ? "info" : "neutral"}>{a.who.how === "A person decides" ? "Needs a decision" : a.who.how === "Recommend only" ? "Recommend only" : a.steps.includes("Trial") ? "Trial running" : "Running on its own"}</Tag>{a.expected ? <span className="muted">{a.expected.label}</span> : null}</span>
-          </Link>
-        ))}
-      </div>
-    </section>
   );
 }
 

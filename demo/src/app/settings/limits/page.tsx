@@ -27,8 +27,8 @@ export default async function Limits() {
             { key: "s", label: "Signed", render: (w) => <>{w.signedBy}<span className="cell-sub">{dayMonth(w.signedAt)} · v{w.version}</span></> },
             { key: "e", label: "Expires", render: (w) => <>{dayMonth(w.expiresAt)}<span className="cell-sub">{rel(w.expiresAt)}</span></> },
             { key: "a", label: "", render: (w) => <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-              <ConfirmAction label="Narrow" allowed={narrow} reason={deniedReason("narrow-limit", "narrow")} title={`Narrow ${w.name.toLowerCase()} on ${l.short}`} body={<p>Narrowing tightens the window Stamped works inside. It never widens the signed band of {w.low} to {w.high} {w.unit}.</p>} confirm="Narrow" done="Narrowed (illustrative)." />
-              <ConfirmAction label="Sign" allowed={sign} reason={deniedReason("sign-limits", "sign")} title={`Sign version ${w.version + 1}`} body={<><p>You are signing {w.name.toLowerCase()} on {l.name}, {w.low} to {w.high} {w.unit}.</p><blockquote>Stamped works inside limits set beforehand. This signature sets those limits until {dayMonth(w.expiresAt)}.</blockquote></>} confirm="Sign window" done="Signed (illustrative)." />
+              <ConfirmAction label="Narrow" allowed={narrow} reason={deniedReason("narrow-limit", "narrow")} title={`Narrow ${w.name.toLowerCase()} on ${l.short}`} body={<p>Narrowing tightens the window Stamped works inside. It never widens the signed band of {w.low} to {w.high} {w.unit}.</p>} confirm="Narrow" done="Narrowed." />
+              <ConfirmAction label="Sign" allowed={sign} reason={deniedReason("sign-limits", "sign")} title={`Sign version ${w.version + 1}`} body={<><p>You are signing {w.name.toLowerCase()} on {l.name}, {w.low} to {w.high} {w.unit}.</p><blockquote>Stamped works inside limits set beforehand. This signature sets those limits until {dayMonth(w.expiresAt)}.</blockquote></>} confirm="Sign window" done="Signed." />
             </div> },
           ]} />
         </Section>

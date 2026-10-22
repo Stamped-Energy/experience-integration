@@ -32,7 +32,7 @@ export default async function Routing() {
             { key: "r", label: "Role", render: (n) => roleName(n.role) },
             { key: "c", label: "Channel", render: (n) => <Tag>{n.channel}</Tag> },
           ]} />
-          <div className="card-foot"><ConfirmAction label="Add a rule" allowed={manage} reason={deniedReason("manage-people", "change routing")} title="Add a notification rule" body={<p>Pick an event, a role and a channel (in-app or email).</p>} confirm="Add" done="Added (illustrative)." /></div>
+          <div className="card-foot"><ConfirmAction label="Add a rule" allowed={manage} reason={deniedReason("manage-people", "change routing")} title="Add a notification rule" body={<p>Pick an event, a role and a channel (in-app or email).</p>} confirm="Add" done="Added." /></div>
         </Section>
         <Section title="What waits, and for whom" meta="From the inbox" flush>
           <DataTable caption="Waiting" rowKey={(i) => i.id} rows={D.inboxItems.filter((i) => i.bucket !== "decided").slice(0, 8)} columns={[

@@ -68,7 +68,7 @@ export default async function RunDetail({ params, searchParams }: { params: Prom
               </div>
               <div>
                 <div className="label">{tag ? `${tag.name} during the ${pack.labels.unit}` : "Readings"}</div>
-                {readings.length ? <RunChart values={readings.map((r) => r.value).reverse()} width={480} height={130} label={tag?.name ?? "Readings"} /> : <p className="muted" style={{ fontSize: 13, marginTop: 8 }}>No sampled readings kept for this run in the demonstration dataset.</p>}
+                {readings.length ? <RunChart values={readings.map((r) => r.value).reverse()} width={480} height={130} label={tag?.name ?? "Readings"} /> : <p className="muted" style={{ fontSize: 13, marginTop: 8 }}>No sampled readings kept for this run on record.</p>}
               </div>
             </div>
           </Section>

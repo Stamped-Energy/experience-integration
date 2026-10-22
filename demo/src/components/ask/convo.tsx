@@ -97,7 +97,7 @@ export function liveTurn(q: string, base: string): Turn {
       label: weakestOf(r.questions.map((x) => x.label)), band: `${r.effect.low} to ${r.effect.high} ${r.effect.unit}`, why: `Proof record ${nameOf(r.id)}: verdict ${r.verdict}, rung ${r.rung}. The label is the weakest of its four questions.`,
       sources, card: { id: r.id, title: r.title, href: `${base}${base.includes("?") ? "&" : "?"}evidence=${r.id}`, state: r.verdict }, followUps: follow(q, ["When will the trial have enough batches?"]), step: `Reading ${D.byId.line(tr.lineId)!.short} batches` };
   }
-  return { q, abstain: { text: "Not enough data to answer.", missing: ["The demonstration plant has no records this question needs.", "Ask only answers from plant data it can cite."], suggest: suggestions()[0]?.q }, followUps: follow(q) };
+  return { q, abstain: { text: "Not enough data to answer.", missing: ["This plant has no records this question needs.", "Ask only answers from plant data it can cite."], suggest: suggestions()[0]?.q }, followUps: follow(q) };
 }
 export const stepFor = (q: string) => liveTurn(q, "/ask").step ?? "Reading plant data";
 

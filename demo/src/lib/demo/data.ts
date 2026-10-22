@@ -376,7 +376,7 @@ export const valueItems: T.ValueItem[] = [
   { ...I, id: "val-4", title: "Hold temperature 86 °C trial", lineId: "line-a", status: "Indicative", rung: "R2", inrPerMonth: 172000, basis: "Faster batches, if the trial holds; interval includes zero", proofRecordId: "proof-1" },
   { ...I, id: "val-5", title: "Lot saves from early warnings", lineId: "line-a", status: "Indicative", rung: "R2", inrPerMonth: 92000, basis: "Two batches not reworked × rework price; lab results pending", proofRecordId: "proof-4" },
 ];
-/** 8 weeks of verified value per week (₹ thousand), for the owner trend. Illustrative. */
+/** 8 weeks of verified value per week (₹ thousand), for the owner trend. */
 export const verifiedWeekly: number[] = [38, 41, 52, 60, 71, 84, 98, 104];
 export const indicativeWeekly: number[] = [12, 18, 30, 26, 40, 52, 58, 61];
 

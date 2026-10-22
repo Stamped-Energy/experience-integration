@@ -1,5 +1,5 @@
 "use client";
-/** Card type × role: default owner and who may assign. Click a cell to cycle (illustrative). */
+/** Card type × role: default owner and who may assign. Click a cell to cycle. */
 import { Fragment, useState } from "react";
 import type { Cell } from "@/lib/demo/agent";
 
@@ -14,7 +14,7 @@ export function RoleAssignMatrix({ rows, roles, editable }: { rows: { group: str
         <span><i className="ram-o">Owner</i> gets the card by default</span>
         <span><i className="ram-a">Assigns</i> can give it to a named person</span>
         <span className="spacer" />
-        {dirty ? <><span className="feedback" role="status">Changed, not saved (illustrative)</span><button type="button" className="btn btn-sm btn-quiet" onClick={() => setM(rows)}>Reset</button></> : <span className="muted">{editable ? "Click a cell to change it." : "Read only for your role."}</span>}
+        {dirty ? <><span className="feedback" role="status">Changed, not saved</span><button type="button" className="btn btn-sm btn-quiet" onClick={() => setM(rows)}>Reset</button></> : <span className="muted">{editable ? "Click a cell to change it." : "Read only for your role."}</span>}
       </div>
       <div className="ram-wrap">
         <table className="ram">

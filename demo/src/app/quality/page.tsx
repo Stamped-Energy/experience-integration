@@ -10,8 +10,8 @@ import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { Confidence } from "@/components/ui/Confidence";
 import { DataTable, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
-import { ExampleActions } from "@/components/cards/ExampleActions";
-import { AskedHere, ExampleStrip, Learned, Qualification, WorkingOn } from "@/components/agent/blocks";
+import { ActionsBoard, ActionsBrief, listActions } from "@/components/cards/ExampleActions";
+import { AskedHere, Learned, Qualification, WorkingOn } from "@/components/agent/blocks";
 import * as A from "@/lib/demo/agent";
 import { Tabs } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
@@ -24,7 +24,7 @@ function NoReleaseLine() {
   return <p className="secondary" style={{ margin: "0 0 var(--space-4)" }}>Releasing a hold happens in your quality system, not here.</p>;
 }
 
-export default async function LotsAtRisk({ searchParams }: { searchParams: Promise<{ lot?: string; evidence?: string; all?: string; tab?: string }> }) {
+export default async function LotsAtRisk({ searchParams }: { searchParams: Promise<{ lot?: string; evidence?: string; all?: string; tab?: string; status?: string; line?: string; mine?: string }> }) {
   const sp = await searchParams;
   const role = await currentRole();
   const sorted = D.lots.slice().sort((a, b) => RANK[a.riskWord] - RANK[b.riskWord] || b.startedAt.localeCompare(a.startedAt));
@@ -33,6 +33,7 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
   const prop = propOf(sel), spec = specOf(sel), lab = labOf(sel), links = linksOf(sel);
   const proof = proofForLot(sel);
   const agent = sp.tab === "agent";
+  const actions = sp.tab === "actions";
   const atRisk = D.lots.filter((l) => l.riskWord === "At risk");
   return (
     <Workspace crumbs={crumbs({ label: "Lots at risk" })} askContext="Lots at risk">
@@ -40,11 +41,13 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
         actions={<><Link className="btn btn-sm" href="/quality/links">{D.lotLinks.filter((l) => l.status === "suggested" && l.link_confidence < 0.8).length} links to confirm</Link><AskButton context="Lots at risk" label="Ask about lots" /></>} />
       <QualityTabs active="lots" />
       <Tabs label="Lots at risk sections" items={[
-        { href: "/quality", label: "Lots", active: !agent },
+        { href: "/quality", label: "Lots", active: !agent && !actions },
+        { href: "/quality?tab=actions", label: "Actions", count: listActions("Quality").length, active: actions },
         { href: "/quality?tab=agent", label: "Agent work", count: A.qualityWork.length, active: agent },
       ]} />
+      {actions ? <><p className="tab-intro">Every quality action: what needs a decision, what is being checked, and what was accepted.</p><ActionsBoard area="Quality" role={role} base="/quality" status={sp.status} line={sp.line} mine={sp.mine} /></> : null}
       {agent ? <p className="tab-intro">What the agent is doing on quality right now, and what it needs from you.</p> : null}
-      {agent ? (
+      {actions ? null : agent ? (
         <div className="grid">
           <div className="span-8 stack">
                         <WorkingOn items={A.qualityWork} />
@@ -56,7 +59,7 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
           </div>
         </div>
       ) : (<>
-      <ExampleStrip area="Quality" />
+      <ActionsBrief area="Quality" href="/quality?tab=actions" limit={3} />
       <NoReleaseLine />
       <div className="grid">
         <div className="span-8 stack">
@@ -94,7 +97,7 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
               {proof ? <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13 }}><VerdictTag verdict={proof.verdict} /><Link className="link" href={`/quality?lot=${sel.id}&evidence=${proof.id}`} scroll={false}>Evidence on demand</Link></div> : null}
             </div>
             <CardActions actions={[
-              { id: "corr", label: "Send correction to process", primary: sel.riskWord === "At risk", allowed: can(role, "send-correction"), reason: deniedReason("send-correction", "send corrections"), done: "Correction sent to Process as a recommendation. Illustrative: nothing was written." },
+              { id: "corr", label: "Send correction to process", primary: sel.riskWord === "At risk", allowed: can(role, "send-correction"), reason: deniedReason("send-correction", "send corrections"), done: "Correction sent to Process as a recommendation." },
               { id: "open", label: "Investigate", allowed: true, done: "Opened an investigation draft." },
             ]} />
           </Section>
@@ -117,7 +120,6 @@ export default async function LotsAtRisk({ searchParams }: { searchParams: Promi
           </Section>
         </div>
       </div>
-      <div style={{ marginTop: "var(--space-5)" }}><ExampleActions area="Quality" role={role} /></div>
       </>)}
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref={sp.lot ? `/quality?lot=${sp.lot}` : "/quality"} /> : null}
     </Workspace>

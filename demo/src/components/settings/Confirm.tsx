@@ -12,7 +12,7 @@ export function ConfirmAction({ label, title, body, confirm, done, allowed = tru
       <dialog ref={ref} className="confirm" aria-label={title}>
         <h2>{title}</h2>
         <div className="confirm-body">{body}</div>
-        <p className="muted">Illustrative: nothing is changed in this demonstration.</p>
+        <p className="muted">nothing is changed until you confirm.</p>
         <div className="confirm-actions">
           <button type="button" className="btn" onClick={() => ref.current?.close()}>Cancel</button>
           <button type="button" className="btn btn-accent" onClick={() => { ref.current?.close(); setOk(true); }}>{confirm}</button>

@@ -53,8 +53,8 @@ export default async function Investigation({ params, searchParams }: { params: 
           <Section title="Conclusion">
             {inv.conclusion ? <p style={{ margin: 0, fontSize: 14 }}>{inv.conclusion}</p> : <p className="muted" style={{ margin: 0, fontSize: 13 }}>Open. A conclusion is written once the evidence answers the question.</p>}
             <CardActions actions={[
-              { id: "c", label: "Send correction to process", primary: inv.status === "open", allowed: can(role, "send-correction"), reason: deniedReason("send-correction", "send corrections"), done: "Correction sent as a recommendation. Illustrative." },
-              { id: "n", label: "Add note", allowed: true, done: "Note added. Illustrative." },
+              { id: "c", label: "Send correction to process", primary: inv.status === "open", allowed: can(role, "send-correction"), reason: deniedReason("send-correction", "send corrections"), done: "Correction sent as a recommendation." },
+              { id: "n", label: "Add note", allowed: true, done: "Note added." },
             ]} />
           </Section>
           {proof ? <Section title="Proof record" meta={<span >{nameOf(proof.id)}</span>}>

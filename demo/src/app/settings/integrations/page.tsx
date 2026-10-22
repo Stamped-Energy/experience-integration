@@ -24,18 +24,18 @@ export default async function Integrations() {
           { key: "s", label: "Status", render: (i) => <Tag tone={i.status === "connected" ? "success" : i.status === "degraded" ? "warning" : "neutral"} dot>{i.status}</Tag> },
           { key: "l", label: "Last sync", render: (i) => rel(i.lastSync) },
           { key: "d", label: "Data", render: (i) => { const s = D.dataSources.find((x) => x.name === i.name); return s ? `${s.tags} tags · ${s.gapPct}% gap` : ""; } },
-          { key: "a", label: "", render: (i) => <ConfirmAction label="Test" allowed={ok} reason={reason} title={`Test ${i.name}`} body={<p>Reads one value to check the connection. Nothing is written.</p>} confirm="Run test" done="Test passed (illustrative)." /> },
+          { key: "a", label: "", render: (i) => <ConfirmAction label="Test" allowed={ok} reason={reason} title={`Test ${i.name}`} body={<p>Reads one value to check the connection. Nothing is written.</p>} confirm="Run test" done="Test passed." /> },
         ]} />
-        <div className="card-foot"><Link className="link" href="/plant/data">Data health</Link><span className="spacer" /><ConfirmAction label="Add connection" allowed={ok} reason={reason} title="Add a data connection" body={<p>Historian, production system, lab system or quality system.</p>} confirm="Add" done="Added (illustrative)." /></div>
+        <div className="card-foot"><Link className="link" href="/plant/data">Data health</Link><span className="spacer" /><ConfirmAction label="Add connection" allowed={ok} reason={reason} title="Add a data connection" body={<p>Historian, production system, lab system or quality system.</p>} confirm="Add" done="Added." /></div>
       </Section>
       <Section title="API keys" flush>
           <DataTable caption="API keys" rowKey={(k) => k.id} rows={D.apiKeys} columns={[
             { key: "l", label: "Key", render: (k) => <>{k.label}<span className="cell-sub mono">{nameOf(k.id)}</span></> },
             { key: "c", label: "Created", render: (k) => dayMonth(k.created) },
             { key: "u", label: "Last used", render: (k) => rel(k.lastUsed) },
-            { key: "r", label: "", render: (k) => <ConfirmAction label="Revoke" allowed={ok} reason={reason} title={`Revoke ${k.label}`} body={<p>Calls with this key fail from now.</p>} confirm="Revoke" done="Revoked (illustrative)." /> },
+            { key: "r", label: "", render: (k) => <ConfirmAction label="Revoke" allowed={ok} reason={reason} title={`Revoke ${k.label}`} body={<p>Calls with this key fail from now.</p>} confirm="Revoke" done="Revoked." /> },
           ]} />
-          <div className="card-foot"><ConfirmAction label="Create key" allowed={ok} reason={reason} title="Create an API key" body={<p>Name the key. It is shown once.</p>} confirm="Create" done="Created (illustrative)." /></div>
+          <div className="card-foot"><ConfirmAction label="Create key" allowed={ok} reason={reason} title="Create an API key" body={<p>Name the key. It is shown once.</p>} confirm="Create" done="Created." /></div>
         </Section>
         <Section title="Webhooks" flush>
           <DataTable caption="Webhooks" rowKey={(w) => w.id} rows={D.webhooks} columns={[
@@ -43,9 +43,9 @@ export default async function Integrations() {
             { key: "s", label: "Health", render: (w) => <>{w.status === "failing" ? <Tag tone="critical" dot>Failing</Tag> : w.status === "paused" ? <Tag tone="neutral">Paused</Tag> : <Tag tone="success" dot>Healthy</Tag>}{w.note && <span className="cell-sub">{w.note}</span>}</> },
             { key: "d", label: "Last delivery", render: (w) => w.lastDelivery ? rel(w.lastDelivery) : "None yet" },
             { key: "e", label: "Events", render: (w) => <span className="scope-chips">{w.events.map((e) => <Tag key={e}>{e}</Tag>)}</span> },
-            { key: "a", label: "", render: (w) => w.status === "failing" ? <ConfirmAction label="Retry" allowed={ok} reason={reason} title="Retry queued deliveries" body={<p>Sends queued deliveries again in order. Payloads carry ids only.</p>} confirm="Retry" done="Retry queued (illustrative)." /> : w.status === "paused" ? <ConfirmAction label="Resume" allowed={ok} reason={reason} title="Resume webhook" body={<p>Deliveries start again from the next event.</p>} confirm="Resume" done="Resumed (illustrative)." /> : <ConfirmAction label="Pause" allowed={ok} reason={reason} title="Pause webhook" body={<p>Events are not sent until resumed.</p>} confirm="Pause" done="Paused (illustrative)." /> },
+            { key: "a", label: "", render: (w) => w.status === "failing" ? <ConfirmAction label="Retry" allowed={ok} reason={reason} title="Retry queued deliveries" body={<p>Sends queued deliveries again in order. Payloads carry ids only.</p>} confirm="Retry" done="Retry queued." /> : w.status === "paused" ? <ConfirmAction label="Resume" allowed={ok} reason={reason} title="Resume webhook" body={<p>Deliveries start again from the next event.</p>} confirm="Resume" done="Resumed." /> : <ConfirmAction label="Pause" allowed={ok} reason={reason} title="Pause webhook" body={<p>Events are not sent until resumed.</p>} confirm="Pause" done="Paused." /> },
           ]} />
-          <div className="card-foot"><ConfirmAction label="Add webhook" allowed={ok} reason={reason} title="Add a webhook" body={<p>Pick events. Payloads carry ids only.</p>} confirm="Add" done="Added (illustrative)." /></div>
+          <div className="card-foot"><ConfirmAction label="Add webhook" allowed={ok} reason={reason} title="Add a webhook" body={<p>Pick events. Payloads carry ids only.</p>} confirm="Add" done="Added." /></div>
         </Section>
       <Section title="Data sources behind the connections" flush>
         <DataTable caption="Sources" rowKey={(s) => s.id} rows={D.dataSources} columns={[

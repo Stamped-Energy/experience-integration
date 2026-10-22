@@ -10,7 +10,7 @@ import { DecisionCard } from "@/components/cards/DecisionCard";
 import { RunChart } from "@/components/ui/charts";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, EvidenceTag, LineModeTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
-import { ExampleActions } from "@/components/cards/ExampleActions";
+import { ActionsBoard, ActionsBrief, listActions } from "@/components/cards/ExampleActions";
 import { AskedHere, ControlStack, LayerProposal, Learned, Onboarding, WorkingOn } from "@/components/agent/blocks";
 import { Tabs } from "@/components/ui/primitives";
 import * as A from "@/lib/demo/agent";
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: D.byId.line(id)?.name ?? "Line" };
 }
 
-export default async function LineDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ evidence?: string; n?: string; tab?: string }> }) {
+export default async function LineDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ evidence?: string; n?: string; tab?: string; status?: string; mine?: string }> }) {
   const { id } = await params;
   const sp = await searchParams;
   const line = D.byId.line(id);
@@ -42,7 +42,7 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
   const trials = D.trials.filter((t) => t.lineId === line.id);
   const sa = D.standingApprovals.filter((s) => s.lineId === line.id);
   const base = `/process/lines/${line.id}`;
-  const tab = sp.tab === "agent" || sp.tab === "controls" ? sp.tab : "overview";
+  const tab = sp.tab === "agent" || sp.tab === "controls" || sp.tab === "actions" ? sp.tab : "overview";
   const table = all.slice().reverse().slice(0, Number(sp.n ?? 16));
   return (
     <Workspace crumbs={crumbs({ label: line.short, href: base }, { label: "Line detail" })} askContext={line.name}>
@@ -52,11 +52,12 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
       <ProcessTabs active="lines" />
       <Tabs label={`${line.short} sections`} items={[
         { href: base, label: "Overview", active: tab === "overview" },
+        { href: `${base}?tab=actions`, label: "Actions", count: listActions("Process", line.id).length, active: tab === "actions" },
         { href: `${base}?tab=agent`, label: "Agent work", count: A.workingOn.filter((w) => w.lineId === line.id).length, active: tab === "agent" },
         { href: `${base}?tab=controls`, label: "Controls", count: A.controlStacks[line.id]?.length, active: tab === "controls" },
       ]} />
-      <p className="tab-intro">{tab === "agent" ? `What the agent is doing on ${line.short} right now, and what it needs from you.` : tab === "controls" ? `The controllers that run ${line.short}, and any new layer the agent is testing.` : `How ${line.short} is running, what the agent suggests, and every ${pack.labels.run.toLowerCase()} on record.`}</p>
-      {tab === "agent" ? (
+      <p className="tab-intro">{tab === "actions" ? `Every action on ${line.short}, grouped by what it needs from you.` : tab === "agent" ? `What the agent is doing on ${line.short} right now, and what it needs from you.` : tab === "controls" ? `The controllers that run ${line.short}, and any new layer the agent is testing.` : `How ${line.short} is running, what the agent suggests, and every ${pack.labels.run.toLowerCase()} on record.`}</p>
+      {tab === "actions" ? <ActionsBoard area="Process" role={role} lineId={line.id} base={base} status={sp.status} mine={sp.mine} /> : tab === "agent" ? (
         <div className="grid">
           <div className="span-8 stack">
             <WorkingOn lineId={line.id} />
@@ -80,7 +81,7 @@ export default async function LineDetail({ params, searchParams }: { params: Pro
           </div>
         </div>
       ) : (<>
-      <div style={{ marginBottom: "var(--space-5)" }}><ExampleActions area="Process" role={role} lineId={line.id} title={`Example actions on ${line.short}`} /></div>
+      <ActionsBrief area="Process" lineId={line.id} href={`${base}?tab=actions`} />
       <div className="grid line-grid">
         <div className="span-8 xl-span-9 stack">
           <Section title={`${name} per ${pack.labels.unit}`} meta={`Last ${shown.length} ${pack.labels.runs.toLowerCase()} · spec dashed${trialStart >= 0 ? " · shaded: trial running" : ""}`} flush>

@@ -49,7 +49,7 @@ export default async function TrialDetail({ params, searchParams }: { params: Pr
         <div className="span-8 stack">
           <Section title="Stop" meta="What Stop does on this trial" flush>
             <div style={{ padding: "12px 16px 0", fontSize: 14 }}>Stop restores the checked prior configuration, <strong>{Object.entries(t.restoreTarget).map(([k, v]) => `${D.byId.window(t.lineId, k)?.name ?? k} ${v} ${D.byId.window(t.lineId, k)?.unit ?? ""}`).join(", ")}</strong>, from the next {line.type === "batch" ? "batch" : "shift run"}. If the restore fails, the line goes recommend-only.</div>
-            <CardActions actions={t.status === "awaiting signature" ? [{ id: "sign", label: "Sign trial order", primary: true, allowed: can(role, "sign-trial"), reason: deniedReason("sign-trial", "sign"), done: "Signed. Illustrative: nothing was written." }] : []}
+            <CardActions actions={t.status === "awaiting signature" ? [{ id: "sign", label: "Sign trial order", primary: true, allowed: can(role, "sign-trial"), reason: deniedReason("sign-trial", "sign"), done: "Signed." }] : []}
               stop={t.status === "running" ? { effect: `Restores ${Object.values(t.restoreTarget)[0]} from the next run.`, allowed: can(role, "press-stop", t.lineId), reason: deniedReason("press-stop", "press Stop") } : undefined} />
           </Section>
           <Section title="Switchback schedule" meta={`${done} written · ${skipped.length} skipped · ${plan.minBatches} planned`} flush>

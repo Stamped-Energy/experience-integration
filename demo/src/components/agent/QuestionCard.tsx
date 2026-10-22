@@ -1,5 +1,5 @@
 "use client";
-/** A question the agent asks a person. Shows why, what waits on it, quick answers with what the agent will do next, and after answering what changed. Illustrative: nothing is written. */
+/** A question the agent asks a person. Shows why, what waits on it, quick answers with what the agent will do next, and after answering what changed. */
 import Link from "next/link";
 import { useState } from "react";
 import type { Question } from "@/lib/demo/agent";
@@ -47,7 +47,7 @@ export function QuestionCard({ v, canAnswer, canAssign, me, people, assignee }: 
         ) : done ? (
           <div className="q-effect" role="status">
             <span className="label">Your answer</span><b>{done}</b>
-            <span>{chosen?.then ?? "I add your words to the record and tell the owner what changed."} Illustrative: nothing was written.</span>
+            <span>{chosen?.then ?? "I add your words to the record and tell the owner what changed."}</span>
             <button type="button" className="btn btn-sm btn-quiet" style={{ alignSelf: "flex-start" }} onClick={() => { setDone(null); setPick(null); setMode(""); }}>Undo</button>
           </div>
         ) : (
@@ -61,7 +61,7 @@ export function QuestionCard({ v, canAnswer, canAssign, me, people, assignee }: 
               <button type="button" className="link-btn" disabled={!canAnswer} onClick={() => { setMode("else"); setPick(null); }}>I don't know, ask someone else</button>
             </div>
             {mode === "text" ? <textarea className="q-text" rows={2} placeholder="Type your answer" value={text} onChange={(e) => setText(e.target.value)} /> : null}
-            {mode === "photo" ? <div className="q-photo"><span className="q-photo-box" aria-hidden>+</span><span>{q.photo}. Demo only: the photo is not uploaded.</span></div> : null}
+            {mode === "photo" ? <div className="q-photo"><span className="q-photo-box" aria-hidden>+</span><span>{q.photo}</span></div> : null}
             {mode === "else" ? <p className="q-then">I will ask the next person in the routing for this question and tell you who answered.</p> : null}
             {chosen ? <p className="q-then"><span className="label">If you say "{chosen.label}"</span>{chosen.then}</p> : null}
             {!canAnswer ? <p className="muted" style={{ margin: 0, fontSize: 12 }}>Sent to the {v.owner.toLowerCase()}. You can see it but not answer it.</p> : null}

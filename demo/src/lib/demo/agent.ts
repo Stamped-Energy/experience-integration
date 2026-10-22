@@ -186,6 +186,10 @@ export const assigned: Record<string, { to: string; by: string; at: string }> = 
   "in-5": { to: "Process engineer A.", by: "Plant head A.", at: at(0, -2) },
   "q-3": { to: "Quality head A.", by: "Plant head A.", at: at(0, -2, -30) },
   "idle-3": { to: "Process engineer A.", by: "Plant head A.", at: at(-6) },
+  "ex-p2": { to: "Process engineer A.", by: "Plant head A.", at: at(0, -2) },
+  "ex-p4": { to: "Process engineer A.", by: "Plant head A.", at: at(-1) },
+  "ex-q1": { to: "Quality head A.", by: "Plant head A.", at: at(0, -3) },
+  "ex-q3": { to: "Shift lead A.", by: "Quality head A.", at: at(0, -1) },
 };
 /** Assignment matrix: for each card type, the default owner role and the roles that may assign it. */
 export type Cell = "owner" | "assign" | "both" | "";
