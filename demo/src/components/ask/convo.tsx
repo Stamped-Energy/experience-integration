@@ -6,7 +6,7 @@ import type { AskThread, EvidenceLabel } from "@/lib/demo/types";
 import { dayMonth, rel } from "@/lib/format";
 import { EvidenceTag, Tag } from "@/components/ui/primitives";
 import { evHref, proofFor } from "./common";
-import { SUGGESTED, richConvs } from "@/lib/demo/askRich";
+import { SUGGESTED, convsFor } from "@/lib/demo/askRich";
 import { currentRole } from "@/lib/role";
 import { HistScroll, SourceMark } from "./AskClient";
 import { SequenceMascot } from "@/components/mascot/StampedMascot";
@@ -132,7 +132,8 @@ export function TurnView({ t, idx, compact }: { t: Turn; idx: number; compact?: 
 export async function History({ current, filter, base }: { current?: string; filter?: string; base: string }) {
   const now = Date.parse(D.DEMO_NOW);
   const role = await currentRole();
-  const th: AskThread[] = [...D.askThreads, ...richConvs.filter((c) => c.role !== "owner" || role === "owner").map((c) => ({ ...c, messages: [], sub: `${D.roles.find((r) => r.id === c.role)?.name} · ${c.area}` }) as unknown as AskThread)].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const rich = convsFor(role);
+  const th: AskThread[] = [...D.askThreads.filter((t) => !rich.some((c) => c.id === t.id)), ...rich.map((c) => ({ ...c, messages: [], sub: `${D.roles.find((r) => r.id === c.role)?.name} · ${c.area}` }) as unknown as AskThread)].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   const today = th.filter((t) => now - Date.parse(t.updatedAt) < 864e5);
   const week = th.filter((t) => now - Date.parse(t.updatedAt) >= 864e5);
   const f = (v?: string) => `${base}${base.includes("?") ? "&" : "?"}${v ? `h=${v}` : ""}`.replace(/[?&]$/, "");

@@ -21,8 +21,8 @@ function BlockView({ b }: { b: Block }) {
     case "trend": return <figure className="rb-fig"><figcaption>{b.title}<span className="muted"> · spec {b.spec[0]} to {b.spec[1]} {b.unit}</span></figcaption><RunChart values={b.values} spec={b.spec} height={110} width={600} label={b.title} highlightFrom={b.from} /></figure>;
     case "compare": return <figure className="rb-fig"><figcaption>{b.title}</figcaption>
       <div className="rb-cmp">{b.rows.map((r) => <div key={r.m} className="rb-cmp-row"><span className="rb-m">{r.m}</span>
-        <div className="rb-pair"><span className="rb-k">Before</span><Band b={r.before} scale={r.scale} /><span className="rb-v">{r.before[0]} to {r.before[1]}</span></div>
-        <div className="rb-pair"><span className="rb-k">After</span><Band b={r.after} scale={r.scale} now /><span className="rb-v">{r.after[0]} to {r.after[1]}</span></div></div>)}</div></figure>;
+        <div className="rb-pair"><span className="rb-k">{r.labels?.[0] ?? "Before"}</span><Band b={r.before} scale={r.scale} /><span className="rb-v">{r.before[0]} to {r.before[1]}</span></div>
+        <div className="rb-pair"><span className="rb-k">{r.labels?.[1] ?? "After"}</span><Band b={r.after} scale={r.scale} now /><span className="rb-v">{r.after[0]} to {r.after[1]}</span></div></div>)}</div></figure>;
     case "flow": return <div className="rb-flow">{b.nodes.map((n, i) => {
       const inner = <><b>{n.t}</b>{n.sub ? <span>{n.sub}</span> : null}</>;
       return <span key={i} className="rb-flow-i">{i ? <span className="rb-arrow" aria-hidden>→</span> : null}{n.href ? <Link prefetch={false} href={n.href} className={`rb-node${n.flag ? " flag" : ""}`}>{inner}</Link> : <span className={`rb-node${n.flag ? " flag" : ""}`}>{inner}</span>}</span>;
@@ -32,14 +32,26 @@ function BlockView({ b }: { b: Block }) {
 }
 
 export function RichTurnView({ t, idx, role }: { t: RichTurn; idx: number; role: RoleId }) {
+  const working = t.checked.length || t.cause.length;
   return (
     <div className="turn rich" id={`t${idx}`}>
       <div className="q-bubble">{t.q}</div>
       <div className="a-row">
         <span className="a-mascot"><SequenceMascot size={28} label="Stamped assistant" steps={[["thinking", 0.6], ["answering", 2.2], ["success", 0]]} /></span>
         <div className="a-prose">
-          {t.blocks.map((b, i) => <BlockView key={i} b={b} />)}
+          <p className="rb-short">{t.short}</p>
           <div className="rb-conf"><EvidenceTag label={t.label} />{t.band ? <span>band {t.band}</span> : null}</div>
+          {t.visual.map((b, i) => <BlockView key={i} b={b} />)}
+          {working ? <details className="rb-work"><summary>Show the working</summary>
+            {t.checked.length ? <><h3 className="rb-h">What the agent checked</h3><ul className="rb-ul">{t.checked.map((c) => <li key={c}>{c}</li>)}</ul></> : null}
+            {t.cause.length ? <><h3 className="rb-h">Cause analysis</h3>{t.cause.map((b, i) => <BlockView key={i} b={b} />)}</> : null}
+          </details> : null}
+          {t.options?.length ? <><h3 className="rb-h">Options compared</h3><div className="rb-tw"><table className="rb-t"><thead><tr><th>Option</th><th>Expected band</th><th>Note</th></tr></thead><tbody>
+            {t.options.map((o) => <tr key={o.name} className={o.pick ? "pick" : undefined}><td>{o.name}{o.pick ? <span className="rb-pick">Proposed</span> : null}</td><td>{o.band}</td><td className="muted">{o.note}</td></tr>)}</tbody></table></div></> : null}
+          {t.risks.length || t.wont.length ? <div className="rb-rw">
+            {t.risks.length ? <div><h3 className="rb-h">Risks</h3><ul className="rb-ul">{t.risks.map((r) => <li key={r}>{r}</li>)}</ul></div> : null}
+            {t.wont.length ? <div><h3 className="rb-h">What it will not do</h3><ul className="rb-ul">{t.wont.map((r) => <li key={r}>{r}</li>)}</ul></div> : null}
+          </div> : null}
           <div className="rb-ev">{t.ev.map((e) => <Link key={e.id} prefetch={false} href={e.href} className="rb-chip" title={e.what}><EvidenceTag label={e.label} /><span className="mono">{e.id}</span><span className="rb-what">{e.what}</span></Link>)}</div>
           {t.next ? <div className="rb-next"><div><span className="label">Proposed next</span><b>{t.next.title}</b><span className="muted">{t.next.sub}</span></div>
             <div className="rb-next-a"><Link prefetch={false} className="btn btn-sm btn-primary" href={t.next.href}>{t.next.cta}</Link>{t.next.assignable ? <Assign people={A.PEOPLE} canAssign={A.ASSIGNERS.includes(role)} by={A.ME[role] ?? "Plant head A."} /> : null}</div></div> : null}
