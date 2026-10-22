@@ -7,12 +7,12 @@ import { RunChart } from "@/components/ui/charts";
 import { PageHeader, Section } from "@/components/ui/primitives";
 import { FitChecks } from "@/components/process/FitChecks";
 import { ProcessTabs, crumbs, outcome, outcomeName, runsOf, specOf } from "@/components/process/common";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 
 export const metadata = { title: "Model fit" };
 
 export default async function ModelFitPage() {
-  const role = await currentRole();
+  const role = demoRole();
   const withheld = D.proposals.filter((p) => p.fitState === "not accepted");
   const fits = D.modelFits.slice().sort((a) => (a.state === "accepted" ? 1 : -1));
   return (

@@ -7,7 +7,7 @@ import { dayMonth, rel } from "@/lib/format";
 import { EvidenceTag, Tag } from "@/components/ui/primitives";
 import { evHref, proofFor } from "./common";
 import { SUGGESTED, convsFor } from "@/lib/demo/askRich";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 import { HistScroll, SourceMark } from "./AskClient";
 import { SequenceMascot } from "@/components/mascot/StampedMascot";
 import { nameOf, proposalName, proposalShort } from "@/lib/names";
@@ -131,7 +131,7 @@ export function TurnView({ t, idx, compact }: { t: Turn; idx: number; compact?: 
 /* ---------- History: Today, This week, Saved, Notes ---------- */
 export async function History({ current, filter, base }: { current?: string; filter?: string; base: string }) {
   const now = Date.parse(D.DEMO_NOW);
-  const role = await currentRole();
+  const role = demoRole();
   const rich = convsFor(role);
   const th: AskThread[] = [...D.askThreads.filter((t) => !rich.some((c) => c.id === t.id)), ...rich.map((c) => ({ ...c, messages: [], sub: `${D.roles.find((r) => r.id === c.role)?.name} · ${c.area}` }) as unknown as AskThread)].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   const today = th.filter((t) => now - Date.parse(t.updatedAt) < 864e5);

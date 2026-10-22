@@ -1,6 +1,6 @@
 import * as D from "@/lib/demo/data";
 import * as A from "@/lib/demo/agent";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
 import { rel } from "@/lib/format";
 import { DataTable, Section } from "@/components/ui/primitives";
@@ -10,7 +10,7 @@ import { RoleAssignMatrix } from "@/components/settings/RoleAssignMatrix";
 export const metadata = { title: "Assignment matrix" };
 
 export default async function Assignment() {
-  const role = await currentRole();
+  const role = demoRole();
   const rows = Object.entries(A.assigned).map(([id, a]) => ({ id, ...a, title: D.inboxItems.find((i) => i.id === id)?.title ?? A.questions.find((q) => q.id === id)?.title ?? A.idleProposals.find((p) => p.id === id)?.title ?? id }));
   return (
     <SettingsPage section="assignment" title="Assignment matrix" meta="For each kind of card, which role gets it by default and which roles can hand it to a named person."

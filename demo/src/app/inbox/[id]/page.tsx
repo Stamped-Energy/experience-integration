@@ -2,7 +2,7 @@ import Link from "next/link";
 import { nameOf } from "@/lib/names";
 import { notFound } from "next/navigation";
 import * as D from "@/lib/demo/data";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 import { dayMonth, hhmm } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
@@ -10,12 +10,17 @@ import { RunChart } from "@/components/ui/charts";
 import { DataTable, LineModeTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { InboxCard } from "@/components/inbox/InboxCard";
 import { lineSeries, proofHref } from "@/components/home/blocks";
+import { inboxIds } from "@/lib/static-paths";
+
+export function generateStaticParams() {
+  return inboxIds();
+}
 
 export default async function CardDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const item = D.byId.inbox(id);
   if (!item) notFound();
-  const role = await currentRole();
+  const role = demoRole();
   const p = item.kind === "proposal" ? D.byId.proposal(item.ref) : undefined;
   const lineId = p?.lineId ?? D.byId.trial(item.ref)?.lineId ?? D.byId.correction(item.ref)?.toLineId ?? (D.byId.link(item.ref) ? D.byId.lot(D.byId.link(item.ref)!.lotId)!.lineIds[0] : "line-a");
   const line = D.byId.line(lineId)!;

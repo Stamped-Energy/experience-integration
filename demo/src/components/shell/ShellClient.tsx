@@ -8,6 +8,7 @@ import { Icon } from "./icons";
 import { StampedMark } from "./StampedMark";
 import { StampedMascot } from "@/components/mascot/StampedMascot";
 import type { RoleId } from "@/lib/demo/types";
+import { useSetRole } from "@/lib/role.client";
 
 const ICON: Record<string, (p: object) => ReactNode> = Icon as never;
 
@@ -96,20 +97,17 @@ function RailToggle() {
 }
 
 /** Inline script for <head>: applies saved theme, density and sidebar state before paint. */
-export const DISPLAY_SCRIPT = `try{var d=document.documentElement,t=localStorage.getItem('stamped-theme'),n=localStorage.getItem('stamped-density'),r=localStorage.getItem('stamped-rail');if(t)d.dataset.theme=t;if(n)d.dataset.density=n;if(r)d.dataset.rail=r;}catch(e){}`;
+export const DISPLAY_SCRIPT = `try{var d=document.documentElement,t=localStorage.getItem('stamped-theme'),n=localStorage.getItem('stamped-density'),r=localStorage.getItem('stamped-rail'),c=document.cookie.match(/stamped-role=([^;]+)/),role=c&&c[1]?c[1]:'plant-head';if(t)d.dataset.theme=t;if(n)d.dataset.density=n;if(r)d.dataset.rail=r;d.dataset.role=role;var m=document.querySelector('.main');if(m)m.dataset.role=role;}catch(e){}`;
 
 export function RoleSwitcher({ role, roles }: { role: RoleId; roles: { id: RoleId; name: string }[] }) {
-  const router = useRouter();
+  const setRole = useSetRole();
   return (
     <label className="role-switch">
       <span className="label">View as</span>
       <select
         className="select"
         value={role}
-        onChange={(e) => {
-          document.cookie = `stamped-role=${e.target.value}; path=/; max-age=31536000; samesite=lax`;
-          router.refresh();
-        }}
+        onChange={(e) => setRole(e.target.value as RoleId)}
       >
         {roles.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
       </select>

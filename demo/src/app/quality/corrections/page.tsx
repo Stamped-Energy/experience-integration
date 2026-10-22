@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
 import { dayMonth, hhmm, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
@@ -17,7 +17,7 @@ import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf,
 
 export const metadata = { title: "Corrections to process" };
 export default async function Corrections() {
-  const role = await currentRole();
+  const role = demoRole();
   return (
     <Workspace crumbs={crumbs({ label: "Corrections to process" })} askContext="Corrections to process">
       <PageHeader eyebrow="Quality" title="Corrections to process" meta="Quality asks; Process decides. A correction becomes a proposal on the line and goes through the same limits and approvals." actions={<AskButton context="Corrections" label="Ask about corrections" />} />

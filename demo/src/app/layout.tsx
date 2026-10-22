@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import { AppShell } from "@/components/shell/Shell";
 import { DISPLAY_SCRIPT } from "@/components/shell/ShellClient";
+import { RoleProvider } from "@/lib/role.client";
 import "@/styles/tokens.css";
 import "@/styles/app.css";
 import "@/styles/process.css";
@@ -27,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-IN" data-theme="light" className={`${geist.variable} ${geistMono.variable} ${brand.variable}`} suppressHydrationWarning>
       <head><script dangerouslySetInnerHTML={{ __html: DISPLAY_SCRIPT }} /></head>
-      <body><AppShell>{children}</AppShell></body>
+      <body><RoleProvider><AppShell>{children}</AppShell></RoleProvider></body>
     </html>
   );
 }

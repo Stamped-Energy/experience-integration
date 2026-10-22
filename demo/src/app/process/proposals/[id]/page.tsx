@@ -2,7 +2,7 @@ import Link from "next/link";
 import { nameOf } from "@/lib/names";
 import { notFound } from "next/navigation";
 import * as D from "@/lib/demo/data";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 import { dayMonth, hhmm } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
@@ -12,6 +12,11 @@ import { RunChart } from "@/components/ui/charts";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { FitChecks } from "@/components/process/FitChecks";
 import { ProcessTabs, crumbs, outcome, runLabel, runsOf } from "@/components/process/common";
+import { proposalIds } from "@/lib/static-paths";
+
+export function generateStaticParams() {
+  return proposalIds();
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -22,7 +27,7 @@ export default async function ProposalTest({ params }: { params: Promise<{ id: s
   const { id } = await params;
   const p = D.byId.proposal(id);
   if (!p) notFound();
-  const role = await currentRole();
+  const role = demoRole();
   const line = D.byId.line(p.lineId)!;
   const win = D.byId.window(p.lineId, p.param);
   const fit = D.modelFits.find((f) => f.lineId === p.lineId)!;

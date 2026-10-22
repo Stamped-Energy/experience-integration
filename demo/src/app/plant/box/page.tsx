@@ -2,7 +2,7 @@ import { RevokeLease } from "@/components/plant/RevokeLease";
 import { nameOf } from "@/lib/names";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
 import { dayMonth, hhmm, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
@@ -15,7 +15,7 @@ import { PlantSectionMap, PlantTabs, crumbs, fmt, latest, openCards, readingsOf,
 
 export const metadata = { title: "Plant Box and lease" };
 export default async function Box() {
-  const role = await currentRole();
+  const role = demoRole();
   const box = D.plantBox;
   const lease = D.leases.find((l) => l.state === "active") ?? D.leases[0];
   const offH = lease.offlineMin / 60;

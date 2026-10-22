@@ -1,6 +1,6 @@
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 import { can, grant, whoCan, ACTIONS, ACTION_LABELS, ROLE_ORDER } from "@/lib/rbac";
 import { dayMonth, rel } from "@/lib/format";
 import { deniedReason } from "@/components/cards/DecisionCard";
@@ -14,7 +14,7 @@ export const metadata = { title: "Routing and notifications" };
 const scopeLabel = (s: string) => D.byId.line(s)?.name ?? D.areas.find((a) => a.id === s)?.name ?? (s === "quality" ? "Quality" : s);
 
 export default async function Routing() {
-  const role = await currentRole();
+  const role = demoRole();
   const manage = can(role, "manage-people");
   const people = D.people.filter((p) => !["owner", "viewer", "stamped-engineer"].includes(p.roles[0].role));
   return (
