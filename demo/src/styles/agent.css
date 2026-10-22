@@ -210,6 +210,8 @@
 .ex-left, .ex-right { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .ex-right { border-left: 1px solid var(--border); padding-left: var(--space-4); }
 .ex-right .ex-grid { grid-template-columns: 78px minmax(0, 1fr); gap: 6px 10px; }
+.ex-right .ex-grid > span { min-width: 0; }
+.ex-right .ex-grid .tag { display: inline-block; max-width: 100%; height: auto; white-space: normal; line-height: 1.35; padding-block: 2px; vertical-align: baseline; }
 .ex-right .ex-meta { margin-top: auto; padding-top: 6px; }
 .ex-left .card-title { font-size: 15px; margin: 0; }
 .ex-left .card-obs { margin: 0; font-size: 13px; }
