@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
 import { dayMonth, hhmm, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
@@ -16,7 +16,7 @@ export const metadata = { title: "Trials and stops" };
 const tone = (s: string) => (s === "running" ? "info" : s === "awaiting signature" ? "accent" : s === "stopped" ? "critical" : "neutral") as "info" | "accent" | "critical" | "neutral";
 
 export default async function Trials() {
-  const role = await currentRole();
+  const role = demoRole();
   const running = D.trials.filter((t) => t.status === "running");
   const waiting = D.trials.filter((t) => t.status === "awaiting signature");
   return (

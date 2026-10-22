@@ -1,7 +1,7 @@
 import { nameOf } from "@/lib/names";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 import { can, grant, whoCan, ACTIONS, ACTION_LABELS, ROLE_ORDER } from "@/lib/rbac";
 import { dayMonth, rel } from "@/lib/format";
 import { deniedReason } from "@/components/cards/DecisionCard";
@@ -12,7 +12,7 @@ import { GrantTag, SettingsPage, roleName } from "@/components/settings/common";
 
 export const metadata = { title: "Plant setup" };
 export default async function PlantSetup() {
-  const role = await currentRole();
+  const role = demoRole();
   const ok = can(role, "manage-people");
   const reason = deniedReason("manage-people", "change plant setup");
   return (

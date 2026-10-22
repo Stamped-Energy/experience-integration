@@ -1,6 +1,6 @@
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
 import { dayMonth, hhmm, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";

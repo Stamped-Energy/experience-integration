@@ -1,23 +1,18 @@
 /** Server parts of the shell. AppShell wraps every page; Workspace adds the 44px breadcrumb bar for a page. */
-import Link from "next/link";
-import { nameOf } from "@/lib/names";
 import type { ReactNode } from "react";
-import { inboxItems, leases, roles, suggestedQuestions } from "@/lib/demo/data";
-import { currentRole } from "@/lib/role";
-import { AskButton, AskPanelFrame, AskProvider, BottomBar, Rail, RoleSwitcher } from "./ShellClient";
-import { SearchLaunch } from "./Search";
-import { Tag } from "@/components/ui/primitives";
+import { inboxItems, suggestedQuestions } from "@/lib/demo/data";
+import { DEFAULT_ROLE } from "@/lib/role";
+import { AskPanelFrame, AskProvider, BottomBar, Rail } from "./ShellClient";
 import { AskPanelContents } from "@/components/ask/Panel";
 
-export async function AppShell({ children }: { children: ReactNode }) {
-  const role = await currentRole();
+export function AppShell({ children }: { children: ReactNode }) {
   const waiting = inboxItems.filter((i) => i.bucket === "waiting").length;
   return (
     <AskProvider>
       <a className="skip" href="#main">Skip to content</a>
       <div className="app">
         <Rail inboxCount={waiting} />
-        <div className="main" data-role={role}>
+        <div className="main" data-role={DEFAULT_ROLE}>
           {children}
         </div>
       </div>
@@ -31,9 +26,10 @@ export async function AppShell({ children }: { children: ReactNode }) {
 
 export interface Crumb { label: string; href?: string }
 
-export async function Workspace({ crumbs, children, askContext }: { crumbs: Crumb[]; children: ReactNode; askContext?: string }) {
-  const role = await currentRole();
-  const lease = leases[0];
+import Link from "next/link";
+import { CrumbTools } from "./CrumbTools";
+
+export function Workspace({ crumbs, children, askContext }: { crumbs: Crumb[]; children: ReactNode; askContext?: string }) {
   return (
     <>
       <header className="crumbbar">
@@ -45,14 +41,7 @@ export async function Workspace({ crumbs, children, askContext }: { crumbs: Crum
             </span>
           ))}
         </nav>
-        <div className="crumb-tools">
-          <SearchLaunch />
-          <RoleSwitcher role={role} roles={roles.map((r) => ({ id: r.id, name: r.name }))} />
-          <Tag tone={lease.state === "active" && lease.offlineMin === 0 ? "success" : "warning"} dot title={`Lease ${nameOf(lease.id)}: at most ${lease.maxOfflineH} h offline, never more than ${lease.hardCapH} h`}>
-            {lease.offlineMin === 0 ? "Connected" : `Offline · ${lease.offlineMin} min of 4 h`}
-          </Tag>
-          <AskButton context={askContext} className="btn btn-sm btn-accent" mascot />
-        </div>
+        <CrumbTools askContext={askContext} />
       </header>
       <main className="workspace" id="main"><div className="page">{children}</div></main>
     </>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
 import { dayMonth, hhmm, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
@@ -16,7 +16,7 @@ import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf,
 
 export const metadata = { title: "Link confirmations" };
 export default async function Links() {
-  const role = await currentRole();
+  const role = demoRole();
   const weak = belowThreshold();
   const all = D.lotLinks.slice().sort((a, b) => a.link_confidence - b.link_confidence);
   const allowed = can(role, "confirm-lot-link");

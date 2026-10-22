@@ -1,6 +1,6 @@
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
 import { dayMonth, hhmm, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
@@ -18,7 +18,7 @@ export const metadata = { title: "Drift" };
 const series = (lineId: string, prop: string) => D.runs.filter((r) => r.lineId === lineId).sort((a, b) => a.end.localeCompare(b.end)).map((r) => r.outcomes.find((o) => o.name === prop)?.value).filter((v): v is number => v !== undefined).slice(-24);
 
 export default async function Drift() {
-  const role = await currentRole();
+  const role = demoRole();
   const b = D.alarmBudget;
   return (
     <Workspace crumbs={crumbs({ label: "Drift" })} askContext="Quality drift">

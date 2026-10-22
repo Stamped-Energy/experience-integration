@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
 import { dayMonth, hhmm, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
@@ -12,6 +12,11 @@ import { RunChart, Sparkline } from "@/components/ui/charts";
 import { DataTable, EvidenceTag, Illustrative, KpiRow, LineModeTag, ModeTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { PlantSectionMap, PlantTabs, crumbs, fmt, latest, openCards, readingsOf, seriesFor, tagsOf } from "@/components/plant/common";
 import { notFound } from "next/navigation";
+import { assetIds } from "@/lib/static-paths";
+
+export function generateStaticParams() {
+  return assetIds();
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

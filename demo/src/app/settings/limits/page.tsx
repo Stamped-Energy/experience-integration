@@ -1,6 +1,6 @@
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
-import { currentRole } from "@/lib/role";
+import { demoRole } from "@/lib/role";
 import { can, grant, whoCan, ACTIONS, ACTION_LABELS, ROLE_ORDER } from "@/lib/rbac";
 import { dayMonth, rel } from "@/lib/format";
 import { deniedReason } from "@/components/cards/DecisionCard";
@@ -12,7 +12,7 @@ import { GrantTag, SettingsPage, roleName } from "@/components/settings/common";
 
 export const metadata = { title: "Signed limits" };
 export default async function Limits() {
-  const role = await currentRole();
+  const role = demoRole();
   const sign = can(role, "sign-limits"), narrow = can(role, "narrow-limit");
   return (
     <SettingsPage section="limits" title="Signed limits" meta="Windows Stamped works inside, signed per line beforehand. Stamped may narrow a window, never widen it; Stamped staff can never sign."
