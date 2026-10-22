@@ -10,6 +10,7 @@ import "@/styles/plant.css";
 import "@/styles/ask.css";
 import "@/styles/settings.css";
 import "@/styles/activity.css";
+import "@/styles/agent.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
@@ -18,7 +19,7 @@ const brand = Space_Grotesk({ subsets: ["latin"], weight: ["500"], variable: "--
 
 export const metadata: Metadata = {
   title: { default: "Stamped · Demonstration plant", template: "%s · Stamped" },
-  description: "Stamped on a fictional demonstration plant with illustrative data. Stamped works inside limits set beforehand.",
+  description: "Stamped works inside limits set beforehand.",
 };
 export const viewport: Viewport = { themeColor: "#FAFAF9", width: "device-width", initialScale: 1 };
 

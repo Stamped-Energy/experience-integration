@@ -70,5 +70,5 @@ export function seriesFor(t: TagT): { values: number[]; source: string } {
   }
   const o = runs.map((run) => run.outcomes.find((x) => x.name === t.name)?.value).filter((x): x is number => x !== undefined);
   if (o.length) return { values: o, source: "run outcome" };
-  return { values: [], source: "no series in the demonstration data" };
+  return { values: [], source: "no series on record" };
 }

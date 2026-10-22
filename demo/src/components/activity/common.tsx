@@ -5,8 +5,9 @@ import type { AuditEvent } from "@/lib/demo/types";
 import type { Crumb } from "@/components/shell/Shell";
 import { Tabs } from "@/components/ui/primitives";
 
-export function ActivityTabs({ active }: { active: "audit" | "reports" }) {
+export function ActivityTabs({ active }: { active: "audit" | "reports" | "summary" }) {
   return <Tabs label="Activity" items={[
+    { href: "/activity/summary", label: "Summary", active: active === "summary" },
     { href: "/activity", label: "Audit log", count: D.auditEvents.length, active: active === "audit" },
     { href: "/activity/reports", label: "Reports and exports", count: D.reports.filter((r) => r.status === "awaiting approval").length, active: active === "reports" },
   ]} />;

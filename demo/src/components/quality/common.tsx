@@ -1,10 +1,12 @@
 /** Shared helpers for the Quality area: sub-navigation, crumbs and lot lookups. */
+import { exampleActions } from "@/lib/demo/actions";
+import { qualityWork } from "@/lib/demo/agent";
 import * as D from "@/lib/demo/data";
 import type { Lot } from "@/lib/demo/types";
 import type { Crumb } from "@/components/shell/Shell";
 import { Tabs, Tag, type Tone } from "@/components/ui/primitives";
 
-export type QualityTab = "lots" | "drift" | "investigations" | "links" | "specs" | "corrections";
+export type QualityTab = "lots" | "actions" | "agent" | "drift" | "investigations" | "links" | "specs" | "corrections";
 
 export const belowThreshold = () => D.lotLinks.filter((l) => l.status === "suggested" && l.link_confidence < threshold(l.lotId));
 export const threshold = (lotId: string) => {
@@ -15,6 +17,8 @@ export const threshold = (lotId: string) => {
 export function QualityTabs({ active }: { active: QualityTab }) {
   const items = [
     { key: "lots", href: "/quality", label: "Lots at risk", count: D.lots.filter((l) => l.riskWord === "At risk").length },
+    { key: "actions", href: "/quality?tab=actions", label: "Actions", count: exampleActions.filter((a) => a.area === "Quality" && !a.closed && a.who.how !== "Record only").length },
+    { key: "agent", href: "/quality?tab=agent", label: "Agent work", count: qualityWork.length },
     { key: "drift", href: "/quality/drift", label: "Drift", count: D.driftSignals.length },
     { key: "investigations", href: "/quality/investigations", label: "Investigations", count: D.investigations.filter((i) => i.status === "open").length },
     { key: "links", href: "/quality/links", label: "Link confirmations", count: belowThreshold().length },

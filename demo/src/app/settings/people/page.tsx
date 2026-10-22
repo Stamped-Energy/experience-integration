@@ -24,7 +24,7 @@ export default async function People({ searchParams }: { searchParams: Promise<{
     <SettingsPage section="people" title="People and roles" meta="Permission is role by action by scope. The template is a starting point; each plant edits it. Who signs is set per plant, and operators can accept proposals on their own line."
       changes={["manage-people", "sign-limits", "sign-trial"]} audit={/Granted|Revoked|Narrowed/}
       side={<>
-        <Section title={sel.display} meta={sel.roles.map((r) => `${roleName(r.role)}, ${scopeName(r.scope)}`).join("; ")} actions={<ConfirmAction label="Change role" allowed={manage} reason={deniedReason("manage-people", "manage people")} title={`Change role for ${sel.display}`} body={<p>Pick a role and a scope. The change applies from the next sign-in.</p>} confirm="Save" done="Saved (illustrative)." />} flush>
+        <Section title={sel.display} meta={sel.roles.map((r) => `${roleName(r.role)}, ${scopeName(r.scope)}`).join("; ")} actions={<ConfirmAction label="Change role" allowed={manage} reason={deniedReason("manage-people", "manage people")} title={`Change role for ${sel.display}`} body={<p>Pick a role and a scope. The change applies from the next sign-in.</p>} confirm="Save" done="Saved." />} flush>
           <DataTable caption="What this person can do" rowKey={(a) => a} rows={ACTIONS.filter((a) => mine.some((r) => grant(r, a) !== "hidden"))} columns={[
             { key: "a", label: "Action", render: (a) => ACTION_LABELS[a] },
             { key: "g", label: "Grant", render: (a) => <GrantTag v={mine.map((r) => grant(r, a)).includes("allow") ? "allow" : "view"} /> },

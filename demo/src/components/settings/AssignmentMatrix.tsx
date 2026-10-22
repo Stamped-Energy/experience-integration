@@ -1,6 +1,6 @@
 "use client";
 /** Assignment matrix kept from the old responsibility board: scopes by people, one primary and up to three backups each.
- *  Click sets primary; Alt or right-click toggles a backup. Recommend scores people by scope and skill overlap. Illustrative. */
+ *  Click sets primary; Alt or right-click toggles a backup. Recommend scores people by scope and skill overlap. */
 import { useState } from "react";
 
 export interface AScope { scope: string; label: string; primary: string; backups: string[]; skills: string[] }
@@ -29,7 +29,7 @@ export function AssignmentMatrix({ scopes, people, editable }: { scopes: AScope[
         <span className="muted" style={{ fontSize: 12 }}>P primary, B backup. {editable ? "Click to set primary; Alt-click to toggle a backup." : "Read only for your role."}</span>
         <span className="spacer" />
         {msg ? <span className="feedback" role="status">{msg}</span> : null}
-        {dirty ? <><span className="feedback" role="status">Changed, not saved (illustrative)</span><button type="button" className="btn btn-sm btn-quiet" onClick={() => { setRows(scopes); setMsg(null); }}>Reset</button></> : null}
+        {dirty ? <><span className="feedback" role="status">Changed, not saved</span><button type="button" className="btn btn-sm btn-quiet" onClick={() => { setRows(scopes); setMsg(null); }}>Reset</button></> : null}
       </div>
       <div style={{ overflowX: "auto" }}>
         <table className="amatrix">

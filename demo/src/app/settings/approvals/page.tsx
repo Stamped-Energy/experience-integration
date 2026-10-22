@@ -19,7 +19,7 @@ export default async function Approvals() {
   const writes = D.setpointWrites.filter((w) => w.source === "proposal").slice(-8).reverse();
   return (
     <SettingsPage section="approvals" title="Standing approvals" meta="A standing approval lets per-run proposals inside a band go ahead without a click, for a set scope and time. Each one is granted, scoped, given an expiry, reviewed and can be revoked."
-      actions={<ConfirmAction label="Grant a standing approval" primary allowed={ok} reason={reason} title="Grant a standing approval" body={<><p>Choose the line, the settings and the band. Proposals inside it go ahead without a per-run decision until the expiry; everything outside still waits for a person.</p><blockquote>The band must sit inside the signed window. Review is due every 7 days.</blockquote></>} confirm="Grant" done="Granted (illustrative)." />}
+      actions={<ConfirmAction label="Grant a standing approval" primary allowed={ok} reason={reason} title="Grant a standing approval" body={<><p>Choose the line, the settings and the band. Proposals inside it go ahead without a per-run decision until the expiry; everything outside still waits for a person.</p><blockquote>The band must sit inside the signed window. Review is due every 7 days.</blockquote></>} confirm="Grant" done="Granted." />}
       changes={["grant-standing-approval"]} audit={/standing approval/i}
       help={<dl className="facts-grid"><dt>Grant</dt><dd>By the plant&apos;s signer, inside a signed window</dd><dt>Scope</dt><dd>Line, settings and band</dd><dt>Expiry</dt><dd>Fixed end date; renew by granting again</dd><dt>Review</dt><dd>Uses and outcomes checked on a set cadence</dd><dt>Revoke</dt><dd>At once; pending writes stop</dd></dl>}>
       {D.standingApprovals.map((a) => {
@@ -48,13 +48,13 @@ export default async function Approvals() {
               </> : <dt>Review</dt>}{!revoked && <dd>Every 7 days; next due {dayMonth(new Date(Date.parse(a.reviewedAt) + 7 * 864e5).toISOString())}</dd>}
             </dl>
             {!revoked && <div className="card-foot" style={{ gap: 8 }}>
-              <ConfirmAction label="Review now" allowed={ok} reason={reason} title="Review this standing approval" body={<p>{a.uses} uses since {dayMonth(a.from)}. Confirm it should continue unchanged until {dayMonth(a.until)}.</p>} confirm="Mark reviewed" done="Reviewed (illustrative)." />
-              <ConfirmAction label="Change scope" allowed={ok} reason={reason} title="Change scope" body={<p>Narrow the band or remove a setting. Widening needs a new grant.</p>} confirm="Save scope" done="Scope changed (illustrative)." />
-              <ConfirmAction label="Extend expiry" allowed={ok} reason={reason} title="Extend expiry" body={<p>Extending past the signed window&apos;s expiry is not possible.</p>} confirm="Extend" done="Extended (illustrative)." />
+              <ConfirmAction label="Review now" allowed={ok} reason={reason} title="Review this standing approval" body={<p>{a.uses} uses since {dayMonth(a.from)}. Confirm it should continue unchanged until {dayMonth(a.until)}.</p>} confirm="Mark reviewed" done="Reviewed." />
+              <ConfirmAction label="Change scope" allowed={ok} reason={reason} title="Change scope" body={<p>Narrow the band or remove a setting. Widening needs a new grant.</p>} confirm="Save scope" done="Scope changed." />
+              <ConfirmAction label="Extend expiry" allowed={ok} reason={reason} title="Extend expiry" body={<p>Extending past the signed window&apos;s expiry is not possible.</p>} confirm="Extend" done="Extended." />
               <span className="spacer" />
-              <ConfirmAction label="Revoke" allowed={ok} reason={reason} title="Revoke this standing approval" body={<p>From now, every proposal on {l.short} for {a.params.join(", ")} waits for a person again. Running settings stay where they are.</p>} confirm="Revoke" done="Revoked (illustrative)." />
+              <ConfirmAction label="Revoke" allowed={ok} reason={reason} title="Revoke this standing approval" body={<p>From now, every proposal on {l.short} for {a.params.join(", ")} waits for a person again. Running settings stay where they are.</p>} confirm="Revoke" done="Revoked." />
             </div>}
-            {revoked && <div className="card-foot"><ConfirmAction label="Grant again" allowed={ok} reason={reason} title="Grant a new standing approval" body={<p>A revoked approval is not reopened. This starts a new grant with the same scope for you to check.</p>} confirm="Start grant" done="New grant started (illustrative)." /></div>}
+            {revoked && <div className="card-foot"><ConfirmAction label="Grant again" allowed={ok} reason={reason} title="Grant a new standing approval" body={<p>A revoked approval is not reopened. This starts a new grant with the same scope for you to check.</p>} confirm="Start grant" done="New grant started." /></div>}
           </Section>
         );
       })}

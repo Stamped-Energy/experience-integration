@@ -9,24 +9,28 @@ import { DecisionCard } from "@/components/cards/DecisionCard";
 import { Sparkline } from "@/components/ui/charts";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, EvidenceTag, LineModeTag, ModeTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
-import { ExampleActions } from "@/components/cards/ExampleActions";
+import { ActionsBoard, ActionsBrief } from "@/components/cards/ExampleActions";
+import { IdleList } from "@/components/agent/blocks";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { ProcessTabs, crumbs, outcome, outcomeName, packOf, proofForRun, runLabel, runsOf, specOf } from "@/components/process/common";
 
 export const metadata = { title: "Process" };
 
-export default async function ProcessLines({ searchParams }: { searchParams: Promise<{ line?: string; evidence?: string }> }) {
+export default async function ProcessLines({ searchParams }: { searchParams: Promise<{ line?: string; evidence?: string; tab?: string; status?: string; mine?: string }> }) {
   const sp = await searchParams;
-  if (sp.line && D.byId.line(sp.line)) redirect(`/process/lines/${sp.line}`);
+  const actions = sp.tab === "actions";
+  if (!actions && sp.line && D.byId.line(sp.line)) redirect(`/process/lines/${sp.line}`);
   const role = await currentRole();
   const open = D.proposals.filter((p) => p.state === "Waiting");
   const recent = D.runs.slice().sort((a, b) => b.end.localeCompare(a.end)).slice(0, 10);
   const fits = Object.fromEntries(D.modelFits.map((f) => [f.lineId, f]));
   return (
-    <Workspace crumbs={crumbs({ label: "Lines" })} askContext="Process lines">
-      <PageHeader eyebrow="Process" title="Lines" meta={<>Two lines on the demonstration plant. Stamped works inside limits set beforehand.</>}
+    <Workspace crumbs={crumbs({ label: actions ? "Actions" : "Lines" })} askContext="Process lines">
+      <PageHeader eyebrow="Process" title={actions ? "Process actions" : "Lines"} meta={actions ? "Every action on both lines, grouped by what it needs from you." : "What the agent suggests on each line, and what needs your decision."}
         actions={<><Link className="btn btn-sm" href="/process/proposals">{open.length} proposals waiting</Link><AskButton context="Process lines" label="Ask about lines" /></>} />
-      <ProcessTabs active="lines" />
+      <ProcessTabs active={actions ? "actions" : "lines"} />
+      {actions ? <><ActionsBoard area="Process" role={role} base="/process" status={sp.status} line={sp.line} mine={sp.mine} /></> : (<>
+      <ActionsBrief area="Process" href="/process?tab=actions" />
       <div className="grid">
         <div className="span-12">
           <Section title="Lines" meta="Mode, running settings against the signed band, last runs" flush>
@@ -65,11 +69,9 @@ export default async function ProcessLines({ searchParams }: { searchParams: Pro
           </div>
         </div>
         <div className="span-4 xl-span-3 stack ctx">
-          <Section title="Needs a decision" meta={`${open.length} waiting`} flush>
-            <div className="stack-sm" style={{ padding: 12 }}>
-              {open.slice(0, 2).map((p) => <DecisionCard key={p.id} p={p} role={role} variant="compact" href={`/process/proposals/${p.id}`} />)}
-            </div>
-            {open.length > 2 ? <div className="rows">{open.slice(2).map((p) => (
+          <Section title="Left on the table" meta="Proposals nobody has decided" flush><IdleList rupees={false} role={role} /></Section>
+          <Section title="Proposals waiting" meta={`${open.length} to decide`} actions={<Link className="link" href="/process/proposals">All</Link>} flush>
+                        {open.length ? <div className="rows">{open.map((p) => (
               <Link key={p.id} className="row" href={`/process/proposals/${p.id}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
                 <span style={{ minWidth: 0 }}><span className="row-title" style={{ display: "block" }}>{D.byId.window(p.lineId, p.param)?.name} {p.current} to {p.proposed}</span><span className="row-sub">{D.byId.line(p.lineId)!.short} · expires {rel(p.expiresAt)}</span></span>
                 <Tag tone="accent">Needs a decision</Tag>
@@ -82,7 +84,7 @@ export default async function ProcessLines({ searchParams }: { searchParams: Pro
           </Section>
         </div>
       </div>
-      <div style={{ marginTop: "var(--space-5)" }}><ExampleActions area="Process" role={role} /></div>
+      </>)}
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref="/process" /> : null}
     </Workspace>
   );

@@ -17,7 +17,7 @@ export default async function PlantSetup() {
   const reason = deniedReason("manage-people", "change plant setup");
   return (
     <SettingsPage section="plant" title="Plant setup" meta="The site, its areas, lines and shifts, and the units and language the plant works in." changes={["manage-people"]} audit={/Signed trial/}
-      actions={<ConfirmAction label="Save setup" primary allowed={ok} reason={reason} title="Save plant setup" body={<p>Changes to shifts apply from the next shift start.</p>} confirm="Save" done="Saved (illustrative)." />}
+      actions={<ConfirmAction label="Save setup" primary allowed={ok} reason={reason} title="Save plant setup" body={<p>Changes to shifts apply from the next shift start.</p>} confirm="Save" done="Saved." />}
       help={<ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.6 }}><li>Lines take their words from their line pack.</li><li>Shift times drive handovers and notes.</li><li>Units are metric for this site.</li></ul>}>
       <Section title="Site">
         <div className="field-grid">
@@ -36,7 +36,7 @@ export default async function PlantSetup() {
             { key: "p", label: "Pack", render: (l) => <Link className="link" href={`/plant/line-packs?pack=${l.linePackId}`}>{l.linePackId}</Link> },
             { key: "m", label: "Mode", render: (l) => <LineModeTag mode={l.mode} /> },
           ]} />
-          <div className="card-foot"><ConfirmAction label="Add line" allowed={ok} reason={reason} title="Add a line" body={<p>Pick an area and a line pack. The line starts in watch-only mode.</p>} confirm="Add" done="Added (illustrative)." /></div>
+          <div className="card-foot"><ConfirmAction label="Add line" allowed={ok} reason={reason} title="Add a line" body={<p>Pick an area and a line pack. The line starts in watch-only mode.</p>} confirm="Add" done="Added." /></div>
         </Section>
         <Section title="Shifts">
           <div className="stack-sm">{D.shifts.map((s) => <div key={s.id} className="field-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}><label className="field">Name<input defaultValue={s.name} disabled={!ok} /></label><label className="field">Start<input defaultValue={s.start} disabled={!ok} /></label><label className="field">End<input defaultValue={s.end} disabled={!ok} /></label></div>)}</div>

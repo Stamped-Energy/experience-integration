@@ -37,9 +37,9 @@ export default async function Links() {
                 </div>
                 <div className="cand">{l.candidates.slice(0, 2).map((c) => { const r = D.runs.find((x) => x.id === c); return <div key={c}><span className="label">Candidate</span><div style={{ fontWeight: 600, fontSize: 13 }}>{r ? runLabel(r) : c}</div>{r ? <span className="cell-sub">ended {dayMonth(r.end)} {hhmm(r.end)}</span> : null}</div>; })}</div>
                 <CardActions actions={[
-                  { id: "ok", label: "Confirm link", primary: true, allowed, reason: deniedReason("confirm-lot-link", "confirm links"), done: "Link confirmed. Illustrative." },
-                  { id: "other", label: "Pick the other run", allowed, reason: deniedReason("confirm-lot-link", "confirm links"), done: "Link moved. Illustrative." },
-                  { id: "no", label: "Reject", allowed, reason: deniedReason("confirm-lot-link", "confirm links"), done: "Link rejected. Illustrative." },
+                  { id: "ok", label: "Confirm link", primary: true, allowed, reason: deniedReason("confirm-lot-link", "confirm links"), done: "Link confirmed." },
+                  { id: "other", label: "Pick the other run", allowed, reason: deniedReason("confirm-lot-link", "confirm links"), done: "Link moved." },
+                  { id: "no", label: "Reject", allowed, reason: deniedReason("confirm-lot-link", "confirm links"), done: "Link rejected." },
                 ]} />
               </Section>
             );
