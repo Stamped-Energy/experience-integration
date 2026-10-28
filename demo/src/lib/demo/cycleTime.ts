@@ -1,34 +1,132 @@
-/** Illustrative cycle-time state breakdown for Line B (discrete). Dwell and share are measured on the last shift window. */
-import type { EvidenceLabel } from "./types";
+/**
+ * Example cycle-time breakdown. Shape mirrors stamped_process.control.cycle_time
+ * (#125, on main). Shares sum to 1.0; no OEE target is invented. Live breakdown
+ * waits on a read tool that feeds machine state samples into that library.
+ */
 
-const I = { illustrative: true as const };
+export type CycleState =
+  | "cutting"
+  | "idle"
+  | "setup"
+  | "blocked"
+  | "starved"
+  | "alarm"
+  | "unknown";
 
-export interface CycleTimeState {
-  illustrative: true;
-  id: string;
-  lineId: string;
-  state: string;
-  dwellMin: number;
-  sharePct: number;
-  label: EvidenceLabel;
-  note?: string;
-}
-
-export const cycleTimeWindow = {
-  ...I,
-  lineId: "line-b",
-  label: "Last completed shift on Line B",
-  from: "2026-10-20T06:00:00+05:30",
-  to: "2026-10-20T14:00:00+05:30",
-  cycleMeanSec: 33.6,
-  parts: 1840,
+export const CYCLE_STATE_LABEL: Record<CycleState, string> = {
+  cutting: "Cutting",
+  idle: "Idle",
+  setup: "Setup",
+  blocked: "Blocked",
+  starved: "Starved",
+  alarm: "Alarm",
+  unknown: "Unknown",
 };
 
-export const cycleTimeStates: CycleTimeState[] = [
-  { ...I, id: "ct-clamp", lineId: "line-b", state: "Clamp and inject", dwellMin: 142, sharePct: 38, label: "Measured" },
-  { ...I, id: "ct-hold", lineId: "line-b", state: "Hold and pack", dwellMin: 88, sharePct: 24, label: "Measured" },
-  { ...I, id: "ct-cool", lineId: "line-b", state: "Cool in mould", dwellMin: 76, sharePct: 20, label: "Measured" },
-  { ...I, id: "ct-open", lineId: "line-b", state: "Open and eject", dwellMin: 34, sharePct: 9, label: "Measured" },
-  { ...I, id: "ct-robot", lineId: "line-b", state: "Robot take-out", dwellMin: 22, sharePct: 6, label: "Measured" },
-  { ...I, id: "ct-idle", lineId: "line-b", state: "Idle at mould", dwellMin: 11, sharePct: 3, label: "Estimated", note: "Gap between cycles when the press waits on the robot" },
+export const CYCLE_STATES: CycleState[] = [
+  "cutting",
+  "idle",
+  "setup",
+  "blocked",
+  "starved",
+  "alarm",
+  "unknown",
 ];
+
+export interface CycleBreakdown {
+  kind: "breakdown";
+  window_s: number;
+  dwell_s: Record<CycleState, number>;
+  share: Record<CycleState, number>;
+  sample_count: number;
+}
+
+export interface CycleBreakdownAbstention {
+  kind: "abstain";
+  reason: string;
+  detail: string;
+}
+
+export type CycleBreakdownResult = CycleBreakdown | CycleBreakdownAbstention;
+
+export interface CycleBreakdownCard {
+  asset_id: string;
+  station: string;
+  window_label: string;
+  result: CycleBreakdownResult;
+  depends_on: string;
+}
+
+export const CYCLE_TIME_PAGE_META =
+  "Cycle-time dwell and share · Shares sum to 1.0 · Live get_cycle_time_breakdown when session connected (caller-supplied samples until store)";
+
+function shares(dwell: Record<CycleState, number>): CycleBreakdown {
+  const window_s = Object.values(dwell).reduce((a, b) => a + b, 0);
+  const share = {} as Record<CycleState, number>;
+  for (const s of CYCLE_STATES) {
+    share[s] = window_s > 0 ? dwell[s] / window_s : 0;
+  }
+  const sample_count = 48;
+  return { kind: "breakdown", window_s, dwell_s: dwell, share, sample_count };
+}
+
+const zero = (): Record<CycleState, number> =>
+  Object.fromEntries(CYCLE_STATES.map((s) => [s, 0])) as Record<CycleState, number>;
+
+export const cycleBreakdownCards: CycleBreakdownCard[] = [
+  {
+    asset_id: "asset-cnc-1",
+    station: "CNC 1",
+    window_label: "Last 4 h (illustrative)",
+    depends_on: "cycle-time read tool · #125 library on main",
+    result: shares({
+      ...zero(),
+      cutting: 9600,
+      idle: 1800,
+      setup: 1200,
+      blocked: 600,
+      starved: 400,
+      alarm: 200,
+      unknown: 200,
+    }),
+  },
+  {
+    asset_id: "asset-vmc-2",
+    station: "VMC 2",
+    window_label: "Last shift (illustrative)",
+    depends_on: "cycle-time read tool · #125 library on main",
+    result: shares({
+      ...zero(),
+      cutting: 18000,
+      idle: 2400,
+      setup: 3600,
+      blocked: 900,
+      starved: 0,
+      alarm: 0,
+      unknown: 300,
+    }),
+  },
+  {
+    asset_id: "asset-cnc-3",
+    station: "CNC 3",
+    window_label: "Insufficient samples",
+    depends_on: "cycle-time read tool · #125 library on main",
+    result: {
+      kind: "abstain",
+      reason: "insufficient_samples",
+      detail: "need at least two state samples to form a window",
+    },
+  },
+];
+
+export const listCycleBreakdowns = () => cycleBreakdownCards;
+
+export function formatSeconds(s: number): string {
+  if (s < 60) return `${s.toFixed(0)} s`;
+  if (s < 3600) return `${(s / 60).toFixed(1)} min`;
+  return `${(s / 3600).toFixed(2)} h`;
+}
+
+export function formatShare(fraction: number): string {
+  return `${(fraction * 100).toFixed(1)}%`;
+}

@@ -158,30 +158,20 @@
 .line-side .facts-grid dt { font-size: 10px; }
 .line-side .section-head { flex-wrap: wrap; row-gap: 2px; }
 
-/* Capability screens: tool life, OEE loss tree, cycle share bars */
-.cap-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-4); align-items: start; }
-.cap-card { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); display: flex; flex-direction: column; min-width: 0; }
-.cap-card-head { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: baseline; justify-content: space-between; }
-.cap-card-head h3 { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.35; }
-.cap-card-body { padding: var(--space-3) var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); font-size: 13px; min-width: 0; }
-.cap-metric { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
-.cap-metric div { min-width: 0; }
-.cap-metric .v { font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; }
-.share-rows { display: flex; flex-direction: column; gap: var(--space-2); }
-.share-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(72px, auto) minmax(0, 1fr); gap: var(--space-3); align-items: center; font-size: 13px; }
-.share-bar { position: relative; height: 8px; background: var(--surface-sunken); border: 1px solid var(--border-strong); border-radius: 2px; overflow: hidden; min-width: 0; }
-.share-bar i { display: block; height: 100%; background: var(--accent-500); max-width: 100%; }
-.loss-tree { list-style: none; margin: 0; padding: 0; font-size: 13px; }
-.loss-tree ul { list-style: none; margin: 0; padding: 0 0 0 var(--space-4); border-left: 1px solid var(--border); }
-.loss-tree li { padding: 6px 0 6px var(--space-3); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-2); align-items: baseline; }
-.loss-tree li:last-child { border-bottom: 0; }
-.loss-tree .min { font-variant-numeric: tabular-nums; color: var(--text-secondary); white-space: nowrap; }
-.rate-compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); }
-.rate-box { border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); min-width: 0; }
-.rate-box h4 { margin: 0 0 var(--space-2); font-size: 14px; font-weight: 600; }
-.rate-box .big { font-size: 28px; font-weight: 500; font-variant-numeric: tabular-nums; line-height: 1.2; }
-.rate-box .big .unit { font-size: 13px; color: var(--text-secondary); margin-left: 6px; font-weight: 400; }
+/* Cycle-time share rows (product UI parity) */
+.cycle-share-row {
+  display: grid;
+  grid-template-columns: minmax(0, 7rem) minmax(0, 1fr) minmax(0, 4rem) minmax(0, 4.5rem);
+  gap: var(--space-2);
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+}
+.cycle-share-label { min-width: 0; overflow-wrap: anywhere; }
+.cycle-share-track { background: var(--surface-subtle); height: 8px; border-radius: 4px; overflow: hidden; min-width: 0; border: 1px solid var(--border); }
+.cycle-share-fill { height: 100%; max-width: 100%; }
+.oee-loss-grid { gap: var(--space-4); }
 @media (max-width: 1279px) {
-  .cap-cards { grid-template-columns: minmax(0, 1fr); }
-  .share-row { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+  .cycle-share-row { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+  .oee-loss-grid > .span-6 { grid-column: span 12; }
 }

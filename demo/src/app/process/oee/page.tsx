@@ -1,55 +1,80 @@
-import Link from "next/link";
-import * as D from "@/lib/demo/data";
-import { oeeLossCards } from "@/lib/demo/capabilityScreens";
-import { LossTree } from "@/components/process/LossTree";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { Illustrative, KpiRow, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { ProcessTabs, crumbs } from "@/components/process/common";
+import { oeeLossCards } from "@/lib/demo/capabilityScreens";
 
-export const metadata = { title: "OEE" };
+export const metadata = { title: "OEE loss tree" };
 
 export default function OeePage() {
+  const cards = oeeLossCards.map((r) => ({ ...r, status: "example" as const }));
   return (
-    <Workspace crumbs={crumbs({ label: "OEE" })} askContext="Process OEE loss tree">
+    <Workspace crumbs={crumbs({ label: "OEE loss tree" })} askContext="OEE loss tree">
       <PageHeader
         eyebrow="Process"
         title="OEE loss tree"
-        meta="Availability, performance and quality losses rolled up to OEE for Mixer M1 and Press P3. Minutes are illustrative; no money is inferred."
-        actions={<AskButton context="OEE loss trees" label="Ask about OEE" />}
+        meta="Availability × performance × quality · Recommend only · Store samples when present, else caller inputs"
+        actions={
+          <>
+            <Tag tone="warning">Illustrative</Tag>
+            <AskButton context="OEE loss tree" label="Ask about OEE" />
+          </>
+        }
       />
       <ProcessTabs active="oee" />
       <div className="grid">
-        {oeeLossCards.map((card) => {
-          const asset = D.byId.asset(card.assetId)!;
-          return (
-            <div key={card.assetId} className="span-6 xl-span-6 stack">
-              <Section
-                title={card.title}
-                meta={<>{card.windowLabel} · <Link className="link" href={`/plant/assets/${asset.id}`}>{asset.name}</Link></>}
-                actions={<Tag tone="neutral">Illustrative</Tag>}
-              >
-                <KpiRow
-                  label={`OEE · ${asset.name}`}
-                  items={[
-                    { label: "OEE", value: String(card.oeePct), unit: "%" },
-                    { label: "Availability", value: String(card.availabilityPct), unit: "%" },
-                    { label: "Performance", value: String(card.performancePct), unit: "%" },
-                    { label: "Quality", value: String(card.qualityPct), unit: "%" },
-                  ]}
-                />
-                <div className="label" style={{ padding: "12px 16px 0" }}>Loss tree · minutes lost from scheduled time</div>
-                <LossTree root={card.tree} />
-              </Section>
-            </div>
-          );
-        })}
-        <div className="span-12 xl-span-12 stack">
-          <Section title="Reading the tree" actions={<Illustrative />}>
-            <p style={{ fontSize: 13, margin: 0, color: "var(--text-secondary)" }}>
-              Each node is minutes lost in the window. Planned downtime is separate from unplanned stops. Rate loss captures running below nameplate. Quality loss is scrap and rework time, not a rupee figure.
-            </p>
+        <div className="span-8 xl-span-9 stack">
+          <Section title="Assets" meta="Availability × performance × quality" flush>
+            <DataTable
+              caption="OEE by asset"
+              rows={cards}
+              rowKey={(r) => r.assetId}
+              columns={[
+                {
+                  key: "a",
+                  label: "Asset",
+                  render: (r) => (
+                    <span style={{ minWidth: 0, display: "block" }}>
+                      <span className="truncate" style={{ display: "block" }}>{r.assetName}</span>
+                      <span className="cell-sub mono">{r.assetId}</span>
+                    </span>
+                  ),
+                },
+                { key: "o", label: "OEE", render: (r) => <span className="mono">{(r.oee * 100).toFixed(0)}%</span> },
+                { key: "av", label: "A", render: (r) => <span className="mono">{(r.availability * 100).toFixed(0)}%</span> },
+                { key: "p", label: "P", render: (r) => <span className="mono">{(r.performance * 100).toFixed(0)}%</span> },
+                { key: "q", label: "Q", render: (r) => <span className="mono">{(r.quality * 100).toFixed(0)}%</span> },
+              ]}
+            />
           </Section>
+          {cards.map((r) => (
+            <Section key={r.assetId} title={`${r.assetName} losses`} meta="Downtime by reason · cycle share">
+              <div className="grid oee-loss-grid">
+                <div className="span-6">
+                  <DataTable
+                    caption="Downtime"
+                    rows={r.downtimeByReason}
+                    rowKey={(d) => d.reason}
+                    columns={[
+                      { key: "r", label: "Reason", render: (d) => d.reason },
+                      { key: "s", label: "Seconds", render: (d) => <span className="mono">{d.seconds}</span> },
+                    ]}
+                  />
+                </div>
+                <div className="span-6">
+                  <DataTable
+                    caption="Cycle share"
+                    rows={r.cycleShare}
+                    rowKey={(c) => c.state}
+                    columns={[
+                      { key: "s", label: "State", render: (c) => <Tag>{c.state}</Tag> },
+                      { key: "p", label: "Share", render: (c) => <span className="mono">{(c.share * 100).toFixed(0)}%</span> },
+                    ]}
+                  />
+                </div>
+              </div>
+            </Section>
+          ))}
         </div>
       </div>
     </Workspace>

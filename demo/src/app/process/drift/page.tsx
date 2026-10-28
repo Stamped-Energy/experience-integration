@@ -1,45 +1,23 @@
-import Link from "next/link";
-import * as D from "@/lib/demo/data";
-import { dayMonth } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
-import { AskButton } from "@/components/shell/ShellClient";
-import { EvidenceTag, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { ProcessTabs, crumbs } from "@/components/process/common";
 
-export const metadata = { title: "Process drift" };
+export const metadata = { title: "Drift proposals" };
+
+const META =
+  "Drift detection proposes re-identification or retuning. Nothing is applied until a person approves. Thresholds stay open until fitted on plant data (D145). Live list_drift_proposals reads pending self-tuning proposals when the read-api is attached.";
 
 export default function ProcessDriftPage() {
-  const processDrift = D.driftSignals.filter((d) => d.lineId === "line-a");
   return (
-    <Workspace crumbs={crumbs({ label: "Drift" })} askContext="Process parameter drift">
-      <PageHeader
-        eyebrow="Process"
-        title="Parameter drift"
-        meta="Slow movement in a process outcome before Quality opens a lot-level signal. Quality drift is separate."
-        actions={<><Link className="btn btn-sm" href="/quality/drift">Quality drift</Link><AskButton context="Process drift" label="Ask about drift" /></>}
-      />
+    <Workspace crumbs={crumbs({ label: "Drift proposals" })} askContext="Drift proposals">
+      <PageHeader eyebrow="Process" title="Drift proposals" meta={META} />
       <ProcessTabs active="drift" />
-      <div className="grid">
-        <div className="span-8 stack">
-          {processDrift.length ? processDrift.map((d) => {
-            const line = D.byId.line(d.lineId)!;
-            return (
-              <Section key={d.id} title={`${d.property} drifting ${d.direction} on ${line.name}`} meta={<>{d.magnitude} · since {dayMonth(d.startedAt)} <EvidenceTag label={d.label} /></>} actions={<Tag tone="neutral">Illustrative</Tag>}>
-                <p style={{ fontSize: 13, margin: 0, color: "var(--text-secondary)" }}>Process engineers review here first. Quality drift links lots and spec; this view stays on the line outcome.</p>
-              </Section>
-            );
-          }) : (
-            <Section title="No active process drift signals" actions={<Illustrative />}>
-              <p style={{ fontSize: 13, margin: 0 }}>When a property moves across runs on Line A or Line B, a signal appears here with magnitude and direction.</p>
-            </Section>
-          )}
-        </div>
-        <div className="span-4 stack ctx">
-          <Section title="Boundary">
-            <p style={{ fontSize: 13, margin: 0, color: "var(--text-secondary)" }}>Quality owns lot risk and investigations. Process owns the line outcome and corrections sent as proposals.</p>
-          </Section>
-        </div>
-      </div>
+      <Section title="In progress" meta="Full screen is being built on a parallel branch">
+        <p className="muted" style={{ margin: 0, fontSize: 13 }}>
+          Pending retune and re-identification proposals will list here. This stub avoids conflicting with the full drift page under development.
+        </p>
+        <p style={{ marginTop: 12 }}><Tag tone="warning">Illustrative placeholder</Tag></p>
+      </Section>
     </Workspace>
   );
 }

@@ -1,72 +1,135 @@
-import Link from "next/link";
-import * as D from "@/lib/demo/data";
-import { cycleTimeStates, cycleTimeWindow } from "@/lib/demo/cycleTime";
-import { dayMonth, hhmm } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { DataTable, EvidenceTag, Illustrative, KpiRow, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { ProcessTabs, crumbs } from "@/components/process/common";
+import {
+  CYCLE_TIME_PAGE_META,
+  CYCLE_STATES,
+  CYCLE_STATE_LABEL,
+  listCycleBreakdowns,
+  formatSeconds,
+  formatShare,
+  type CycleBreakdownCard,
+  type CycleState,
+} from "@/lib/demo/cycleTime";
 
 export const metadata = { title: "Cycle time" };
 
-export default function CycleTimePage() {
-  const line = D.byId.line(cycleTimeWindow.lineId)!;
-  const totalMin = cycleTimeStates.reduce((a, s) => a + s.dwellMin, 0);
+function ShareBars({ card }: { card: CycleBreakdownCard }) {
+  const r = card.result;
+  if (r.kind === "abstain") {
+    return (
+      <p className="cell-sub">
+        Abstain: <span className="mono">{r.reason}</span> · {r.detail}
+      </p>
+    );
+  }
   return (
-    <Workspace crumbs={crumbs({ label: "Cycle time" })} askContext="Process cycle time">
+    <div className="stack" style={{ gap: 6 }}>
+      {CYCLE_STATES.filter((s) => r.dwell_s[s] > 0).map((s: CycleState) => (
+        <div
+          key={s}
+          className="cycle-share-row"
+        >
+          <span className="cell-sub cycle-share-label">
+            {CYCLE_STATE_LABEL[s]}
+          </span>
+          <div className="cycle-share-track">
+            <div
+              className="cycle-share-fill"
+              style={{
+                width: `${Math.min(100, r.share[s] * 100)}%`,
+                background: s === "cutting" ? "var(--accent-500)" : "var(--text-muted)",
+              }}
+            />
+          </div>
+          <span className="mono cell-sub truncate" title={formatShare(r.share[s])}>
+            {formatShare(r.share[s])}
+          </span>
+          <span className="mono cell-sub truncate" title={formatSeconds(r.dwell_s[s])}>
+            {formatSeconds(r.dwell_s[s])}
+          </span>
+        </div>
+      ))}
+      <p className="cell-sub" style={{ marginTop: 4 }}>
+        Window {formatSeconds(r.window_s)} · {r.sample_count} samples · shares sum to 1.0
+      </p>
+    </div>
+  );
+}
+
+export default function CycleTimePage() {
+  const cards = listCycleBreakdowns();
+  const ok = cards.filter((x) => x.result.kind === "breakdown");
+  return (
+    <Workspace crumbs={crumbs({ label: "Cycle time" })} askContext="Cycle time">
       <PageHeader
         eyebrow="Process"
-        title="Cycle time by state"
-        meta="Dwell minutes and share of the window for each machine state on the last completed shift. Stamped works inside limits set beforehand."
-        actions={<AskButton context="Cycle time breakdown Line B" label="Ask about cycle time" />}
+        title="Cycle time"
+        meta={CYCLE_TIME_PAGE_META}
+        actions={
+          <>
+            <Tag tone="warning">Illustrative</Tag>
+            <AskButton context="Cycle time" label="Ask about cycle time" />
+          </>
+        }
       />
       <ProcessTabs active="cycle-time" />
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
-          <KpiRow
-            label="Shift window"
-            items={[
-              { label: "Mean cycle", value: String(cycleTimeWindow.cycleMeanSec), unit: "s", tags: <Tag>Measured</Tag> },
-              { label: "Parts", value: String(cycleTimeWindow.parts), tags: <Tag>Measured</Tag> },
-              { label: "Window", value: `${hhmm(cycleTimeWindow.from)} to ${hhmm(cycleTimeWindow.to)}`, tags: <Tag tone="neutral">Illustrative</Tag> },
-            ]}
-          />
-          <Section title={`State dwell and share · ${line.short}`} meta={line.product} actions={<Link className="link" href={`/process/lines/${line.id}`}>Line detail</Link>} flush>
-            <div className="share-rows" style={{ padding: "12px 16px" }}>
-              {cycleTimeStates.map((s) => (
-                <div key={s.id} className="share-row">
-                  <span style={{ minWidth: 0 }}>
-                    <span style={{ fontWeight: 500 }}>{s.state}</span>
-                    {s.note ? <span className="cell-sub">{s.note}</span> : null}
-                  </span>
-                  <span className="num" style={{ textAlign: "right" }}>{s.dwellMin} min · {s.sharePct}%</span>
-                  <div className="share-bar" aria-hidden><i style={{ width: `${s.sharePct}%` }} /></div>
-                </div>
-              ))}
-            </div>
+          <Section title="Stations" meta="Samples passed until cycle-state store is wired" flush>
             <DataTable
-              caption="State breakdown"
-              rowKey={(r) => r.id}
-              rows={cycleTimeStates}
+              caption="Cycle-time stations"
+              rows={cards}
+              rowKey={(row) => row.asset_id}
               columns={[
-                { key: "st", label: "State", render: (r) => r.state },
-                { key: "d", label: "Dwell", align: "right", mono: true, render: (r) => `${r.dwellMin} min` },
-                { key: "sh", label: "Share", align: "right", mono: true, render: (r) => `${r.sharePct}%` },
-                { key: "ev", label: "Evidence", render: (r) => <EvidenceTag label={r.label} /> },
+                { key: "station", label: "Station", render: (row) => row.station },
+                { key: "window", label: "Window", render: (row) => row.window_label },
+                {
+                  key: "cutting",
+                  label: "Cutting share",
+                  render: (row) =>
+                    row.result.kind === "breakdown" ? (
+                      <span className="mono">{formatShare(row.result.share.cutting)}</span>
+                    ) : (
+                      <Tag tone="warning">Abstain</Tag>
+                    ),
+                },
+                {
+                  key: "state",
+                  label: "State",
+                  render: (row) =>
+                    row.result.kind === "breakdown" ? (
+                      <Tag tone="success">Breakdown</Tag>
+                    ) : (
+                      <Tag tone="warning">Abstain</Tag>
+                    ),
+                },
               ]}
             />
           </Section>
+
+          <Section title="Dwell by state" meta={`${ok.length} of ${cards.length} stations with a breakdown`}>
+            <div className="stack" style={{ gap: 16 }}>
+              {cards.map((card) => (
+                <div key={card.asset_id} className="card" style={{ padding: 16 }}>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
+                    <strong>{card.station}</strong>
+                    <span className="cell-sub">{card.window_label}</span>
+                    <Tag tone="warning">Illustrative</Tag>
+                  </div>
+                  <ShareBars card={card} />
+                </div>
+              ))}
+            </div>
+          </Section>
         </div>
         <div className="span-4 xl-span-3 stack ctx">
-          <Section title="Window total" actions={<Illustrative />}>
-            <p style={{ fontSize: 13, margin: 0 }}>Summed dwell <strong className="num">{totalMin}</strong> min matches the shift window after idle gaps are included.</p>
-            <p className="muted" style={{ fontSize: 12, margin: "8px 0 0" }}>From {dayMonth(cycleTimeWindow.from)} {hhmm(cycleTimeWindow.from)} to {hhmm(cycleTimeWindow.to)} IST.</p>
-          </Section>
-          <Section title="Uses in Process">
-            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.6 }}>
-              <li>Proposals name a state when suggesting cycle-time changes.</li>
-              <li>SMED steps target internal time that shows up here as open and eject.</li>
-              <li>Simulate compares rates only, not rupee outcomes.</li>
+          <Section title="How this stays honest">
+            <ul className="stack" style={{ gap: 8, paddingLeft: 18, margin: 0 }}>
+              <li className="cell-sub">Shares sum to 1.0 over a positive window. No OEE target is invented.</li>
+              <li className="cell-sub">Fewer than two samples abstain rather than invent dwell.</li>
+              <li className="cell-sub">Live cards call get_cycle_time_breakdown; store-backed samples still pending.</li>
             </ul>
           </Section>
         </div>

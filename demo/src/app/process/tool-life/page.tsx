@@ -1,76 +1,133 @@
-import Link from "next/link";
-import * as D from "@/lib/demo/data";
-import { toolLifeCards } from "@/lib/demo/toolLife";
-import { AbstainNote } from "@/components/ask/common";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { EvidenceTag, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { ProcessTabs, crumbs } from "@/components/process/common";
+import {
+  TOOL_LIFE_PAGE_META,
+  listToolCards,
+  type ToolCard,
+  type ToolLifeResult,
+} from "@/lib/demo/toolLife";
 
 export const metadata = { title: "Tool life" };
 
+function resultTag(card: ToolCard) {
+  const r = card.result;
+  if (r.kind === "abstain") return <Tag tone="warning">Abstain</Tag>;
+  if (r.recommend_change) return <Tag tone="critical">Recommend change</Tag>;
+  return <Tag tone="success">OK</Tag>;
+}
+
 export default function ToolLifePage() {
-  const press = D.byId.asset("b-press")!;
+  const cards = listToolCards();
   return (
-    <Workspace crumbs={crumbs({ label: "Tool life" })} askContext="Process tool life">
+    <Workspace crumbs={crumbs({ label: "Tool life" })} askContext="Tool life">
       <PageHeader
         eyebrow="Process"
         title="Tool life"
-        meta="Taylor estimates appear only after enough indexed tool changes with speed and feed logged. Stamped abstains rather than invent n or C."
-        actions={<AskButton context="Tool life on Line B" label="Ask about tool life" />}
+        meta={TOOL_LIFE_PAGE_META}
+        actions={
+          <>
+            <Tag tone="warning">Illustrative</Tag>
+            <AskButton context="Tool life" label="Ask about tool life" />
+          </>
+        }
       />
       <ProcessTabs active="tool-life" />
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
-          <Section title="Tools on Press P3" meta={press.name} actions={<><Tag tone="neutral">Illustrative</Tag><Link className="link" href="/plant/assets/b-press">Asset detail</Link></>}>
-            <div className="cap-cards">
-              {toolLifeCards.filter((c) => c.assetId === "b-press").map((card) =>
-                card.kind === "taylor" ? (
-                  <article key={card.id} className="cap-card">
-                    <div className="cap-card-head">
-                      <h3>{card.toolLabel}</h3>
-                      <EvidenceTag label={card.label} />
-                    </div>
-                    <div className="cap-card-body">
-                      <dl className="facts-grid">
-                        <dt>Material</dt><dd>{card.material}</dd>
-                        <dt>Speed</dt><dd><span className="num">{card.speedMmin}</span> m/min</dd>
-                        <dt>Feed</dt><dd><span className="num">{card.feedMmRev}</span> mm/rev</dd>
-                        <dt>Taylor n</dt><dd className="num">{card.n}</dd>
-                        <dt>Taylor C</dt><dd className="num">{card.C} min</dd>
-                        <dt>Indexed changes</dt><dd className="num">{card.indexedChanges}</dd>
-                      </dl>
-                      <div className="cap-metric">
-                        <div><span className="label">Used this tool</span><div className="v">{card.minutesUsed}<span className="unit"> min</span></div></div>
-                        <div><span className="label">Remaining (model)</span><div className="v">{card.minutesRemaining}<span className="unit"> min</span></div></div>
-                        <div><span className="label">Decision</span><div className="v" style={{ fontSize: 14 }}>Recommend only</div></div>
+          <Section title="Machining tools" meta="Recommend only · Inputs passed until tool-life store is wired" flush>
+            <DataTable
+              caption="Tool life cards"
+              rows={cards}
+              rowKey={(t) => t.tool_id}
+              columns={[
+                {
+                  key: "tool",
+                  label: "Tool",
+                  render: (t) => (
+                    <span style={{ minWidth: 0, display: "block" }}>
+                      <span className="mono truncate" title={t.tool_id} style={{ display: "block" }}>
+                        {t.tool_id}
+                      </span>
+                      <div className="cell-sub" style={{ overflowWrap: "anywhere" }}>
+                        {t.tool_name}
                       </div>
-                      <p className="muted" style={{ margin: 0, fontSize: 12 }}>A change proposal still needs a signed window and a named owner before any write.</p>
+                    </span>
+                  ),
+                },
+                { key: "station", label: "Station", render: (t) => t.station },
+                {
+                  key: "basis",
+                  label: "Basis",
+                  render: (t) =>
+                    t.result.kind === "estimate" ? (
+                      <Tag>{t.result.basis === "taylor" ? "Taylor" : "Life limit"}</Tag>
+                    ) : (
+                      <span className="cell-sub">Open</span>
+                    ),
+                },
+                {
+                  key: "remaining",
+                  label: "Remaining",
+                  render: (t) => {
+                    if (t.result.kind !== "estimate") return <span className="cell-sub">-</span>;
+                    const frac =
+                      t.result.remaining_fraction != null
+                        ? ` (${(t.result.remaining_fraction * 100).toFixed(0)}%)`
+                        : "";
+                    return (
+                      <span className="mono">
+                        {t.result.remaining.toFixed(1)}
+                        {frac}
+                      </span>
+                    );
+                  },
+                },
+                { key: "state", label: "State", render: (t) => resultTag(t) },
+              ]}
+            />
+          </Section>
+
+          <Section title="Recommendations" meta="Change only when remaining_threshold is set and remaining is at or below it">
+            <div className="stack" style={{ gap: 12 }}>
+              {cards.map((t) => {
+                const r: ToolLifeResult = t.result;
+                return (
+                  <div key={t.tool_id} className="card" style={{ padding: 16 }}>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                      <strong>{t.tool_name}</strong>
+                      {resultTag(t)}
+                      <Tag tone="warning">Illustrative</Tag>
                     </div>
-                  </article>
-                ) : (
-                  <article key={card.id} className="cap-card">
-                    <div className="cap-card-head"><h3>{card.toolLabel}</h3></div>
-                    <div className="cap-card-body">
-                      <AbstainNote text={card.reason} />
-                      <ul className="missing" style={{ margin: 0, paddingLeft: 18, fontSize: 13 }}>{card.missing.map((m) => <li key={m}>{m}</li>)}</ul>
-                    </div>
-                  </article>
-                ),
-              )}
+                    <p className="cell-sub" style={{ marginTop: 8 }}>
+                      {r.kind === "estimate" ? r.reason : r.detail}
+                    </p>
+                    {r.kind === "abstain" ? (
+                      <p className="cell-sub" style={{ marginTop: 4 }}>
+                        Abstain reason: <span className="mono">{r.reason}</span>. Fit Taylor n and C on plant data, or
+                        supply a CNC life_limit. Stamped never invents coefficients.
+                      </p>
+                    ) : (
+                      <p className="cell-sub" style={{ marginTop: 4 }}>
+                        Predicted life {r.predicted_life.toFixed(1)} · used {r.life_used.toFixed(1)} · threshold{" "}
+                        {t.remaining_threshold ?? "open"}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </Section>
         </div>
         <div className="span-4 xl-span-3 stack ctx">
-          <Section title="Out of scope here" actions={<Illustrative />}>
-            <p style={{ fontSize: 13, margin: 0, color: "var(--text-secondary)" }}>Mixer M1 on Line A is batch equipment. Tool-life indexing applies to discrete tools on Line B only in this demo.</p>
-          </Section>
-          <Section title="How to read Taylor cards" flush>
-            <ol style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.6 }}>
-              <li>Each indexed change logs speed, feed and minutes since the last change.</li>
-              <li>n and C are fitted only when the history passes coverage checks.</li>
-              <li>Remaining minutes are modelled, not a promise of scrap-free running.</li>
-            </ol>
+          <Section title="How this stays honest">
+            <ul className="stack" style={{ gap: 8, paddingLeft: 18, margin: 0 }}>
+              <li className="cell-sub">Taylor n and C are never defaulted. Open coefficients abstain.</li>
+              <li className="cell-sub">Recommend change only when remaining_threshold is set by the plant.</li>
+              <li className="cell-sub">No CNC or magazine write path. A person still changes the tool.</li>
+              <li className="cell-sub">Live cards call get_tool_life_estimate; store-backed life_used still pending.</li>
+            </ul>
           </Section>
         </div>
       </div>
