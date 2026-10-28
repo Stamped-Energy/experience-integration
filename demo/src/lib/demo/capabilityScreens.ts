@@ -168,8 +168,8 @@ export type SupplierScore = {
 };
 
 export const supplierScores: SupplierScore[] = [
-  { ...I, supplierId: "sup-resin-a", name: "Resin mill A", lots: 42, defectPpm: 820, topDefect: "Moisture", scarDraft: null },
-  { ...I, supplierId: "sup-resin-b", name: "Resin mill B", lots: 18, defectPpm: 4100, topDefect: "Contamination", scarDraft: "Draft SCAR: contamination on lots 7713–7719" },
+  { ...I, supplierId: "sup-coil-a", name: "Coil supplier A.", lots: 42, defectPpm: 820, topDefect: "Moisture", scarDraft: null },
+  { ...I, supplierId: "sup-resin-b", name: "Resin supplier B.", lots: 18, defectPpm: 4100, topDefect: "Contamination", scarDraft: "Draft SCAR: contamination on lots 7713 to 7719" },
 ];
 
 export type GenealogyNode = {
@@ -194,7 +194,7 @@ export const genealogyTraces: GenealogyTrace[] = [
     nodes: [
       { ...I, kind: "lot", id: "lot-b-7713", label: "Lot 7713" },
       { ...I, kind: "heat", id: "heat-882", label: "Heat 882" },
-      { ...I, kind: "supplier", id: "sup-resin-b", label: "Resin mill B" },
+      { ...I, kind: "supplier", id: "sup-resin-b", label: "Resin supplier B." },
     ],
   },
   {
@@ -329,8 +329,8 @@ export const scarGeneratorCards: ScarGeneratorCard[] = [
     scarDrafts: [
       {
         supplier_id: "sup-resin-b",
-        subject: "Draft SCAR: contamination on lots 7713–7719",
-        body: "Illustrative draft only. Never sent. Contamination linked to heat 882 / Resin mill B.",
+        subject: "Draft SCAR: contamination on lots 7713 to 7719",
+        body: "Illustrative draft only. Never sent. Contamination linked to heat 882 / Resin supplier B.",
       },
     ],
     notes: ["never_sent", "illustrative_scar_generator"],
