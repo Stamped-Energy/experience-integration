@@ -7,8 +7,24 @@ import type { Crumb } from "@/components/shell/Shell";
 import { Tabs, Tag, type Tone } from "@/components/ui/primitives";
 
 export type QualityTab =
-  | "lots" | "actions" | "agent" | "drift" | "investigations" | "links" | "specs" | "corrections"
-  | "causes" | "spc" | "capability" | "gauge-rr" | "suppliers" | "genealogy" | "capa" | "roi" | "cause-gap" | "monitor";
+  | "lots"
+  | "actions"
+  | "agent"
+  | "drift"
+  | "investigations"
+  | "links"
+  | "specs"
+  | "corrections"
+  | "causes"
+  | "spc"
+  | "capability"
+  | "gauge-rr"
+  | "suppliers"
+  | "genealogy"
+  | "capa"
+  | "roi"
+  | "cause-gap"
+  | "monitor";
 
 export const belowThreshold = () => D.lotLinks.filter((l) => l.status === "suggested" && l.link_confidence < threshold(l.lotId));
 export const threshold = (lotId: string) => {
