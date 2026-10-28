@@ -5,13 +5,15 @@ import type { Asset, Tag as TagT } from "@/lib/demo/types";
 import type { Crumb } from "@/components/shell/Shell";
 import { LineModeTag, Tabs } from "@/components/ui/primitives";
 
-export type PlantTab = "map" | "assets" | "data" | "box" | "packs";
+export type PlantTab = "map" | "assets" | "data" | "box" | "go-live" | "value" | "packs";
 export function PlantTabs({ active }: { active: PlantTab }) {
   const items = [
     { key: "map", href: "/plant", label: "Plant map" },
     { key: "assets", href: `/plant/assets/${D.assets[1].id}`, label: "Assets", count: D.assets.length },
     { key: "data", href: "/plant/data", label: "Data health", count: D.dataGaps.length },
     { key: "box", href: "/plant/box", label: "Plant Box and lease" },
+    { key: "go-live", href: "/plant/go-live", label: "Go-live" },
+    { key: "value", href: "/plant/value", label: "Value ROI" },
     { key: "packs", href: "/plant/line-packs", label: "Line packs", count: D.linePacks.length },
   ];
   return <Tabs label="Plant" items={items.map((i) => ({ ...i, active: i.key === active }))} />;
