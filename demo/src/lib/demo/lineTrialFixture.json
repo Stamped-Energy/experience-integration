@@ -1,0 +1,30 @@
+{
+  "illustrative": true,
+  "lineId": "line-b",
+  "title": "Synthetic line trial · Line B moulding",
+  "window": "Illustrative shift window, no live trial running",
+  "unit": "parts per hour",
+  "baseline": {
+    "label": "Baseline recipe",
+    "rate": 108.5,
+    "scrapPct": 3.4,
+    "cycleSec": 33.6
+  },
+  "candidate": {
+    "label": "Candidate hold pressure −4 bar",
+    "rate": 112.0,
+    "scrapPct": 3.1,
+    "cycleSec": 32.9
+  },
+  "guardrails": {
+    "scrapThresholdPct": null,
+    "cycleThresholdSec": null,
+    "note": "Will-not-get-worse checks abstain until plant head sets thresholds on the signed window."
+  },
+  "steps": [
+    { "id": "lt-1", "name": "Lock measurement plan", "done": true },
+    { "id": "lt-2", "name": "Run baseline arm", "done": true },
+    { "id": "lt-3", "name": "Switch to candidate", "done": false },
+    { "id": "lt-4", "name": "Compare rates only", "done": false }
+  ]
+}
