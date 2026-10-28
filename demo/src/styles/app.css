@@ -121,8 +121,8 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 }
 .role-switch { display: flex; align-items: center; gap: var(--space-2); }
 
-.workspace { flex: 1; padding: var(--space-5) var(--space-5) var(--space-7); }
-.page { width: 100%; }
+.workspace { flex: 1; min-width: 0; padding: var(--space-5) var(--space-5) var(--space-7); }
+.page { width: 100%; min-width: 0; max-width: 100%; }
 .home-ask { max-width: 720px; margin: 0 auto var(--space-6); }
 .home-ask .c-foot { font-size: 13px; }
 
@@ -134,8 +134,15 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 .page-head .head-meta { margin-top: var(--space-1); color: var(--text-secondary); font-size: 14px; }
 .page-head .head-actions { margin-left: auto; display: flex; gap: var(--space-2); align-items: center; }
 
-.tabs { display: flex; gap: var(--space-5); border-bottom: 1px solid var(--border); margin-bottom: var(--space-5); }
-.tab { position: relative; padding: var(--space-2) 0 10px; color: var(--text-secondary); font-size: 14px; font-weight: 500; display: flex; gap: var(--space-2); align-items: center; }
+.tabs {
+  display: flex; flex-wrap: nowrap; gap: var(--space-5); max-width: 100%; min-width: 0;
+  overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin;
+  border-bottom: 1px solid var(--border); margin-bottom: var(--space-5);
+}
+.tab {
+  position: relative; flex: none; white-space: nowrap;
+  padding: var(--space-2) 0 10px; color: var(--text-secondary); font-size: 14px; font-weight: 500; display: flex; gap: var(--space-2); align-items: center;
+}
 .tab:hover { color: var(--text-primary); }
 .tab[aria-current="page"] { color: var(--text-primary); }
 .tab[aria-current="page"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--accent-500); }

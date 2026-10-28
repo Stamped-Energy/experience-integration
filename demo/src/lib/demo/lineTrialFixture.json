@@ -1,0 +1,142 @@
+{
+  "generated_by": "plant_sim.line_scenario.trial",
+  "note": "Synthetic rates from plant-sim line_scenario. Pack thresholds are unset, so will-not-get-worse abstains. Not a plant result.",
+  "default_id": "lower-tool-wear",
+  "trials": {
+    "lower-tool-wear": {
+      "seed": 10,
+      "seeds": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "ticks": 120,
+      "envelope_id": "fixed",
+      "plant_id": "plant_synthetic_line",
+      "line_id": "line_synthetic_1",
+      "candidate_knobs": {
+        "tool_wear_per_lot": 0.006
+      },
+      "baseline": {
+        "lots_finished": 168,
+        "scrap_count": 20,
+        "scrap_rate": 0.11904761904761904,
+        "cold_shut_rate": 0.005952380952380952,
+        "hardness_fail_rate": 0.005952380952380952,
+        "dimensional_fail_rate": 0.1130952380952381
+      },
+      "candidate": {
+        "lots_finished": 168,
+        "scrap_count": 11,
+        "scrap_rate": 0.06547619047619048,
+        "cold_shut_rate": 0.005952380952380952,
+        "hardness_fail_rate": 0.005952380952380952,
+        "dimensional_fail_rate": 0.05357142857142857
+      },
+      "scrap_rate_delta": -0.05357142857142856,
+      "no_worse": {
+        "available": false,
+        "passed": null,
+        "reason": "Pack thresholds for the will-not-get-worse check are not yet fitted (D145/D146). Trial rates are synthetic only; the check abstains."
+      },
+      "param_origin_note": "All coefficients synthetic or literature_default; see params.py",
+      "source": "plant-sim-line-scenario",
+      "kind": "synthetic_line_trial"
+    },
+    "higher-tool-wear": {
+      "seed": 10,
+      "seeds": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "ticks": 120,
+      "envelope_id": "fixed",
+      "plant_id": "plant_synthetic_line",
+      "line_id": "line_synthetic_1",
+      "candidate_knobs": {
+        "tool_wear_per_lot": 0.04
+      },
+      "baseline": {
+        "lots_finished": 168,
+        "scrap_count": 20,
+        "scrap_rate": 0.11904761904761904,
+        "cold_shut_rate": 0.005952380952380952,
+        "hardness_fail_rate": 0.005952380952380952,
+        "dimensional_fail_rate": 0.1130952380952381
+      },
+      "candidate": {
+        "lots_finished": 168,
+        "scrap_count": 100,
+        "scrap_rate": 0.5952380952380952,
+        "cold_shut_rate": 0.005952380952380952,
+        "hardness_fail_rate": 0.005952380952380952,
+        "dimensional_fail_rate": 0.5892857142857143
+      },
+      "scrap_rate_delta": 0.47619047619047616,
+      "no_worse": {
+        "available": false,
+        "passed": null,
+        "reason": "Pack thresholds for the will-not-get-worse check are not yet fitted (D145/D146). Trial rates are synthetic only; the check abstains."
+      },
+      "param_origin_note": "All coefficients synthetic or literature_default; see params.py",
+      "source": "plant-sim-line-scenario",
+      "kind": "synthetic_line_trial"
+    },
+    "lower-heater-power": {
+      "seed": 10,
+      "seeds": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "ticks": 120,
+      "envelope_id": "fixed",
+      "plant_id": "plant_synthetic_line",
+      "line_id": "line_synthetic_1",
+      "candidate_knobs": {
+        "heater_power_kw": 300.0
+      },
+      "baseline": {
+        "lots_finished": 168,
+        "scrap_count": 20,
+        "scrap_rate": 0.11904761904761904,
+        "cold_shut_rate": 0.005952380952380952,
+        "hardness_fail_rate": 0.005952380952380952,
+        "dimensional_fail_rate": 0.1130952380952381
+      },
+      "candidate": {
+        "lots_finished": 168,
+        "scrap_count": 22,
+        "scrap_rate": 0.13095238095238096,
+        "cold_shut_rate": 0.017857142857142856,
+        "hardness_fail_rate": 0.005952380952380952,
+        "dimensional_fail_rate": 0.1130952380952381
+      },
+      "scrap_rate_delta": 0.011904761904761918,
+      "no_worse": {
+        "available": false,
+        "passed": null,
+        "reason": "Pack thresholds for the will-not-get-worse check are not yet fitted (D145/D146). Trial rates are synthetic only; the check abstains."
+      },
+      "param_origin_note": "All coefficients synthetic or literature_default; see params.py",
+      "source": "plant-sim-line-scenario",
+      "kind": "synthetic_line_trial"
+    }
+  }
+}

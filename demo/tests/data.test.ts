@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as D from "../src/lib/demo/data";
+import { capaCases, genealogyTraces } from "../src/lib/demo/capabilityScreens";
 import { can, permissions } from "../src/lib/rbac";
 
 test("cross-links resolve", () => {
@@ -83,6 +84,17 @@ test("settings data varied", () => {
 
 test("running settings map to plant assets on their line", () => {
   for (const r of D.runningSettings) { const a = D.byId.asset(r.assetId ?? ""); assert.ok(a && a.lineId === r.lineId, r.param); }
+});
+
+test("capability fixtures link to demo lots", () => {
+  for (const t of genealogyTraces) {
+    for (const n of t.nodes) {
+      if (n.kind === "lot") assert.ok(D.byId.lot(n.id), `${t.startId} ${n.id}`);
+    }
+  }
+  for (const c of capaCases) {
+    for (const id of c.lotIds) assert.ok(D.byId.lot(id), `${c.id} ${id}`);
+  }
 });
 
 test("scoped Ask threads cover key assets and both lines", () => {

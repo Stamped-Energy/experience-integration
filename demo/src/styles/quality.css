@@ -1,5 +1,7 @@
 /* Quality area */
 .join { display: grid; grid-template-columns: minmax(0, 220px) 40px minmax(0, 1fr); align-items: stretch; }
+.cause-gap-scroll { min-width: 0; overflow-x: auto; }
+.cause-gap-trunc { display: block; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .join-lot { border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: var(--space-3); align-self: center; background: var(--surface-subtle); }
 .join-edges { position: relative; }
 .join-edges::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--border-strong); }
