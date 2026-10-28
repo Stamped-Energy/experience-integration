@@ -6,7 +6,9 @@ import type { Lot } from "@/lib/demo/types";
 import type { Crumb } from "@/components/shell/Shell";
 import { Tabs, Tag, type Tone } from "@/components/ui/primitives";
 
-export type QualityTab = "lots" | "actions" | "agent" | "drift" | "investigations" | "links" | "specs" | "corrections";
+export type QualityTab =
+  | "lots" | "actions" | "agent" | "drift" | "investigations" | "links" | "specs" | "corrections"
+  | "causes" | "spc" | "capability" | "gauge-rr" | "suppliers" | "genealogy" | "capa" | "roi" | "cause-gap" | "monitor";
 
 export const belowThreshold = () => D.lotLinks.filter((l) => l.status === "suggested" && l.link_confidence < threshold(l.lotId));
 export const threshold = (lotId: string) => {
@@ -24,6 +26,16 @@ export function QualityTabs({ active }: { active: QualityTab }) {
     { key: "links", href: "/quality/links", label: "Link confirmations", count: belowThreshold().length },
     { key: "specs", href: "/quality/specs", label: "Specs and grades" },
     { key: "corrections", href: "/quality/corrections", label: "Corrections to process", count: D.corrections.filter((c) => c.status === "sent").length },
+    { key: "causes", href: "/quality/causes", label: "Cause graphs" },
+    { key: "spc", href: "/quality/spc", label: "Control charts" },
+    { key: "capability", href: "/quality/capability", label: "Capability" },
+    { key: "gauge-rr", href: "/quality/gauge-rr", label: "Gauge R&R" },
+    { key: "suppliers", href: "/quality/suppliers", label: "Supplier scorecard" },
+    { key: "genealogy", href: "/quality/genealogy", label: "Genealogy trace" },
+    { key: "capa", href: "/quality/capa", label: "8D / CAPA" },
+    { key: "roi", href: "/quality/roi", label: "D157 ROI" },
+    { key: "cause-gap", href: "/quality/cause-gap", label: "Cause gap" },
+    { key: "monitor", href: "/quality/monitor", label: "Monitor settings" },
   ];
   return <Tabs label="Quality" items={items.map((i) => ({ ...i, active: i.key === active }))} />;
 }
