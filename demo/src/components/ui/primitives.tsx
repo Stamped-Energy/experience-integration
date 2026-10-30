@@ -33,9 +33,9 @@ export function Illustrative() {
   return null;
 }
 
-export function PageHeader({ eyebrow, title, meta, actions, brand }: { eyebrow?: string; title: string; meta?: ReactNode; actions?: ReactNode; brand?: boolean }) {
+export function PageHeader({ eyebrow, title, meta, actions, brand, className }: { eyebrow?: string; title: string; meta?: ReactNode; actions?: ReactNode; brand?: boolean; className?: string }) {
   return (
-    <header className="page-head">
+    <header className={`page-head${className ? ` ${className}` : ""}`}>
       <div>
         {eyebrow ? <div className="label eyebrow">{eyebrow}</div> : null}
         <h1 className={brand ? "brand" : undefined}>{title}</h1>
@@ -74,9 +74,9 @@ export function Section({ title, meta, actions, children, flush, className, id }
 
 export interface Kpi { label: string; value: string; unit?: string; tags?: ReactNode; foot?: ReactNode; href?: string }
 /** KPI row (design system §9.13). Three or four figures, each with its label and status. Not a hero strip. */
-export function KpiRow({ items, label }: { items: Kpi[]; label: string }) {
+export function KpiRow({ items, label, className }: { items: Kpi[]; label: string; className?: string }) {
   return (
-    <div className="kpis" role="group" aria-label={label}>
+    <div className={`kpis${className ? ` ${className}` : ""}`} role="group" aria-label={label}>
       {items.map((k) => {
         const inner = (
           <>

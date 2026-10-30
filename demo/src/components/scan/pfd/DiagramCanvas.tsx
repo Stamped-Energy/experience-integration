@@ -123,13 +123,14 @@ function ValueView({ element, show, onOpen }: { element: ValueElement; show?: Sh
   const text = show?.error ? "?" : formatValue(show?.value ?? null, element.decimals);
   const label = element.show_label && element.label ? `${element.label} ` : "";
   const unit = element.show_unit && show?.unit ? ` ${show.unit}` : "";
-  const width = Math.max(40, (label.length + text.length + unit.length) * element.size * 0.6 + 12);
-  const height = element.size + 12;
+  const fontSize = Math.max(12, element.size);
+  const width = Math.max(52, (label.length + text.length + unit.length) * fontSize * 0.58 + 14);
+  const height = fontSize + 10;
   return (
     <g className={`dg-el dg-value${onOpen ? " dg-clickable" : ""}`} data-state={state} data-element={element.id}>
       <title>{tooltip([show], "")}</title>
       <rect className="dg-value-box" x={element.x} y={element.y} width={width} height={height} rx={3} />
-      <text x={element.x + 6} y={element.y + element.size + 2} fontSize={element.size}>
+      <text x={element.x + 7} y={element.y + fontSize + 1} fontSize={fontSize}>
         {label ? <tspan className="dg-value-label">{label}</tspan> : null}
         <tspan className="dg-value-number">{text}</tspan>
         {unit ? <tspan className="dg-value-unit">{unit}</tspan> : null}
@@ -162,7 +163,7 @@ function LineView({ element, path, show }: { element: LineElement; path: Point[]
       {drawing.flows.map((flow, index) => (
         <path key={`f${index}`} className="dg-flow-arrow" d="M-4 -4 L3 0 L-4 4 Z" transform={`translate(${flow.at[0]} ${flow.at[1]}) rotate(${flow.angle})`} />
       ))}
-      {spot ? (
+      {spot && element.label ? (
         <text className="dg-label dg-line-label" x={spot.at[0]} y={spot.at[1]} textAnchor={spot.anchor} dominantBaseline={spot.anchor === "start" ? "central" : "auto"}>
           {element.label}
         </text>
@@ -172,11 +173,12 @@ function LineView({ element, path, show }: { element: LineElement; path: Point[]
 }
 
 function TextView({ element }: { element: TextElement }) {
+  const size = Math.max(12, element.size);
   return (
     <g className="dg-el dg-text" data-element={element.id}>
-      <text x={element.x} y={element.y} fontSize={element.size} textAnchor={element.align} fontWeight={element.bold ? 600 : 400}>
+      <text x={element.x} y={element.y} fontSize={size} textAnchor={element.align} fontWeight={element.bold ? 600 : 400}>
         {element.text.split("\n").map((lineText, index) => (
-          <tspan key={index} x={element.x} dy={index ? element.size * 1.25 : 0}>
+          <tspan key={index} x={element.x} dy={index ? size * 1.25 : 0}>
             {lineText}
           </tspan>
         ))}
@@ -192,7 +194,7 @@ export function DiagramCanvas({ diagram, symbols, shows, selectedId, onOpen, cla
     <svg
       className={`dg-canvas ${className ?? ""}`}
       viewBox={`0 0 ${diagram.width} ${diagram.height}`}
-      preserveAspectRatio="xMidYMid meet"
+      preserveAspectRatio="xMinYMin meet"
       role="img"
       aria-label={diagram.name}
     >

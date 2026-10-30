@@ -16,6 +16,7 @@ export default function ProcessLinePage() {
   return (
     <Workspace crumbs={crumbs({ label: "Process line view" })} askContext="Process line view">
       <PageHeader
+        className="pfd-page-head-compact"
         eyebrow="Process · Scan"
         title="Process line view"
         meta="PFD-style forging flow with live values and status. All tags are demonstration data."
@@ -23,6 +24,7 @@ export default function ProcessLinePage() {
       />
       <ProcessHubTabs />
       <KpiRow
+        className="pfd-kpi-compact"
         label="Press line B · demo KPIs"
         items={[
           { label: "Cells in alarm", value: String(strip.alarm) },
