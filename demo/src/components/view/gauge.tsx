@@ -44,9 +44,11 @@ export function LoopHealthGauge({
 }) {
   const [min, max] = gaugeRange(value, low, high);
   const colour = toneFor(value, tone);
+  /* Positive viewBox with inset arc so strokes never clip card edges. */
   const cx = 100;
-  const cy = 100;
-  const r = 78;
+  const cy = 102;
+  const r = 68;
+  const stroke = 8;
   const point = (x: number, radius = r) => {
     const angle = Math.PI * (1 - share(x, min, max));
     return [cx + radius * Math.cos(angle), cy - radius * Math.sin(angle)] as const;
@@ -57,26 +59,30 @@ export function LoopHealthGauge({
     const large = share(to, min, max) - share(from, min, max) > 0.5 ? 1 : 0;
     return `M ${x0} ${y0} A ${radius} ${radius} 0 ${large} 1 ${x1} ${y1}`;
   };
-  // Threshold bands: critical <50, warning <75, success >=75 (Tremor-style zones)
   const bandCritical = Math.min(50, max);
   const bandWarn = Math.min(75, max);
   return (
     <article className="pc-gauge">
       <svg viewBox="0 0 200 128" role="img" aria-label={`${label}: ${value} ${unit}`}>
-        <path d={arc(min, max)} className="pc-gauge-track" />
-        {bandCritical > min ? <path d={arc(min, bandCritical)} className="pc-gauge-band pc-gauge-band-critical" /> : null}
-        {bandWarn > bandCritical ? <path d={arc(bandCritical, bandWarn)} className="pc-gauge-band pc-gauge-band-warning" /> : null}
-        {max > bandWarn ? <path d={arc(bandWarn, max)} className="pc-gauge-band pc-gauge-band-success" /> : null}
-        <path d={arc(min, value)} stroke={colour} className="pc-gauge-value" />
-        {/* needle tip */}
+        <path d={arc(min, max)} className="pc-gauge-track" strokeWidth={stroke} />
+        {bandCritical > min ? (
+          <path d={arc(min, bandCritical)} className="pc-gauge-band pc-gauge-band-critical" strokeWidth={stroke} />
+        ) : null}
+        {bandWarn > bandCritical ? (
+          <path d={arc(bandCritical, bandWarn)} className="pc-gauge-band pc-gauge-band-warning" strokeWidth={stroke} />
+        ) : null}
+        {max > bandWarn ? (
+          <path d={arc(bandWarn, max)} className="pc-gauge-band pc-gauge-band-success" strokeWidth={stroke} />
+        ) : null}
+        <path d={arc(min, value)} stroke={colour} className="pc-gauge-value" strokeWidth={stroke} />
         {(() => {
-          const [nx, ny] = point(value, r - 6);
-          return <circle cx={nx} cy={ny} r={3.5} fill={colour} />;
+          const [nx, ny] = point(value, r - 5);
+          return <circle cx={nx} cy={ny} r={3} fill={colour} />;
         })()}
-        <text x="22" y="118" className="pc-gauge-end" textAnchor="middle">
+        <text x={cx - r + 2} y={cy + 18} className="pc-gauge-end" textAnchor="middle">
           {min}
         </text>
-        <text x="178" y="118" className="pc-gauge-end" textAnchor="middle">
+        <text x={cx + r - 2} y={cy + 18} className="pc-gauge-end" textAnchor="middle">
           {max}
         </text>
       </svg>

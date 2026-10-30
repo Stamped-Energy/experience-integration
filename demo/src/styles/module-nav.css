@@ -1,71 +1,72 @@
-/* Module sidebar (ADR-042): 248px column + mobile strip under crumbbar */
-.module-shell {
-  display: grid;
-  grid-template-columns: var(--nav-w) minmax(0, 1fr);
-  min-height: calc(100vh - var(--crumb-h));
-  align-items: start;
-}
-.module-nav {
-  position: sticky;
-  top: var(--crumb-h);
-  height: calc(100vh - var(--crumb-h));
-  overflow: auto;
-  border-right: 1px solid var(--border);
-  background: var(--canvas);
-  padding: var(--space-4) var(--space-3);
+/* Module chrome: horizontal page tabs under the top bar (ADR-042 top-nav). */
+
+.module-shell,
+.module-shell-top {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-}
-.module-nav-head { padding: 0 var(--space-2) var(--space-2); border-bottom: 1px solid var(--border); }
-.module-nav-head h2 { margin: 0; font-size: 15px; font-weight: 600; }
-.module-nav-group { display: flex; flex-direction: column; gap: 2px; }
-.module-nav-group .label { padding: 0 var(--space-2); margin-bottom: var(--space-1); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
-.module-nav-group:first-of-type .label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
-.module-nav-link {
-  display: flex; align-items: center; gap: var(--space-2);
-  padding: 6px 10px; border-radius: var(--radius-sm);
-  font-size: 13px; color: var(--text-secondary); text-decoration: none;
-}
-.module-nav-link:hover { background: var(--surface-sunken); color: var(--text-primary); }
-.module-nav-link[aria-current="page"] {
-  background: var(--accent-50); color: var(--accent-800); font-weight: 500;
-  box-shadow: inset 2px 0 0 var(--accent-500);
-}
-.module-nav-link .cnt {
-  margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px;
-  border-radius: 999px; background: var(--surface-sunken); font-size: 11px;
-  font-weight: 600; text-align: center; line-height: 18px; color: var(--text-muted);
-}
-.module-nav-foot {
-  margin-top: auto; padding-top: var(--space-3); border-top: 1px solid var(--border);
-  font-size: 12px; color: var(--text-muted);
-}
-.module-workspace { min-width: 0; }
-.module-strip-wrap {
-  display: none;
-  border-bottom: 1px solid var(--border);
-  background: var(--canvas);
-  padding: 6px var(--space-4);
-}
-.module-strip {
-  display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.module-strip::-webkit-scrollbar { display: none; }
-.module-strip a {
-  flex: none; padding: 4px 10px; border-radius: var(--radius-sm);
-  border: 1px solid var(--border); font-size: 12px; color: var(--text-secondary);
-  white-space: nowrap;
-}
-.module-strip a[aria-current="page"] {
-  border-color: var(--accent-500); background: var(--accent-50); color: var(--accent-800);
+  min-height: calc(100vh - var(--crumb-h));
+  align-items: stretch;
 }
 
+.module-workspace { min-width: 0; display: flex; flex-direction: column; flex: 1; }
+
+/* Primary module pages — coral underline on active */
+.module-page-tabs {
+  position: sticky;
+  top: var(--crumb-h);
+  z-index: calc(var(--z-sticky) - 1);
+  background: var(--canvas);
+  border-bottom: 1px solid var(--border);
+  padding: 0 var(--space-5);
+}
+.module-page-tabs-inner {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--space-5);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  max-width: 100%;
+}
+.module-page-tabs-inner::-webkit-scrollbar { display: none; }
+.module-page-tab {
+  position: relative;
+  flex: none;
+  white-space: nowrap;
+  padding: 10px 0 11px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+}
+.module-page-tab:hover { color: var(--text-primary); }
+.module-page-tab[aria-current="page"] { color: var(--text-primary); }
+.module-page-tab[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 2px;
+  background: var(--accent-500);
+  border-radius: 2px 2px 0 0;
+}
+.module-page-tab .cnt {
+  min-width: 18px; height: 18px; padding: 0 5px;
+  border-radius: 999px; background: var(--surface-sunken);
+  font-size: 11px; font-weight: 600; text-align: center; line-height: 18px;
+  color: var(--text-muted); font-family: var(--font-mono);
+}
+
+/* Legacy sidebar rules kept inert so old class names do not break */
+.module-nav { display: none !important; }
+.module-strip-wrap { display: none; }
+
 @media (max-width: 767px) {
-  .module-shell { grid-template-columns: minmax(0, 1fr); }
-  .module-nav { display: none; }
-  .module-strip-wrap { display: block; }
+  .module-page-tabs { padding: 0 var(--space-4); }
+  .module-page-tabs-inner { gap: var(--space-4); }
+  .topbar-wordmark { display: none; }
 }
 
 /* Health map scan grid (adapted from PlantCraft health-map widget, Apache-2.0) */

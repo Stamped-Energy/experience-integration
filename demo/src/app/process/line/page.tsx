@@ -10,15 +10,17 @@ export const metadata = { title: "Process plant" };
 export default function ProcessLinePage() {
   return (
     <Workspace crumbs={crumbs({ label: "Process plant" })} askContext="Process plant diagram">
-      <PageHeader
-        className="pfd-page-head-compact"
-        eyebrow="Process · Scan"
-        title="Process plant"
-        meta="Forging and heat-treatment flow · demonstration plant"
-        actions={<AskButton context="Process plant" label="Ask about this plant" />}
-      />
-      <ProcessHubTabs />
-      <PlantDiagramViewer />
+      <div className="plant-page">
+        <PageHeader
+          className="pfd-page-head-compact"
+          eyebrow="Process · Scan"
+          title="Process plant"
+          meta="Forging and heat-treatment flow · demonstration plant"
+          actions={<AskButton context="Process plant" label="Ask about this plant" />}
+        />
+        <ProcessHubTabs />
+        <PlantDiagramViewer />
+      </div>
     </Workspace>
   );
 }

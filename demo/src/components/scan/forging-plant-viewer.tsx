@@ -345,7 +345,7 @@ export function PlantDiagramViewer() {
   );
 
   return (
-    <div className="plant-view stack">
+    <div className="plant-view">
       <div className="plant-view-toolbar">
         <div className="dg-tabs" role="tablist" aria-label="Plant areas">
           <button type="button" role="tab" className={inView === "" && !partId ? "on" : ""} aria-selected={inView === "" && !partId} onClick={() => openPart("")}>

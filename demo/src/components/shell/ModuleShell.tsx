@@ -1,11 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, type ReactNode } from "react";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import type { ModuleDefinition } from "@/lib/module/types";
 import { lastScreenHref, moduleFromPath, saveLastScreen } from "@/lib/module/last-screen";
-import { ModuleMobileStrip, ModuleNav } from "./ModuleNav";
+
+const ModuleCtx = createContext<ModuleDefinition | null>(null);
+export function useActiveModule() {
+  return useContext(ModuleCtx);
+}
 
 export function ModuleShell({ module, children }: { module: ModuleDefinition; children: ReactNode }) {
   const path = usePathname();
@@ -14,13 +18,11 @@ export function ModuleShell({ module, children }: { module: ModuleDefinition; ch
     if (m) saveLastScreen(m, path);
   }, [path]);
   return (
-    <div className="module-shell">
-      <ModuleNav module={module} />
-      <div className="module-workspace">
-        <ModuleMobileStrip module={module} />
-        {children}
+    <ModuleCtx.Provider value={module}>
+      <div className="module-shell module-shell-top">
+        <div className="module-workspace">{children}</div>
       </div>
-    </div>
+    </ModuleCtx.Provider>
   );
 }
 

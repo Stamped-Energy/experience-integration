@@ -63,6 +63,7 @@
   --reading-w: 760px;
   --aside-w: 240px;
   --crumb-h: 44px;
+  --module-tabs-h: 42px;
   --read-w: var(--reading-w);
   --wide-w: 1280px;
 }

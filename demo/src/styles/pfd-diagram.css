@@ -55,8 +55,17 @@
   flex: 1;
 }
 .plant-stage .dg-canvas {
+  position: absolute !important;
+  inset: 0 !important;
   width: 100% !important;
   height: 100% !important;
+  max-width: none !important;
+  aspect-ratio: auto !important;
+}
+.plant-stage .dg-drawing {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .dg-stage .dg-canvas {
@@ -154,3 +163,13 @@
 
 .pfd-line-layout + .tabs,
 .tabs + .pfd-kpi-compact { margin-top: 0; }
+
+/* Plant page: stage fills flex parent; SVG meet-fits inside absolute canvas */
+.plant-stage.dg-stage,
+.plant-stage {
+  aspect-ratio: auto;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  min-height: 0;
+}

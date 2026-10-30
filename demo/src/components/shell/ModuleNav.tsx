@@ -6,33 +6,38 @@ import type { ModuleDefinition } from "@/lib/module/types";
 import { screenActive } from "@/lib/module/definitions";
 import { countForScreen } from "@/lib/module/counts";
 
-export function ModuleNav({ module }: { module: ModuleDefinition }) {
+/** Primary module pages as a horizontal tab row under the header (coral underline). */
+export function ModulePageTabs({ module }: { module: ModuleDefinition }) {
   const path = usePathname();
-  const waiting = countForScreen(module.id, "actions") ?? 0;
+  const screens = module.groups.flatMap((g) => g.screens);
   return (
-    <nav className="module-nav" aria-label={`${module.label} screens`}>
-      <div className="module-nav-head">
-        <h2>{module.label}</h2>
-      </div>
-      {module.groups.map((g) => (
-        <div key={g.id} className="module-nav-group">
-          <span className="label">{g.label}</span>
-          {g.screens.map((s) => {
-            const n = countForScreen(module.id, s.id);
-            return (
-              <Link key={s.id} href={s.href} className="module-nav-link" aria-current={screenActive(s.href, path) ? "page" : undefined}>
-                {s.label}
-                {n ? <span className="cnt">{n}</span> : null}
-              </Link>
-            );
-          })}
-        </div>
-      ))}
-      <div className="module-nav-foot">
-        {waiting ? <p>{waiting} proposal{waiting === 1 ? "" : "s"} waiting on a person</p> : <p>Proposals and trials first, then plant scan</p>}
+    <nav className="module-page-tabs" aria-label={`${module.label} pages`}>
+      <div className="module-page-tabs-inner" role="tablist">
+        {screens.map((s) => {
+          const n = countForScreen(module.id, s.id);
+          const active = screenActive(s.href, path);
+          return (
+            <Link
+              key={s.id}
+              href={s.href}
+              role="tab"
+              className="module-page-tab"
+              aria-current={active ? "page" : undefined}
+              aria-selected={active}
+            >
+              {s.label}
+              {n ? <span className="cnt">{n}</span> : null}
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );
+}
+
+/** @deprecated sidebar removed; kept as alias for any stray imports */
+export function ModuleNav({ module }: { module: ModuleDefinition }) {
+  return <ModulePageTabs module={module} />;
 }
 
 export function ModuleMobileStrip({ module }: { module: ModuleDefinition }) {

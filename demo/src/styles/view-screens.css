@@ -22,8 +22,9 @@
 }
 
 .pc-gauge {
+  overflow: visible;
   text-align: center;
-  padding: var(--space-3) var(--space-3) var(--space-4);
+  padding: var(--space-4) var(--space-3) var(--space-4);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface);
@@ -33,14 +34,22 @@
   align-items: center;
   gap: 2px;
   min-height: 100%;
+  overflow: visible;
 }
-.pc-gauge svg { width: 100%; max-width: 180px; height: auto; display: block; }
-.pc-gauge-track { fill: none; stroke: var(--border); stroke-width: 12; stroke-linecap: butt; }
-.pc-gauge-band { fill: none; stroke-width: 12; opacity: 0.22; }
+.pc-gauge svg {
+  width: 100%;
+  max-width: 168px;
+  height: auto;
+  display: block;
+  overflow: visible;
+  margin: 0 auto;
+}
+.pc-gauge-track { fill: none; stroke: var(--border); stroke-width: 8; stroke-linecap: butt; }
+.pc-gauge-band { fill: none; stroke-width: 8; opacity: 0.22; }
 .pc-gauge-band-critical { stroke: var(--critical); }
 .pc-gauge-band-warning { stroke: var(--warning); }
 .pc-gauge-band-success { stroke: var(--success); }
-.pc-gauge-value { fill: none; stroke-width: 12; stroke-linecap: round; }
+.pc-gauge-value { fill: none; stroke-width: 8; stroke-linecap: round; }
 .pc-gauge-end { fill: var(--text-muted); font-size: 10px; font-family: var(--font-geist-mono), monospace; }
 .pc-gauge-number {
   margin-top: -6px;
@@ -176,16 +185,45 @@
 }
 .dg-tabs button:hover { border-color: var(--border-strong); }
 
+.plant-page {
+  display: flex;
+  flex-direction: column;
+  /* Fill below top bar + module page tabs + workspace padding. */
+  min-height: calc(100vh - var(--crumb-h) - var(--module-tabs-h) - var(--space-5) - var(--space-7));
+  gap: 0;
+  flex: 1;
+}
+.plant-page .plant-view {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.plant-page .pfd-detail-drawer {
+  flex: 0 0 auto;
+}
+.plant-page > .page-head,
+.plant-page > .tabs,
+.plant-page .hub-tabs {
+  flex: 0 0 auto;
+}
+.plant-page > .tabs {
+  margin-bottom: var(--space-3);
+}
+.plant-page .plant-view-toolbar,
+.plant-page .dg-timebar {
+  flex: 0 0 auto;
+}
+
 .plant-stage {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
   width: 100%;
-  /* Match forging PFD aspect so the drawing fills the stage edge-to-edge (no letterbox). */
-  aspect-ratio: 1184 / 376;
-  min-height: 280px;
+  min-height: 360px;
   height: auto;
-  max-height: calc(100vh - 200px);
+  /* Fill remaining viewport under header, hub tabs, area tabs and timebar. */
+  flex-grow: 1;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface);
@@ -197,8 +235,10 @@
   inset: 0;
   z-index: 40;
   min-height: 100vh;
-  height: 100vh;
+  height: 100vh !important;
+  max-height: none;
   border-radius: 0;
+  aspect-ratio: auto;
 }
 .plant-stage-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .dg-zoom-stage { position: relative; flex: 1; min-height: 0; width: 100%; height: 100%; }
@@ -416,3 +456,55 @@
 .pfd-detail-drawer-hint { font-size: 12px; color: var(--text-muted); }
 .pfd-detail { padding: 0 14px 14px; }
 .pfd-detail-grid { display: grid; gap: 12px; }
+
+/* Secondary hub tabs sit under primary module tabs */
+.module-shell-top .tabs {
+  margin-top: 0;
+  margin-bottom: var(--space-4);
+}
+.plant-page .tabs {
+  margin-bottom: var(--space-3);
+}
+.plant-page .workspace,
+.module-shell-top .workspace {
+  /* plant page uses flex fill inside workspace */
+}
+.module-shell-top .workspace {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.module-shell-top .workspace > .page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Plant: reclaim chrome so the stage owns leftover viewport */
+.plant-page .pfd-page-head-compact.page-head {
+  padding-bottom: 4px;
+  margin-bottom: 0;
+}
+.plant-page .pfd-page-head-compact h1 {
+  font-size: 22px;
+  line-height: 28px;
+}
+.plant-page .pfd-page-head-compact .head-meta {
+  font-size: 12px;
+  margin-top: 2px;
+}
+.plant-page .pfd-page-head-compact .eyebrow {
+  margin-bottom: 2px;
+}
+.module-shell-top .workspace:has(.plant-page) {
+  padding-top: var(--space-3);
+  padding-bottom: var(--space-3);
+}
+.plant-page {
+  min-height: calc(100vh - var(--crumb-h) - var(--module-tabs-h) - var(--space-3) - var(--space-3));
+}
+.plant-page .plant-stage {
+  min-height: 420px;
+}
