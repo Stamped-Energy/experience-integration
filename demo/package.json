@@ -10,7 +10,8 @@
   "scripts": {
     "dev": "next dev --port 3010",
     "build": "next build",
-    "start": "next start --port 3010",
+    "start": "next start --hostname 127.0.0.1 --port 3010",
+    "preview": "next start --hostname 127.0.0.1 --port 3010",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
     "lint": "tsc --noEmit && node scripts/check-copy.mjs",

@@ -26,9 +26,17 @@ export function ForgingLineMap() {
     <div className="grid">
       <div className="span-8 stack">
         <p className="pfd-demo-banner">Demonstration data · PFD-style flow (equipment, live values, utility lines). Click a unit for detail.</p>
-        <div className="dg-stage" aria-label="Forging process line diagram">
-          <DiagramCanvas diagram={forgingLineDiagram} symbols={symbols} shows={shows} onOpen={onOpen} />
+        <div className="pfd-legend" aria-hidden>
+          <span><i className="ok" /> Normal</span>
+          <span><i className="watch" /> Watch</span>
+          <span><i className="alarm" /> Alarm</span>
+          <span>Animated arrows · live flow (demo)</span>
         </div>
+        <Section title="Press line B · forging PFD" meta="Click equipment for loops and tags" flush>
+          <div className="dg-stage" aria-label="Forging process line diagram">
+            <DiagramCanvas diagram={forgingLineDiagram} symbols={symbols} shows={shows} selectedId={selected?.id} onOpen={onOpen} />
+          </div>
+        </Section>
         <Section title="Utility loops (demo)" meta="Compressed air and cooling water" flush>
           <div className="rows">
             <Link className="row" href="/process/optimisation?loop=loop-util-compressed-air">

@@ -15,7 +15,16 @@ pnpm dev        # http://localhost:3010
 pnpm lint       # type check plus the copy-rule check (scripts/check-copy.mjs)
 pnpm test       # dataset cross-links, RBAC and copy rules (tests/*.test.ts)
 pnpm build      # production build
-pnpm start      # serve the build on port 3010
+pnpm preview    # serve the build on port 3010 (same as start; run only after build)
+pnpm start      # alias of preview
+```
+
+After changing UI code, run `pnpm build` again before `pnpm preview`. If static chunks 404 or return 500, restart preview so `/_next/static/*` matches the latest build.
+
+Viewport screenshots for QA (server must be running on 3010):
+
+```bash
+node scripts/capture-pr59-screens.mjs
 ```
 
 ## What it shows

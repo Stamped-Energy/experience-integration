@@ -28,6 +28,7 @@ export interface CanvasProps {
   diagram: DiagramDraft;
   symbols: Map<string, SymbolDef>;
   shows?: Shows;
+  selectedId?: string | null;
   onOpen?: (element: Element) => void;
   className?: string;
 }
@@ -46,11 +47,13 @@ const SymbolView = memo(function SymbolView({
   def,
   show,
   onOpen,
+  picked,
 }: {
   element: SymbolElement;
   def?: SymbolDef;
   show?: Partial<Record<Slot, Shown>>;
   onOpen?: (element: Element) => void;
+  picked?: boolean;
 }) {
   const box = symbolBox(element, def);
   const state = show?.state?.state ?? "unknown";
@@ -71,7 +74,7 @@ const SymbolView = memo(function SymbolView({
   const clickable = Boolean(onOpen && element.asset_id);
   return (
     <g
-      className={`dg-el dg-sym${clickable ? " dg-clickable" : ""}`}
+      className={`dg-el dg-sym${clickable ? " dg-clickable" : ""}${picked ? " dg-picked" : ""}`}
       data-state={state}
       data-on={on === true ? "true" : on === false ? "false" : undefined}
       data-element={element.id}
@@ -171,7 +174,7 @@ function TextView({ element }: { element: TextElement }) {
   );
 }
 
-export function DiagramCanvas({ diagram, symbols, shows, onOpen, className }: CanvasProps) {
+export function DiagramCanvas({ diagram, symbols, shows, selectedId, onOpen, className }: CanvasProps) {
   const lines = diagram.elements.filter((element): element is LineElement => element.type === "line");
   const others = diagram.elements.filter((element) => element.type !== "line");
   return (
@@ -195,6 +198,7 @@ export function DiagramCanvas({ diagram, symbols, shows, onOpen, className }: Ca
               def={symbols.get(element.symbol)}
               show={shows?.get(element.id)}
               onOpen={onOpen}
+              picked={selectedId === element.id}
             />
           );
         }
