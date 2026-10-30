@@ -2,6 +2,7 @@
 
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import { demoRole } from "@/lib/role";
@@ -28,6 +29,8 @@ function NoReleaseLine() {
 
 export default function LotsAtRisk() {
   const sp = Object.fromEntries(useSearchParams().entries());
+  if (sp.tab === "actions") redirect("/quality/actions");
+  if (sp.tab === "agent") redirect("/quality/agent");
   const role = demoRole();
   const sorted = D.lots.slice().sort((a, b) => RANK[a.riskWord] - RANK[b.riskWord] || b.startedAt.localeCompare(a.startedAt));
   const rows = sp.all ? sorted : sorted.filter((l) => l.riskWord !== "On track" || l.status !== "complete").slice(0, 20);
@@ -55,7 +58,7 @@ export default function LotsAtRisk() {
           </div>
         </div>
       ) : (<>
-      <ActionsBrief area="Quality" href="/quality?tab=actions" limit={3} />
+      <ActionsBrief area="Quality" href="/quality/actions" limit={3} />
       <NoReleaseLine />
       <div className="grid">
         <div className="span-8 stack">

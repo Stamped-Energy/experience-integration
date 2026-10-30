@@ -20,7 +20,8 @@ import { ProcessTabs, crumbs, outcome, outcomeName, packOf, proofForRun, runLabe
 
 export default function ProcessLines() {
   const sp = Object.fromEntries(useSearchParams().entries());
-  const actions = sp.tab === "actions";
+  if (sp.tab === "actions") redirect("/process/actions");
+  const actions = false;
   if (!actions && sp.line && D.byId.line(sp.line)) redirect(`/process/lines/${sp.line}`);
   const role = demoRole();
   const open = D.proposals.filter((p) => p.state === "Waiting");
@@ -32,7 +33,7 @@ export default function ProcessLines() {
         actions={<><Link className="btn btn-sm" href="/process/proposals">{open.length} proposals waiting</Link><AskButton context="Process lines" label="Ask about lines" /></>} />
       <ProcessTabs active={actions ? "actions" : "lines"} />
       {actions ? <><ActionsBoard area="Process" role={role} base="/process" status={sp.status} line={sp.line} mine={sp.mine} /></> : (<>
-      <ActionsBrief area="Process" href="/process?tab=actions" />
+      <ActionsBrief area="Process" href="/process/actions" />
       <div className="grid">
         <div className="span-12">
           <Section title="Lines" meta="Mode, running settings against the signed band, last runs" flush>

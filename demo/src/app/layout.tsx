@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import { AppShell } from "@/components/shell/Shell";
 import { DISPLAY_SCRIPT } from "@/components/shell/ShellClient";
 import { RoleProvider } from "@/lib/role.client";
+import "@/styles/module-nav.css";
 import "@/styles/tokens.css";
 import "@/styles/app.css";
 import "@/styles/process.css";
