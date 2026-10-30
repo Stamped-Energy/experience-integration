@@ -11,22 +11,17 @@ export function useActiveModule() {
   return useContext(ModuleCtx);
 }
 
+/** Thin provider for module pages. Nav lives in SideNav; sub-views use HubTabs. */
 export function ModuleShell({ module, children }: { module: ModuleDefinition; children: ReactNode }) {
   const path = usePathname();
   useEffect(() => {
     const m = moduleFromPath(path);
     if (m) saveLastScreen(m, path);
   }, [path]);
-  return (
-    <ModuleCtx.Provider value={module}>
-      <div className="module-shell module-shell-top">
-        <div className="module-workspace">{children}</div>
-      </div>
-    </ModuleCtx.Provider>
-  );
+  return <ModuleCtx.Provider value={module}>{children}</ModuleCtx.Provider>;
 }
 
-/** Rail link that restores the last screen for Process or Quality (ADR-042 U2). */
+/** Restores the last screen for Process or Quality when entering from outside. */
 export function ModuleRailLink({
   module,
   fallback,
@@ -46,7 +41,7 @@ export function ModuleRailLink({
   const onModule = path.startsWith(`/${module}`);
   return (
     <Link
-      href={onModule ? fallback : fallback}
+      href={fallback}
       className={className}
       onClick={(e) => {
         if (onModule) return;

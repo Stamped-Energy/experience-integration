@@ -140,7 +140,7 @@ function RailToggle() {
 }
 
 /** Inline script for <head>: applies saved theme, density and sidebar state before paint. */
-export const DISPLAY_SCRIPT = `try{var d=document.documentElement,t=localStorage.getItem('stamped-theme'),n=localStorage.getItem('stamped-density'),r=localStorage.getItem('stamped-rail'),c=document.cookie.match(/stamped-role=([^;]+)/),role=c&&c[1]?c[1]:'plant-head';if(t)d.dataset.theme=t;if(n)d.dataset.density=n;if(r)d.dataset.rail=r;d.dataset.role=role;var m=document.querySelector('.main');if(m)m.dataset.role=role;}catch(e){}`;
+export const DISPLAY_SCRIPT = `try{var d=document.documentElement,t=localStorage.getItem('stamped-theme'),n=localStorage.getItem('stamped-density'),r=localStorage.getItem('stamped-rail'),c=document.cookie.match(/stamped-role=([^;]+)/),role=c&&c[1]?c[1]:'plant-head';if(t)d.dataset.theme=t;if(n)d.dataset.density=n;d.dataset.rail=r||'expanded';d.dataset.role=role;var m=document.querySelector('.main');if(m)m.dataset.role=role;}catch(e){}`;
 
 export function RoleSwitcher({ role, roles }: { role: RoleId; roles: { id: RoleId; name: string }[] }) {
   const setRole = useSetRole();

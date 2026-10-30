@@ -1,73 +1,16 @@
-/* Module chrome: horizontal page tabs under the top bar (ADR-042 top-nav). */
+/* Module chrome: SideNav owns Process/Quality pages; HubTabs stay in-page. */
 
 .module-shell,
 .module-shell-top {
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100vh - var(--crumb-h));
-  align-items: stretch;
+  display: contents;
 }
 
-.module-workspace { min-width: 0; display: flex; flex-direction: column; flex: 1; }
+.module-workspace { min-width: 0; display: contents; }
 
-/* Primary module pages — coral underline on active */
-.module-page-tabs {
-  position: sticky;
-  top: var(--crumb-h);
-  z-index: calc(var(--z-sticky) - 1);
-  background: var(--canvas);
-  border-bottom: 1px solid var(--border);
-  padding: 0 var(--space-5);
-}
-.module-page-tabs-inner {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: var(--space-5);
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-  max-width: 100%;
-}
-.module-page-tabs-inner::-webkit-scrollbar { display: none; }
-.module-page-tab {
-  position: relative;
-  flex: none;
-  white-space: nowrap;
-  padding: 10px 0 11px;
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  text-decoration: none;
-}
-.module-page-tab:hover { color: var(--text-primary); }
-.module-page-tab[aria-current="page"] { color: var(--text-primary); }
-.module-page-tab[aria-current="page"]::after {
-  content: "";
-  position: absolute;
-  left: 0; right: 0; bottom: -1px;
-  height: 2px;
-  background: var(--accent-500);
-  border-radius: 2px 2px 0 0;
-}
-.module-page-tab .cnt {
-  min-width: 18px; height: 18px; padding: 0 5px;
-  border-radius: 999px; background: var(--surface-sunken);
-  font-size: 11px; font-weight: 600; text-align: center; line-height: 18px;
-  color: var(--text-muted); font-family: var(--font-mono);
-}
-
-/* Legacy sidebar rules kept inert so old class names do not break */
+/* Obsolete top-nav page tabs — hidden */
+.module-page-tabs { display: none !important; }
 .module-nav { display: none !important; }
 .module-strip-wrap { display: none; }
-
-@media (max-width: 767px) {
-  .module-page-tabs { padding: 0 var(--space-4); }
-  .module-page-tabs-inner { gap: var(--space-4); }
-  .topbar-wordmark { display: none; }
-}
 
 /* Health map scan grid (adapted from PlantCraft health-map widget, Apache-2.0) */
 .hmap-strip { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-4); font-size: 13px; }
@@ -98,18 +41,3 @@
 
 .compare-tray { display: flex; flex-wrap: wrap; gap: 8px; margin: var(--space-3) 0; }
 .compare-tray label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; border: 1px solid var(--border); padding: 4px 10px; border-radius: var(--radius-sm); cursor: pointer; }
-.compare-tray input { accent-color: var(--accent-500); }
-.compare-tray label.on { border-color: var(--accent-500); background: var(--accent-50); }
-.run-chosen { background: var(--accent-50); }
-.run-type-soon { opacity: .55; }
-
-.narr-trend { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); padding: var(--space-4); }
-.narr-trend h3 { margin: 0 0 var(--space-2); font-size: 15px; font-weight: 500; }
-.narr-trend p { margin: 0 0 var(--space-3); font-size: 13px; color: var(--text-secondary); }
-
-.desk-list { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
-.desk-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: var(--space-2); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border); font-size: 13px; align-items: start; }
-.desk-row:last-child { border-bottom: 0; }
-.desk-time { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
-
-.line-schematic { border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-4); background: var(--surface); }
