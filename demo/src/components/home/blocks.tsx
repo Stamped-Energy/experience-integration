@@ -1,5 +1,6 @@
 /** Home building blocks shared by the four views. */
 import Link from "next/link";
+import { StretchLink, clickableSurface } from "@/components/ui/StretchLink";
 import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import type { Line, ShiftEvent } from "@/lib/demo/types";
@@ -26,9 +27,9 @@ export function LineStrip() {
         const s = lineSeries(l);
         const waiting = D.proposals.filter((p) => p.lineId === l.id && p.state === "Waiting").length;
         return (
-          <div className="linecell" role="listitem" key={l.id}>
+          <div className={`linecell ${clickableSurface}`} role="listitem" key={l.id}>
             <div>
-              <h3><Link href={`/process?line=${l.id}`}>{l.name}</Link><LineModeTag mode={l.mode} /></h3>
+              <h3><StretchLink href={`/process/lines/${l.id}`}>{l.name}</StretchLink><LineModeTag mode={l.mode} /></h3>
               <div className="secondary" style={{ marginTop: 2 }}>{l.product} · {l.status}</div>
               <div className="facts">
                 {l.kpis.map((k) => <div className="fact" key={k.label}><div className="label">{k.label}</div><div className="v">{k.value}{k.unit ? <span className="unit">{k.unit}</span> : null}</div></div>)}

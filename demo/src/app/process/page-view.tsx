@@ -38,9 +38,8 @@ export default function ProcessLines() {
       <div className="grid">
         <div className="span-12">
           <Section title="Lines" meta="Mode, running settings against the signed band, last runs" flush>
-            <div className="table-click">
-            <DataTable caption="Lines" rowKey={(l) => l.id} rows={D.lines} columns={[
-              { key: "n", label: "Line", render: (l) => <><Link className="link row-stretch" href={`/process/lines/${l.id}`} style={{ fontWeight: 600 }} aria-label={`Open ${l.name}`}>{l.name}</Link><span className="cell-sub">{packOf(l).equipmentClass} · {l.product}</span></> },
+            <DataTable caption="Lines" rowKey={(l) => l.id} rows={D.lines} rowHref={(l) => `/process/lines/${l.id}`} columns={[
+              { key: "n", label: "Line", render: (l) => <><Link className="link" href={`/process/lines/${l.id}`} style={{ fontWeight: 600 }} aria-label={`Open ${l.name}`}>{l.name}</Link><span className="cell-sub">{packOf(l).equipmentClass} · {l.product}</span></> },
               { key: "m", label: "Mode", render: (l) => <LineModeTag mode={l.mode} /> },
               { key: "o", label: `Outcome, last 20`, render: (l) => { const n = outcomeName(l); const v = runsOf(l.id).slice(-20).map((r) => outcome(r, n)!.value); return <><Sparkline values={v} width={140} height={28} label={`${n} on ${l.short}`} /><span className="cell-sub">{n} now {v[v.length - 1]} · spec {specOf(l).join(" to ")}</span></>; } },
               { key: "s", label: "Key setting vs band", render: (l) => { const rs = D.runningSettings.find((r) => r.lineId === l.id && r.mode === "Trial") ?? D.runningSettings.find((r) => r.lineId === l.id)!; const w = D.byId.window(l.id, rs.param)!; return <div className="mini-band"><LimitsBand name={rs.name} unit={rs.unit} signed={[w.low, w.high]} narrowed={w.narrowedLow !== undefined ? [w.narrowedLow, w.narrowedHigh!] : undefined} current={rs.value} signedBy={w.signedBy} signedAt={dayMonth(w.signedAt)} legend={false} /></div>; } },
@@ -48,13 +47,12 @@ export default function ProcessLines() {
               { key: "f", label: "Model fit", render: (l) => <Tag tone={fits[l.id].state === "accepted" ? "success" : "warning"}>{fits[l.id].state === "accepted" ? "Accepted" : "Not accepted"}</Tag> },
               { key: "g", label: "Signer", render: () => "Plant head" },
             ]} />
-            </div>
           </Section>
         </div>
         <div className="span-8 xl-span-9 stack">
           <div className="xl-cols-2">
             <Section title="Recent runs" meta="Both lines, newest first" flush actions={<Link className="link" href="/process/lines/line-a">All runs</Link>}>
-              <DataTable caption="Recent runs" rowKey={(r) => r.id} rows={recent} columns={[
+              <DataTable caption="Recent runs" rowKey={(r) => r.id} rows={recent} rowHref={(r) => `/process/runs/${r.id}`} columns={[
                 { key: "r", label: "Run", render: (r) => <Link className="link" href={`/process/runs/${r.id}`}>{runLabel(r)}</Link> },
                 { key: "l", label: "Line", render: (r) => D.byId.line(r.lineId)!.short },
                 { key: "e", label: "Ended", mono: true, render: (r) => `${dayMonth(r.end)} ${hhmm(r.end)}` },

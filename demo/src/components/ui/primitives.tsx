@@ -2,6 +2,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { EvidenceLabel, LineMode, Mode, Verdict } from "@/lib/demo/types";
+import { ClickableRow } from "@/components/ui/ClickableRow";
 
 export type Tone = "neutral" | "info" | "warning" | "critical" | "success" | "accent";
 
@@ -92,16 +93,19 @@ export function KpiRow({ items, label, className }: { items: Kpi[]; label: strin
 }
 
 export interface Column<R> { key: string; label: string; align?: "left" | "right"; mono?: boolean; width?: number | string; render: (r: R) => ReactNode }
-export function DataTable<R>({ columns, rows, rowKey, caption }: { columns: Column<R>[]; rows: R[]; rowKey: (r: R) => string; caption: string }) {
+export function DataTable<R>({ columns, rows, rowKey, caption, rowHref }: { columns: Column<R>[]; rows: R[]; rowKey: (r: R) => string; caption: string; rowHref?: (r: R) => string | undefined }) {
   if (rows.length === 0) return <EmptyState title="Nothing here yet" body={`${caption}: no rows in this view.`} />;
   return (
-    <table className="table">
+    <table className={`table${rowHref ? " table-click" : ""}`}>
       <caption className="sr-only">{caption}</caption>
       <thead><tr>{columns.map((c) => <th key={c.key} className={c.align === "right" ? "right" : undefined} style={c.width ? { width: c.width } : undefined}>{c.label}</th>)}</tr></thead>
       <tbody>
-        {rows.map((r) => (
-          <tr key={rowKey(r)}>{columns.map((c) => <td key={c.key} className={[c.align === "right" ? "right num" : "", c.mono ? "mono" : ""].join(" ").trim() || undefined}>{c.render(r)}</td>)}</tr>
-        ))}
+        {rows.map((r) => {
+          const cells = columns.map((c) => <td key={c.key} className={[c.align === "right" ? "right num" : "", c.mono ? "mono" : ""].join(" ").trim() || undefined}>{c.render(r)}</td>);
+          const href = rowHref?.(r);
+          if (href) return <ClickableRow key={rowKey(r)} href={href}>{cells}</ClickableRow>;
+          return <tr key={rowKey(r)}>{cells}</tr>;
+        })}
       </tbody>
     </table>
   );

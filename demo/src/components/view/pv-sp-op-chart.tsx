@@ -62,18 +62,23 @@ export function PvSpOpTrendCard({
     const border = cssVar("--border", "#E4E4E2");
     const textMuted = cssVar("--text-muted", "#8A8A86");
     const textPrimary = cssVar("--text-primary", "#202020");
+    const geist = cssVar("--font-geist", "Geist");
+    const geistMono = cssVar("--font-geist-mono", "Geist Mono");
+    const fontSans = `${geist}, "Geist", Inter, system-ui, sans-serif`;
+    const fontMono = `${geistMono}, "Geist Mono", ui-monospace, monospace`;
 
     const categories = series.t.map((t) => formatHour(t));
     instance.setOption({
       animation: false,
       color: [accent, muted, success],
+      textStyle: { fontFamily: fontSans, fontSize: 12, color: textPrimary },
       grid: { left: 56, right: 48, top: 28, bottom: 28, containLabel: false },
       legend: { show: false },
       tooltip: {
         trigger: "axis",
         backgroundColor: cssVar("--surface", "#FFFFFF"),
         borderColor: border,
-        textStyle: { color: textPrimary, fontSize: 12 },
+        textStyle: { color: textPrimary, fontSize: 12, fontFamily: fontSans },
       },
       xAxis: {
         type: "category",
@@ -84,6 +89,7 @@ export function PvSpOpTrendCard({
         axisLabel: {
           color: textMuted,
           fontSize: 10,
+          fontFamily: fontMono,
           interval: Math.max(0, Math.floor(categories.length / 6) - 1),
         },
         splitLine: { show: false },
@@ -95,7 +101,7 @@ export function PvSpOpTrendCard({
           name: "",
           axisLine: { show: false },
           axisTick: { show: false },
-          axisLabel: { color: textMuted, fontSize: 10 },
+          axisLabel: { color: textMuted, fontSize: 10, fontFamily: fontMono },
           splitLine: { lineStyle: { color: border, type: "dashed" } },
         },
         {
@@ -106,7 +112,7 @@ export function PvSpOpTrendCard({
           name: "",
           axisLine: { show: false },
           axisTick: { show: false },
-          axisLabel: { color: textMuted, fontSize: 10, margin: 8, formatter: (v: number) => `${v}` },
+          axisLabel: { color: textMuted, fontSize: 10, fontFamily: fontMono, margin: 8, formatter: (v: number) => `${v}` },
           splitLine: { show: false },
         },
       ],

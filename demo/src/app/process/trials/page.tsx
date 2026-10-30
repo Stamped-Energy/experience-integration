@@ -1,5 +1,6 @@
 import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import Link from "next/link";
+import { StretchLink, clickableSurface, stretchOver } from "@/components/ui/StretchLink";
 import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
 import { demoRole } from "@/lib/role";
@@ -28,7 +29,7 @@ export default async function Trials() {
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
           <Section title="Trials" meta={`${D.trials.length} on record`} flush>
-            <DataTable caption="Trials" rowKey={(t) => t.id} rows={D.trials} columns={[
+            <DataTable caption="Trials" rowKey={(t) => t.id} rows={D.trials} rowHref={(t) => `/process/trials/${t.id}`} columns={[
               { key: "i", label: "Trial", render: (t) => <><Link className="link" href={`/process/trials/${t.id}`} style={{ fontWeight: 600 }}>{t.change}</Link><span className="cell-sub">{nameOf(t.id)} · {D.byId.line(t.lineId)!.short}</span></> },
               { key: "s", label: "Status", render: (t) => <Tag tone={tone(t.status)}>{t.status}</Tag> },
               { key: "w", label: "Switches", align: "right", render: (t) => t.switches.length ? `${t.switches.filter((s) => !s.skippedReason).length} done, ${t.switches.filter((s) => s.skippedReason).length} skipped` : "None yet" },
@@ -47,10 +48,10 @@ export default async function Trials() {
         <div className="span-4 xl-span-3 stack ctx">
           <Section title="Waiting for signature" meta="Signer set per plant" flush>
             {waiting.map((t) => (
-              <article key={t.id} className="card decision" style={{ margin: 12 }}>
+              <article key={t.id} className={`card decision ${clickableSurface}`} style={{ margin: 12 }}>
                 <div className="card-head"><span className="src">Process engineer A.</span><span className="dotsep">·</span><span>{D.byId.line(t.lineId)!.short}</span><span className="right"><Tag tone="accent">Needs a signature</Tag></span></div>
-                <div className="card-body"><div className="card-block"><h3 className="card-title"><Link href={`/process/trials/${t.id}`}>{t.change}</Link></h3><p className="card-obs">{t.schedule.join(". ")}. Restores {Object.values(t.restoreTarget)[0]} on Stop.</p></div></div>
-                <CardActions actions={[{ id: "sign", label: "Sign trial order", primary: true, allowed: can(role, "sign-trial"), reason: deniedReason("sign-trial", "sign"), done: "Signed." }]} />
+                <div className="card-body"><div className="card-block"><h3 className="card-title"><StretchLink href={`/process/trials/${t.id}`}>{t.change}</StretchLink></h3><p className="card-obs">{t.schedule.join(". ")}. Restores {Object.values(t.restoreTarget)[0]} on Stop.</p></div></div>
+                <div className={stretchOver}><CardActions actions={[{ id: "sign", label: "Sign trial order", primary: true, allowed: can(role, "sign-trial"), reason: deniedReason("sign-trial", "sign"), done: "Signed." }]} /></div>
               </article>
             ))}
           </Section>

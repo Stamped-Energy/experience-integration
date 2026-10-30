@@ -524,3 +524,58 @@ a.row:hover { background: var(--surface-subtle); }
   .grid > .span-8, .grid > .span-4, .grid > .span-7, .grid > .span-5, .grid > .span-9, .grid > .span-3 { grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ---------- Shared clickable surface (whole-card / whole-row open) ---------- */
+.clickable-surface {
+  position: relative;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+.clickable-surface:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--elevation-1, 0 1px 2px rgba(32, 32, 32, 0.04));
+}
+a.stretch-link {
+  color: inherit;
+  text-decoration: none;
+  font: inherit;
+}
+a.stretch-link:hover { color: var(--accent-700); }
+a.stretch-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+}
+.clickable-surface .stretch-over,
+.clickable-surface .card-foot,
+.clickable-surface a:not(.stretch-link),
+.clickable-surface button,
+.clickable-surface input,
+.clickable-surface select,
+.clickable-surface textarea,
+.clickable-surface [data-no-nav] {
+  position: relative;
+  z-index: 1;
+}
+
+/* Table rows: prefer JS ClickableRow; keep CSS stretch as fallback */
+.table-click tbody tr { position: relative; }
+.table-click tbody tr.clickable-row { cursor: pointer; }
+.table-click tbody tr.clickable-row:hover { background: var(--surface-subtle); }
+.table-click tbody tr.clickable-row:focus-visible { outline: 2px solid var(--accent-500); outline-offset: -2px; }
+.table-click .row-stretch { position: static; }
+.table-click .row-stretch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.table-click .row-over,
+.table-click a:not(.row-stretch),
+.table-click button,
+.table-click [data-no-nav] {
+  position: relative;
+  z-index: 1;
+}

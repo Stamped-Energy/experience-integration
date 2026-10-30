@@ -65,16 +65,14 @@ export default function LotsAtRisk() {
         <div className="span-8 stack">
           <Section title="Lots" meta={`${atRisk.length} at risk · ${D.lots.filter((l) => l.riskWord === "Watch").length} to watch · ${D.lots.length} in 10 days`} flush
             actions={<Link className="link" href={sp.all ? "/quality" : "/quality?all=1"} scroll={false}>{sp.all ? "Open lots only" : `Show all ${D.lots.length}`}</Link>}>
-            <div className="table-click">
-            <DataTable caption="Lots. Select a row to open the lot" rowKey={(l) => l.id} rows={rows} columns={[
-              { key: "l", label: "Lot", render: (l) => <><Link className="link mono row-stretch" href={`/quality/lots/${l.id}`} style={{ fontWeight: 600 }} aria-label={`Open lot ${lotNo(l.id)}`}>{lotNo(l.id)}</Link><span className="cell-sub nowrap">{gradeOf(l).name}</span></> },
+            <DataTable caption="Lots. Select a row to open the lot" rowKey={(l) => l.id} rows={rows} rowHref={(l) => `/quality/lots/${l.id}`} columns={[
+              { key: "l", label: "Lot", render: (l) => <><Link className="link mono" href={`/quality/lots/${l.id}`} style={{ fontWeight: 600 }} aria-label={`Open lot ${lotNo(l.id)}`}>{lotNo(l.id)}</Link><span className="cell-sub nowrap">{gradeOf(l).name}</span></> },
               { key: "r", label: "Risk", render: (l) => <RiskTag risk={l.riskWord} /> },
               { key: "p", label: "Predicted against spec", align: "right", render: (l) => { const p = propOf(l), s = specOf(l); return <>{p.predicted.point} {p.unit}<span className="cell-sub nowrap">spec {s.lsl} to {s.usl}</span></>; } },
               { key: "e", label: "Based on", render: (l) => <span className="tag-pair">{propOf(l).anchored ? <Tag tone="success">Lab result</Tag> : <Tag tone="warning">Unanchored</Tag>}<JoinTag label={weakestJoin(l)} /></span> },
               { key: "st", label: "Status", render: (l) => <>{l.status}<span className="cell-sub">started {rel(l.startedAt)}</span></> },
-              { key: "v", label: "", align: "right", render: (l) => <Link className={`btn btn-sm row-over${sel.id === l.id ? " btn-accent" : ""}`} href={`/quality?lot=${l.id}${sp.all ? "&all=1" : ""}`} scroll={false}>{sel.id === l.id ? "Previewing" : "Preview"}</Link> },
+              { key: "v", label: "", align: "right", render: (l) => <Link className={`btn btn-sm${sel.id === l.id ? " btn-accent" : ""}`} href={`/quality?lot=${l.id}${sp.all ? "&all=1" : ""}`} scroll={false} data-no-nav>{sel.id === l.id ? "Previewing" : "Preview"}</Link> },
             ]} />
-            </div>
             <p className="cstack-foot"><b>Based on:</b> Lab result or Unanchored says if the lab has measured the lot yet; Verified, Estimated or Unverified says how sure the link is to the runs that made it.</p>
           </Section>
         </div>

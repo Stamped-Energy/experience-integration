@@ -4,7 +4,7 @@ import { nameOf } from "@/lib/names";
  * header, observation, reason with evidence ids, recommendation, confidence, limits, mode and what Stop does,
  * state strip and the actions the role allows.
  */
-import Link from "next/link";
+import { StretchLink, clickableSurface, stretchOver } from "@/components/ui/StretchLink";
 import type { Proposal, RoleId } from "@/lib/demo/types";
 import { byId } from "@/lib/demo/data";
 import { can, whoCan } from "@/lib/rbac";
@@ -43,7 +43,7 @@ export function DecisionCard({ p, role, href, variant = "full" }: { p: Proposal;
   const band: [number, number] | undefined = win ? [win.narrowedLow ?? win.low, win.narrowedHigh ?? win.high] : undefined;
   const adjust = open && band ? { name: win!.name, unit, current: p.current, proposed: p.proposed, band, step: band[1] - band[0] > 50 ? 5 : band[1] - band[0] > 10 ? 1 : 0.1, bandLabel: win!.narrowedLow !== undefined ? "Stamped narrowing" : "Signed band" } : undefined;
   return (
-    <article className={`card${open ? " decision" : ""}`} aria-labelledby={`${p.id}-t`}>
+    <article className={`card${href ? ` ${clickableSurface}` : ""}${open ? " decision" : ""}`} aria-labelledby={`${p.id}-t`}>
       <div className="card-head">
         <span className="src">Process agent</span>
         <span className="dotsep">·</span><span>{line.short}</span><span className="dotsep">·</span><span>{asset.name}</span>
@@ -56,7 +56,7 @@ export function DecisionCard({ p, role, href, variant = "full" }: { p: Proposal;
       </div>
       <div className="card-body">
         <div className="card-block">
-          <h3 className="card-title" id={`${p.id}-t`}>{href ? <Link href={href}>{titleOf(p, unit)}</Link> : titleOf(p, unit)}</h3>
+          <h3 className="card-title" id={`${p.id}-t`}>{href ? <StretchLink href={href}>{titleOf(p, unit)}</StretchLink> : titleOf(p, unit)}</h3>
           <p className="card-obs" style={big ? { fontSize: 16, lineHeight: "26px" } : undefined}>{p.reason}</p>
           <EvidenceIds ids={p.evidenceIds} />
         </div>
@@ -82,7 +82,7 @@ export function DecisionCard({ p, role, href, variant = "full" }: { p: Proposal;
         {p.decidedBy && !p.declineReason ? <div className="mode-line"><span className="label" style={{ paddingTop: 2 }}>Decided</span><span>{p.decidedBy} · {dayMonth(p.decidedAt!)} {hhmm(p.decidedAt!)}</span></div> : null}
         <StateStrip state={p.state} />
       </div>
-      {actions.length || stop ? <CardActions actions={actions} stop={stop} large={big} adjust={adjust} /> : null}
+      {actions.length || stop ? <div className={stretchOver}><CardActions actions={actions} stop={stop} large={big} adjust={adjust} /></div> : null}
     </article>
   );
 }

@@ -98,7 +98,7 @@
 .dg-sym[data-state="alarm"] .dg-status-ring { stroke: var(--critical); }
 .dg-sym[data-state="unknown"] .dg-status-ring { stroke: var(--border-strong); }
 .dg-value-box { fill: var(--surface); stroke: var(--border); stroke-width: 1.5; }
-.dg-value text { fill: var(--text); font-family: var(--font-geist-mono), monospace; font-weight: 600; font-size: 12px; }
+.dg-value text { fill: var(--text); font-family: var(--font-mono); font-weight: 600; font-size: 12px; }
 .dg-clickable { cursor: pointer; }
 .dg-clickable:hover .dg-drawing { stroke: var(--accent); }
 .dg-clickable:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

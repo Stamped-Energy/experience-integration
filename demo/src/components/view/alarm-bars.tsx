@@ -43,7 +43,7 @@ export function AlarmBars({
             <g key={i}>
               <rect x={x} y={y} width={bw} height={Math.max(barH, v > 0 ? 2 : 0)} rx={2} fill={tone} opacity={0.9} />
               {(i === 0 || i === values.length - 1 || i % 3 === 0) && (
-                <text x={x + bw / 2} y={h - 4} textAnchor="middle" fill="var(--text-muted)" fontSize={9} fontFamily="var(--font-geist-mono), monospace">
+                <text x={x + bw / 2} y={h - 4} textAnchor="middle" fill="var(--text-muted)" fontSize={10} fontFamily="var(--font-mono)">
                   D{i + 1}
                 </text>
               )}

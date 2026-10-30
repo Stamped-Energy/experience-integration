@@ -50,13 +50,15 @@
 .pc-gauge-band-warning { stroke: var(--warning); }
 .pc-gauge-band-success { stroke: var(--success); }
 .pc-gauge-value { fill: none; stroke-width: 8; stroke-linecap: round; }
-.pc-gauge-end { fill: var(--text-muted); font-size: 10px; font-family: var(--font-geist-mono), monospace; }
+.pc-gauge-end { fill: var(--text-muted); font-size: 10px; font-family: var(--font-mono); }
 .pc-gauge-number {
   margin-top: -6px;
-  font-family: var(--font-brand), var(--font-geist), system-ui, sans-serif;
-  font-size: 28px;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  font-family: var(--font-sans);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
 }
 .pc-gauge-number span { font-size: 12px; color: var(--text-secondary); margin-left: 2px; font-weight: 500; }
 .pc-gauge-name {
@@ -105,16 +107,16 @@
 .pv-chart-titles { min-width: 0; flex: 1; }
 .pv-chart h3 {
   margin: 0;
-  font-size: 15px;
-  line-height: 1.35;
+  font-size: var(--type-heading);
+  line-height: var(--lh-heading);
   font-weight: 600;
   color: var(--text-primary);
 }
 .pv-chart-titles p {
   margin: 4px 0 0;
-  font-size: 13px;
+  font-size: var(--type-small);
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: var(--lh-small);
 }
 .pv-chart-window {
   display: inline-block;
@@ -355,9 +357,10 @@
 }
 .rep-cover h2 {
   margin: 6px 0;
-  font-family: var(--font-brand), var(--font-geist), system-ui, sans-serif;
-  font-size: 24px;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: var(--type-title);
+  line-height: var(--lh-title);
+  letter-spacing: -0.01em;
 }
 .rep-section { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--border); scroll-margin-top: 12px; }
 .rep-section h3 { margin: 0 0 var(--space-3); font-size: 16px; }
@@ -371,11 +374,13 @@
 }
 .rep-stat-value {
   display: block;
-  font-family: var(--font-brand), var(--font-geist), system-ui, sans-serif;
-  font-size: 32px;
-  line-height: 1.1;
+  font-family: var(--font-sans);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
   margin-bottom: 8px;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 .rep-stat-accent .rep-stat-value { color: var(--accent-500); }
 .rep-stat-label { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
@@ -404,10 +409,12 @@
   background: var(--surface-subtle);
 }
 .anal-status-card .num {
-  font-family: var(--font-brand), var(--font-geist), system-ui, sans-serif;
-  font-size: 32px;
-  line-height: 1;
-  letter-spacing: -0.02em;
+  font-family: var(--font-sans);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
 }
 .anal-alarm-plot { width: 100%; height: 88px; padding: 8px 12px 4px; }
 @media (max-width: 767px) {
