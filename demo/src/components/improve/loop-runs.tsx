@@ -6,6 +6,7 @@
  */
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { LoopCampaign, LoopCampaignKind, LoopRunResult } from "@/lib/demo/loopRuns";
 import { RUN_TYPE_LABEL, RUN_TYPE_SOON, runsForCampaign } from "@/lib/demo/loopRuns";
 import { inr } from "@/lib/format";
@@ -126,11 +127,13 @@ export function SimulationsWorkspace({ campaigns, kind, area }: { campaigns: Loo
   const role = demoRole();
   const showOwner = grant(role, "see-plant-value") !== "hidden";
   const [typeFilter, setTypeFilter] = useState("all");
+  const sp = useSearchParams();
+  const campaignParam = sp.get("campaign");
   const filtered = useMemo(
     () => campaigns.filter((c) => c.area === area && c.kind === kind && (typeFilter === "all" || c.runType === typeFilter)),
     [campaigns, area, kind, typeFilter],
   );
-  const active = filtered[0];
+  const active = filtered.find((c) => c.id === campaignParam) ?? filtered[0];
   const runs = active ? runsForCampaign(active.id) : [];
   return (
     <div className="stack">

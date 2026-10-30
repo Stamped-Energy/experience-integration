@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import { AskButton } from "@/components/shell/ShellClient";
 import { Workspace } from "@/components/shell/Shell";
 import { PageHeader } from "@/components/ui/primitives";
 import { loopCampaigns } from "@/lib/demo/loopRuns";
 import { crumbs } from "@/components/process/common";
 import { OptimisationClient } from "./optimisation-client";
+import { StaticPageFallback } from "@/components/page/StaticPageFallback";
 
 export const metadata = { title: "Optimisation runs" };
 
@@ -14,10 +16,12 @@ export default function ProcessOptimisationPage() {
       <PageHeader
         eyebrow="Process · Improve"
         title="Optimisation runs"
-        meta="PID and regulatory runs today. Model predictive control and reinforcement learning slots are labelled coming soon."
+        meta="PID and regulatory runs on demonstration data (18 configs per loop). MPC and RL labelled coming soon."
         actions={<AskButton context="Process optimisation" label="Ask about optimisation" />}
       />
-      <OptimisationClient rows={rows} />
+      <Suspense fallback={<StaticPageFallback><p className="muted">Loading…</p></StaticPageFallback>}>
+        <OptimisationClient rows={rows} />
+      </Suspense>
     </Workspace>
   );
 }
