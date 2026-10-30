@@ -14,6 +14,7 @@ import "@/styles/settings.css";
 import "@/styles/activity.css";
 import "@/styles/pfd-diagram.css";
 import "@/styles/view-screens.css";
+import "@/styles/content-layout.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
