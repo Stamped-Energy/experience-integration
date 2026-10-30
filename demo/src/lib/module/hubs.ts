@@ -1,12 +1,11 @@
 /** Compressed module IA: five sidebar pages, horizontal tabs per hub (ADR-042). */
 
-export type ProcessHubId = "actions" | "plant" | "analytics" | "optimisation" | "setup";
+export type ProcessHubId = "actions" | "dashboards" | "plant" | "reports" | "analytics";
 export type QualityHubId = "actions" | "inspect" | "analytics" | "simulations" | "setup";
 
 export interface HubTab {
   href: string;
   label: string;
-  /** Paths that activate this tab (exact or prefix). */
   match: (path: string) => boolean;
 }
 
@@ -34,46 +33,50 @@ export const PROCESS_HUBS: HubDef[] = [
     ],
   },
   {
+    id: "dashboards",
+    sidebarLabel: "Dashboards",
+    sidebarHref: "/process/dashboards",
+    tabs: [{ href: "/process/dashboards", label: "Loop dashboard", match: (p) => p === "/process/dashboards" }],
+  },
+  {
     id: "plant",
-    sidebarLabel: "Plant",
+    sidebarLabel: "Process plant",
     sidebarHref: "/process/line",
     tabs: [
-      { href: "/process/line", label: "Line map", match: (p) => p === "/process/line" },
+      { href: "/process/line", label: "Flow diagram", match: (p) => p === "/process/line" },
       { href: "/process/health", label: "Health map", match: (p) => p === "/process/health" },
-      { href: "/process/oee", label: "OEE", match: (p) => p === "/process/oee" },
-      { href: "/process", label: "Lines table", match: (p) => p === "/process" },
     ],
+  },
+  {
+    id: "reports",
+    sidebarLabel: "Reports",
+    sidebarHref: "/process/reports",
+    tabs: [{ href: "/process/reports", label: "Shift note", match: (p) => p === "/process/reports" }],
   },
   {
     id: "analytics",
     sidebarLabel: "Analytics",
     sidebarHref: "/process/analytics",
     tabs: [
-      { href: "/process/analytics", label: "Trends", match: (p) => p === "/process/analytics" },
-      { href: "/process/cycle-time", label: "Cycle time", match: (p) => p === "/process/cycle-time" },
-      { href: "/process/smed", label: "SMED", match: (p) => p === "/process/smed" },
-      { href: "/process/tool-life", label: "Tool life", match: (p) => p === "/process/tool-life" },
-    ],
-  },
-  {
-    id: "optimisation",
-    sidebarLabel: "Optimisation",
-    sidebarHref: "/process/optimisation",
-    tabs: [
+      { href: "/process/analytics", label: "Overview", match: (p) => p === "/process/analytics" },
       { href: "/process/optimisation", label: "Loop runs", match: (p) => p === "/process/optimisation" },
       { href: "/process/simulations", label: "Simulations", match: (p) => p === "/process/simulations" },
-      { href: "/process/simulate", label: "Simulate (legacy)", match: (p) => p === "/process/simulate" },
-    ],
-  },
-  {
-    id: "setup",
-    sidebarLabel: "Setup",
-    sidebarHref: "/process/measurement",
-    tabs: [
-      { href: "/process/measurement", label: "Measurement plans", match: (p) => p === "/process/measurement" },
-      { href: "/process/settings", label: "Running settings", match: (p) => p === "/process/settings" },
-      { href: "/process/model-fit", label: "Model fit", match: (p) => p === "/process/model-fit" },
-      { href: "/process/modules", label: "Modules", match: (p) => p === "/process/modules" },
+      {
+        href: "/process/measurement",
+        label: "Setup",
+        match: (p) =>
+          p === "/process/measurement" ||
+          p === "/process/settings" ||
+          p === "/process/model-fit" ||
+          p === "/process/modules" ||
+          p === "/process/cycle-time" ||
+          p === "/process/smed" ||
+          p === "/process/tool-life" ||
+          p === "/process/oee" ||
+          p === "/process" ||
+          p.startsWith("/process/lines/") ||
+          p.startsWith("/process/runs/"),
+      },
     ],
   },
 ];
@@ -138,9 +141,6 @@ export const QUALITY_HUBS: HubDef[] = [
 export function hubForProcessPath(path: string): HubDef | undefined {
   for (const hub of PROCESS_HUBS) {
     if (hub.tabs.some((t) => t.match(path))) return hub;
-  }
-  if (path.startsWith("/process/lines/") || path.startsWith("/process/runs/") || path === "/process") {
-    return PROCESS_HUBS.find((h) => h.id === "plant");
   }
   return undefined;
 }

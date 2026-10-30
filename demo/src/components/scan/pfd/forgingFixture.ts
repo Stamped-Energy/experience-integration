@@ -211,6 +211,12 @@ export const forgingLineDiagram: DiagramDraft = {
   width: 1184,
   height: 376,
   grid: 10,
+  parts: [
+    { id: "forging", name: "Forging", area: "16,32,372,268" },
+    { id: "ht", name: "Heat treatment", area: "372,64,420,248" },
+    { id: "finish", name: "Finish", area: "820,72,360,220" },
+    { id: "utilities", name: "Utilities", area: "16,288,1160,84" },
+  ],
   elements: [
     sym("eq-induction-a", "forge.induction", 32, 56, "Induction P2", "eq-induction-a", 128, 86),
     sym("eq-press-a", "forge.press", 196, 50, "Press P2", "eq-press-a", 140, 94),

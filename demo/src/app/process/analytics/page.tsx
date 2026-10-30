@@ -1,82 +1,142 @@
-import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import Link from "next/link";
-import { NarrativeTrendCard } from "@/components/scan/narrative-trend";
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
+import { HealthMapGrid, HealthStatusStrip } from "@/components/scan/health-map";
 import { AskButton } from "@/components/shell/ShellClient";
 import { Workspace } from "@/components/shell/Shell";
 import { DataTable, KpiRow, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { Sparkline } from "@/components/ui/charts";
 import { crumbs } from "@/components/process/common";
 import { DEMO_LOOP_CATALOG } from "@/lib/demo/loopRunsExpand";
+import { processHealthAreas, statusStrip, worstProcessCells } from "@/lib/demo/healthMap";
 import * as D from "@/lib/demo/data";
 
-export const metadata = { title: "Analytics" };
+export const metadata = { title: "Analytics overview" };
+
+const RESULT_STATUS = [
+  { status: "Normal", count: 18, tone: "success" as const },
+  { status: "Watch", count: 5, tone: "warning" as const },
+  { status: "Alarm", count: 2, tone: "critical" as const },
+  { status: "Unknown", count: 1, tone: "neutral" as const },
+];
+
+const ALARM_DAYS = [2, 1, 0, 3, 1, 0, 2, 4, 1, 0, 1, 2, 3, 1];
 
 export default function ProcessAnalyticsPage() {
-  const pressRuns = D.runs.filter((r) => r.lineId === "line-b").slice(-24);
-  const scrap = pressRuns.map((r) => r.outcomes.find((o) => o.name === "Scrap rate")!.value);
-  const cycle = pressRuns.map((r) => r.outcomes.find((o) => o.name === "Cycle time")?.value ?? 33);
-  const monitors = DEMO_LOOP_CATALOG.filter((l) => l.lineId === "line-b" || l.family.includes("Heat")).slice(0, 10);
+  const strip = statusStrip(processHealthAreas);
+  const worst = worstProcessCells();
+  const monitors = DEMO_LOOP_CATALOG.filter((l) => l.lineId === "line-b" || l.family.includes("Heat")).slice(0, 8);
+  const queue = D.proposals.filter((p) => p.state === "Waiting").slice(0, 5);
   return (
-    <Workspace crumbs={crumbs({ label: "Analytics" })} askContext="Process analytics">
-      <PageHeader eyebrow="Process · Scan" title="Analytics" meta="Dashboards and self-explaining trends on demonstration data." actions={<AskButton context="Process analytics" label="Ask about trends" />}
+    <Workspace crumbs={crumbs({ label: "Analytics" })} askContext="Process analytics overview">
+      <PageHeader
+        eyebrow="Process · Scan"
+        title="Analytics overview"
+        meta="Results by status, recent alarms, health map, monitors, and the action queue on demonstration data."
+        actions={<AskButton context="Process analytics" label="Ask about analytics" />}
       />
       <ProcessHubTabs />
+      <p className="pfd-demo-banner">Demonstration data · analytics widgets mirror the control-room overview layout.</p>
+      <HealthStatusStrip {...strip} />
+      <div className="grid anal-overview">
+        <Section className="span-8" title="Results by status" meta="Loop and result health · demo" flush>
+          <div className="anal-status-row">
+            {RESULT_STATUS.map((row) => (
+              <div key={row.status} className="anal-status-card">
+                <Tag tone={row.tone}>{row.status}</Tag>
+                <strong className="num">{row.count}</strong>
+                <span className="muted">results</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+        <Section className="span-4" title="Alarms · last 14 days" meta="Demonstration counts" flush>
+          <Sparkline values={ALARM_DAYS} width={280} height={56} label="Alarms per day" />
+          <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
+            Total <strong className="num">{ALARM_DAYS.reduce((a, b) => a + b, 0)}</strong> alarm-days in the window.
+          </p>
+        </Section>
+        <Section className="span-8" title="Health map by area" meta="Demonstration cells" flush>
+          <HealthMapGrid areas={processHealthAreas} />
+        </Section>
+        <Section className="span-4" title="Worst results" flush>
+          <div className="rows">
+            {worst.slice(0, 6).map((c) => (
+              <Link key={c.id} className="row" href={c.href}>
+                <span>
+                  <span className="row-title">{c.label}</span>
+                  <span className="row-sub">{c.issue ?? c.area}</span>
+                </span>
+                <Tag tone={c.state === "alarm" ? "critical" : "warning"}>{c.stateWord}</Tag>
+              </Link>
+            ))}
+          </div>
+        </Section>
+        <Section className="span-6" title="Monitors" meta="Demonstration loops" flush>
+          <DataTable
+            caption="Loop monitors"
+            rowKey={(r) => r.loopId}
+            rows={monitors}
+            columns={[
+              {
+                key: "n",
+                label: "Loop",
+                render: (r) => (
+                  <>
+                    <span style={{ fontWeight: 600 }}>{r.short}</span>
+                    <span className="cell-sub">{r.family}</span>
+                  </>
+                ),
+              },
+              { key: "l", label: "Line", render: (r) => D.byId.line(r.lineId)!.short },
+              {
+                key: "s",
+                label: "Status",
+                render: (r) => (
+                  <Tag tone={r.loopId.includes("zone2") || r.loopId.includes("hold") ? "warning" : "success"}>
+                    {r.loopId.includes("zone2") ? "Watch" : "Normal"}
+                  </Tag>
+                ),
+              },
+              {
+                key: "o",
+                label: "",
+                align: "right",
+                render: (r) => (
+                  <Link className="link" href={`/process/optimisation?loop=${r.loopId}`}>
+                    Open
+                  </Link>
+                ),
+              },
+            ]}
+          />
+        </Section>
+        <Section className="span-6" title="Queue" meta="Waiting proposals" flush>
+          {queue.length ? (
+            <div className="rows">
+              {queue.map((p) => (
+                <Link key={p.id} className="row" href={`/process/proposals/${p.id}`}>
+                  <span>
+                    <span className="row-title">{p.param}</span>
+                    <span className="row-sub">{D.byId.line(p.lineId)?.short ?? p.lineId}</span>
+                  </span>
+                  <Tag tone="warning">Waiting</Tag>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="muted">Nothing waiting on the queue.</p>
+          )}
+        </Section>
+      </div>
       <KpiRow
-        label="Last 24 press runs (demo)"
+        label="Scan summary"
         items={[
-          { label: "Scrap rate now", value: scrap.at(-1)?.toFixed(1) ?? "n/a", unit: "%" },
-          { label: "Cycle time now", value: String(cycle.at(-1) ?? "n/a"), unit: "s" },
           { label: "Open proposals", value: String(D.proposals.filter((p) => p.state === "Waiting").length) },
           { label: "Loops monitored", value: String(DEMO_LOOP_CATALOG.length) },
+          { label: "In alarm", value: String(strip.alarm) },
+          { label: "On watch", value: String(strip.watch) },
         ]}
       />
-      <div className="grid">
-        <div className="span-8 stack">
-          <div className="xl-cols-2">
-            <NarrativeTrendCard
-              title="Hold pressure wandered high before the agent proposed a tighter band"
-              narrative="The sticky valve pattern shows up as rising hold pressure with stable cavity weight. The bounded search kept inside the signed window."
-              series={scrap}
-              unit="% scrap"
-              bands={[{ label: "Spec", low: 0, high: 4 }]}
-            />
-            <NarrativeTrendCard
-              title="Cycle time stayed flat while scrap improved in simulation"
-              narrative="Candidate configurations traded a small cycle increase against scrap reduction. Compare runs on the Simulations screen."
-              series={cycle}
-              unit="s"
-            />
-          </div>
-          <Section title="Loop monitors" meta="Demonstration control loops · open Optimisation or Simulations" flush>
-            <DataTable
-              caption="Loop monitors"
-              rowKey={(r) => r.loopId}
-              rows={monitors}
-              columns={[
-                { key: "n", label: "Loop", render: (r) => <><span style={{ fontWeight: 600 }}>{r.short}</span><span className="cell-sub">{r.family}</span></> },
-                { key: "l", label: "Line", render: (r) => D.byId.line(r.lineId)!.short },
-                { key: "t", label: "Trend", render: () => <Sparkline values={[0.2, 0.4, 0.35, 0.5, 0.48, 0.52, 0.49]} width={100} height={24} label="Demo trend" /> },
-                { key: "s", label: "Status", render: (r) => <Tag tone={r.loopId.includes("zone2") || r.loopId.includes("hold") ? "warning" : "success"}>{r.loopId.includes("zone2") ? "Watch" : "Normal"}</Tag> },
-                { key: "o", label: "", align: "right", render: (r) => <Link className="link" href={`/process/optimisation?loop=${r.loopId}`}>Optimise</Link> },
-              ]}
-            />
-          </Section>
-        </div>
-        <div className="span-4 stack ctx">
-          <Section title="Recent alarms (demo)" flush>
-            <div className="rows">
-              <Link className="row" href="/plant/assets/b-press"><span><span className="row-title">Cavity 2 weight high</span><span className="row-sub">Press P3 · 12 min ago</span></span><Tag tone="critical">Alarm</Tag></Link>
-              <Link className="row" href="/process/simulations?campaign=camp-p-sim-2"><span><span className="row-title">Soak short flagged</span><span className="row-sub">Furnace zone 2</span></span><Tag tone="warning">Watch</Tag></Link>
-            </div>
-          </Section>
-          <Section title="Utilities" meta="Demo loops" flush>
-            <div className="rows">
-              <Link className="row" href="/process/optimisation?loop=loop-util-compressed-air"><span className="row-title">Plant air pressure</span><Tag tone="success">Normal</Tag></Link>
-              <Link className="row" href="/process/optimisation?loop=loop-util-cooling-water"><span className="row-title">Cooling water ΔT</span><Tag tone="warning">Watch</Tag></Link>
-            </div>
-          </Section>
-        </div>
-      </div>
     </Workspace>
   );
 }

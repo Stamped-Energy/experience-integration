@@ -63,6 +63,13 @@ export interface TextElement extends Base {
 }
 export type Element = SymbolElement | ValueElement | LineElement | TextElement;
 
+export interface DiagramPart {
+  id: string;
+  name: string;
+  /** Canvas rectangle as x,y,w,h in diagram coordinates. */
+  area: string;
+}
+
 export interface DiagramDraft {
   name: string;
   description: string;
@@ -70,6 +77,13 @@ export interface DiagramDraft {
   height: number;
   grid: number;
   elements: Element[];
+  parts?: DiagramPart[];
+}
+
+export function areaOf(area: string): Box | null {
+  const bits = area.split(",").map((n) => Number(n.trim()));
+  if (bits.length !== 4 || bits.some((n) => !Number.isFinite(n))) return null;
+  return { x: bits[0], y: bits[1], w: bits[2], h: bits[3] };
 }
 
 export type Slot = "state" | "level" | "running" | "value" | "flow";

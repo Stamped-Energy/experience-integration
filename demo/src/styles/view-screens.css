@@ -1,0 +1,181 @@
+/* View screens ported from PlantCraft (Apache-2.0), restyled for Stamped light. */
+
+.pfd-demo-banner {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-3);
+}
+
+.dash-gauge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.pc-gauge { text-align: center; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+.pc-gauge-track { fill: none; stroke: var(--border); stroke-width: 10; }
+.pc-gauge-value { fill: none; stroke-width: 10; stroke-linecap: round; }
+.pc-gauge-end { fill: var(--text-muted); font-size: 11px; }
+.pc-gauge-number { margin-top: -8px; font-size: 22px; line-height: 1.2; }
+.pc-gauge-number span { font-size: 12px; color: var(--text-secondary); margin-left: 4px; }
+.pc-gauge-name { display: block; margin-top: 4px; color: var(--text-secondary); font-size: 12px; }
+
+.dash-trend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-4);
+}
+
+.pv-chart {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.pv-chart h3 { margin: 0; font-size: 15px; line-height: 1.35; }
+.pv-chart header p { margin: 0; font-size: 13px; color: var(--text-secondary); }
+.pv-chart-plot { width: 100%; height: auto; }
+.pv-line { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.pv-line.pv { stroke: var(--accent); }
+.pv-line.sp { stroke: var(--text-secondary); stroke-dasharray: 6 4; }
+.pv-line.op { stroke: var(--success); opacity: 0.85; }
+.pv-chart-legend { display: flex; flex-wrap: wrap; gap: 12px 16px; font-size: 12px; color: var(--text-secondary); }
+.pv-chart-legend i { width: 10px; height: 3px; display: inline-block; margin-right: 4px; vertical-align: middle; }
+.pv-chart-legend i.pv { background: var(--accent); }
+.pv-chart-legend i.sp { background: var(--text-secondary); }
+.pv-chart-legend i.op { background: var(--success); }
+
+.plant-view { min-height: 0; flex: 1; }
+.plant-view-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-2); }
+.dg-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.dg-tabs button {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.dg-tabs button.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); color: var(--accent-700, var(--accent)); font-weight: 600; }
+
+.plant-stage {
+  display: flex;
+  flex-direction: column;
+  min-height: min(72vh, 720px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-2, var(--surface));
+  overflow: hidden;
+}
+.plant-stage-full {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  min-height: 100vh;
+  border-radius: 0;
+}
+.plant-stage-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.dg-zoom-stage { position: relative; flex: 1; min-height: 280px; width: 100%; }
+.dg-zoom-stage .dg-canvas { width: 100%; height: 100%; display: block; }
+.dg-zoom {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm, 0 1px 2px rgb(0 0 0 / 6%));
+}
+.dg-zoom-level { min-width: 3ch; text-align: center; font-size: 12px; }
+
+.dg-timebar {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  margin-bottom: var(--space-2);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dg-timebar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.dg-timebar-label { font-size: 12px; color: var(--text-muted); }
+.dg-segmented { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.dg-segmented button {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.dg-segmented button.dg-on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+.dg-speed select { font-size: 12px; padding: 4px 6px; }
+.dg-timebar input[type="range"] { flex: 1; min-width: 120px; }
+.dg-live { color: var(--accent); font-weight: 600; font-size: 12px; }
+
+.dg-full-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.dg-full-name { font-weight: 600; font-size: 14px; flex: 1; min-width: 120px; }
+
+.rep-layout {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .rep-layout { grid-template-columns: minmax(0, 1fr); }
+  .rep-outline { position: sticky; top: 0; z-index: 2; background: var(--surface); padding-bottom: 8px; }
+}
+.rep-outline { border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-3); background: var(--surface); }
+.rep-outline-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin: 0 0 8px; }
+.rep-outline ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.rep-outline a { font-size: 13px; color: var(--text-secondary); text-decoration: none; display: block; padding: 4px 6px; border-radius: 6px; }
+.rep-outline a.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); font-weight: 600; }
+.rep-paper { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); padding: var(--space-5); max-height: 75vh; overflow: auto; }
+.rep-cover h2 { margin: 8px 0; }
+.rep-section { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--border); scroll-margin-top: 12px; }
+.rep-section h3 { margin: 0 0 var(--space-3); }
+.rep-text p { margin: 0; line-height: 1.55; }
+.rep-stat-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-4); }
+.rep-stat-value { display: block; font-size: 36px; line-height: 1.1; margin-bottom: 8px; }
+.rep-stat-accent .rep-stat-value { color: var(--accent); }
+.rep-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rep-table th, .rep-table td { border-bottom: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+.rep-trend p { margin: 0 0 8px; }
+
+.anal-overview { margin-top: var(--space-3); }
+.anal-status-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); padding: var(--space-3); }
+.anal-status-card { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.anal-status-card .num { font-size: 28px; line-height: 1; }
+@media (max-width: 767px) {
+  .anal-status-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

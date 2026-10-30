@@ -48,33 +48,31 @@ export function screenActive(href: string, path: string): boolean {
       path === "/process/actions"
     );
   }
+  if (href === "/process/dashboards") {
+    return path === "/process/dashboards";
+  }
   if (href === "/process/line") {
-    return (
-      path === "/process/line" ||
-      path === "/process/health" ||
-      path === "/process/oee" ||
-      path === "/process" ||
-      path.startsWith("/process/lines/") ||
-      path.startsWith("/process/runs/")
-    );
+    return path === "/process/line" || path === "/process/health";
+  }
+  if (href === "/process/reports") {
+    return path === "/process/reports";
   }
   if (href === "/process/analytics") {
     return (
       path === "/process/analytics" ||
-      path === "/process/cycle-time" ||
-      path === "/process/smed" ||
-      path === "/process/tool-life"
-    );
-  }
-  if (href === "/process/optimisation") {
-    return path === "/process/optimisation" || path === "/process/simulations" || path === "/process/simulate";
-  }
-  if (href === "/process/measurement") {
-    return (
+      path === "/process/optimisation" ||
+      path === "/process/simulations" ||
       path === "/process/measurement" ||
       path === "/process/settings" ||
       path === "/process/model-fit" ||
-      path === "/process/modules"
+      path === "/process/modules" ||
+      path === "/process/cycle-time" ||
+      path === "/process/smed" ||
+      path === "/process/tool-life" ||
+      path === "/process/oee" ||
+      path === "/process" ||
+      path.startsWith("/process/lines/") ||
+      path.startsWith("/process/runs/")
     );
   }
   if (href === "/quality/actions") {

@@ -3,7 +3,8 @@
  */
 "use client";
 
-import { memo } from "react";
+import { memo, type RefObject } from "react";
+import type { ViewBox } from "./zoom";
 import {
   formatValue,
   labelSpot,
@@ -31,6 +32,8 @@ export interface CanvasProps {
   selectedId?: string | null;
   onOpen?: (element: Element) => void;
   className?: string;
+  view?: ViewBox | null;
+  svgRef?: RefObject<SVGSVGElement | null>;
 }
 
 function tooltip(parts: Array<Shown | undefined>, fallback: string): string {
@@ -187,14 +190,16 @@ function TextView({ element }: { element: TextElement }) {
   );
 }
 
-export function DiagramCanvas({ diagram, symbols, shows, selectedId, onOpen, className }: CanvasProps) {
+export function DiagramCanvas({ diagram, symbols, shows, selectedId, onOpen, className, view, svgRef }: CanvasProps) {
   const lines = diagram.elements.filter((element): element is LineElement => element.type === "line");
   const others = diagram.elements.filter((element) => element.type !== "line");
+  const vb = view ? `${view.x} ${view.y} ${view.w} ${view.h}` : `0 0 ${diagram.width} ${diagram.height}`;
   return (
     <svg
+      ref={svgRef}
       className={`dg-canvas ${className ?? ""}`}
-      viewBox={`0 0 ${diagram.width} ${diagram.height}`}
-      preserveAspectRatio="xMinYMin meet"
+      viewBox={vb}
+      preserveAspectRatio="xMidYMid meet"
       role="img"
       aria-label={diagram.name}
     >
