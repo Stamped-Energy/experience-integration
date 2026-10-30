@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Sparkline } from "@/components/ui/charts";
+import { RunChart } from "@/components/ui/charts";
 import { Tag } from "@/components/ui/primitives";
 import type { DemoReport, ReportSection } from "@/lib/demo/plantReport";
 import { reportOutline } from "@/lib/demo/plantReport";
@@ -64,7 +64,9 @@ function SectionBody({ section }: { section: ReportSection }) {
     return (
       <div className="rep-trend">
         <p>{section.trend.title}</p>
-        <Sparkline values={section.trend.values} width={480} height={64} label={section.title} />
+        <div className="rep-trend-plot">
+          <RunChart values={section.trend.values} height={110} width={560} label={section.title} />
+        </div>
         <p className="muted">
           Last value <strong className="num">{section.trend.values.at(-1)}</strong> {section.trend.unit} · demonstration trend
         </p>

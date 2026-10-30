@@ -38,19 +38,25 @@
 
 .dg-stage {
   position: relative;
-  background: var(--surface-2, var(--surface));
+  background: var(--surface-subtle, var(--surface));
   width: 100%;
   line-height: 0;
   aspect-ratio: 1184 / 376;
   max-height: min(400px, 48vh);
 }
 
-/* Full-height plant viewer (Process plant page) */
-.plant-stage .dg-zoom-stage {
+/* Full-height plant viewer (Process plant page): always fill the stage */
+.plant-stage .dg-zoom-stage,
+.plant-stage .dg-stage {
   aspect-ratio: unset;
   max-height: none;
   height: 100%;
-  min-height: 360px;
+  min-height: 0;
+  flex: 1;
+}
+.plant-stage .dg-canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .dg-stage .dg-canvas {

@@ -3,8 +3,8 @@ import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { HealthMapGrid, HealthStatusStrip } from "@/components/scan/health-map";
 import { AskButton } from "@/components/shell/ShellClient";
 import { Workspace } from "@/components/shell/Shell";
-import { DataTable, KpiRow, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { Sparkline } from "@/components/ui/charts";
+import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { AlarmBars } from "@/components/view/alarm-bars";
 import { crumbs } from "@/components/process/common";
 import { DEMO_LOOP_CATALOG } from "@/lib/demo/loopRunsExpand";
 import { processHealthAreas, statusStrip, worstProcessCells } from "@/lib/demo/healthMap";
@@ -50,10 +50,12 @@ export default function ProcessAnalyticsPage() {
           </div>
         </Section>
         <Section className="span-4" title="Alarms · last 14 days" meta="Demonstration counts" flush>
-          <Sparkline values={ALARM_DAYS} width={280} height={56} label="Alarms per day" />
-          <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
-            Total <strong className="num">{ALARM_DAYS.reduce((a, b) => a + b, 0)}</strong> alarm-days in the window.
-          </p>
+          <div className="anal-alarm-body">
+            <AlarmBars values={ALARM_DAYS} />
+            <p className="muted" style={{ fontSize: 12, margin: "4px 12px 12px" }}>
+              Total <strong className="num">{ALARM_DAYS.reduce((a, b) => a + b, 0)}</strong> alarms across 14 demonstration days.
+            </p>
+          </div>
         </Section>
         <Section className="span-8" title="Health map by area" meta="Demonstration cells" flush>
           <HealthMapGrid areas={processHealthAreas} />
@@ -128,15 +130,6 @@ export default function ProcessAnalyticsPage() {
           )}
         </Section>
       </div>
-      <KpiRow
-        label="Scan summary"
-        items={[
-          { label: "Open proposals", value: String(D.proposals.filter((p) => p.state === "Waiting").length) },
-          { label: "Loops monitored", value: String(DEMO_LOOP_CATALOG.length) },
-          { label: "In alarm", value: String(strip.alarm) },
-          { label: "On watch", value: String(strip.watch) },
-        ]}
-      />
     </Workspace>
   );
 }

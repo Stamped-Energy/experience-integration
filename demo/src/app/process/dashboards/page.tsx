@@ -15,19 +15,26 @@ export default function ProcessDashboardsPage() {
       <PageHeader
         eyebrow="Process · Scan"
         title="Dashboards"
-        meta="Loop-health gauges and self-explaining PV/SP/OP trends on demonstration data."
+        meta="Loop health (0–100) and 12-hour PV/SP/OP trends. Demonstration data only."
         actions={<AskButton context="Process dashboards" label="Ask about these loops" />}
       />
       <ProcessHubTabs />
-      <p className="pfd-demo-banner">Demonstration data · loop health scores are illustrative only.</p>
+      <p className="pfd-demo-banner">Demonstration data · under 50 critical, under 75 watch, 75+ healthy.</p>
       <section className="dash-gauge-grid" aria-label="Loop health">
         {DEMO_LOOP_HEALTH.map((row) => (
-          <LoopHealthGauge key={row.id} label={row.label} value={row.health} tone={row.tone} />
+          <LoopHealthGauge key={row.id} label={row.label} value={row.health} tone={row.tone} line={row.line} />
         ))}
       </section>
       <section className="dash-trend-grid" aria-label="Control loop trends">
         {DEMO_PV_TRENDS.map((card) => (
-          <PvSpOpTrendCard key={card.id} title={card.title} caption={card.caption} series={card.series} units={card.units} />
+          <PvSpOpTrendCard
+            key={card.id}
+            title={card.title}
+            caption={card.caption}
+            series={card.series}
+            units={card.units}
+            windowLabel="Last 12 hours"
+          />
         ))}
       </section>
     </Workspace>
