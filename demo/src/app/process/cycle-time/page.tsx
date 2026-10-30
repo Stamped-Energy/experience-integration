@@ -1,3 +1,4 @@
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
@@ -74,7 +75,7 @@ export default function CycleTimePage() {
           </>
         }
       />
-      <ProcessTabs active="cycle-time" />
+      <ProcessHubTabs />
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
           <Section title="Stations" meta="Samples passed until cycle-state store is wired" flush>

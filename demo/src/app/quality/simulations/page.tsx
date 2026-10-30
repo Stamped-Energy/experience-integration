@@ -1,3 +1,4 @@
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Suspense } from "react";
 import { SimulationsWorkspace } from "@/components/improve/loop-runs";
 import { AskButton } from "@/components/shell/ShellClient";
@@ -29,7 +30,9 @@ function Body() {
 export default function QualitySimulationsPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Simulations" })} askContext="Quality simulations">
-      <PageHeader eyebrow="Quality · Improve" title="Simulations" meta="Quality loop and sampling simulations use the same compare pattern as Process. Demonstration data." actions={<AskButton context="Quality simulations" label="Ask about simulations" />} />
+      <PageHeader eyebrow="Quality · Improve" title="Simulations" meta="Quality loop and sampling simulations use the same compare pattern as Process. Demonstration data." actions={<AskButton context="Quality simulations" label="Ask about simulations" />}
+      />
+      <QualityHubTabs />
       <Suspense fallback={<StaticPageFallback><p className="muted">Loading…</p></StaticPageFallback>}>
         <Body />
       </Suspense>

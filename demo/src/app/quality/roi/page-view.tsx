@@ -1,5 +1,6 @@
 "use client";
 
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { useSearchParams } from "next/navigation";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
@@ -28,7 +29,7 @@ export default function RoiPageView() {
         }
         actions={<AskButton context="D157 ROI report" label="Ask about ROI" />}
       />
-      <QualityTabs active="roi" />
+      <QualityHubTabs />
       <div className="grid">
         <div className="span-12 stack">
           <D157RoiReportPanel

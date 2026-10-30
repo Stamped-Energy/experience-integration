@@ -12,7 +12,7 @@ export function ProcessTabs(_: { active: ProcessTab }) {
   return null;
 }
 
-export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Demonstration plant", href: "/" }, { label: "Process", href: "/process" }, ...rest];
+export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Demonstration plant", href: "/" }, { label: "Process", href: "/process/proposals" }, ...rest];
 
 export const runsOf = (lineId: string) => D.runs.filter((r) => r.lineId === lineId);
 export const packOf = (line: Line) => D.linePacks.find((p) => p.id === line.linePackId)!;

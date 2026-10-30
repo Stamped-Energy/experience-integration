@@ -31,14 +31,14 @@ export function Rail({ inboxCount }: { inboxCount: number }) {
     const cur = area === n.key ? "page" : undefined;
     if (n.key === "process") {
       return (
-        <ModuleRailLink key={n.key} module="process" fallback="/process" className={cls} aria-current={cur} aria-label={n.label}>
+        <ModuleRailLink key={n.key} module="process" fallback="/process/proposals" className={cls} aria-current={cur} aria-label={n.label}>
           {body}
         </ModuleRailLink>
       );
     }
     if (n.key === "quality") {
       return (
-        <ModuleRailLink key={n.key} module="quality" fallback="/quality" className={cls} aria-current={cur} aria-label={n.label}>
+        <ModuleRailLink key={n.key} module="quality" fallback="/quality/actions" className={cls} aria-current={cur} aria-label={n.label}>
           {body}
         </ModuleRailLink>
       );
@@ -67,7 +67,7 @@ export function BottomBar() {
   const link = (n: (typeof NAV)[number]) => {
     if (n.key === "process") {
       return (
-        <ModuleRailLink key={n.key} module="process" fallback="/process" aria-current={area === n.key ? "page" : undefined}>
+        <ModuleRailLink key={n.key} module="process" fallback="/process/proposals" aria-current={area === n.key ? "page" : undefined}>
           {ICON[n.key]({})}
           {n.label}
         </ModuleRailLink>
@@ -75,7 +75,7 @@ export function BottomBar() {
     }
     if (n.key === "quality") {
       return (
-        <ModuleRailLink key={n.key} module="quality" fallback="/quality" aria-current={area === n.key ? "page" : undefined}>
+        <ModuleRailLink key={n.key} module="quality" fallback="/quality/actions" aria-current={area === n.key ? "page" : undefined}>
           {ICON[n.key]({})}
           {n.label}
         </ModuleRailLink>

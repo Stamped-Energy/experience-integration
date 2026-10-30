@@ -1,5 +1,6 @@
 "use client";
 
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { nameOf } from "@/lib/names";
@@ -11,7 +12,7 @@ import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DecisionCard } from "@/components/cards/DecisionCard";
 import { DataTable, EmptyState, EvidenceTag, ModeTag, PageHeader, Section, Tabs, Tag } from "@/components/ui/primitives";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { crumbs } from "@/components/process/common";
 
 type F = "waiting" | "running" | "closed";
 const GROUP: Record<F, CardState[]> = { waiting: ["Waiting", "Proposed"], running: ["Running trial", "Running stay", "Measuring", "Verdict", "Holding"], closed: ["Declined", "Expired", "Withheld", "Abstained", "Stopped"] };
@@ -28,7 +29,7 @@ export default function Proposals() {
     <Workspace crumbs={crumbs({ label: "Proposals" })} askContext="Process proposals">
       <PageHeader eyebrow="Process" title="Proposals" meta="The optimiser computes the number inside the signed window; the agent explains it. People with the right accept, adjust in band or decline."
         actions={<AskButton context="Process proposals" label="Ask about proposals" />} />
-      <ProcessTabs active="proposals" />
+      <ProcessHubTabs />
       <div className="grid">
         <div className="span-8 xl-span-7 stack">
           <div style={{ display: "flex", gap: 16, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>

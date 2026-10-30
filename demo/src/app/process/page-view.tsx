@@ -1,5 +1,6 @@
 "use client";
 
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -31,7 +32,7 @@ export default function ProcessLines() {
     <Workspace crumbs={crumbs({ label: actions ? "Actions" : "Lines" })} askContext="Process lines">
       <PageHeader eyebrow="Process" title={actions ? "Process actions" : "Lines"} meta={actions ? "Every action on both lines, grouped by what it needs from you." : "What the agent suggests on each line, and what needs your decision."}
         actions={<><Link className="btn btn-sm" href="/process/proposals">{open.length} proposals waiting</Link><AskButton context="Process lines" label="Ask about lines" /></>} />
-      <ProcessTabs active={actions ? "actions" : "lines"} />
+      <ProcessHubTabs />
       {actions ? <><ActionsBoard area="Process" role={role} base="/process" status={sp.status} line={sp.line} mine={sp.mine} /></> : (<>
       <ActionsBrief area="Process" href="/process/actions" />
       <div className="grid">

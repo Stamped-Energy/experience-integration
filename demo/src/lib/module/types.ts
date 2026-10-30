@@ -10,7 +10,7 @@ export interface ModuleScreen {
 }
 
 export interface ModuleGroup {
-  id: "scan" | "decide" | "improve" | "setup";
+  id: "scan" | "decide" | "improve" | "setup" | "main";
   label: string;
   screens: ModuleScreen[];
 }

@@ -8,7 +8,7 @@ import { countForScreen } from "@/lib/module/counts";
 
 export function ModuleNav({ module }: { module: ModuleDefinition }) {
   const path = usePathname();
-  const waiting = countForScreen(module.id, "proposals") ?? 0;
+  const waiting = countForScreen(module.id, "actions") ?? 0;
   return (
     <nav className="module-nav" aria-label={`${module.label} screens`}>
       <div className="module-nav-head">
@@ -29,7 +29,7 @@ export function ModuleNav({ module }: { module: ModuleDefinition }) {
         </div>
       ))}
       <div className="module-nav-foot">
-        {waiting ? <p>{waiting} proposal{waiting === 1 ? "" : "s"} waiting on a person</p> : <p>Scan first, decide through the card</p>}
+        {waiting ? <p>{waiting} proposal{waiting === 1 ? "" : "s"} waiting on a person</p> : <p>Proposals and trials first, then plant scan</p>}
       </div>
     </nav>
   );

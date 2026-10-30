@@ -62,7 +62,8 @@ const SymbolView = memo(function SymbolView({
   const turn = element.rotate ? `rotate(${element.rotate} ${element.w / 2} ${element.h / 2})` : "";
   const label = element.label_position === "none" ? "" : element.label;
   const fit = def?.stretch ? "none" : "xMidYMid meet";
-  const gap = 8;
+  const gap = 20;
+  const ringPad = 8;
   const labelAt: Record<string, [number, number, "start" | "middle" | "end", "auto" | "central" | "hanging"]> = {
     below: [box.x + box.w / 2, box.y + box.h + gap, "middle", "hanging"],
     above: [box.x + box.w / 2, box.y - gap, "middle", "auto"],
@@ -84,6 +85,16 @@ const SymbolView = memo(function SymbolView({
       tabIndex={clickable ? 0 : undefined}
     >
       <title>{tooltip([show?.state, show?.running], element.label || def?.title || element.symbol)}</title>
+      {def?.id !== "shape.panel" && def?.id !== "forge.pump" ? (
+        <rect
+          className="dg-status-ring"
+          x={box.x - ringPad}
+          y={box.y - ringPad}
+          width={box.w + ringPad * 2}
+          height={box.h + ringPad * 2}
+          rx={10}
+        />
+      ) : null}
       <g transform={`translate(${element.x} ${element.y}) ${turn} ${flip}`}>
         {def?.id === "shape.panel" ? (
           <rect className="dg-drawing pc-state dg-panel" width={element.w} height={element.h} rx={8} />
@@ -113,7 +124,7 @@ function ValueView({ element, show, onOpen }: { element: ValueElement; show?: Sh
   const label = element.show_label && element.label ? `${element.label} ` : "";
   const unit = element.show_unit && show?.unit ? ` ${show.unit}` : "";
   const width = Math.max(40, (label.length + text.length + unit.length) * element.size * 0.6 + 12);
-  const height = element.size + 10;
+  const height = element.size + 12;
   return (
     <g className={`dg-el dg-value${onOpen ? " dg-clickable" : ""}`} data-state={state} data-element={element.id}>
       <title>{tooltip([show], "")}</title>

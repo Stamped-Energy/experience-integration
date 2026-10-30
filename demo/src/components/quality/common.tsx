@@ -36,7 +36,7 @@ export function QualityTabs(_: { active: QualityTab }) {
   return null;
 }
 
-export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Demonstration plant", href: "/" }, { label: "Quality", href: "/quality" }, ...rest];
+export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Demonstration plant", href: "/" }, { label: "Quality", href: "/quality/actions" }, ...rest];
 
 export const gradeOf = (lot: Lot) => D.grades.find((g) => g.id === lot.gradeId)!;
 export const specOf = (lot: Lot) => D.specs.find((s) => s.gradeId === lot.gradeId)!;

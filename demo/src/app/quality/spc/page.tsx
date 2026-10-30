@@ -1,3 +1,4 @@
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { RunChart } from "@/components/ui/charts";
@@ -21,7 +22,7 @@ export default function SpcPage() {
           </>
         }
       />
-      <QualityTabs active="spc" />
+      <QualityHubTabs />
       <div className="stack">
         {spcCharts.map((c) => (
           <Section

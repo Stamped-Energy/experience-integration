@@ -12,7 +12,7 @@ import { StatusGlyph } from "@/components/plant/flow";
 const stateGlyph = (s: string) => (s === "alarm" ? "act" : s === "watch" || s === "warning" ? "watch" : "normal");
 
 export function ForgingLineMap() {
-  const [selected, setSelected] = useState<EquipmentDetail | undefined>(FORGING_EQUIPMENT["eq-press"]);
+  const [selected, setSelected] = useState<EquipmentDetail | undefined>(FORGING_EQUIPMENT["eq-press-b"]);
   const symbols = forgingSymbolMap();
   const shows = forgingLineShows();
 
@@ -38,7 +38,7 @@ export function ForgingLineMap() {
           </div>
         </Section>
         <Section title="Utility loops (demo)" meta="Compressed air and cooling water" flush>
-          <div className="rows">
+          <div className="rows pfd-utility-rows">
             <Link className="row" href="/process/optimisation?loop=loop-util-compressed-air">
               <span><span className="row-title">Plant compressed air</span><span className="row-sub">Press line B · 18 optimisation runs on file</span></span>
               <Tag tone="neutral">Normal</Tag>

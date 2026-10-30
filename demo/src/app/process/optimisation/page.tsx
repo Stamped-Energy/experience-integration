@@ -1,3 +1,4 @@
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Suspense } from "react";
 import { AskButton } from "@/components/shell/ShellClient";
 import { Workspace } from "@/components/shell/Shell";
@@ -19,6 +20,7 @@ export default function ProcessOptimisationPage() {
         meta="PID and regulatory runs on demonstration data (18 configs per loop). MPC and RL labelled coming soon."
         actions={<AskButton context="Process optimisation" label="Ask about optimisation" />}
       />
+      <ProcessHubTabs />
       <Suspense fallback={<StaticPageFallback><p className="muted">Loading…</p></StaticPageFallback>}>
         <OptimisationClient rows={rows} />
       </Suspense>

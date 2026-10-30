@@ -1,5 +1,6 @@
 "use client";
 
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import Link from "next/link";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
@@ -13,7 +14,7 @@ export default function QualityAgentPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Agent work" })} askContext="Quality agent">
       <PageHeader eyebrow="Quality · Decide" title="Agent work on quality" meta="What the agent is doing on quality, and what it needs from you." actions={<AskButton context="Quality agent" label="Ask about agent work" />} />
-      <QualityTabs active="agent" />
+      <QualityHubTabs />
       <div className="grid">
         <div className="span-8 stack">
           <WorkingOn items={A.qualityWork} />

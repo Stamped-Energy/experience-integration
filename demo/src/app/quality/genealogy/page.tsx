@@ -1,3 +1,4 @@
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import { Workspace } from "@/components/shell/Shell";
@@ -27,7 +28,7 @@ export default function GenealogyPage() {
           </>
         }
       />
-      <QualityTabs active="genealogy" />
+      <QualityHubTabs />
       <div className="stack">
         {genealogyTraces.map((t) => (
           <Section key={`${t.startId}-${t.direction}`} title={`From ${t.startId}`} meta={t.direction} flush>

@@ -1,3 +1,4 @@
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import Link from "next/link";
 import { NarrativeTrendCard } from "@/components/scan/narrative-trend";
 import { AskButton } from "@/components/shell/ShellClient";
@@ -17,7 +18,9 @@ export default function ProcessAnalyticsPage() {
   const monitors = DEMO_LOOP_CATALOG.filter((l) => l.lineId === "line-b" || l.family.includes("Heat")).slice(0, 10);
   return (
     <Workspace crumbs={crumbs({ label: "Analytics" })} askContext="Process analytics">
-      <PageHeader eyebrow="Process · Scan" title="Analytics" meta="Dashboards and self-explaining trends on demonstration data." actions={<AskButton context="Process analytics" label="Ask about trends" />} />
+      <PageHeader eyebrow="Process · Scan" title="Analytics" meta="Dashboards and self-explaining trends on demonstration data." actions={<AskButton context="Process analytics" label="Ask about trends" />}
+      />
+      <ProcessHubTabs />
       <KpiRow
         label="Last 24 press runs (demo)"
         items={[

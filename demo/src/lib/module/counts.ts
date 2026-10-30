@@ -6,8 +6,8 @@ import { belowThreshold } from "@/components/quality/common";
 
 export function countForScreen(moduleId: "process" | "quality", screenId: string): number | undefined {
   if (moduleId === "process") {
-    if (screenId === "actions") return exampleActions.filter((a) => a.area === "Process" && !a.closed && a.who.how !== "Record only").length;
-    if (screenId === "proposals") return D.proposals.filter((p) => p.state === "Waiting").length;
+    if (screenId === "actions") return D.proposals.filter((p) => p.state === "Waiting").length;
+    if (screenId === "actions-queue") return exampleActions.filter((a) => a.area === "Process" && !a.closed && a.who.how !== "Record only").length;
     if (screenId === "optimisation") return loopCampaigns.filter((c) => c.area === "process" && c.kind === "optimisation").length;
     if (screenId === "simulations") return loopCampaigns.filter((c) => c.area === "process" && c.kind === "simulation").length;
     if (screenId === "trials") return D.trials.filter((t) => t.status === "running" || t.status === "awaiting signature").length;

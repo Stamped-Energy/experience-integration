@@ -20,7 +20,8 @@
 .module-nav-head { padding: 0 var(--space-2) var(--space-2); border-bottom: 1px solid var(--border); }
 .module-nav-head h2 { margin: 0; font-size: 15px; font-weight: 600; }
 .module-nav-group { display: flex; flex-direction: column; gap: 2px; }
-.module-nav-group .label { padding: 0 var(--space-2); margin-bottom: var(--space-1); }
+.module-nav-group .label { padding: 0 var(--space-2); margin-bottom: var(--space-1); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+.module-nav-group:first-of-type .label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
 .module-nav-link {
   display: flex; align-items: center; gap: var(--space-2);
   padding: 6px 10px; border-radius: var(--radius-sm);
@@ -73,14 +74,14 @@
 .hmap-area h3 { font-size: 14px; margin: 0 0 var(--space-2); }
 .hmap-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
 }
 .hmap-cell {
   aspect-ratio: 1; border-radius: var(--radius-sm); border: 1px solid var(--border-strong);
-  padding: 6px; display: flex; flex-direction: column; justify-content: space-between;
-  font-size: 11px; text-decoration: none; color: var(--text-primary); background: var(--surface);
-  min-height: 72px;
+  padding: 8px; display: flex; flex-direction: column; justify-content: space-between;
+  font-size: 12px; text-decoration: none; color: var(--text-primary); background: var(--surface);
+  min-height: 96px;
 }
 .hmap-cell:hover { border-color: var(--text-secondary); }
 .hmap-cell.on { outline: 2px solid var(--text-primary); outline-offset: -1px; }
@@ -88,9 +89,9 @@
 .hmap-cell.st-watch { background: var(--warning-tint); border-color: color-mix(in srgb, var(--warning) 50%, var(--border)); }
 .hmap-cell.st-alarm { background: var(--critical-tint); border-color: color-mix(in srgb, var(--critical) 45%, var(--border)); }
 .hmap-cell.st-unknown { background: var(--surface-subtle); }
-.hmap-name { font-weight: 600; line-height: 1.2; }
-.hmap-sub { color: var(--text-muted); font-size: 10px; }
-.hmap-state { font-weight: 600; letter-spacing: .02em; }
+.hmap-name { font-weight: 600; line-height: 1.25; font-size: 12px; }
+.hmap-sub { color: var(--text-muted); font-size: 11px; line-height: 1.25; }
+.hmap-state { font-weight: 600; letter-spacing: .02em; font-size: 11px; }
 .hmap-worst { display: flex; flex-direction: column; gap: 0; }
 .hmap-worst .row { grid-template-columns: minmax(0, 1fr) 100px 80px; }
 

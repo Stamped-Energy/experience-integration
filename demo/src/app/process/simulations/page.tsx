@@ -1,3 +1,4 @@
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Suspense } from "react";
 import { SimulationsWorkspace } from "@/components/improve/loop-runs";
 import { AskButton } from "@/components/shell/ShellClient";
@@ -37,6 +38,7 @@ export default function ProcessSimulationsPage() {
         meta="Agents try many loop configurations in simulation. Compare up to four runs; approval only on the DecisionCard."
         actions={<AskButton context="Process simulations" label="Ask about simulations" />}
       />
+      <ProcessHubTabs />
       <Suspense fallback={<StaticPageFallback><p className="muted">Loading campaigns…</p></StaticPageFallback>}>
         <Body />
       </Suspense>

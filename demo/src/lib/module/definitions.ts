@@ -1,54 +1,25 @@
 import type { ModuleDefinition, ModuleScreen } from "./types";
+import { PROCESS_HUBS, QUALITY_HUBS } from "./hubs";
 
 const screen = (s: Omit<ModuleScreen, "count">): ModuleScreen => s;
+
+const processScreens = PROCESS_HUBS.map((h) =>
+  screen({ id: h.id, label: h.sidebarLabel, href: h.sidebarHref }),
+);
+
+const qualityScreens = QUALITY_HUBS.map((h) =>
+  screen({ id: h.id, label: h.sidebarLabel, href: h.sidebarHref }),
+);
 
 export const processModule: ModuleDefinition = {
   id: "process",
   label: "Process",
-  homeHref: "/process",
+  homeHref: "/process/proposals",
   groups: [
     {
-      id: "scan",
-      label: "Scan",
-      screens: [
-        screen({ id: "overview", label: "Overview", href: "/process" }),
-        screen({ id: "health", label: "Health map", href: "/process/health" }),
-        screen({ id: "line", label: "Process line view", href: "/process/line" }),
-        screen({ id: "analytics", label: "Analytics", href: "/process/analytics" }),
-        screen({ id: "oee", label: "OEE", href: "/process/oee" }),
-        screen({ id: "drift", label: "Drift", href: "/process/drift" }),
-        screen({ id: "modules", label: "Modules", href: "/process/modules" }),
-      ],
-    },
-    {
-      id: "decide",
-      label: "Decide",
-      screens: [
-        screen({ id: "actions", label: "Actions", href: "/process/actions" }),
-        screen({ id: "proposals", label: "Proposals", href: "/process/proposals" }),
-      ],
-    },
-    {
-      id: "improve",
-      label: "Improve",
-      screens: [
-        screen({ id: "optimisation", label: "Optimisation runs", href: "/process/optimisation" }),
-        screen({ id: "simulations", label: "Simulations", href: "/process/simulations" }),
-        screen({ id: "simulate", label: "Simulate (legacy)", href: "/process/simulate" }),
-        screen({ id: "trials", label: "Trials and stops", href: "/process/trials" }),
-      ],
-    },
-    {
-      id: "setup",
-      label: "Setup",
-      screens: [
-        screen({ id: "measurement", label: "Measurement plans", href: "/process/measurement" }),
-        screen({ id: "settings", label: "Running settings", href: "/process/settings" }),
-        screen({ id: "model-fit", label: "Model fit", href: "/process/model-fit" }),
-        screen({ id: "cycle-time", label: "Cycle time", href: "/process/cycle-time" }),
-        screen({ id: "smed", label: "SMED", href: "/process/smed" }),
-        screen({ id: "tool-life", label: "Tool life", href: "/process/tool-life" }),
-      ],
+      id: "main",
+      label: "Process",
+      screens: processScreens,
     },
   ],
 };
@@ -56,52 +27,93 @@ export const processModule: ModuleDefinition = {
 export const qualityModule: ModuleDefinition = {
   id: "quality",
   label: "Quality",
-  homeHref: "/quality",
+  homeHref: "/quality/actions",
   groups: [
     {
-      id: "scan",
-      label: "Scan",
-      screens: [
-        screen({ id: "overview", label: "Overview", href: "/quality" }),
-        screen({ id: "health", label: "Health map", href: "/quality/health" }),
-        screen({ id: "analytics", label: "Analytics", href: "/quality/analytics" }),
-        screen({ id: "monitor", label: "Monitor", href: "/quality/monitor" }),
-        screen({ id: "drift", label: "Drift", href: "/quality/drift" }),
-        screen({ id: "capability", label: "Capability", href: "/quality/capability" }),
-      ],
-    },
-    {
-      id: "decide",
-      label: "Decide",
-      screens: [
-        screen({ id: "actions", label: "Actions", href: "/quality/actions" }),
-        screen({ id: "agent", label: "Agent work", href: "/quality/agent" }),
-        screen({ id: "investigations", label: "Investigations", href: "/quality/investigations" }),
-        screen({ id: "links", label: "Link confirmations", href: "/quality/links" }),
-      ],
-    },
-    {
-      id: "improve",
-      label: "Improve",
-      screens: [screen({ id: "simulations", label: "Simulations", href: "/quality/simulations" })],
-    },
-    {
-      id: "setup",
-      label: "Setup",
-      screens: [
-        screen({ id: "specs", label: "Specs and grades", href: "/quality/specs" }),
-        screen({ id: "corrections", label: "Corrections", href: "/quality/corrections" }),
-        screen({ id: "spc", label: "SPC", href: "/quality/spc" }),
-        screen({ id: "capa", label: "CAPA", href: "/quality/capa" }),
-        screen({ id: "genealogy", label: "Genealogy", href: "/quality/genealogy" }),
-        screen({ id: "gauge-rr", label: "Gauge R&R", href: "/quality/gauge-rr" }),
-        screen({ id: "suppliers", label: "Suppliers", href: "/quality/suppliers" }),
-      ],
+      id: "main",
+      label: "Quality",
+      screens: qualityScreens,
     },
   ],
 };
 
 export function screenActive(href: string, path: string): boolean {
+  if (href === "/process/proposals") {
+    return (
+      path === href ||
+      path.startsWith("/process/proposals/") ||
+      path === "/process/trials" ||
+      path.startsWith("/process/trials/") ||
+      path === "/process/drift" ||
+      path === "/process/actions"
+    );
+  }
+  if (href === "/process/line") {
+    return (
+      path === "/process/line" ||
+      path === "/process/health" ||
+      path === "/process/oee" ||
+      path === "/process" ||
+      path.startsWith("/process/lines/") ||
+      path.startsWith("/process/runs/")
+    );
+  }
+  if (href === "/process/analytics") {
+    return (
+      path === "/process/analytics" ||
+      path === "/process/cycle-time" ||
+      path === "/process/smed" ||
+      path === "/process/tool-life"
+    );
+  }
+  if (href === "/process/optimisation") {
+    return path === "/process/optimisation" || path === "/process/simulations" || path === "/process/simulate";
+  }
+  if (href === "/process/measurement") {
+    return (
+      path === "/process/measurement" ||
+      path === "/process/settings" ||
+      path === "/process/model-fit" ||
+      path === "/process/modules"
+    );
+  }
+  if (href === "/quality/actions") {
+    return (
+      path === "/quality/actions" ||
+      path === "/quality/capa" ||
+      path === "/quality/corrections" ||
+      path === "/quality/links" ||
+      path === "/quality/agent" ||
+      path === "/quality/investigations" ||
+      path.startsWith("/quality/investigations/")
+    );
+  }
+  if (href === "/quality/health") {
+    return (
+      path === "/quality/health" ||
+      path === "/quality/spc" ||
+      path === "/quality/genealogy" ||
+      path === "/quality" ||
+      path === "/quality/monitor" ||
+      path === "/quality/capability" ||
+      path === "/quality/drift" ||
+      path.startsWith("/quality/lots/")
+    );
+  }
+  if (href === "/quality/analytics") {
+    return (
+      path === "/quality/analytics" ||
+      path === "/quality/roi" ||
+      path === "/quality/cause-gap" ||
+      path === "/quality/causes"
+    );
+  }
+  if (href === "/quality/simulations") {
+    return path === "/quality/simulations";
+  }
+  if (href === "/quality/specs") {
+    return path === "/quality/specs" || path === "/quality/gauge-rr" || path === "/quality/suppliers";
+  }
   if (href === "/process" || href === "/quality") return path === href;
   return path === href || path.startsWith(`${href}/`);
 }

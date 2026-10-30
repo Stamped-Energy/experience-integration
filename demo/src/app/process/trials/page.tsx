@@ -1,3 +1,4 @@
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import Link from "next/link";
 import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
@@ -23,7 +24,7 @@ export default async function Trials() {
     <Workspace crumbs={crumbs({ label: "Trials and stops" })} askContext="Trials">
       <PageHeader eyebrow="Process" title="Trials and stops" meta="A trial alternates the change with the checked prior configuration on a schedule locked before it starts. Stop restores the prior."
         actions={<><AskButton context="Trials" label="Ask about trials" /></>} />
-      <ProcessTabs active="trials" />
+      <ProcessHubTabs />
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
           <Section title="Trials" meta={`${D.trials.length} on record`} flush>

@@ -1,3 +1,4 @@
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { HealthMapPageBody, HealthStatusStrip } from "@/components/scan/health-map";
 import { AskButton } from "@/components/shell/ShellClient";
 import { Workspace } from "@/components/shell/Shell";
@@ -17,6 +18,7 @@ export default function ProcessHealthPage() {
         meta="Cells use ISA alarm colours and words. No bare health percentage."
         actions={<AskButton context="Process health map" label="Ask about this map" />}
       />
+      <ProcessHubTabs />
       <HealthStatusStrip {...strip} />
       <p className="pfd-demo-banner">Demonstration data · health cells use ISA words, not bare percentages.</p>
       <KpiRow

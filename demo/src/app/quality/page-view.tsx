@@ -1,5 +1,6 @@
 "use client";
 
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -44,7 +45,7 @@ export default function LotsAtRisk() {
     <Workspace crumbs={crumbs({ label: sp.tab === "actions" ? "Actions" : sp.tab === "agent" ? "Agent work" : "Lots at risk" })} askContext="Lots at risk">
       <PageHeader eyebrow="Quality" title={actions ? "Quality actions" : agent ? "Agent work on quality" : "Lots at risk"} meta={actions ? "Every quality action, grouped by what it needs from you." : agent ? "What the agent is doing on quality, and what it needs from you." : "Lots that may miss spec, and how sure the agent is. Select a lot to see why."}
         actions={<><Link className="btn btn-sm" href="/quality/links">{D.lotLinks.filter((l) => l.status === "suggested" && l.link_confidence < 0.8).length} links to confirm</Link><AskButton context="Lots at risk" label="Ask about lots" /></>} />
-      <QualityTabs active={actions ? "actions" : agent ? "agent" : "lots"} />
+      <QualityHubTabs />
       {actions ? <><ActionsBoard area="Quality" role={role} base="/quality" status={sp.status} line={sp.line} mine={sp.mine} /></> : null}
       {actions ? null : agent ? (
         <div className="grid">

@@ -1,3 +1,4 @@
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import Link from "next/link";
 import { NarrativeTrendCard } from "@/components/scan/narrative-trend";
 import { AskButton } from "@/components/shell/ShellClient";
@@ -20,7 +21,9 @@ export default function QualityAnalyticsPage() {
   const lowLinks = belowThreshold();
   return (
     <Workspace crumbs={crumbs({ label: "Analytics" })} askContext="Quality analytics">
-      <PageHeader eyebrow="Quality · Scan" title="Analytics" meta="Drift, yield and lab lag on demonstration data." actions={<AskButton context="Quality analytics" label="Ask about quality trends" />} />
+      <PageHeader eyebrow="Quality · Scan" title="Analytics" meta="Drift, yield and lab lag on demonstration data." actions={<AskButton context="Quality analytics" label="Ask about quality trends" />}
+      />
+      <QualityHubTabs />
       <KpiRow
         label="This week (demo)"
         items={[

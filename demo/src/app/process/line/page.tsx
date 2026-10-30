@@ -1,3 +1,4 @@
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { ForgingLineMap } from "@/components/scan/forging-line-map";
 import { AskButton } from "@/components/shell/ShellClient";
 import { Workspace } from "@/components/shell/Shell";
@@ -20,6 +21,7 @@ export default function ProcessLinePage() {
         meta="PFD-style forging flow with live values and status. All tags are demonstration data."
         actions={<AskButton context="Process line view" label="Ask about this line" />}
       />
+      <ProcessHubTabs />
       <KpiRow
         label="Press line B · demo KPIs"
         items={[
