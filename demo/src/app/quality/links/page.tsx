@@ -1,3 +1,4 @@
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import { demoRole } from "@/lib/role";
@@ -23,7 +24,7 @@ export default async function Links() {
   return (
     <Workspace crumbs={crumbs({ label: "Link confirmations" })} askContext="Lot link confirmations">
       <PageHeader eyebrow="Quality" title="Link confirmations" meta="Links below the pack threshold wait for a person. Until confirmed, anything resting on them stays unverified." actions={<AskButton context="Link confirmations" label="Ask about links" />} />
-      <QualityTabs active="links" />
+      <QualityHubTabs />
       <div className="grid">
         <div className="span-7 stack">
           {weak.map((l) => {

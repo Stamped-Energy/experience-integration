@@ -1,3 +1,4 @@
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import { demoRole } from "@/lib/role";
@@ -23,7 +24,7 @@ export default async function Drift() {
   return (
     <Workspace crumbs={crumbs({ label: "Drift" })} askContext="Quality drift">
       <PageHeader eyebrow="Quality" title="Drift" meta="Slow movement in a property, caught before a lot leaves spec. Each signal is a pattern across runs, not a single alarm." actions={<AskButton context="Quality drift" label="Ask about drift" />} />
-      <QualityTabs active="drift" />
+      <QualityHubTabs />
       <div className="grid">
         <div className="span-8 stack">
           {D.driftSignals.map((d) => {

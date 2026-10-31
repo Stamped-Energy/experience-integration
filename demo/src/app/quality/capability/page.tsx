@@ -1,3 +1,4 @@
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, Illustrative, PageHeader, Section } from "@/components/ui/primitives";
@@ -20,7 +21,7 @@ export default function CapabilityPage() {
           </>
         }
       />
-      <QualityTabs active="capability" />
+      <QualityHubTabs />
       <Section title="Characteristics" meta="Cp / Cpk / Pp / Ppk" flush>
         <DataTable
           caption="Capability cards"

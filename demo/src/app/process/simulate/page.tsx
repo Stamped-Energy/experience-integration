@@ -1,3 +1,4 @@
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Workspace } from "@/components/shell/Shell";
@@ -73,7 +74,7 @@ export default async function SimulatePage({
         meta={SIMULATE_PAGE_META}
         actions={<AskButton context="Simulate" label="Ask about this trial" />}
       />
-      <ProcessTabs active="simulate" />
+      <ProcessHubTabs />
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
           <Section

@@ -1,3 +1,4 @@
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import Link from "next/link";
 import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
@@ -16,7 +17,7 @@ export default async function RunningSettings() {
     <Workspace crumbs={crumbs({ label: "Running settings" })} askContext="Running settings">
       <PageHeader eyebrow="Process" title="Running settings" meta="Every value Stamped wrote, its mode, who signed the window and when it expires. Stamped works inside limits set beforehand."
         actions={<><Link className="btn btn-sm" href="/settings">Signed limits</Link><AskButton context="Running settings" label="Ask about settings" /></>} />
-      <ProcessTabs active="settings" />
+      <ProcessHubTabs />
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
           {D.lines.map((l) => (

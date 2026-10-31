@@ -1,0 +1,180 @@
+/* PFD diagram (light theme, adapted from PlantCraft diagrams.css, Apache-2.0) */
+
+.pfd-line-layout {
+  gap: var(--space-4);
+}
+
+.pfd-line-layout .section-head {
+  min-height: 40px;
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+.pfd-legend-inline {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.pfd-legend-inline i {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  border: 1px solid var(--border-strong);
+  display: inline-block;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.pfd-legend-inline i.ok { background: var(--success-tint); border-color: var(--success); }
+.pfd-legend-inline i.watch { background: var(--warning-tint, #FEF3E2); border-color: var(--warning, #C27803); }
+.pfd-legend-inline i.alarm { background: var(--critical-tint); border-color: var(--critical); }
+
+.pfd-legend-note { color: var(--text-muted); }
+
+.dg-stage {
+  position: relative;
+  background: var(--surface-subtle, var(--surface));
+  width: 100%;
+  line-height: 0;
+  aspect-ratio: 1184 / 376;
+  max-height: min(400px, 48vh);
+}
+
+/* Full-height plant viewer (Process plant page): always fill the stage */
+.plant-stage .dg-zoom-stage,
+.plant-stage .dg-stage {
+  aspect-ratio: unset;
+  max-height: none;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+}
+.plant-stage .dg-canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  aspect-ratio: auto !important;
+}
+.plant-stage .dg-drawing {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.dg-stage .dg-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  user-select: none;
+  touch-action: manipulation;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+
+.dg-background { fill: var(--surface-2, var(--surface)); }
+.dg-drawing { fill: var(--surface); stroke: currentColor; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.dg-drawing * { vector-effect: non-scaling-stroke; }
+.dg-sym[data-state="ok"] .pc-state { fill: var(--success-tint); stroke: var(--success); }
+.dg-sym[data-state="warning"] .pc-state { fill: var(--warning-tint, #FEF3E2); stroke: var(--warning, #C27803); }
+.dg-sym[data-state="alarm"] .pc-state { fill: var(--critical-tint); stroke: var(--critical); }
+.dg-sym[data-state="alarm"] .dg-drawing { animation: dg-blink 1.2s steps(2, start) infinite; }
+.dg-sym[data-state="unknown"] .pc-state { fill: var(--surface); stroke: var(--border); }
+.dg-sym[data-on="true"] .pc-run { fill: color-mix(in srgb, var(--success) 18%, var(--surface)); }
+.dg-sym[data-on="false"] .pc-run { fill: var(--surface); }
+.dg-missing { fill: var(--surface); stroke: var(--border); stroke-dasharray: 4 3; }
+.dg-missing-text { fill: var(--text-secondary); font-size: 12px; }
+.dg-label { fill: var(--text-secondary); font-size: 12px; font-weight: 600; pointer-events: none; }
+.dg-line-label { font-size: 12px; font-weight: 600; paint-order: stroke; stroke: var(--surface-2, var(--surface)); stroke-width: 4px; }
+.dg-status-ring { fill: none; stroke-width: 3; pointer-events: none; }
+.dg-sym[data-state="ok"] .dg-status-ring { stroke: var(--success); }
+.dg-sym[data-state="warning"] .dg-status-ring { stroke: var(--warning, #C27803); }
+.dg-sym[data-state="alarm"] .dg-status-ring { stroke: var(--critical); }
+.dg-sym[data-state="unknown"] .dg-status-ring { stroke: var(--border-strong); }
+.dg-value-box { fill: var(--surface); stroke: var(--border); stroke-width: 1.5; }
+.dg-value text { fill: var(--text); font-family: var(--font-mono); font-weight: 600; font-size: 12px; }
+.dg-clickable { cursor: pointer; }
+.dg-clickable:hover .dg-drawing { stroke: var(--accent); }
+.dg-clickable:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.dg-sym.dg-picked .dg-drawing { stroke: var(--accent-700, var(--accent)); stroke-width: 2.5; }
+.dg-value-label, .dg-value-unit { fill: var(--text-secondary); }
+.dg-value[data-state="warning"] .dg-value-box { fill: var(--warning-tint, #FEF3E2); stroke: var(--warning, #C27803); }
+.dg-value[data-state="alarm"] .dg-value-box { fill: var(--critical-tint); stroke: var(--critical); }
+.dg-line { color: var(--text-secondary); }
+.dg-line-path { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linejoin: round; }
+.dg-line-signal .dg-line-path { stroke-width: 1.5; stroke-dasharray: 6 4; }
+.dg-line-utility .dg-line-path { stroke-width: 2; stroke-dasharray: 2 4; stroke-linecap: round; }
+.dg-line-hit { fill: none; stroke: transparent; stroke-width: 12; }
+.dg-line-flow { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 4 12; animation: dg-flow 1s linear infinite; pointer-events: none; }
+.dg-arrowhead, .dg-flow-arrow { fill: currentColor; stroke: none; pointer-events: none; }
+@keyframes dg-flow { to { stroke-dashoffset: -16; } }
+.dg-text text { fill: var(--text-secondary); font-size: 12px; }
+@keyframes dg-blink { 50% { opacity: 0.5; } }
+@media (prefers-reduced-motion: reduce) { .dg-sym[data-state="alarm"] .dg-drawing, .dg-line-flow { animation: none; } }
+
+.pfd-detail-drawer { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+.pfd-detail-drawer-head {
+  list-style: none;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 10px var(--space-4);
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+}
+.pfd-detail-drawer-head::-webkit-details-marker { display: none; }
+.pfd-detail-drawer-title { font-size: 14px; font-weight: 600; }
+.pfd-detail-drawer-hint { font-size: 12px; color: var(--text-muted); }
+.pfd-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+}
+@media (max-width: 767px) {
+  .pfd-detail-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+.pfd-detail .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+.pfd-utility-rows .row > span:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.pfd-utility-rows .row .row-title { display: block; white-space: normal; line-height: 1.35; }
+.pfd-utility-rows .row .row-sub { display: block; line-height: 1.35; margin-top: 2px; }
+
+.pfd-kpi-compact.kpis { margin-bottom: var(--space-3); }
+.pfd-kpi-compact .kpi { padding: 8px 12px; }
+.pfd-kpi-compact .kpi .kpi-label { font-size: 11px; }
+.pfd-kpi-compact .kpi .kpi-value { font-size: 18px; line-height: 24px; }
+
+.pfd-page-head-compact.page-head { padding-bottom: var(--space-2); }
+.pfd-page-head-compact .head-meta { font-size: 13px; }
+
+.pfd-line-layout + .tabs,
+.tabs + .pfd-kpi-compact { margin-top: 0; }
+
+/* Plant page: stage fills flex parent; SVG meet-fits inside absolute canvas */
+.plant-stage.dg-stage,
+.plant-stage {
+  aspect-ratio: auto;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  min-height: 0;
+}
+
+.dg-nav { fill: var(--accent-50); stroke: var(--accent-200); stroke-width: 1.5; }
+.dg-nav-label { fill: var(--accent-800, var(--text-primary)); font-size: 13px; font-weight: 600; pointer-events: none; }
+.dg-nav-icon { fill: none; stroke: var(--accent-700, var(--accent)); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.dg-sym-nav.dg-clickable:hover .dg-nav { fill: var(--accent-100); stroke: var(--accent); }

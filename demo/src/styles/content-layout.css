@@ -1,0 +1,177 @@
+/* Content-area layout: sidebar-expanded widths, pills, grids (ADR-042). */
+
+html {
+  overflow-x: clip;
+}
+
+.main {
+  container-type: inline-size;
+  container-name: workspace;
+}
+
+.page {
+  container-type: inline-size;
+  container-name: page;
+}
+
+/* ---------- Pills, badges, status labels (never wrap mid-word) ---------- */
+.tag {
+  flex-shrink: 0;
+  max-width: min(100%, 20rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  vertical-align: bottom;
+}
+
+.tab .count {
+  flex: none;
+}
+
+.strip .st {
+  flex: none;
+}
+
+.card-head .right {
+  flex-wrap: nowrap;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.card-foot .strip {
+  flex-wrap: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.hmap-state {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table td .tag {
+  max-width: 12rem;
+}
+
+.table td.cell-clip {
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Grids sized to content column, not viewport ---------- */
+@container page (max-width: 1040px) {
+  .grid > .span-3,
+  .grid > .span-4,
+  .grid > .span-5,
+  .grid > .span-6,
+  .grid > .span-7,
+  .grid > .span-8,
+  .grid > .span-9 {
+    grid-column: 1 / -1;
+  }
+
+  .linestrip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .linecell + .linecell {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .linecell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container workspace (max-width: 1100px) {
+  .dash-gauge-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .anal-status-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kpis {
+    grid-auto-flow: row;
+    grid-auto-columns: unset;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  }
+
+  .kpi {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .kpi:first-child {
+    border-top: 0;
+  }
+
+  .rep-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stat-row {
+    grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  }
+}
+
+@container workspace (max-width: 720px) {
+  .dash-gauge-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dash-trend-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ex-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container workspace (max-width: 520px) {
+  .anal-status-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Wider viewports still stack when the expanded sidebar leaves a narrow column */
+@media (min-width: 768px) and (max-width: 1499px) {
+  .grid > .span-8,
+  .grid > .span-4,
+  .grid > .span-7,
+  .grid > .span-5,
+  .grid > .span-9,
+  .grid > .span-3 {
+    grid-column: 1 / -1;
+  }
+}
+
+.page-head h1 {
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.crumbbar {
+  min-width: 0;
+}
+
+.search {
+  max-width: min(260px, 100%);
+  flex: 0 1 260px;
+}

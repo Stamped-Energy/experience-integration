@@ -1,3 +1,4 @@
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import { demoRole } from "@/lib/role";
@@ -19,7 +20,7 @@ export default async function Specs() {
   return (
     <Workspace crumbs={crumbs({ label: "Specs and grades" })} askContext="Specs and grades">
       <PageHeader eyebrow="Quality" title="Specs and grades" meta="Read from the plant's spec documents. Stamped reads specs; it does not change them." actions={<AskButton context="Specs" label="Ask about specs" />} />
-      <QualityTabs active="specs" />
+      <QualityHubTabs />
       <div className="grid">
         {D.specs.map((s) => {
           const g = D.grades.find((x) => x.id === s.gradeId)!;

@@ -1,3 +1,4 @@
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import Link from "next/link";
 import { nameOf } from "@/lib/names";
 import * as D from "@/lib/demo/data";
@@ -21,7 +22,7 @@ export default async function Corrections() {
   return (
     <Workspace crumbs={crumbs({ label: "Corrections to process" })} askContext="Corrections to process">
       <PageHeader eyebrow="Quality" title="Corrections to process" meta="Quality asks; Process decides. A correction becomes a proposal on the line and goes through the same limits and approvals." actions={<AskButton context="Corrections" label="Ask about corrections" />} />
-      <QualityTabs active="corrections" />
+      <QualityHubTabs />
       <div className="grid">
         {D.corrections.map((c) => {
           const lot = D.byId.lot(c.lotId)!;

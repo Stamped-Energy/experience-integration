@@ -1,3 +1,4 @@
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import type { ReactNode } from "react";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
@@ -43,7 +44,7 @@ export default function MonitorPage() {
         }
         actions={<AskButton context="Quality monitor settings" label="Ask about monitor settings" />}
       />
-      <QualityTabs active="monitor" />
+      <QualityHubTabs />
 
       <div className="grid">
         <div className="span-8 stack">

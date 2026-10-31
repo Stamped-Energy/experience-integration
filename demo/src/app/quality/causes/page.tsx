@@ -1,3 +1,4 @@
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { AbstainNote } from "@/components/ask/common";
@@ -32,7 +33,7 @@ export default function CausesPage() {
           </span>
         }
       />
-      <QualityTabs active="causes" />
+      <QualityHubTabs />
       <div className="grid">
         <div className="span-12">
           <div className="grid">

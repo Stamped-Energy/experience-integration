@@ -2,32 +2,17 @@
 import * as D from "@/lib/demo/data";
 import type { Line, Run } from "@/lib/demo/types";
 import type { Crumb } from "@/components/shell/Shell";
-import { Tabs } from "@/components/ui/primitives";
 
 export type ProcessTab =
   | "measurement" | "settings" | "model-fit" | "trials"
   | "simulate" | "modules" | "drift" | "tool-life" | "cycle-time" | "oee" | "smed"
   | "lines" | "actions" | "proposals";
 
-export function ProcessTabs({ active }: { active: ProcessTab }) {
-  const trials = D.trials.filter((t) => t.status === "running" || t.status === "awaiting signature").length;
-  const items = [
-    { key: "measurement", href: "/process/measurement", label: "Measurement plans" },
-    { key: "settings", href: "/process/settings", label: "Running settings", count: D.runningSettings.length },
-    { key: "model-fit", href: "/process/model-fit", label: "Model fit" },
-    { key: "trials", href: "/process/trials", label: "Trials and stops", count: trials },
-    { key: "simulate", href: "/process/simulate", label: "Simulate" },
-    { key: "modules", href: "/process/modules", label: "Modules" },
-    { key: "drift", href: "/process/drift", label: "Drift" },
-    { key: "tool-life", href: "/process/tool-life", label: "Tool life" },
-    { key: "cycle-time", href: "/process/cycle-time", label: "Cycle time" },
-    { key: "oee", href: "/process/oee", label: "OEE" },
-    { key: "smed", href: "/process/smed", label: "SMED" },
-  ];
-  return <Tabs label="Process" items={items.map((i) => ({ ...i, active: i.key === active }))} />;
+export function ProcessTabs(_: { active: ProcessTab }) {
+  return null;
 }
 
-export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Demonstration plant", href: "/" }, { label: "Process", href: "/process" }, ...rest];
+export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Demonstration plant", href: "/" }, { label: "Process", href: "/process/proposals" }, ...rest];
 
 export const runsOf = (lineId: string) => D.runs.filter((r) => r.lineId === lineId);
 export const packOf = (line: Line) => D.linePacks.find((p) => p.id === line.linePackId)!;

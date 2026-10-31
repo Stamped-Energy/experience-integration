@@ -1,3 +1,4 @@
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
@@ -28,7 +29,7 @@ export default function SmedPage() {
           </>
         }
       />
-      <ProcessTabs active="smed" />
+      <ProcessHubTabs />
       <div className="grid">
         <div className="span-12 stack">
           <Section

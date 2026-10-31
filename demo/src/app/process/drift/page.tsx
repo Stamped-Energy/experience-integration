@@ -1,3 +1,4 @@
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import Link from "next/link";
 import { DRIFT_PAGE_META, driftProposals } from "@/lib/demo/driftProposals";
 import { dayMonth, hhmm } from "@/lib/format";
@@ -23,7 +24,7 @@ export default function DriftPage() {
           </>
         }
       />
-      <ProcessTabs active="drift" />
+      <ProcessHubTabs />
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
           <Section title="Pending retune and re-identification" meta={<><Tag tone="warning">Example data</Tag> recommend-only · not Quality lot drift</>} flush>

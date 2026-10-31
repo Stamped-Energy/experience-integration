@@ -2,6 +2,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { EvidenceLabel, LineMode, Mode, Verdict } from "@/lib/demo/types";
+import { ClickableRow } from "@/components/ui/ClickableRow";
 
 export type Tone = "neutral" | "info" | "warning" | "critical" | "success" | "accent";
 
@@ -33,9 +34,9 @@ export function Illustrative() {
   return null;
 }
 
-export function PageHeader({ eyebrow, title, meta, actions, brand }: { eyebrow?: string; title: string; meta?: ReactNode; actions?: ReactNode; brand?: boolean }) {
+export function PageHeader({ eyebrow, title, meta, actions, brand, className }: { eyebrow?: string; title: string; meta?: ReactNode; actions?: ReactNode; brand?: boolean; className?: string }) {
   return (
-    <header className="page-head">
+    <header className={`page-head${className ? ` ${className}` : ""}`}>
       <div>
         {eyebrow ? <div className="label eyebrow">{eyebrow}</div> : null}
         <h1 className={brand ? "brand" : undefined}>{title}</h1>
@@ -74,9 +75,9 @@ export function Section({ title, meta, actions, children, flush, className, id }
 
 export interface Kpi { label: string; value: string; unit?: string; tags?: ReactNode; foot?: ReactNode; href?: string }
 /** KPI row (design system §9.13). Three or four figures, each with its label and status. Not a hero strip. */
-export function KpiRow({ items, label }: { items: Kpi[]; label: string }) {
+export function KpiRow({ items, label, className }: { items: Kpi[]; label: string; className?: string }) {
   return (
-    <div className="kpis" role="group" aria-label={label}>
+    <div className={`kpis${className ? ` ${className}` : ""}`} role="group" aria-label={label}>
       {items.map((k) => {
         const inner = (
           <>
@@ -92,16 +93,19 @@ export function KpiRow({ items, label }: { items: Kpi[]; label: string }) {
 }
 
 export interface Column<R> { key: string; label: string; align?: "left" | "right"; mono?: boolean; width?: number | string; render: (r: R) => ReactNode }
-export function DataTable<R>({ columns, rows, rowKey, caption }: { columns: Column<R>[]; rows: R[]; rowKey: (r: R) => string; caption: string }) {
+export function DataTable<R>({ columns, rows, rowKey, caption, rowHref }: { columns: Column<R>[]; rows: R[]; rowKey: (r: R) => string; caption: string; rowHref?: (r: R) => string | undefined }) {
   if (rows.length === 0) return <EmptyState title="Nothing here yet" body={`${caption}: no rows in this view.`} />;
   return (
-    <table className="table">
+    <table className={`table${rowHref ? " table-click" : ""}`}>
       <caption className="sr-only">{caption}</caption>
       <thead><tr>{columns.map((c) => <th key={c.key} className={c.align === "right" ? "right" : undefined} style={c.width ? { width: c.width } : undefined}>{c.label}</th>)}</tr></thead>
       <tbody>
-        {rows.map((r) => (
-          <tr key={rowKey(r)}>{columns.map((c) => <td key={c.key} className={[c.align === "right" ? "right num" : "", c.mono ? "mono" : ""].join(" ").trim() || undefined}>{c.render(r)}</td>)}</tr>
-        ))}
+        {rows.map((r) => {
+          const cells = columns.map((c) => <td key={c.key} className={[c.align === "right" ? "right num" : "", c.mono ? "mono" : ""].join(" ").trim() || undefined}>{c.render(r)}</td>);
+          const href = rowHref?.(r);
+          if (href) return <ClickableRow key={rowKey(r)} href={href}>{cells}</ClickableRow>;
+          return <tr key={rowKey(r)}>{cells}</tr>;
+        })}
       </tbody>
     </table>
   );

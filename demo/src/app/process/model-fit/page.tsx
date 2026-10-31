@@ -1,3 +1,4 @@
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import { Workspace } from "@/components/shell/Shell";
@@ -19,7 +20,7 @@ export default async function ModelFitPage() {
     <Workspace crumbs={crumbs({ label: "Model fit" })} askContext="Model fit">
       <PageHeader eyebrow="Process" title="Model fit" meta="A model of each machine predicts outcomes with a band. Its numbers are used only after four checks pass, including 90% intervals covering 85 to 95% of held-out points."
         actions={<AskButton context="Model fit" label="Ask about model fit" />} />
-      <ProcessTabs active="model-fit" />
+      <ProcessHubTabs />
       <div className="grid">
         {fits.map((f) => {
           const line = D.byId.line(f.lineId)!;

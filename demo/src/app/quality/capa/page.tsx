@@ -1,3 +1,4 @@
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
@@ -26,7 +27,7 @@ export default function CapaPage() {
           </>
         }
       />
-      <QualityTabs active="capa" />
+      <QualityHubTabs />
       <Section title="Cases" meta="D-step tracker" flush>
         <DataTable
           caption="CAPA cases"
