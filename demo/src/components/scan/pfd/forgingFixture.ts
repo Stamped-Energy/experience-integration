@@ -173,6 +173,7 @@ const val = (id: string, x: number, y: number, label: string, decimals: number):
   id,
   x,
   y,
+  item: {},
   label,
   show_label: false,
   show_unit: true,
@@ -208,9 +209,13 @@ const utilLine = (
 export const forgingLineDiagram: DiagramDraft = {
   name: "Press line B · dual press · shared HT",
   description: "Demonstration PFD · parallel presses to shared furnace",
+  folder_id: "",
+  tags: ["demo"],
   width: 1184,
   height: 448,
   grid: 10,
+  refresh_seconds: 15,
+  default_window: "1h",
   parts: [
     { id: "forging", name: "Forging", area: "16,32,372,268" },
     { id: "ht", name: "Heat treatment", area: "372,64,420,248" },
@@ -320,22 +325,22 @@ export const forgingLineDiagram: DiagramDraft = {
 };
 
 function stateSlot(state: State): Partial<Record<"state" | "running" | "level" | "value" | "flow", Shown>> {
-  return { state: { state, label: "State" } };
+  return { state: { state, label: "State", value: null, unit: "" } };
 }
 
 export function forgingLineShows(): Shows {
   const m = new Map<string, Partial<Record<"state" | "running" | "level" | "value" | "flow", Shown>>>();
-  m.set("eq-induction-a", { ...stateSlot("ok"), running: { on: true, label: "Heating" }, level: { fraction: 0.68, label: "Load" } });
-  m.set("eq-press-a", { ...stateSlot("ok"), running: { on: true, label: "Running" } });
-  m.set("eq-induction-b", { ...stateSlot("ok"), running: { on: true, label: "Heating" }, level: { fraction: 0.72, label: "Load" } });
-  m.set("eq-press-b", { ...stateSlot("alarm"), running: { on: true, label: "Running" } });
-  m.set("eq-furnace", { ...stateSlot("warning"), level: { fraction: 0.55, label: "Charge" } });
-  m.set("eq-quench", { ...stateSlot("ok"), running: { on: true, label: "Agitator" } });
-  m.set("eq-ht", { ...stateSlot("ok"), running: { on: true, label: "Sequence" } });
-  m.set("eq-machine", { ...stateSlot("ok"), running: { on: true, label: "Cycle" } });
-  m.set("eq-insp", { ...stateSlot("warning") });
-  m.set("pump-air", { ...stateSlot("ok"), running: { on: true, label: "Running" } });
-  m.set("pump-water", { ...stateSlot("warning"), running: { on: true, label: "Running" } });
+  m.set("eq-induction-a", { ...stateSlot("ok"), running: { on: true, label: "Heating", state: "ok", value: null, unit: "" }, level: { fraction: 0.68, label: "Load", state: "ok", value: null, unit: "" } });
+  m.set("eq-press-a", { ...stateSlot("ok"), running: { on: true, label: "Running", state: "ok", value: null, unit: "" } });
+  m.set("eq-induction-b", { ...stateSlot("ok"), running: { on: true, label: "Heating", state: "ok", value: null, unit: "" }, level: { fraction: 0.72, label: "Load", state: "ok", value: null, unit: "" } });
+  m.set("eq-press-b", { ...stateSlot("alarm"), running: { on: true, label: "Running", state: "alarm", value: null, unit: "" } });
+  m.set("eq-furnace", { ...stateSlot("warning"), level: { fraction: 0.55, label: "Charge", state: "warning", value: null, unit: "" } });
+  m.set("eq-quench", { ...stateSlot("ok"), running: { on: true, label: "Agitator", state: "ok", value: null, unit: "" } });
+  m.set("eq-ht", { ...stateSlot("ok"), running: { on: true, label: "Sequence", state: "ok", value: null, unit: "" } });
+  m.set("eq-machine", { ...stateSlot("ok"), running: { on: true, label: "Cycle", state: "ok", value: null, unit: "" } });
+  m.set("eq-insp", stateSlot("warning"));
+  m.set("pump-air", { ...stateSlot("ok"), running: { on: true, label: "Running", state: "ok", value: null, unit: "" } });
+  m.set("pump-water", { ...stateSlot("warning"), running: { on: true, label: "Running", state: "warning", value: null, unit: "" } });
   m.set("v-ind-a", { value: { value: 1176, unit: "°C", state: "ok", label: "Billet" } });
   m.set("v-press-a", { value: { value: 598, unit: "bar", state: "ok", label: "Hold" } });
   m.set("v-ind-b", { value: { value: 1182, unit: "°C", state: "ok", label: "Billet" } });
@@ -344,19 +349,19 @@ export function forgingLineShows(): Shows {
   m.set("v-quench", { value: { value: 61, unit: "°C", state: "ok", label: "Oil" } });
   m.set("v-temper", { value: { value: 425, unit: "°C", state: "ok", label: "Temper" } });
   m.set("v-cycle", { value: { value: 4.2, unit: "min", state: "ok", label: "Cycle" } });
-  m.set("ln-a1", { flow: { on: true, label: "Billets" } });
-  m.set("ln-a2", { flow: { on: true, label: "Forgings" } });
-  m.set("ln-b1", { flow: { on: true, label: "Billets" } });
-  m.set("ln-b2", { flow: { on: true, label: "Forgings" } });
-  m.set("ln-ht1", { flow: { on: true, label: "Charge" } });
-  m.set("ln-ht2", { flow: { on: true, label: "Quench" } });
-  m.set("ln-ht3", { flow: { on: true, label: "Parts" } });
-  m.set("ln-ht4", { flow: { on: true, label: "Parts" } });
-  m.set("ln-header-air", { flow: { on: true, label: "Header" } });
-  m.set("ln-header-water", { flow: { on: true, label: "Header" } });
-  m.set("ln-util-air-a", { flow: { on: true, label: "Air" } });
-  m.set("ln-util-air-b", { flow: { on: true, label: "Air" } });
-  m.set("ln-util-water-q", { flow: { on: true, label: "Water" } });
+  m.set("ln-a1", { flow: { on: true, label: "Billets", state: "ok", value: null, unit: "" } });
+  m.set("ln-a2", { flow: { on: true, label: "Forgings", state: "ok", value: null, unit: "" } });
+  m.set("ln-b1", { flow: { on: true, label: "Billets", state: "ok", value: null, unit: "" } });
+  m.set("ln-b2", { flow: { on: true, label: "Forgings", state: "ok", value: null, unit: "" } });
+  m.set("ln-ht1", { flow: { on: true, label: "Charge", state: "ok", value: null, unit: "" } });
+  m.set("ln-ht2", { flow: { on: true, label: "Quench", state: "ok", value: null, unit: "" } });
+  m.set("ln-ht3", { flow: { on: true, label: "Parts", state: "ok", value: null, unit: "" } });
+  m.set("ln-ht4", { flow: { on: true, label: "Parts", state: "ok", value: null, unit: "" } });
+  m.set("ln-header-air", { flow: { on: true, label: "Header", state: "ok", value: null, unit: "" } });
+  m.set("ln-header-water", { flow: { on: true, label: "Header", state: "ok", value: null, unit: "" } });
+  m.set("ln-util-air-a", { flow: { on: true, label: "Air", state: "ok", value: null, unit: "" } });
+  m.set("ln-util-air-b", { flow: { on: true, label: "Air", state: "ok", value: null, unit: "" } });
+  m.set("ln-util-water-q", { flow: { on: true, label: "Water", state: "ok", value: null, unit: "" } });
   return m;
 }
 

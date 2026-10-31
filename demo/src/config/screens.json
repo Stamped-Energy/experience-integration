@@ -1,0 +1,24 @@
+{
+  "defaultSiteId": "site-demo",
+  "sites": {
+    "site-demo": {
+      "label": "Demo plant",
+      "modules": {
+        "process": {
+          "actions": true,
+          "dashboards": true,
+          "plant": true,
+          "reports": true,
+          "analytics": true
+        },
+        "quality": {
+          "actions": true,
+          "inspect": true,
+          "analytics": true,
+          "simulations": true,
+          "setup": true
+        }
+      }
+    }
+  }
+}

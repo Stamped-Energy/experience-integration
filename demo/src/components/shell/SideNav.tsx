@@ -12,6 +12,7 @@ import { PROCESS_HUBS, QUALITY_HUBS } from "@/lib/module/hubs";
 import { screenActive } from "@/lib/module/definitions";
 import { countForScreen } from "@/lib/module/counts";
 import { lastScreenHref, moduleFromPath, saveLastScreen } from "@/lib/module/last-screen";
+import { defaultSiteId, effectiveFlags } from "@/lib/demo/screenFlags";
 import type { ModuleId } from "@/lib/module/types";
 import { Icon } from "./icons";
 import { StampedMark } from "./StampedMark";
@@ -81,6 +82,7 @@ export function SideNav({ inboxCount }: { inboxCount: number }) {
   const [expanded, setExpanded] = useState(true);
   const [flyout, setFlyout] = useState<ModuleId | null>(null);
   const [flyoutPos, setFlyoutPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const [screenTick, setScreenTick] = useState(0);
   const flyoutTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const plantForced = useRef(false);
   const prefBeforePlant = useRef<boolean | null>(null);
@@ -96,6 +98,17 @@ export function SideNav({ inboxCount }: { inboxCount: number }) {
       if (stored) setOpenModule(stored);
     }
   }, [path, pathModule]);
+
+  useEffect(() => {
+    const onFlags = () => setScreenTick((n) => n + 1);
+    window.addEventListener("stamped-screen-flags", onFlags);
+    return () => window.removeEventListener("stamped-screen-flags", onFlags);
+  }, []);
+
+  const siteId = defaultSiteId();
+  const processScreens = PROCESS_SCREENS.filter((s) => effectiveFlags(siteId, "process")[s.id] !== false);
+  const qualityScreens = QUALITY_SCREENS.filter((s) => effectiveFlags(siteId, "quality")[s.id] !== false);
+  void screenTick;
 
   // Rail expand state + auto-collapse on Process plant
   useEffect(() => {
@@ -280,8 +293,8 @@ export function SideNav({ inboxCount }: { inboxCount: number }) {
       <div className="side-sep" role="separator" />
 
       <div className="side-section side-modules">
-        {moduleGroup("process", "Process", PROCESS_SCREENS)}
-        {moduleGroup("quality", "Quality", QUALITY_SCREENS)}
+        {moduleGroup("process", "Process", processScreens)}
+        {moduleGroup("quality", "Quality", qualityScreens)}
       </div>
 
       <div className="side-sep" role="separator" />

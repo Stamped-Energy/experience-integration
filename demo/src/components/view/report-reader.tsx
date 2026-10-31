@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { RunChart } from "@/components/ui/charts";
 import { Tag } from "@/components/ui/primitives";
 import type { DemoReport, ReportSection } from "@/lib/demo/plantReport";
@@ -77,10 +78,40 @@ function SectionBody({ section }: { section: ReportSection }) {
   return null;
 }
 
+function readSectionParam(): string | null {
+  if (typeof window === "undefined") return null;
+  return new URLSearchParams(window.location.search).get("section");
+}
+
 export function ReportReader({ report }: { report: DemoReport }) {
-  const outline = reportOutline(report.sections);
-  const [active, setActive] = useState(outline[0]?.id ?? "");
+  const outline = useMemo(() => reportOutline(report.sections), [report.sections]);
+  const router = useRouter();
+  const pathname = usePathname();
+  const [active, setActive] = useState(() => {
+    const fromUrl = readSectionParam();
+    if (fromUrl && outline.some((o) => o.id === fromUrl)) return fromUrl;
+    return outline[0]?.id ?? "";
+  });
   const main = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const paramSection = readSectionParam();
+    if (paramSection && outline.some((o) => o.id === paramSection)) {
+      setActive(paramSection);
+    }
+  }, [outline]);
+
+  const selectSection = useCallback(
+    (id: string) => {
+      setActive(id);
+      const next = new URLSearchParams(window.location.search);
+      next.set("section", id);
+      router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+      const el = main.current?.querySelector(`#${id}`);
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+    [pathname, router],
+  );
 
   useEffect(() => {
     const root = main.current;
@@ -88,7 +119,14 @@ export function ReportReader({ report }: { report: DemoReport }) {
     const obs = new IntersectionObserver(
       (entries) => {
         const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible?.target.id) setActive(visible.target.id);
+        if (visible?.target.id) {
+          setActive(visible.target.id);
+          const next = new URLSearchParams(window.location.search);
+          if (next.get("section") !== visible.target.id) {
+            next.set("section", visible.target.id);
+            router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+          }
+        }
       },
       { root, rootMargin: "-20% 0px -55% 0px", threshold: [0.2, 0.6] },
     );
@@ -97,22 +135,28 @@ export function ReportReader({ report }: { report: DemoReport }) {
       if (el) obs.observe(el);
     });
     return () => obs.disconnect();
-  }, [outline, report.id]);
+  }, [outline, pathname, router, report.id]);
+
+  const tabs = useMemo(() => outline, [outline]);
 
   return (
-    <div className="rep-layout">
-      <nav className="rep-outline" aria-label="Report sections">
-        <p className="rep-outline-title">Sections</p>
-        <ol>
-          {outline.map((item) => (
-            <li key={item.id}>
-              <a href={`#${item.id}`} className={active === item.id ? "on" : ""} onClick={() => setActive(item.id)}>
-                {item.label}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
+    <div className="rep-layout rep-layout-tabs">
+      <div className="rep-tabs" role="tablist" aria-label="Report sections">
+        {tabs.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            role="tab"
+            id={`rep-tab-${item.id}`}
+            aria-selected={active === item.id}
+            aria-controls={item.id}
+            className={active === item.id ? "on" : ""}
+            onClick={() => selectSection(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
       <article className="rep-paper" ref={main}>
         <header className="rep-cover">
           <p className="muted">{report.periodLabel}</p>
@@ -121,7 +165,7 @@ export function ReportReader({ report }: { report: DemoReport }) {
           <p className="pfd-demo-banner">Demonstration report · not sent externally</p>
         </header>
         {report.sections.map((section) => (
-          <section key={section.id} id={section.id} className="rep-section">
+          <section key={section.id} id={section.id} className="rep-section" role="tabpanel" aria-labelledby={`rep-tab-${section.id}`}>
             <h3>{section.title}</h3>
             <SectionBody section={section} />
           </section>

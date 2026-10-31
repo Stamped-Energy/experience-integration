@@ -15,7 +15,7 @@ export default function ProcessLinePage() {
           className="pfd-page-head-compact"
           eyebrow="Process · Scan"
           title="Process plant"
-          meta="Forging and heat-treatment flow · demonstration plant"
+          meta="Unit-by-unit flow diagram · demonstration data"
           actions={<AskButton context="Process plant" label="Ask about this plant" />}
         />
         <ProcessHubTabs />

@@ -16,13 +16,13 @@ import {
 } from "react";
 import { DiagramCanvas } from "@/components/scan/pfd/DiagramCanvas";
 import {
-  FORGING_EQUIPMENT,
-  forgingLineDiagram,
-  forgingLineShows,
+  plantDiagram,
+  plantShows,
+  plantSymbolMap,
+  equipmentDetail,
   type EquipmentDetail,
-} from "@/components/scan/pfd/forgingFixture";
+} from "@/components/scan/pfd/riverbendPlant";
 import { areaOf, type Element, type Shows, type SymbolElement } from "@/components/scan/pfd/model";
-import { forgingSymbolMap } from "@/components/scan/pfd/symbols";
 import { clampView, fullView, zoomAt, zoomLevel, type ViewBox } from "@/components/scan/pfd/zoom";
 import { Section, Tag } from "@/components/ui/primitives";
 import { StatusGlyph } from "@/components/plant/flow";
@@ -183,8 +183,8 @@ function ZoomStage({
 const stateGlyph = (s: string) => (s === "alarm" ? "act" : s === "watch" || s === "warning" ? "watch" : "normal");
 
 export function PlantDiagramViewer() {
-  const diagram = forgingLineDiagram;
-  const symbols = forgingSymbolMap();
+  const diagram = plantDiagram();
+  const symbols = plantSymbolMap();
   const parts = useMemo(
     () =>
       (diagram.parts ?? []).flatMap((part) => {
@@ -230,23 +230,29 @@ export function PlantDiagramViewer() {
     }, 250);
     return () => globalThis.clearInterval(timer);
   }, [playing, cursor, speed, start, stop]);
-  const baseShows = useMemo(() => forgingLineShows(), []);
+  const baseShows = useMemo(() => plantShows(), []);
+  const pulseValueId = useMemo(() => diagram.elements.find((e) => e.type === "value")?.id ?? "", [diagram.elements]);
   const shows: Shows = useMemo(() => {
     if (live) return baseShows;
     const phase = ((cursor ?? stop) - start) / (stop - start);
     const m = new Map(baseShows);
-    const press = m.get("v-press-b");
-    if (press?.value) {
-      m.set("v-press-b", {
+    if (!pulseValueId) return m;
+    const row = m.get(pulseValueId);
+    const val = row?.value;
+    if (val?.value != null && typeof val.value === "number") {
+      m.set(pulseValueId, {
         value: {
-          ...press.value,
-          value: Number(press.value.value) + Math.sin(phase * Math.PI * 4) * 6,
+          ...val,
+          value: Number(val.value) + Math.sin(phase * Math.PI * 4) * (Math.abs(val.value) * 0.02 + 1),
         },
       });
     }
     return m;
-  }, [baseShows, live, cursor, start, stop]);
-  const [selected, setSelected] = useState<EquipmentDetail | undefined>(FORGING_EQUIPMENT["eq-press-b"]);
+  }, [baseShows, live, cursor, start, stop, pulseValueId]);
+  const [selected, setSelected] = useState<EquipmentDetail | undefined>(() => {
+    const first = diagram.elements.find((e): e is SymbolElement => e.type === "symbol" && Boolean(e.asset_id));
+    return first ? equipmentDetail(first) : undefined;
+  });
   const stage = useRef<HTMLDivElement>(null);
   const [full, setFull] = useState(false);
   useEffect(() => {
@@ -264,7 +270,7 @@ export function PlantDiagramViewer() {
   };
   const onOpen = useCallback((el: Element) => {
     if (el.type !== "symbol" || !el.asset_id) return;
-    const detail = FORGING_EQUIPMENT[(el as SymbolElement).asset_id ?? el.id];
+    const detail = equipmentDetail(el as SymbolElement);
     if (detail) setSelected(detail);
   }, []);
 

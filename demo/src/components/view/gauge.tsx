@@ -1,7 +1,7 @@
+"use client";
+
 /**
- * Loop health gauge.
- * Arc + threshold bands inspired by Tremor GaugeChart
- * (https://github.com/Rouic/tremor-gauge), restyled to Stamped tokens.
+ * Loop health gauge — single semicircle track + value arc (PlantCraft GaugeDial pattern, Apache-2.0).
  */
 
 export function gaugeRange(value: number, low = 0, high = 100): [number, number] {
@@ -44,45 +44,30 @@ export function LoopHealthGauge({
 }) {
   const [min, max] = gaugeRange(value, low, high);
   const colour = toneFor(value, tone);
-  /* Positive viewBox with inset arc so strokes never clip card edges. */
   const cx = 100;
-  const cy = 102;
-  const r = 68;
-  const stroke = 8;
+  const cy = 100;
+  const r = 72;
+  const stroke = 10;
   const point = (x: number, radius = r) => {
     const angle = Math.PI * (1 - share(x, min, max));
     return [cx + radius * Math.cos(angle), cy - radius * Math.sin(angle)] as const;
   };
-  const arc = (from: number, to: number, radius = r) => {
-    const [x0, y0] = point(from, radius);
-    const [x1, y1] = point(to, radius);
+  const arc = (from: number, to: number) => {
+    const [x0, y0] = point(from);
+    const [x1, y1] = point(to);
     const large = share(to, min, max) - share(from, min, max) > 0.5 ? 1 : 0;
-    return `M ${x0} ${y0} A ${radius} ${radius} 0 ${large} 1 ${x1} ${y1}`;
+    return `M ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}`;
   };
-  const bandCritical = Math.min(50, max);
-  const bandWarn = Math.min(75, max);
+  const clamped = Math.max(min, Math.min(max, value));
   return (
     <article className="pc-gauge">
-      <svg viewBox="0 0 200 128" role="img" aria-label={`${label}: ${value} ${unit}`}>
+      <svg viewBox="0 0 200 120" role="img" aria-label={`${label}: ${value} ${unit}`}>
         <path d={arc(min, max)} className="pc-gauge-track" strokeWidth={stroke} />
-        {bandCritical > min ? (
-          <path d={arc(min, bandCritical)} className="pc-gauge-band pc-gauge-band-critical" strokeWidth={stroke} />
-        ) : null}
-        {bandWarn > bandCritical ? (
-          <path d={arc(bandCritical, bandWarn)} className="pc-gauge-band pc-gauge-band-warning" strokeWidth={stroke} />
-        ) : null}
-        {max > bandWarn ? (
-          <path d={arc(bandWarn, max)} className="pc-gauge-band pc-gauge-band-success" strokeWidth={stroke} />
-        ) : null}
-        <path d={arc(min, value)} stroke={colour} className="pc-gauge-value" strokeWidth={stroke} />
-        {(() => {
-          const [nx, ny] = point(value, r - 5);
-          return <circle cx={nx} cy={ny} r={3} fill={colour} />;
-        })()}
-        <text x={cx - r + 2} y={cy + 18} className="pc-gauge-end" textAnchor="middle">
+        <path d={arc(min, clamped)} stroke={colour} className="pc-gauge-value" strokeWidth={stroke} />
+        <text x={cx - r + 4} y={cy + 16} className="pc-gauge-end" textAnchor="middle">
           {min}
         </text>
-        <text x={cx + r - 2} y={cy + 18} className="pc-gauge-end" textAnchor="middle">
+        <text x={cx + r - 4} y={cy + 16} className="pc-gauge-end" textAnchor="middle">
           {max}
         </text>
       </svg>
