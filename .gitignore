@@ -21,3 +21,4 @@ infra/dist/
 __pycache__/
 *.py[cod]
 
+scratch/plantcraft

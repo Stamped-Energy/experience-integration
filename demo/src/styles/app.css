@@ -72,6 +72,109 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 [data-rail="expanded"] .rail-item .rail-soon { position: static; margin-left: auto; }
 [data-rail="expanded"] .rail-toggle-chev { transform: scaleX(-1); }
 
+
+/* ---------- Nested sidebar (SideNav) ---------- */
+.side {
+  position: sticky; top: 0; height: 100vh; z-index: var(--z-rail);
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: var(--space-3) 0; border-right: 1px solid var(--border); background: var(--canvas);
+  overflow: visible;
+}
+.side-mark {
+  width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+  gap: 10px; margin-bottom: var(--space-2); color: var(--text-primary); font-weight: 600; font-size: 14px;
+  text-decoration: none; border-radius: var(--radius-md);
+}
+.side-mark svg { display: block; flex: none; }
+.side-mark-word { display: none; letter-spacing: -0.02em; }
+.side-section { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; }
+.side-sep { width: 24px; height: 1px; background: var(--border); margin: var(--space-2) 0; flex: none; }
+.side-spacer { flex: 1; min-height: 8px; }
+.side-item {
+  position: relative; width: 40px; height: 40px; display: grid; place-items: center;
+  border-radius: var(--radius-md); color: var(--text-secondary);
+  transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast);
+  text-decoration: none; border: 0; background: transparent; cursor: pointer; padding: 0; font: inherit;
+}
+.side-item svg { width: 20px; height: 20px; flex: none; }
+.side-item:hover { background: var(--surface-sunken); color: var(--text-primary); }
+.side-item[aria-current="page"] { background: var(--accent-50); color: var(--accent-700); }
+.side-item[aria-current="page"]::before {
+  content: ""; position: absolute; left: -8px; top: 10px; bottom: 10px; width: 2px;
+  background: var(--accent-500); border-radius: 2px;
+}
+.side-label { display: none; }
+.side-tip {
+  position: absolute; left: 48px; top: 50%; transform: translateY(-50%); white-space: nowrap; pointer-events: none;
+  background: var(--text-primary); color: var(--text-inverse); font-size: 12px; padding: 2px 8px; border-radius: var(--radius-sm);
+  opacity: 0; transition: opacity var(--duration-fast); z-index: 20;
+}
+.side-item:hover .side-tip, .side-item:focus-visible .side-tip { opacity: 1; }
+.side-badge {
+  position: absolute; right: 0; top: 0; min-width: 16px; height: 16px; padding: 0 4px;
+  border-radius: 999px; background: var(--accent-500); color: #FFFFFF;
+  font-size: 10px; line-height: 16px; font-weight: 600; text-align: center; font-family: var(--font-mono);
+}
+.side-badge-muted {
+  position: static; background: var(--surface-sunken); color: var(--text-muted); flex: none;
+}
+.side-chev { display: none; color: var(--text-muted); }
+.side-chev.is-open { transform: rotate(180deg); }
+.side-chev svg { width: 12px; height: 12px; }
+.side-group { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; }
+.side-group-btn { width: 40px; }
+.side-group-btn .side-tip { display: none; }
+[data-rail="collapsed"] .side-group-btn .side-tip { display: none; }
+.side-sub-wrap { display: none; width: 100%; }
+.side-sub { list-style: none; margin: 0; padding: 2px 0 6px; display: flex; flex-direction: column; gap: 1px; }
+.side-sub-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px 6px 36px; border-radius: var(--radius-sm);
+  color: var(--text-secondary); font-size: 13px; text-decoration: none;
+}
+.side-sub-item:hover { background: var(--surface-sunken); color: var(--text-primary); }
+.side-sub-item[aria-current="page"] { background: var(--accent-50); color: var(--accent-800); font-weight: 500; }
+.side-sub-item span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.side-collapse-chev { transition: transform var(--duration) var(--ease-out); transform-origin: 14px 12px; }
+.side-collapse-chev.is-expanded { transform: scaleX(-1); }
+
+/* Flyout when sidebar is collapsed */
+.side-flyout {
+  position: fixed; z-index: 40;
+  min-width: 200px; padding: 6px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(32, 32, 32, 0.08);
+}
+.side-flyout-head {
+  padding: 6px 10px 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--text-muted);
+}
+.side-flyout-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+.side-flyout-list .side-sub-item { padding-left: 10px; }
+
+/* Expanded ~232px */
+[data-rail="expanded"] .side { align-items: stretch; padding-left: var(--space-2); padding-right: var(--space-2); }
+[data-rail="expanded"] .side-mark {
+  width: auto; justify-content: flex-start; padding: 0 8px; margin-left: 0;
+}
+[data-rail="expanded"] .side-mark-word { display: inline; }
+[data-rail="expanded"] .side-section { align-items: stretch; }
+[data-rail="expanded"] .side-sep { width: auto; margin-left: 8px; margin-right: 8px; }
+[data-rail="expanded"] .side-group { align-items: stretch; }
+[data-rail="expanded"] .side-item {
+  width: auto; display: flex; align-items: center; justify-content: flex-start;
+  gap: var(--space-3); padding: 0 10px; height: 36px;
+}
+[data-rail="expanded"] .side-item[aria-current="page"]::before { left: -8px; }
+[data-rail="expanded"] .side-label { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; text-align: left; }
+[data-rail="expanded"] .side-tip { display: none; }
+[data-rail="expanded"] .side-badge { position: static; margin-left: auto; flex: none; }
+[data-rail="expanded"] .side-chev { display: grid; place-items: center; margin-left: 2px; flex: none; transition: transform var(--duration-fast); }
+[data-rail="expanded"] .side-group-btn .side-badge { order: 0; margin-left: auto; }
+[data-rail="expanded"] .side-sub-wrap { display: block; }
+[data-rail="expanded"] .side-group.is-active > .side-group-btn { color: var(--accent-700); }
+
 .main { min-width: 0; display: flex; flex-direction: column; }
 
 .crumbbar {
@@ -86,6 +189,8 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 .crumbs .crumb-sep { color: var(--text-muted); }
 .crumbs [aria-current] { color: var(--text-primary); font-weight: 500; }
 .crumb-tools { margin-left: auto; display: flex; align-items: center; gap: var(--space-2); }
+
+
 .search {
   display: flex; align-items: center; gap: var(--space-2); width: 260px; height: 30px; padding: 0 var(--space-2) 0 var(--space-3);
   border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text-muted);
@@ -419,3 +524,58 @@ a.row:hover { background: var(--surface-subtle); }
   .grid > .span-8, .grid > .span-4, .grid > .span-7, .grid > .span-5, .grid > .span-9, .grid > .span-3 { grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ---------- Shared clickable surface (whole-card / whole-row open) ---------- */
+.clickable-surface {
+  position: relative;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+.clickable-surface:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--elevation-1, 0 1px 2px rgba(32, 32, 32, 0.04));
+}
+a.stretch-link {
+  color: inherit;
+  text-decoration: none;
+  font: inherit;
+}
+a.stretch-link:hover { color: var(--accent-700); }
+a.stretch-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+}
+.clickable-surface .stretch-over,
+.clickable-surface .card-foot,
+.clickable-surface a:not(.stretch-link),
+.clickable-surface button,
+.clickable-surface input,
+.clickable-surface select,
+.clickable-surface textarea,
+.clickable-surface [data-no-nav] {
+  position: relative;
+  z-index: 1;
+}
+
+/* Table rows: prefer JS ClickableRow; keep CSS stretch as fallback */
+.table-click tbody tr { position: relative; }
+.table-click tbody tr.clickable-row { cursor: pointer; }
+.table-click tbody tr.clickable-row:hover { background: var(--surface-subtle); }
+.table-click tbody tr.clickable-row:focus-visible { outline: 2px solid var(--accent-500); outline-offset: -2px; }
+.table-click .row-stretch { position: static; }
+.table-click .row-stretch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.table-click .row-over,
+.table-click a:not(.row-stretch),
+.table-click button,
+.table-click [data-no-nav] {
+  position: relative;
+  z-index: 1;
+}

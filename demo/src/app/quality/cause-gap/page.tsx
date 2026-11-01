@@ -1,3 +1,4 @@
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
@@ -34,7 +35,7 @@ export default function CauseGapPage() {
         }
         actions={<AskButton context="Cause gap" label="Ask about cause gap" />}
       />
-      <QualityTabs active="cause-gap" />
+      <QualityHubTabs />
 
       <Section title="Operator and shift rates" meta="get_operator_shift_context · aggregates first · pseudonyms only · never blame" flush>
         <div style={{ padding: "12px 16px", display: "grid", gap: 16, minWidth: 0 }}>

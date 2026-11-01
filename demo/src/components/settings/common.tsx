@@ -9,9 +9,10 @@ import { dayMonth, hhmm } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
 
-export type SettingsKey = "limits" | "approvals" | "people" | "routing" | "assignment" | "integrations" | "plant";
+export type SettingsKey = "limits" | "approvals" | "people" | "routing" | "assignment" | "integrations" | "plant" | "screens";
 export const SECTIONS: { key: SettingsKey; label: string; href: string; sub: string }[] = [
   { key: "limits", label: "Signed limits", href: "/settings/limits", sub: `${D.signedWindows.length} windows` },
+  { key: "screens", label: "Screen toggles", href: "/settings/screens", sub: "Process & Quality nav" },
   { key: "approvals", label: "Standing approvals", href: "/settings/approvals", sub: `${D.standingApprovals.filter((a) => !a.revokedAt).length} active · ${D.standingApprovals.filter((a) => a.revokedAt).length} revoked` },
   { key: "people", label: "People and roles", href: "/settings/people", sub: `${D.people.length} people · ${D.roles.length} roles` },
   { key: "routing", label: "Routing and notifications", href: "/settings/routing", sub: `${D.assignments.length} scopes` },

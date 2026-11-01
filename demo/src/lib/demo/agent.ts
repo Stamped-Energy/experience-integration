@@ -104,7 +104,7 @@ export function questionsFor(role: RoleId) {
 /* ---------------- Working on ---------------- */
 export interface WorkItem { id: string; status: "Investigating" | "Simulating" | "Waiting on you" | "Onboarding"; lineId: string; title: string; step: string; waits?: string; href: string }
 export const workingOn: WorkItem[] = [
-  { id: "w-1", status: "Simulating", lineId: "line-b", title: "An MPC layer over the barrel loops on Press P3", step: "240 simulated shifts done, comparing against the current stack", href: "/process/lines/line-b?tab=controls" },
+  { id: "w-1", status: "Simulating", lineId: "line-b", title: "An MPC layer over the barrel loops on Press P3", step: "240 simulated shifts done, comparing against the current stack", href: "/process/optimisation?loop=loop-press-barrel-temp" },
   { id: "w-2", status: "Onboarding", lineId: "line-b", title: "New part Housing B-52", step: "Step 3 of 5, planned test moves", waits: "Operator, next 50 shots", href: "/process/lines/line-b?tab=agent" },
   { id: "w-3", status: "Investigating", lineId: "line-a", title: "Why lot 3307 viscosity is drifting up", step: "4 of 6 likely causes ruled out", href: "/quality/investigations" },
   { id: "w-4", status: "Waiting on you", lineId: "line-a", title: "Jacket inlet sensor on Mixer M1", step: "Asked if it is stuck", waits: "Shift lead", href: "/inbox?tab=questions" },
@@ -254,7 +254,7 @@ export const QUALITY_Q: QuestionType[] = ["Data discrepancy", "Unlinked lot", "L
 export const qualityWork: WorkItem[] = [
   { id: "qw-1", status: "Investigating", lineId: "line-a", title: "Why lot 3307 viscosity is drifting up", step: "4 of 6 likely causes ruled out; end-of-hold torque is the lead", href: "/quality/investigations" },
   { id: "qw-2", status: "Waiting on you", lineId: "line-a", title: "Lab result for lot 3304 does not match its batch", step: "Asked which record is right", waits: "Quality head", href: "/inbox?tab=questions" },
-  { id: "qw-3", status: "Simulating", lineId: "line-b", title: "Part weight band for Housing B-52", step: "Checking the borrowed band against 120 held-back parts", href: "/quality?tab=agent" },
+  { id: "qw-3", status: "Simulating", lineId: "line-b", title: "Part weight band for Housing B-52", step: "Checking the borrowed band against 120 held-back parts", href: "/quality/simulations?campaign=camp-q-sim-spc" },
 ];
 export const qualification = {
   title: "Property band for Housing B-52", started: at(-1, -1), current: 3,

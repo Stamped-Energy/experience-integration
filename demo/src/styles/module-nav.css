@@ -1,0 +1,43 @@
+/* Module chrome: SideNav owns Process/Quality pages; HubTabs stay in-page. */
+
+.module-shell,
+.module-shell-top {
+  display: contents;
+}
+
+.module-workspace { min-width: 0; display: contents; }
+
+/* Obsolete top-nav page tabs — hidden */
+.module-page-tabs { display: none !important; }
+.module-nav { display: none !important; }
+.module-strip-wrap { display: none; }
+
+/* Health map scan grid (adapted from PlantCraft health-map widget, Apache-2.0) */
+.hmap-strip { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-4); font-size: 13px; }
+.hmap-area { margin-bottom: var(--space-5); }
+.hmap-area h3 { font-size: 14px; margin: 0 0 var(--space-2); }
+.hmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+}
+.hmap-cell {
+  aspect-ratio: 1; border-radius: var(--radius-sm); border: 1px solid var(--border-strong);
+  padding: 8px; display: flex; flex-direction: column; justify-content: space-between;
+  font-size: 12px; text-decoration: none; color: var(--text-primary); background: var(--surface);
+  min-height: 96px;
+}
+.hmap-cell:hover { border-color: var(--text-secondary); }
+.hmap-cell.on { outline: 2px solid var(--text-primary); outline-offset: -1px; }
+.hmap-cell.st-ok { background: var(--success-tint); border-color: color-mix(in srgb, var(--success) 40%, var(--border)); }
+.hmap-cell.st-watch { background: var(--warning-tint); border-color: color-mix(in srgb, var(--warning) 50%, var(--border)); }
+.hmap-cell.st-alarm { background: var(--critical-tint); border-color: color-mix(in srgb, var(--critical) 45%, var(--border)); }
+.hmap-cell.st-unknown { background: var(--surface-subtle); }
+.hmap-name { font-weight: 600; line-height: 1.25; font-size: 12px; }
+.hmap-sub { color: var(--text-muted); font-size: 11px; line-height: 1.25; }
+.hmap-state { font-weight: 600; letter-spacing: .02em; font-size: 11px; }
+.hmap-worst { display: flex; flex-direction: column; gap: 0; }
+.hmap-worst .row { grid-template-columns: minmax(0, 1fr) 100px 80px; }
+
+.compare-tray { display: flex; flex-wrap: wrap; gap: 8px; margin: var(--space-3) 0; }
+.compare-tray label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; border: 1px solid var(--border); padding: 4px 10px; border-radius: var(--radius-sm); cursor: pointer; }

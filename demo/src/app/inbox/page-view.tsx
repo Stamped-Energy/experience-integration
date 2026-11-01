@@ -8,6 +8,8 @@ import { rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { EmptyState, PageHeader, Section, Tabs, Tag } from "@/components/ui/primitives";
 import { InboxCard } from "@/components/inbox/InboxCard";
+import { DeskDayList } from "@/components/desk/desk-day";
+import { deskToday } from "@/lib/demo/desk";
 import * as A from "@/lib/demo/agent";
 import { Assign } from "@/components/agent/Assign";
 import { QuestionCard, type QView } from "@/components/agent/QuestionCard";
@@ -66,6 +68,9 @@ export default function Inbox() {
           </Section>
         </div>
         <div className="span-4 stack">
+          <Section title="My day" meta="Beside the decision card, not instead of it">
+            <DeskDayList items={deskToday} />
+          </Section>
           <Section title="By owner" meta="Routing from Settings" flush>
             <div className="rows">
               {D.roles.filter((r) => D.inboxItems.some((i) => i.owner === r.id && i.bucket !== "decided")).map((r) => {

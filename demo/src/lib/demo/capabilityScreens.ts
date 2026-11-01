@@ -88,9 +88,14 @@ export type SpcChartCard = {
   name: string;
   chart: "xbar_r" | "i_mr";
   values: number[];
+  rangeValues?: number[];
   ucl: number;
   lcl: number;
   cl: number;
+  usl?: number;
+  lsl?: number;
+  cp?: number;
+  cpk?: number;
   hits: { rule: string; at: number }[];
   label: EvidenceLabel;
 };
@@ -102,9 +107,14 @@ export const spcCharts: SpcChartCard[] = [
     name: "Viscosity (Line A)",
     chart: "i_mr",
     values: [2480, 2495, 2510, 2505, 2520, 2535, 2550, 2540, 2565, 2580, 2570, 2595],
+    rangeValues: [12, 8, 15, 10, 9, 14, 11, 13, 18, 16, 10, 22],
     ucl: 2620,
     lcl: 2380,
     cl: 2500,
+    usl: 2600,
+    lsl: 2380,
+    cp: 1.21,
+    cpk: 1.05,
     hits: [{ rule: "WE1 (point beyond limit)", at: 11 }],
     label: "Estimated",
   },
@@ -114,9 +124,14 @@ export const spcCharts: SpcChartCard[] = [
     name: "Part weight (Line B)",
     chart: "xbar_r",
     values: [48.1, 48.0, 47.9, 48.2, 47.8, 47.7, 47.6, 47.5, 47.9, 48.0],
+    rangeValues: [0.35, 0.28, 0.31, 0.42, 0.38, 0.33, 0.29, 0.36, 0.34, 0.3],
     ucl: 48.6,
     lcl: 47.2,
     cl: 47.9,
+    usl: 48.8,
+    lsl: 47.2,
+    cp: 1.45,
+    cpk: 1.32,
     hits: [],
     label: "Measured",
   },

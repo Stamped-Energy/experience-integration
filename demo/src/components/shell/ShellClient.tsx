@@ -1,9 +1,10 @@
 "use client";
 /** Client parts of the shell: rail, bottom bar, Ask panel state, role switcher, display toggles. */
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { NAV, areaFor } from "@/lib/nav";
+import { ModuleRailLink } from "./ModuleShell";
 import { Icon } from "./icons";
 import { StampedMark } from "./StampedMark";
 import { StampedMascot } from "@/components/mascot/StampedMascot";
@@ -16,15 +17,38 @@ export function Rail({ inboxCount }: { inboxCount: number }) {
   const area = areaFor(usePathname());
   const g1 = NAV.filter((n) => n.group === 1);
   const g2 = NAV.filter((n) => n.group === 2 && !n.soon);
-  const item = (n: (typeof NAV)[number]) => (
-    <Link key={n.key} href={n.href} className="rail-item" aria-current={area === n.key ? "page" : undefined} aria-label={n.label}>
-      {ICON[n.key]({})}
-      {n.key === "inbox" && inboxCount > 0 ? <span className="rail-count">{inboxCount}</span> : null}
-      {n.soon ? <span className="rail-soon" /> : null}
-      <span className="rail-label">{n.label}</span>
-      <span className="rail-tip">{n.label}</span>
-    </Link>
-  );
+  const item = (n: (typeof NAV)[number]) => {
+    const body = (
+      <>
+        {ICON[n.key]({})}
+        {n.key === "inbox" && inboxCount > 0 ? <span className="rail-count">{inboxCount}</span> : null}
+        {n.soon ? <span className="rail-soon" /> : null}
+        <span className="rail-label">{n.label}</span>
+        <span className="rail-tip">{n.label}</span>
+      </>
+    );
+    const cls = "rail-item";
+    const cur = area === n.key ? "page" : undefined;
+    if (n.key === "process") {
+      return (
+        <ModuleRailLink key={n.key} module="process" fallback="/process/proposals" className={cls} aria-current={cur} aria-label={n.label}>
+          {body}
+        </ModuleRailLink>
+      );
+    }
+    if (n.key === "quality") {
+      return (
+        <ModuleRailLink key={n.key} module="quality" fallback="/quality/actions" className={cls} aria-current={cur} aria-label={n.label}>
+          {body}
+        </ModuleRailLink>
+      );
+    }
+    return (
+      <Link key={n.key} href={n.href} className={cls} aria-current={cur} aria-label={n.label}>
+        {body}
+      </Link>
+    );
+  };
   return (
     <nav className="rail" id="app-rail" aria-label="Areas">
       <Link href="/" className="rail-mark" aria-label="Stamped home"><StampedMark size={28} /></Link>
@@ -40,14 +64,33 @@ export function Rail({ inboxCount }: { inboxCount: number }) {
 
 export function BottomBar() {
   const area = areaFor(usePathname());
-  return (
-    <nav className="bottombar" aria-label="Areas">
-      {NAV.filter((n) => n.mobile).map((n) => (
-        <Link key={n.key} href={n.href} aria-current={area === n.key ? "page" : undefined}>
+  const link = (n: (typeof NAV)[number]) => {
+    if (n.key === "process") {
+      return (
+        <ModuleRailLink key={n.key} module="process" fallback="/process/proposals" aria-current={area === n.key ? "page" : undefined}>
           {ICON[n.key]({})}
           {n.label}
-        </Link>
-      ))}
+        </ModuleRailLink>
+      );
+    }
+    if (n.key === "quality") {
+      return (
+        <ModuleRailLink key={n.key} module="quality" fallback="/quality/actions" aria-current={area === n.key ? "page" : undefined}>
+          {ICON[n.key]({})}
+          {n.label}
+        </ModuleRailLink>
+      );
+    }
+    return (
+      <Link key={n.key} href={n.href} aria-current={area === n.key ? "page" : undefined}>
+        {ICON[n.key]({})}
+        {n.label}
+      </Link>
+    );
+  };
+  return (
+    <nav className="bottombar" aria-label="Areas">
+      {NAV.filter((n) => n.mobile).map(link)}
     </nav>
   );
 }
@@ -97,7 +140,7 @@ function RailToggle() {
 }
 
 /** Inline script for <head>: applies saved theme, density and sidebar state before paint. */
-export const DISPLAY_SCRIPT = `try{var d=document.documentElement,t=localStorage.getItem('stamped-theme'),n=localStorage.getItem('stamped-density'),r=localStorage.getItem('stamped-rail'),c=document.cookie.match(/stamped-role=([^;]+)/),role=c&&c[1]?c[1]:'plant-head';if(t)d.dataset.theme=t;if(n)d.dataset.density=n;if(r)d.dataset.rail=r;d.dataset.role=role;var m=document.querySelector('.main');if(m)m.dataset.role=role;}catch(e){}`;
+export const DISPLAY_SCRIPT = `try{var d=document.documentElement,t=localStorage.getItem('stamped-theme'),n=localStorage.getItem('stamped-density'),r=localStorage.getItem('stamped-rail'),c=document.cookie.match(/stamped-role=([^;]+)/),role=c&&c[1]?c[1]:'plant-head';if(t)d.dataset.theme=t;if(n)d.dataset.density=n;d.dataset.rail=r||'expanded';d.dataset.role=role;var m=document.querySelector('.main');if(m)m.dataset.role=role;}catch(e){}`;
 
 export function RoleSwitcher({ role, roles }: { role: RoleId; roles: { id: RoleId; name: string }[] }) {
   const setRole = useSetRole();

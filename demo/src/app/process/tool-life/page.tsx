@@ -1,3 +1,4 @@
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
@@ -33,7 +34,7 @@ export default function ToolLifePage() {
           </>
         }
       />
-      <ProcessTabs active="tool-life" />
+      <ProcessHubTabs />
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
           <Section title="Machining tools" meta="Recommend only · Inputs passed until tool-life store is wired" flush>

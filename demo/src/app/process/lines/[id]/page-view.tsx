@@ -1,5 +1,6 @@
 "use client";
 
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { nameOf } from "@/lib/names";
@@ -18,8 +19,7 @@ import { AskedHere, ControlStack, LayerProposal, Learned, Onboarding, WorkingOn 
 import { Tabs } from "@/components/ui/primitives";
 import * as A from "@/lib/demo/agent";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
-import { ProcessTabs, crumbs, outcome, outcomeName, packOf, proofForRun, runLabel, runsOf, specOf, trialArm } from "@/components/process/common";
-
+import { crumbs, outcome, outcomeName, packOf, proofForRun, runLabel, runsOf, specOf, trialArm } from "@/components/process/common";
 
 export default function LineDetail() {
   const { id } = useParams() as { id: string };
@@ -48,9 +48,10 @@ export default function LineDetail() {
       <PageHeader eyebrow={`Process · ${pack.equipmentClass}`} title={line.name}
         meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><LineModeTag mode={line.mode} />{line.product} · {line.status}</span>}
         actions={<><Link className="btn btn-sm" href={`/plant`}>Line on plant map</Link><AskButton context={line.name} label="Ask about this line" /></>} />
+      <ProcessHubTabs />
       <Tabs label={`${line.short} sections`} items={[
         { href: base, label: "Overview", active: tab === "overview" },
-        { href: `${base}?tab=actions`, label: "Actions", count: listActions("Process", line.id).length, active: tab === "actions" },
+        { href: `/process/actions?line=${line.id}`, label: "Actions", count: listActions("Process", line.id).length, active: tab === "actions" },
         { href: `${base}?tab=agent`, label: "Agent work", count: A.workingOn.filter((w) => w.lineId === line.id).length, active: tab === "agent" },
         { href: `${base}?tab=controls`, label: "Controls", count: A.controlStacks[line.id]?.length, active: tab === "controls" },
       ]} />
@@ -78,7 +79,7 @@ export default function LineDetail() {
           </div>
         </div>
       ) : (<>
-      <ActionsBrief area="Process" lineId={line.id} href={`${base}?tab=actions`} />
+      <ActionsBrief area="Process" lineId={line.id} href={`/process/actions?line=${line.id}`} />
       <div className="grid line-grid">
         <div className="span-8 xl-span-9 stack">
           <Section title={`${name} per ${pack.labels.unit}`} meta={`Last ${shown.length} ${pack.labels.runs.toLowerCase()} · spec dashed${trialStart >= 0 ? " · shaded: trial running" : ""}`} flush>

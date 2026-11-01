@@ -1,5 +1,6 @@
 "use client";
 
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { nameOf } from "@/lib/names";
@@ -11,7 +12,7 @@ import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DecisionCard } from "@/components/cards/DecisionCard";
 import { DataTable, EmptyState, EvidenceTag, ModeTag, PageHeader, Section, Tabs, Tag } from "@/components/ui/primitives";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { crumbs } from "@/components/process/common";
 
 type F = "waiting" | "running" | "closed";
 const GROUP: Record<F, CardState[]> = { waiting: ["Waiting", "Proposed"], running: ["Running trial", "Running stay", "Measuring", "Verdict", "Holding"], closed: ["Declined", "Expired", "Withheld", "Abstained", "Stopped"] };
@@ -28,7 +29,7 @@ export default function Proposals() {
     <Workspace crumbs={crumbs({ label: "Proposals" })} askContext="Process proposals">
       <PageHeader eyebrow="Process" title="Proposals" meta="The optimiser computes the number inside the signed window; the agent explains it. People with the right accept, adjust in band or decline."
         actions={<AskButton context="Process proposals" label="Ask about proposals" />} />
-      <ProcessTabs active="proposals" />
+      <ProcessHubTabs />
       <div className="grid">
         <div className="span-8 xl-span-7 stack">
           <div style={{ display: "flex", gap: 16, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
@@ -57,7 +58,7 @@ export default function Proposals() {
         </div>
         <div className="span-12">
           <Section title="All proposals, 14 days" meta={`${D.proposals.length} on record`} flush>
-            <DataTable caption="All proposals" rowKey={(p) => p.id} rows={[...list, ...others]} columns={[
+            <DataTable caption="All proposals" rowKey={(p) => p.id} rows={[...list, ...others]} rowHref={(p) => `/process/proposals/${p.id}`} columns={[
               { key: "i", label: "Proposal", render: (p) => <Link className="link" href={`/process/proposals/${p.id}`}>{nameOf(p.id)}</Link> },
               { key: "s", label: "Setting", render: (p) => <>{D.byId.window(p.lineId, p.param)?.name}<span className="cell-sub">{D.byId.line(p.lineId)!.short} · {p.current} to {p.proposed}</span></> },
               { key: "st", label: "State", render: (p) => <Tag tone={p.state === "Waiting" ? "accent" : p.state === "Withheld" || p.state === "Declined" ? "neutral" : "info"}>{p.state}</Tag> },

@@ -25,7 +25,7 @@ export interface RichConv { id: string; title: string; role: RoleId; area: strin
 
 const viscA = runs.filter((r) => r.lineId === "line-a").slice(-20).map((r) => r.outcomes.find((o) => o.name === "Viscosity")?.value ?? 0);
 const scrapB = runs.filter((r) => r.lineId === "line-b").slice(-20).map((r) => r.outcomes.find((o) => /scrap/i.test(o.name))?.value ?? 0);
-const L = { lot3307: "/quality/lots/lot-a-3307", lineA: "/process/lines/line-a", lineB: "/process/lines/line-b", ctlB: "/process/lines/line-b?tab=controls", trial: "/process/trials/trial-1", inbox: "/inbox", qs: "/inbox?tab=questions", sum: "/activity/summary", drift: "/quality/drift" };
+const L = { lot3307: "/quality/lots/lot-a-3307", lineA: "/process/lines/line-a", lineB: "/process/lines/line-b", ctlB: "/process/optimisation?loop=loop-press-barrel-temp", trial: "/process/trials/trial-1", inbox: "/inbox", qs: "/inbox?tab=questions", sum: "/activity/summary", drift: "/quality/drift" };
 const EV = {
   torque: { label: "Measured", id: "EV-A-1188", what: "End-of-hold torque, batches 2416 to 2419", href: L.lot3307 },
   visc: { label: "Measured", id: "EV-A-1180", what: "Viscosity, last 20 batches", href: L.lineA },
@@ -67,7 +67,7 @@ function suggested(owner: boolean): Record<string, RichTurn> {
       risks: ["Two of the links behind lot 3307 are suggested, not confirmed, so its band may move.", "Lot 7719 has no vision data for the last 40 min."],
       wont: [wontRelease],
       ev: [EV.band3307, EV.torque, EV.vision],
-      next: { title: "Sample lot 3307 at the end of hold", sub: "Quality head, Shift lead or Plant head decides", href: "/quality?tab=actions#ex-q2", cta: "Open in Actions", assignable: true },
+      next: { title: "Sample lot 3307 at the end of hold", sub: "Quality head, Shift lead or Plant head decides", href: "/quality/actions#ex-q2", cta: "Open in Actions", assignable: true },
       follow: ["Why is Line A viscosity drifting?", "What is waiting for my decision?"] },
     "What is waiting for my decision?": { q: "What is waiting for my decision?", label: "Measured",
       short: "Five items are waiting. Melt temperature for resin lot R-77 expires first, in about 1 h, and it is the one with the biggest effect on today's scrap.",
@@ -289,7 +289,7 @@ export function convsFor(role: RoleId): RichConv[] {
       cause: [{ k: "p", t: "With the valve open and steam normal, a slow heat-up points to the jacket side. The inlet dropped at the changeover and has not recovered." }],
       options: [{ name: "Hold time 57 min", band: "2460 to 2540 mPa·s", note: "Written, standing band", pick: true }, { name: "Keep 55 min", band: "2400 to 2490 mPa·s", note: "Risk of thin batch" }],
       risks: ["If the jacket sensor is stuck, the cause is less certain."], wont: ["Press Stop and 55 min comes back.", wontWrite],
-      ev: [EV.path, EV.jacket], next: { title: "Hold time 57 min on batch 2418", sub: "Running on its own, inside the signed band", href: "/process/lines/line-a?tab=actions#ex-p1", cta: "Open in Actions" },
+      ev: [EV.path, EV.jacket], next: { title: "Hold time 57 min on batch 2418", sub: "Running on its own, inside the signed band", href: "/process/actions#ex-p1", cta: "Open in Actions" },
       follow: ["How is the hold temperature trial doing?", "Which lots are at risk today?"] } ] },
   { id: "rc-2", title: "Light parts on cavity 2, hold the lot?", role: "shift-lead", area: "Quality", updatedAt: at(0, -2, -10), turns: [
     { q: "Vision has flagged six light parts from cavity 2 in the last hour, all on lot 7713. The customer for this housing is strict on weight. Should we hold the whole lot, or can we be more targeted?",
@@ -302,7 +302,7 @@ export function convsFor(role: RoleId): RichConv[] {
       options: [{ name: "Hold cavity 2, last 2 h", band: "about 420 parts", note: "Targeted", pick: true }, { name: "Hold the whole lot", band: "1,840 parts", note: "Safest, slower" }],
       risks: ["Vision weighs one in four parts, so a few light parts may be outside the sampled set."], wont: [wontRelease],
       ev: [EV.vision, { label: "Estimated", id: "EV-B-2216", what: "Lot 7713 estimated band", href: "/quality/lots/lot-b-7713" }],
-      next: { title: "Hold and check cavity 2 parts", sub: "Operator, Shift lead or Quality head decides", href: "/quality?tab=actions#ex-q1", cta: "Open in Actions", assignable: true },
+      next: { title: "Hold and check cavity 2 parts", sub: "Operator, Shift lead or Quality head decides", href: "/quality/actions#ex-q1", cta: "Open in Actions", assignable: true },
       follow: ["Which lots are at risk today?"] } ] },
   { id: "rc-3", title: "Lot 3307: what made it?", role: "quality-head", area: "Lots", updatedAt: at(0, -3), turns: [
     { q: "Lot 3307 is flagged at risk on viscosity and I need to explain it at the 5 o'clock quality review. Can you trace it back to the batches and settings that made it?",
@@ -321,7 +321,7 @@ export function convsFor(role: RoleId): RichConv[] {
       short: "Sampling at the end of hold, not after discharge, gives the result 40 min sooner, while the lot can still be adjusted.",
       visual: [{ k: "table", head: ["Sample point", "Result by", "Can still adjust?"], rows: [["End of hold", "16:20", "Yes"], ["After discharge", "17:00", "No"]] }],
       checked: ["Lab turnaround by sample point, last 30 days."], cause: [], risks: ["Adds one sample to the lab queue."], wont: [wontRelease],
-      ev: [EV.band3307], next: { title: "Sample lot 3307 at the end of hold", sub: "Quality head decides", href: "/quality?tab=actions#ex-q2", cta: "Open in Actions", assignable: true },
+      ev: [EV.band3307], next: { title: "Sample lot 3307 at the end of hold", sub: "Quality head decides", href: "/quality/actions#ex-q2", cta: "Open in Actions", assignable: true },
       follow: ["Which lots are at risk today?"] },
     { q: "Draft the two lines I'll say at the review.",
       label: "Estimated",
@@ -335,7 +335,7 @@ export function convsFor(role: RoleId): RichConv[] {
       checked: ["Linked batches and their torque.", "Lab queue: 6 samples ahead."], cause: [{ k: "p", t: "Same cause as the viscosity drift this week." }],
       options: [{ name: "Prioritise in the lab", band: "result in about 1 h", note: "", pick: true }, { name: "Normal queue", band: "about 3 h", note: "After discharge" }],
       risks: ["Prediction only; no lab anchor."], wont: [wontRelease],
-      ev: [EV.band3307], next: { title: "Sample lot 3307 at the end of hold", sub: "Quality head decides", href: "/quality?tab=actions#ex-q2", cta: "Open in Actions", assignable: true },
+      ev: [EV.band3307], next: { title: "Sample lot 3307 at the end of hold", sub: "Quality head decides", href: "/quality/actions#ex-q2", cta: "Open in Actions", assignable: true },
       follow: ["Which lots are at risk today?"] } ] },
   { id: "rc-4", title: "Grade A-14 changeover settings", role: "process-engineer", area: "Process", updatedAt: at(-1, -2), turns: [
     { q: "We change Line A from A-12 to A-14 tomorrow morning with batch 2421. The last two changeovers each cost us a reworked first batch. What should 2421 start with, and why?",
@@ -348,7 +348,7 @@ export function convsFor(role: RoleId): RichConv[] {
       options: [{ name: "A-14 best settings", band: "2650 to 2790", note: "", pick: true }, { name: "Carry over A-12", band: "2560 to 2880", note: "Rework likely" }],
       risks: ["Only 5 good A-14 batches to learn from."], wont: [wontWrite],
       ev: [{ label: "Measured", id: "EV-A-1061", what: "5 best A-14 batches", href: L.lineA }],
-      next: { title: "Use these settings for batch 2421", sub: "Process engineer, Shift lead or Plant head decides", href: "/process/lines/line-a?tab=actions#ex-p2", cta: "Open in Actions", assignable: true },
+      next: { title: "Use these settings for batch 2421", sub: "Process engineer, Shift lead or Plant head decides", href: "/process/actions#ex-p2", cta: "Open in Actions", assignable: true },
       follow: ["Which proposals are left on the table?"] } ] },
   { id: "rc-5", title: "MPC layer on Press P3", role: "plant-head", area: "Controls", updatedAt: at(-1, -5), turns: [
     { q: "The process engineer wants to put an MPC layer on Press P3. I'm cautious about anything that moves several setpoints at once. What would it actually change, and how do I stop it if it misbehaves?",

@@ -1,5 +1,6 @@
 "use client";
 
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { nameOf } from "@/lib/names";
@@ -27,7 +28,7 @@ export default function Measurement() {
     <Workspace crumbs={crumbs({ label: "Measurement plans" }, { label: nameOf(plan.id) })} askContext={`Measurement plan ${nameOf(plan.id)}`}>
       <PageHeader eyebrow="Process" title="Measurement plans and holding check" meta="How a change will be judged is locked, hashed and versioned before the first switch. The holding check looks again later."
         actions={<AskButton context={nameOf(plan.id)} label="Ask about this plan" />} />
-      <ProcessTabs active="measurement" />
+      <ProcessHubTabs />
       <div className="grid">
         <div className="span-4 xl-span-4 stack ctx">
           <Section title="Plans" meta={`${D.measurementPlans.length} locked`} flush>

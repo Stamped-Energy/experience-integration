@@ -1,3 +1,4 @@
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import { demoRole } from "@/lib/role";
@@ -19,7 +20,7 @@ export default async function Investigations() {
   return (
     <Workspace crumbs={crumbs({ label: "Investigations" })} askContext="Quality investigations">
       <PageHeader eyebrow="Quality" title="Investigations" meta="A case file per question: lots, linked runs, evidence and a conclusion that ends in a proof record." actions={<AskButton context="Investigations" label="Ask about investigations" />} />
-      <QualityTabs active="investigations" />
+      <QualityHubTabs />
       <div className="grid">
         {D.investigations.map((i) => {
           const proof = D.proofRecords.find((p) => p.id === i.proofRecordId);

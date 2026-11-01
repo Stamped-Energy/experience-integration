@@ -1,3 +1,4 @@
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import * as demoModules from "@/lib/demo/modules";
@@ -54,7 +55,7 @@ export default function ModulesPageView() {
           </>
         }
       />
-      <ProcessTabs active="modules" />
+      <ProcessHubTabs />
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
           <Section title="Module registry" meta="Illustrative registry · empty list is honest when none are registered" flush>

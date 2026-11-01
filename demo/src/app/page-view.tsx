@@ -18,6 +18,8 @@ import { LimitsBand } from "@/components/ui/LimitsBand";
 import { PairedBars } from "@/components/ui/charts";
 import { DataTable, EmptyState, Illustrative, KpiRow, LineModeTag, ModeTag, PageHeader, Section, Tabs, Tag, VerdictTag } from "@/components/ui/primitives";
 import { LineStrip, LotsAtRisk, NoteClaims, ProofUpdates, RecentActivity, ShiftTimeline, proofHref } from "@/components/home/blocks";
+import { DeskDayList } from "@/components/desk/desk-day";
+import { deskToday } from "@/lib/demo/desk";
 
 type ViewId = "overview" | HomeView;
 const VIEWS: { id: ViewId; label: string }[] = [
@@ -79,24 +81,38 @@ function placeOf(i: (typeof D.inboxItems)[number]): string | undefined {
 }
 
 function Overview() {
+  const role = demoRole();
   const waiting = D.inboxItems.filter((i) => i.bucket === "waiting");
+  const nextProposal = D.proposals.find((p) => p.state === "Waiting");
   return (
     <div className="stack">
       <WorkingOn />
       <LineStrip />
       <p className="secondary" style={{ margin: 0 }}>On Line A, hold step is the mix hold. Quality holds stay on the Quality page.</p>
-      <Section title="Waiting for a person" meta={`${waiting.length} open`} actions={<Link className="link" href="/inbox">Open Inbox</Link>} flush>
-        <div className="rows">
-          {waiting.map((i) => (
-            <Link key={i.id} href={`/inbox/${i.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
-              <span style={{ minWidth: 0 }}>
-                <span className="row-title" style={{ display: "block" }}>{i.title}</span>
-                <span className="row-sub">{[placeOf(i), D.byId.role(i.owner).name, i.due ? `due ${rel(i.due)}` : ""].filter(Boolean).join(" · ")}</span>
-              </span>
-            </Link>
-          ))}
+      <div className="grid">
+        <div className="span-8 stack-sm">
+          <Section title="Next decision" meta="Approval only through the card" actions={<Link className="link" href="/inbox">Open Inbox</Link>}>
+            {nextProposal ? <DecisionCard p={nextProposal} role={role} href="/inbox/in-1" variant="compact" /> : <EmptyState title="Nothing waiting" body="When the agent needs a person, the card appears here." />}
+          </Section>
+          <Section title="Waiting for a person" meta={`${waiting.length} open`} flush>
+            <div className="rows">
+              {waiting.map((i) => (
+                <Link key={i.id} href={`/inbox/${i.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
+                  <span style={{ minWidth: 0 }}>
+                    <span className="row-title" style={{ display: "block" }}>{i.title}</span>
+                    <span className="row-sub">{[placeOf(i), D.byId.role(i.owner).name, i.due ? `due ${rel(i.due)}` : ""].filter(Boolean).join(" · ")}</span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </Section>
         </div>
-      </Section>
+        <div className="span-4">
+          <Section title="My day" meta="Actions, messages and notes for this shift">
+            <DeskDayList items={deskToday} />
+          </Section>
+        </div>
+      </div>
     </div>
   );
 }
