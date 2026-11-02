@@ -13,18 +13,18 @@ export default function RoiPageView() {
   const sp = useSearchParams();
   const withCostsDemo = sp.get("costs") === "1";
   const report = withCostsDemo ? { ...DEMO_D157_NO_COSTS, money: DEMO_D157_WITH_COSTS.money } : DEMO_D157_NO_COSTS;
-  const title = withCostsDemo ? "Report with illustrative unit costs" : "D157 ROI report";
+  const title = withCostsDemo ? "Report with illustrative unit costs" : "Value this period";
 
   return (
-    <Workspace crumbs={crumbs({ label: "D157 ROI report" })} askContext="D157 ROI report">
+    <Workspace crumbs={crumbs({ label: "Value" })} askContext="Value report">
       <PageHeader
         eyebrow={qualityEyebrow("/quality/roi")}
-        title="D157 ROI report"
+        title="Value"
         meta="Rejection and scrap deltas first; money only after you set unit costs."
         actions={
           <>
             <Tag tone="warning">Example data</Tag>
-            <AskButton context="D157 ROI report" label="Ask about ROI" />
+            <AskButton context="Value report" label="Ask about value" />
           </>
         }
       />

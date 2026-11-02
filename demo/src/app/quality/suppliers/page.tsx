@@ -4,16 +4,17 @@ import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import { supplierScores } from "@/lib/demo/capabilityScreens";
+import { supplierPpmVerdict } from "@/lib/demo/verdicts";
 
-export const metadata = { title: "Supplier scorecard" };
+export const metadata = { title: "Suppliers" };
 
 export default function SuppliersPage() {
   return (
-    <Workspace crumbs={crumbs({ label: "Supplier scorecard" })} askContext="Supplier scorecard">
+    <Workspace crumbs={crumbs({ label: "Suppliers" })} askContext="Suppliers">
       <PageHeader
         eyebrow={qualityEyebrow("/quality/suppliers")}
-        title="Supplier scorecard"
-        meta="Defect ppm and SCAR drafts; recommend only."
+        title="Suppliers"
+        meta="Defect ppm vs a 1,000 ppm target, plus SCAR drafts. Recommend only."
         actions={
           <>
             <Illustrative />
@@ -31,15 +32,24 @@ export default function SuppliersPage() {
             {
               key: "n",
               label: "Supplier",
-              render: (r) => (
-                <span style={{ minWidth: 0, display: "block" }}>
-                  <span className="truncate" style={{ display: "block" }}>{r.name}</span>
-                  <span className="cell-sub mono">{r.supplierId}</span>
-                </span>
-              ),
+              render: (r) => <span className="truncate" style={{ display: "block" }}>{r.name}</span>,
             },
             { key: "l", label: "Lots", render: (r) => <span className="mono">{r.lots}</span> },
-            { key: "p", label: "Defect ppm", render: (r) => <span className="mono">{r.defectPpm}</span> },
+            {
+              key: "p",
+              label: "Defect ppm",
+              render: (r) => {
+                const v = supplierPpmVerdict(r.defectPpm);
+                return (
+                  <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <span className="mono">
+                      {r.defectPpm} <span className="muted">/ {v.target}</span>
+                    </span>
+                    <Tag tone={v.tone}>{v.word}</Tag>
+                  </span>
+                );
+              },
+            },
             {
               key: "d",
               label: "Top defect",

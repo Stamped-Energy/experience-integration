@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import PageView from "./page-view";
 import { StaticPageFallback } from "@/components/page/StaticPageFallback";
 
-export const metadata = { title: "D157 ROI report" };
+export const metadata = { title: "Value" };
 
 export default function RoiPage() {
   return (
