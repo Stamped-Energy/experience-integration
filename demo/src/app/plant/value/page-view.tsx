@@ -15,7 +15,7 @@ export default function ValueRoiPageView() {
         title="Value ROI"
         meta={
           <span style={{ display: "inline-flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            Rejection rate and scrap rate first. Money savings only when the plant has set unit costs in config. Stamped never invents them (D157).
+            Rejection rate and scrap rate first. Money savings only when the plant has set unit costs in config. Stamped never invents them.
             <Tag tone="warning">Example data</Tag>
           </span>
         }

@@ -215,8 +215,8 @@ export default async function SimulatePage({
           <Section title="Open pack values" flush>
             <p className="muted" style={{ padding: 12 }}>
               Line-pack thresholds for will-not-get-worse are not yet fitted. The check abstains
-              rather than inventing a pass. Money ROI stays off this screen until plant tariffs are
-              set (D157).
+              rather than inventing a pass. Money value stays off this screen until plant tariffs are
+              set.
             </p>
           </Section>
         </div>

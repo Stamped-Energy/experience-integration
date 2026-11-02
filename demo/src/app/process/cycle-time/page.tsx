@@ -129,7 +129,7 @@ export default function CycleTimePage() {
             <ul className="stack" style={{ gap: 8, paddingLeft: 18, margin: 0 }}>
               <li className="cell-sub">Shares sum to 1.0 over a positive window. No OEE target is invented.</li>
               <li className="cell-sub">Fewer than two samples abstain rather than invent dwell.</li>
-              <li className="cell-sub">Live cards call get_cycle_time_breakdown; store-backed samples still pending.</li>
+              <li className="cell-sub">Live cards read the cycle-time breakdown; store-backed samples still pending.</li>
             </ul>
           </Section>
         </div>

@@ -126,7 +126,7 @@ export default function ToolLifePage() {
               <li className="cell-sub">Taylor n and C are never defaulted. Open coefficients abstain.</li>
               <li className="cell-sub">Recommend change only when remaining_threshold is set by the plant.</li>
               <li className="cell-sub">No CNC or magazine write path. A person still changes the tool.</li>
-              <li className="cell-sub">Live cards call get_tool_life_estimate; store-backed life_used still pending.</li>
+              <li className="cell-sub">Live cards read the tool-life estimate; store-backed life used still pending.</li>
             </ul>
           </Section>
         </div>
