@@ -6,6 +6,7 @@ const OLD: [string, string][] = [
   ["/alarms", "/inbox"], ["/alarms/:id", "/inbox"], ["/prescriptions", "/inbox"], ["/prescriptions/:id", "/inbox"],
   ["/evidence", "/process"], ["/evidence/:id", "/process"], ["/analyst", "/ask"], ["/equipment", "/plant"], ["/live", "/plant"],
   ["/plant-map", "/plant"], ["/reports", "/activity"], ["/settings/admin", "/settings"], ["/settings/assignments", "/settings/assignment"],
+  ["/quality/capability", "/quality/spc"],
 ];
 
 const nextConfig: NextConfig = {

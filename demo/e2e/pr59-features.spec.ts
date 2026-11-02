@@ -25,10 +25,17 @@ test.describe("PR-59 feature gates", () => {
   test("SPC page shows control chart limits and capability strip", async ({ page }) => {
     await page.goto("/quality/spc");
     await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("heading", { name: "Control and capability", exact: true })).toBeVisible();
     await expect(page.getByText("Demonstration SPC")).toBeVisible();
     await expect(page.getByText(/Cp\s+\d+\.\d+/).first()).toBeVisible();
     await expect(page.getByText(/Cpk\s+\d+\.\d+/).first()).toBeVisible();
     await expect(page.locator(".spc-chart-card").first()).toBeVisible();
+  });
+
+  test("capability route redirects to Control and capability", async ({ page }) => {
+    await page.goto("/quality/capability");
+    await page.waitForURL("**/quality/spc**");
+    await expect(page.getByRole("heading", { name: "Control and capability", exact: true })).toBeVisible();
   });
 
   test("disabling a screen hides nav and redirects direct URL", async ({ page }) => {

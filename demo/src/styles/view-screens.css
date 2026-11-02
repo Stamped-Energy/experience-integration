@@ -644,3 +644,28 @@
   font-size: 13px;
   align-items: center;
 }
+.spc-summary {
+  margin: 0 0 var(--space-4);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.spc-block { gap: var(--space-3); }
+.spc-legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
+  font-size: 13px;
+}
+.spc-legend-grid .label { display: block; margin-bottom: 2px; }
+.spc-cap-panel {
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.spc-cap-lead { margin: 0 0 6px; font-size: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.spc-cap-overall { margin: 6px 0 0; font-size: 12px; }
+.spc-signal { font-size: 13px; display: flex; flex-direction: column; gap: 8px; }
+.spc-signal p { margin: 0; }
+.spc-signal-links { display: flex; gap: var(--space-3); align-items: center; flex-wrap: wrap; }
+.spc-signal-quiet { margin: 0; font-size: 13px; }

@@ -168,7 +168,7 @@ export const spcCharts: SpcChartCard[] = [
     n: 120,
     critical: true,
     period: "Last 10 subgroups · this week",
-    relatedLotId: "lot-b-7731",
+    relatedLotId: "lot-b-7711",
     hits: [],
     label: "Measured",
   },

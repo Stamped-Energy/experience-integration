@@ -102,11 +102,11 @@ export const QUALITY_HUBS: HubDef[] = [
     sidebarHref: "/quality/health",
     tabs: [
       { href: "/quality/health", label: "Health map", match: (p) => p === "/quality/health" },
-      { href: "/quality/spc", label: "SPC", match: (p) => p === "/quality/spc" },
+      { href: "/quality/health", label: "Health map", match: (p) => p === "/quality/health" },
+      { href: "/quality/spc", label: "Control and capability", match: (p) => p === "/quality/spc" || p === "/quality/capability" },
       { href: "/quality/genealogy", label: "Genealogy", match: (p) => p === "/quality/genealogy" },
       { href: "/quality", label: "Lots overview", match: (p) => p === "/quality" },
       { href: "/quality/monitor", label: "Monitor", match: (p) => p === "/quality/monitor" },
-      { href: "/quality/capability", label: "Capability", match: (p) => p === "/quality/capability" },
       { href: "/quality/drift", label: "Drift", match: (p) => p === "/quality/drift" },
     ],
   },
