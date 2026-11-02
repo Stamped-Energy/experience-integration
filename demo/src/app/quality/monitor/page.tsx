@@ -2,11 +2,12 @@ import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import type { ReactNode } from "react";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
+import { EngineeringGuard } from "@/components/shell/EngineeringGuard";
 import { Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import { FATIGUE_GUARD_STATUS, SECOM_ALARM_TUNE, SECOM_WATCH_TIER } from "@/lib/data/evidence/secomAlarmTune";
 
-export const metadata = { title: "Monitor settings" };
+export const metadata = { title: "Monitor tuning" };
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -31,20 +32,20 @@ export default function MonitorPage() {
   const rulesLabel = t.enabledRules.map((r) => r.replace("nelson", "Nelson ")).join(", ");
 
   return (
-    <Workspace crumbs={crumbs({ label: "Monitor settings" })} askContext="Quality monitor settings">
+    <Workspace crumbs={crumbs({ label: "Monitor tuning" })} askContext="Quality monitor tuning">
       <PageHeader
         eyebrow={qualityEyebrow("/quality/monitor")}
-        title="Monitor settings"
+        title="Monitor tuning"
         meta="Alarm rules, false-alarm budget and fatigue guard for SPC monitors."
         actions={
           <>
             <Illustrative />
-            <AskButton context="Quality monitor settings" label="Ask about monitor settings" />
+            <AskButton context="Quality monitor tuning" label="Ask about monitor tuning" />
           </>
         }
       />
       <QualityHubTabs />
-
+      <EngineeringGuard backHref="/quality/actions" backLabel="Back to Quality actions">
       <div className="grid">
         <div className="span-8 stack">
           <Section title="Alarm rate budget" meta="Requested false-alarm rate for the public SECOM tuning run">
@@ -147,6 +148,7 @@ export default function MonitorPage() {
           </Section>
         </div>
       </div>
+      </EngineeringGuard>
     </Workspace>
   );
 }

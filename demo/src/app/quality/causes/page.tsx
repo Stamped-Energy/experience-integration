@@ -1,6 +1,7 @@
 import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
+import { EngineeringGuard } from "@/components/shell/EngineeringGuard";
 import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { AbstainNote } from "@/components/ask/common";
 import { CauseFamilyBadge, causeNodeLabel, isDesignCause } from "@/components/quality/CauseFamilyBadge";
@@ -35,6 +36,7 @@ export default function CausesPage() {
         actions={<AskButton context="Cause graphs" label="Ask about cause graphs" />}
       />
       <QualityHubTabs />
+      <EngineeringGuard backHref="/quality/actions" backLabel="Back to Quality actions">
       <div className="grid">
         <div className="span-12">
           <div className="grid">
@@ -139,6 +141,7 @@ export default function CausesPage() {
           </Section>
         </div>
       </div>
+      </EngineeringGuard>
     </Workspace>
   );
 }

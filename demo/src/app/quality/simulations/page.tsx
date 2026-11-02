@@ -2,13 +2,14 @@ import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Suspense } from "react";
 import { SimulationsWorkspace } from "@/components/improve/loop-runs";
 import { AskButton } from "@/components/shell/ShellClient";
+import { EngineeringGuard } from "@/components/shell/EngineeringGuard";
 import { Workspace } from "@/components/shell/Shell";
 import { KpiRow, PageHeader } from "@/components/ui/primitives";
 import { loopCampaigns } from "@/lib/demo/loopRuns";
 import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import { StaticPageFallback } from "@/components/page/StaticPageFallback";
 
-export const metadata = { title: "Simulations" };
+export const metadata = { title: "Simulation campaigns" };
 
 function Body() {
   const rows = loopCampaigns.filter((c) => c.area === "quality" && c.kind === "simulation");
@@ -29,13 +30,15 @@ function Body() {
 
 export default function QualitySimulationsPage() {
   return (
-    <Workspace crumbs={crumbs({ label: "Simulations" })} askContext="Quality simulations">
-      <PageHeader eyebrow={qualityEyebrow("/quality/simulations")} title="Simulations" meta="Quality sampling loops on demonstration data." actions={<AskButton context="Quality simulations" label="Ask about simulations" />}
+    <Workspace crumbs={crumbs({ label: "Simulation campaigns" })} askContext="Quality simulations">
+      <PageHeader eyebrow={qualityEyebrow("/quality/simulations")} title="Simulation campaigns" meta="Quality sampling loops on demonstration data." actions={<AskButton context="Quality simulations" label="Ask about simulations" />}
       />
       <QualityHubTabs />
-      <Suspense fallback={<StaticPageFallback><p className="muted">Loading…</p></StaticPageFallback>}>
-        <Body />
-      </Suspense>
+      <EngineeringGuard backHref="/quality/actions" backLabel="Back to Quality actions">
+        <Suspense fallback={<StaticPageFallback><p className="muted">Loading…</p></StaticPageFallback>}>
+          <Body />
+        </Suspense>
+      </EngineeringGuard>
     </Workspace>
   );
 }

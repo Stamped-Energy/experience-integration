@@ -1,6 +1,7 @@
 import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
+import { EngineeringGuard } from "@/components/shell/EngineeringGuard";
 import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import {
@@ -34,7 +35,7 @@ export default function CauseGapPage() {
         actions={<AskButton context="Cause gap" label="Ask about cause gap" />}
       />
       <QualityHubTabs />
-
+      <EngineeringGuard backHref="/quality/actions" backLabel="Back to Quality actions">
       <Section title="Operator and shift rates" meta="get_operator_shift_context · aggregates first · pseudonyms only · never blame" flush>
         <div style={{ padding: "12px 16px", display: "grid", gap: 16, minWidth: 0 }}>
           <p className="muted" style={{ margin: 0, fontSize: 13 }}>
@@ -158,6 +159,7 @@ export default function CauseGapPage() {
           </div>
         </div>
       </Section>
+      </EngineeringGuard>
     </Workspace>
   );
 }

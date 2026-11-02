@@ -83,4 +83,34 @@ test.describe("PR-59 feature gates", () => {
       await expect(page.getByText(/camp-|loop-|prop-|D1\d{2}/)).toHaveCount(0);
     });
   }
+
+  test("plant head does not see Engineering in Process nav", async ({ page }) => {
+    await page.goto("/process/proposals");
+    await page.waitForLoadState("networkidle");
+    await page.locator(".role-switch select").selectOption("plant-head");
+    await page.goto("/process/proposals");
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("navigation", { name: "Product" }).getByRole("link", { name: /^Engineering/ })).toHaveCount(0);
+  });
+
+  test("stamped engineer sees Engineering and modules content", async ({ page }) => {
+    await page.goto("/process/proposals");
+    await page.waitForLoadState("networkidle");
+    await page.locator(".role-switch select").selectOption("stamped-engineer");
+    await page.goto("/process/modules");
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByText("Engineering view").first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Modules and shadow" })).toBeVisible();
+    await expect(page.getByText("This console is for Stamped engineers")).toHaveCount(0);
+  });
+
+  test("plant head on modules sees soft Engineering guard", async ({ page }) => {
+    await page.goto("/process/proposals");
+    await page.waitForLoadState("networkidle");
+    await page.locator(".role-switch select").selectOption("plant-head");
+    await page.goto("/process/modules");
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("heading", { name: "This console is for Stamped engineers" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Switch to Stamped engineer" })).toBeVisible();
+  });
 });

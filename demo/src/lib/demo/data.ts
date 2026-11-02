@@ -101,6 +101,20 @@ export const roles: T.Role[] = [
   { id: "viewer", name: "Viewer", short: "Viewer", home: "plant" },
 ];
 
+/** Plant-facing roles for client deploys (Stamped engineer omitted). */
+export const CLIENT_ROLES: T.RoleId[] = [
+  "operator",
+  "shift-lead",
+  "process-engineer",
+  "quality-head",
+  "plant-head",
+  "owner",
+  "viewer",
+];
+
+/** View as list for the showcase today; includes Stamped engineer. Flip to CLIENT_ROLES later. */
+export const SHOWCASE_ROLES: T.RoleId[] = [...CLIENT_ROLES, "stamped-engineer"];
+
 export const people: T.Person[] = [
   { ...I, id: "p-op-a", display: "Operator A.", initials: "OA", roles: [{ role: "operator", scope: "line-a" }] },
   { ...I, id: "p-op-b", display: "Operator B.", initials: "OB", roles: [{ role: "operator", scope: "line-b" }] },

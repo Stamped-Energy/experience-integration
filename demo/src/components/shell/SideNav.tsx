@@ -8,12 +8,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { NAV, areaFor } from "@/lib/nav";
-import { PROCESS_HUBS, QUALITY_HUBS } from "@/lib/module/hubs";
+import { hubsVisibleTo, PROCESS_HUBS, QUALITY_HUBS } from "@/lib/module/hubs";
 import { screenActive } from "@/lib/module/definitions";
 import { countForScreen } from "@/lib/module/counts";
 import { lastScreenHref, moduleFromPath, saveLastScreen } from "@/lib/module/last-screen";
 import { defaultSiteId, effectiveFlags } from "@/lib/demo/screenFlags";
 import type { ModuleId } from "@/lib/module/types";
+import { useRole } from "@/lib/role.client";
 import { Icon } from "./icons";
 import { StampedMark } from "./StampedMark";
 
@@ -24,16 +25,13 @@ const RAIL_KEY = "stamped-rail";
 
 type HubScreen = { id: string; label: string; href: string };
 
-const PROCESS_SCREENS: HubScreen[] = PROCESS_HUBS.map((h) => ({
-  id: h.id,
-  label: h.sidebarLabel,
-  href: h.sidebarHref,
-}));
-const QUALITY_SCREENS: HubScreen[] = QUALITY_HUBS.map((h) => ({
-  id: h.id,
-  label: h.sidebarLabel,
-  href: h.sidebarHref,
-}));
+function hubScreens(hubs: typeof PROCESS_HUBS): HubScreen[] {
+  return hubs.map((h) => ({
+    id: h.id,
+    label: h.sidebarLabel,
+    href: h.sidebarHref,
+  }));
+}
 
 function pendingActions(module: ModuleId): number {
   return countForScreen(module, "actions") ?? 0;
@@ -75,6 +73,7 @@ function setRailExpanded(expanded: boolean, persist = true) {
 export function SideNav({ inboxCount }: { inboxCount: number }) {
   const path = usePathname();
   const router = useRouter();
+  const role = useRole();
   const area = areaFor(path);
   const pathModule = moduleFromPath(path);
 
@@ -106,8 +105,12 @@ export function SideNav({ inboxCount }: { inboxCount: number }) {
   }, []);
 
   const siteId = defaultSiteId();
-  const processScreens = PROCESS_SCREENS.filter((s) => effectiveFlags(siteId, "process")[s.id] !== false);
-  const qualityScreens = QUALITY_SCREENS.filter((s) => effectiveFlags(siteId, "quality")[s.id] !== false);
+  const processScreens = hubScreens(hubsVisibleTo(role, PROCESS_HUBS)).filter(
+    (s) => effectiveFlags(siteId, "process")[s.id] !== false,
+  );
+  const qualityScreens = hubScreens(hubsVisibleTo(role, QUALITY_HUBS)).filter(
+    (s) => effectiveFlags(siteId, "quality")[s.id] !== false,
+  );
   void screenTick;
 
   // Rail expand state + auto-collapse on Process plant

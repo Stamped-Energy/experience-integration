@@ -4,27 +4,29 @@ import { driftProposals } from "@/lib/demo/driftProposals";
 import { dayMonth, hhmm } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
+import { EngineeringGuard } from "@/components/shell/EngineeringGuard";
 import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { crumbs, processEyebrow } from "@/components/process/common";
 
-export const metadata = { title: "Drift proposals" };
+export const metadata = { title: "Model upkeep" };
 
 export default function DriftPage() {
   const rows = driftProposals;
   return (
-    <Workspace crumbs={crumbs({ label: "Drift proposals" })} askContext="Drift proposals">
+    <Workspace crumbs={crumbs({ label: "Model upkeep" })} askContext="Model upkeep">
       <PageHeader
         eyebrow={processEyebrow("/process/drift")}
-        title="Drift proposals"
+        title="Model upkeep"
         meta="Re-identify or retune when error limits are breached. Nothing applies until a person approves."
         actions={
           <>
             <Illustrative />
-            <AskButton context="Drift proposals" label="Ask about drift" />
+            <AskButton context="Model upkeep" label="Ask about model upkeep" />
           </>
         }
       />
       <ProcessHubTabs />
+      <EngineeringGuard backHref="/process/proposals" backLabel="Back to Process actions">
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
           <Section title="Pending retune and re-identification" meta={<><Tag tone="warning">Example data</Tag> recommend-only · not Quality lot drift</>} flush>
@@ -68,6 +70,7 @@ export default function DriftPage() {
           </Section>
         </div>
       </div>
+      </EngineeringGuard>
     </Workspace>
   );
 }

@@ -2,13 +2,14 @@ import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Suspense } from "react";
 import { SimulationsWorkspace } from "@/components/improve/loop-runs";
 import { AskButton } from "@/components/shell/ShellClient";
+import { EngineeringGuard } from "@/components/shell/EngineeringGuard";
 import { Workspace } from "@/components/shell/Shell";
 import { KpiRow, PageHeader } from "@/components/ui/primitives";
 import { loopCampaigns } from "@/lib/demo/loopRuns";
 import { crumbs, processEyebrow } from "@/components/process/common";
 import { StaticPageFallback } from "@/components/page/StaticPageFallback";
 
-export const metadata = { title: "Simulations" };
+export const metadata = { title: "Simulation campaigns" };
 
 function Body() {
   const rows = loopCampaigns.filter((c) => c.area === "process" && c.kind === "simulation");
@@ -31,17 +32,19 @@ function Body() {
 
 export default function ProcessSimulationsPage() {
   return (
-    <Workspace crumbs={crumbs({ label: "Simulations" })} askContext="Process simulations">
+    <Workspace crumbs={crumbs({ label: "Simulation campaigns" })} askContext="Process simulations">
       <PageHeader
         eyebrow={processEyebrow("/process/simulations")}
-        title="Simulations"
+        title="Simulation campaigns"
         meta="Compare up to four runs in simulation. Accept only through the DecisionCard."
         actions={<AskButton context="Process simulations" label="Ask about simulations" />}
       />
       <ProcessHubTabs />
-      <Suspense fallback={<StaticPageFallback><p className="muted">Loading campaigns…</p></StaticPageFallback>}>
-        <Body />
-      </Suspense>
+      <EngineeringGuard backHref="/process/proposals" backLabel="Back to Process actions">
+        <Suspense fallback={<StaticPageFallback><p className="muted">Loading campaigns…</p></StaticPageFallback>}>
+          <Body />
+        </Suspense>
+      </EngineeringGuard>
     </Workspace>
   );
 }
