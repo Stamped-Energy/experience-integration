@@ -196,6 +196,7 @@
 .aaw-learned { list-style: none; margin: 0; padding: 0; }
 .aaw-learned li { padding: 10px var(--space-4); border-bottom: 1px solid var(--border); font-size: 13px; line-height: 1.45; }
 .aaw .working { margin-bottom: 0; }
+.aaw-now-title { margin: 0; font-size: 13px; font-weight: 700; }
 @media (max-width: 767px) {
   .aaw-wait-row { flex-direction: column; align-items: stretch; }
   .aaw-tried { grid-template-columns: minmax(0, 1fr); }

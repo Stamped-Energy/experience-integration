@@ -1,4 +1,6 @@
 /** Lean client showcase: proof the agent keeps working. Caps enforced. No campaign consoles. */
+"use client";
+
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import {
@@ -6,6 +8,7 @@ import {
   type AgentShowcaseBundle,
 } from "@/lib/demo/agentShowcase";
 import type { RoleId } from "@/lib/demo/types";
+import { useRole } from "@/lib/role.client";
 import { EvidenceTag, Illustrative, Section, Tag, type Tone } from "@/components/ui/primitives";
 
 const STATUS_TONE: Record<string, Tone> = {
@@ -17,11 +20,13 @@ const STATUS_TONE: Record<string, Tone> = {
 
 export function AgentAtWork({
   data,
-  role,
+  role: roleProp,
 }: {
   data: AgentShowcaseBundle;
-  role: RoleId;
+  role?: RoleId;
 }) {
+  const liveRole = useRole();
+  const role = roleProp ?? liveRole;
   const isEngineer = role === "stamped-engineer";
   const strip = `${data.now.length} now · ${data.waiting.length} waiting on you · ${data.tried.length} tried this shift`;
 
@@ -35,7 +40,7 @@ export function AgentAtWork({
       <section className="working aaw-now" aria-labelledby="aaw-now-h">
         <div className="working-head">
           <span className="pulse" aria-hidden />
-          <b id="aaw-now-h">Working on now</b>
+          <h2 id="aaw-now-h" className="aaw-now-title">Working on now</h2>
           <span className="muted">{data.now.length}</span>
         </div>
         {data.now.length ? (

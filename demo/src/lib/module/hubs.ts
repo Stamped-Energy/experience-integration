@@ -30,6 +30,7 @@ export const PROCESS_HUBS: HubDef[] = [
       { href: "/process/trials", label: "Trials and stops", match: exactOrPrefix("/process/trials") },
       { href: "/process/drift", label: "Drift", match: (p) => p === "/process/drift" },
       { href: "/process/actions", label: "Action queue", match: (p) => p === "/process/actions" },
+      { href: "/process/agent", label: "Agent at work", match: (p) => p === "/process/agent" },
     ],
   },
   {
@@ -91,7 +92,7 @@ export const QUALITY_HUBS: HubDef[] = [
       { href: "/quality/capa", label: "CAPA", match: (p) => p === "/quality/capa" },
       { href: "/quality/corrections", label: "Corrections", match: (p) => p === "/quality/corrections" },
       { href: "/quality/links", label: "Link confirmations", match: (p) => p === "/quality/links" },
-      { href: "/quality/agent", label: "Agent work", match: (p) => p === "/quality/agent" },
+      { href: "/quality/agent", label: "Agent at work", match: (p) => p === "/quality/agent" },
       { href: "/quality/investigations", label: "Investigations", match: exactOrPrefix("/quality/investigations") },
     ],
   },

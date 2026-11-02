@@ -7,6 +7,7 @@ export const PROCESS_ROUTES = [
   "/process/trials",
   "/process/drift",
   "/process/actions",
+  "/process/agent",
   "/process/dashboards",
   "/process/line",
   "/process/health",

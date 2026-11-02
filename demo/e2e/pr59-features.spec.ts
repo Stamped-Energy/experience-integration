@@ -63,4 +63,17 @@ test.describe("PR-59 feature gates", () => {
     await expect(page.locator(".dg-canvas")).toBeVisible();
     await expect(page.getByText("PlantCraft")).toHaveCount(0);
   });
+
+  for (const path of ["/quality/agent", "/process/agent"] as const) {
+    test(`Agent at work on ${path} shows four sections`, async ({ page }) => {
+      await page.goto(path);
+      await page.waitForLoadState("networkidle");
+      await expect(page.getByRole("heading", { name: "Agent at work", exact: true })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Working on now" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Waiting on you" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Tried on the model" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Learned this week" })).toBeVisible();
+      await expect(page.getByText(/camp-|loop-|prop-|D1\d{2}/)).toHaveCount(0);
+    });
+  }
 });

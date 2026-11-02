@@ -45,7 +45,8 @@ export function screenActive(href: string, path: string): boolean {
       path === "/process/trials" ||
       path.startsWith("/process/trials/") ||
       path === "/process/drift" ||
-      path === "/process/actions"
+      path === "/process/actions" ||
+      path === "/process/agent"
     );
   }
   if (href === "/process/dashboards") {
