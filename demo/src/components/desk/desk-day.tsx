@@ -1,4 +1,4 @@
-/** Desk-style day list (PlantCraft Desk pattern, Apache-2.0). Sits beside DecisionCard, not instead of it. */
+/** Desk-style day list. Sits beside DecisionCard, not instead of it. */
 import Link from "next/link";
 import { hhmm } from "@/lib/format";
 
@@ -11,7 +11,7 @@ export function DeskDayList({ items, title = "My day" }: { items: DeskItem[]; ti
         {items.map((i) => (
           <Link key={i.id} href={i.href} className="desk-row">
             <span className="desk-time">{hhmm(i.at)}</span>
-            <span>
+            <span className="desk-body">
               <span className="row-title">{i.title}</span>
               {i.sub ? <span className="row-sub">{i.sub}</span> : null}
             </span>
