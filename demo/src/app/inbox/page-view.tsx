@@ -49,7 +49,7 @@ export default function Inbox() {
                     <Tag>{KIND[i.kind]}</Tag>
                     <span style={{ minWidth: 0 }}>
                       <span className="row-title" style={{ display: "block" }}>{i.title}</span>
-                      {i.bucket === "waiting" && i.due ? <span className="row-sub">expires {rel(i.due)}, then nothing changes</span> : i.due ? <span className="row-sub">due {rel(i.due)}</span> : null}
+                      {i.bucket === "waiting" && i.due ? <span className="row-sub">expires {rel(i.due)}</span> : i.due ? <span className="row-sub">due {rel(i.due)}</span> : null}
                     </span>
                     <span className="secondary" style={{ fontSize: 12 }}>{D.byId.role(i.owner).name}{i.owner === role ? " (you)" : ""}{A.assigned[i.id] ? <span className="cell-sub">Assigned to {A.assigned[i.id].to}</span> : null}</span>
                     <span className="link" style={{ fontSize: 13, textAlign: "right" }}>Open</span>

@@ -37,7 +37,9 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
   return (
     <FoldCard summary={summary} labelledBy={`${a.id}-t`} anchor={a.id}>
       <div className="card-head">
-        <span className="src">{a.area} agent</span><span className="dotsep">·</span><span>{line.short}</span>
+        <span className="card-head-meta">
+          <span className="src">{a.area} agent</span><span className="dotsep">·</span><span className="card-head-clip">{line.short}</span>
+        </span>
         <span className="right">{a.steps.map((s) => <span key={s} className="ex-step" data-step={s}>{STEP_WORD[s]}</span>)}{c ? <Tag tone="success">{c.state}</Tag> : null}</span>
       </div>
       <div className="card-body ex-h">

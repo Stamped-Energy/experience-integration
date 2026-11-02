@@ -45,13 +45,16 @@ export function DecisionCard({ p, role, href, variant = "full" }: { p: Proposal;
   return (
     <article className={`card${href ? ` ${clickableSurface}` : ""}${open ? " decision" : ""}`} aria-labelledby={`${p.id}-t`}>
       <div className="card-head">
-        <span className="src">Process agent</span>
-        <span className="dotsep">·</span><span>{line.short}</span><span className="dotsep">·</span><span>{asset.name}</span>
-        <span className="dotsep">·</span><span>{nameOf(p.id)}</span><span className="dotsep">·</span><span>{hhmm(p.createdAt)}</span>
+        <span className="card-head-meta">
+          <span className="src">Process agent</span>
+          <span className="dotsep">·</span><span>{line.short}</span><span className="dotsep">·</span><span>{asset.name}</span>
+          <span className="dotsep">·</span><span className="card-head-clip" title={nameOf(p.id)}>{nameOf(p.id)}</span>
+          <span className="dotsep">·</span><span>{hhmm(p.createdAt)}</span>
+        </span>
         <span className="right">
           {p.mode ? <ModeTag mode={p.mode} /> : null}
           {open ? <Tag tone="accent">Needs a decision</Tag> : <Tag>{p.state}</Tag>}
-          {open ? <span className="muted">expires {rel(p.expiresAt)}, then nothing changes</span> : null}
+          {open ? <span className="muted">expires {rel(p.expiresAt)}</span> : null}
         </span>
       </div>
       <div className="card-body">
