@@ -42,3 +42,7 @@ Date: 2 Nov 2026. Gate for the Process and Quality UI/UX/copy consistency work.
 
 - `FOUNDATION.md` §6 routes: mark Process, Quality, Plant, Ask, Settings, Activity as built; note hub pages and evidence query convention.
 - This file records the L6 PRODUCT/DESIGN mismatch so they are not used as Process/Quality constraints.
+
+## Nov 2026 audience decision
+
+Plant roles see client hubs (Actions / Lines / Performance / Reports / Setup and Actions / Lots / Analytics / Setup). Campaign and loop consoles live under Engineering, gated to `stamped-engineer`, with a soft guard for other roles. Agent at work is the plant-facing proof of continuous work. Authority: `docs/UI_CONTRACT.md` Audience + Agent at work sections; hub definitions in `src/lib/module/hubs.ts`.

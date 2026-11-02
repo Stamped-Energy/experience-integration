@@ -84,9 +84,10 @@ export function isScreenEnabled(siteId: string, module: ScreenFlagModule, screen
 }
 
 export function screenIdFromPath(path: string): { module: ScreenFlagModule; id: string } | null {
-  const process = PROCESS_HUBS.find((h) => path === h.sidebarHref || path.startsWith(`${h.sidebarHref}/`));
+  // Match via hub tabs, not sidebarHref prefix (Lines uses `/process`, which would swallow every Process path).
+  const process = PROCESS_HUBS.find((h) => h.tabs.some((t) => t.match(path)));
   if (process) return { module: "process", id: process.id };
-  const quality = QUALITY_HUBS.find((h) => path === h.sidebarHref || path.startsWith(`${h.sidebarHref}/`));
+  const quality = QUALITY_HUBS.find((h) => h.tabs.some((t) => t.match(path)));
   if (quality) return { module: "quality", id: quality.id };
   return null;
 }

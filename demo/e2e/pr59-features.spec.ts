@@ -53,6 +53,9 @@ test.describe("PR-59 feature gates", () => {
   });
 
   test("loop dashboard gauge is a single value arc", async ({ page }) => {
+    await page.goto("/process/proposals");
+    await page.waitForLoadState("networkidle");
+    await page.locator(".role-switch select").selectOption("stamped-engineer");
     await page.goto("/process/dashboards");
     await page.waitForLoadState("networkidle");
     const gauge = page.locator(".pc-gauge").first();
