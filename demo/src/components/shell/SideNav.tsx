@@ -209,6 +209,7 @@ export function SideNav({ inboxCount }: { inboxCount: number }) {
       {screens.map((s) => {
         const active = screenActive(s.href, path);
         const n = countForScreen(module, s.id);
+        const SubIcon = ICON[s.id] ?? (module === "process" ? ICON.process : ICON.quality);
         return (
           <li key={s.id}>
             <Link
@@ -220,7 +221,8 @@ export function SideNav({ inboxCount }: { inboxCount: number }) {
                 setFlyout(null);
               }}
             >
-              <span>{s.label}</span>
+              {SubIcon?.({}) ?? null}
+              <span className="side-sub-label">{s.label}</span>
               {n ? <span className="side-badge side-badge-muted">{n}</span> : null}
             </Link>
           </li>
