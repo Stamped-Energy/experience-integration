@@ -5,19 +5,19 @@ import { nameOf } from "@/lib/names";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import type { HomeView, RoleId } from "@/lib/demo/types";
-import { demoRole } from "@/lib/role";
+import { useRole } from "@/lib/role.client";
 import { can, grant } from "@/lib/rbac";
 import { dayMonth, hhmm, inr, lakh, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import * as A from "@/lib/demo/agent";
-import { IdleList, WorkingOn } from "@/components/agent/blocks";
+import { IdleList } from "@/components/agent/blocks";
 import { DecisionCard, deniedReason } from "@/components/cards/DecisionCard";
 import { CardActions } from "@/components/cards/CardActions";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { PairedBars } from "@/components/ui/charts";
 import { DataTable, EmptyState, KpiRow, LineModeTag, ModeTag, PageHeader, Section, Tabs, Tag, VerdictTag } from "@/components/ui/primitives";
-import { LineStrip, LotsAtRisk, NoteClaims, ProofUpdates, RecentActivity, ShiftTimeline, proofHref } from "@/components/home/blocks";
+import { LineStrip, LotsAtRisk, NoteClaims, RecentActivity, ShiftTimeline, proofHref } from "@/components/home/blocks";
 import { DeskDayList } from "@/components/desk/desk-day";
 import { deskToday } from "@/lib/demo/desk";
 
@@ -25,11 +25,13 @@ type ViewId = "overview" | HomeView;
 const VIEWS: { id: ViewId; label: string }[] = [
   { id: "overview", label: "Overview" }, { id: "plant", label: "Plant" }, { id: "shift", label: "Shift" }, { id: "line", label: "My line now" }, { id: "owner", label: "Owner" },
 ];
+const QUEUE_MAX = 5;
 
 export default function Home() {
   const sp = Object.fromEntries(useSearchParams().entries());
-  const role = demoRole();
-  const view = (VIEWS.some((v) => v.id === sp.view) ? sp.view : "overview") as ViewId;
+  const role = useRole();
+  const roleHome = D.byId.role(role).home;
+  const view = (VIEWS.some((v) => v.id === sp.view) ? sp.view : roleHome) as ViewId;
   const title = { overview: D.site.name, plant: "Plant today", shift: "Shift 2, starting", line: "My line now", owner: "Value and what happened" }[view];
   const meta = {
     overview: `${dayMonth(D.DEMO_NOW)} · ${hhmm(D.DEMO_NOW)} IST`,
@@ -40,11 +42,22 @@ export default function Home() {
   }[view];
   return (
     <Workspace crumbs={[{ label: D.site.name, href: "/" }, { label: "Home" }, { label: VIEWS.find((v) => v.id === view)!.label }]} askContext={`Home · ${view}`}>
-      <PageHeader eyebrow="Home" title={title} meta={meta} brand={view === "owner"}
-        actions={view === "overview" ? <Link className="btn btn-sm" href="/activity/summary">This week's summary</Link> : <><Tag>{D.byId.role(role).name} view</Tag><AskButton label="Ask about this view" className="btn btn-sm" context={`Home · ${view}`} /></>} />
+      <PageHeader
+        eyebrow="Home"
+        title={title}
+        meta={meta}
+        brand={view === "owner"}
+        actions={
+          <>
+            <Tag>{D.byId.role(role).name} view</Tag>
+            {view === "overview" ? <Link className="btn btn-sm" href="/activity/summary">This week's summary</Link> : null}
+            <AskButton label="Ask about this view" className="btn btn-sm" context={`Home · ${view}`} />
+          </>
+        }
+      />
       {view === "overview" && grant(role, "see-plant-value") !== "hidden" ? <OverviewValue /> : null}
       <Tabs label="Home views" items={VIEWS.map((v) => ({ href: `/?view=${v.id}`, label: v.label, active: v.id === view }))} />
-      {view === "overview" ? <Overview /> : null}
+      {view === "overview" ? <Overview role={role} /> : null}
       {view === "plant" ? <PlantView role={role} /> : null}
       {view === "shift" ? <ShiftView role={role} /> : null}
       {view === "line" ? <LineView role={role} lineId={sp.line === "line-b" ? "line-b" : "line-a"} /> : null}
@@ -86,38 +99,43 @@ function placeOf(i: (typeof D.inboxItems)[number]): string | undefined {
   return undefined;
 }
 
-function Overview() {
-  const role = demoRole();
+function Overview({ role }: { role: RoleId }) {
   const waiting = D.inboxItems.filter((i) => i.bucket === "waiting");
+  const shown = waiting.slice(0, QUEUE_MAX);
   const nextProposal = D.proposals.find((p) => p.state === "Waiting");
+  const nextInbox = nextProposal ? D.inboxItems.find((i) => i.ref === nextProposal.id) : undefined;
   return (
-    <div className="stack">
-      <WorkingOn />
-      <LineStrip />
-      <p className="secondary" style={{ margin: 0 }}>On Line A, hold step is the mix hold. Quality holds stay on the Quality page.</p>
-      <div className="grid">
-        <div className="span-8 stack-sm">
-          <Section title="Next decision" meta="Approval only through the card" actions={<Link className="link" href="/inbox">Open Inbox</Link>}>
-            {nextProposal ? <DecisionCard p={nextProposal} role={role} href="/inbox/in-1" variant="compact" /> : <EmptyState title="Nothing waiting" body="When the agent needs a person, the card appears here." />}
-          </Section>
-          <Section title="Waiting for a person" meta={`${waiting.length} open`} flush>
-            <div className="rows">
-              {waiting.map((i) => (
-                <Link key={i.id} href={`/inbox/${i.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
-                  <span style={{ minWidth: 0 }}>
-                    <span className="row-title" style={{ display: "block" }}>{i.title}</span>
-                    <span className="row-sub">{[placeOf(i), D.byId.role(i.owner).name, i.due ? `due ${rel(i.due)}` : ""].filter(Boolean).join(" · ")}</span>
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </Section>
-        </div>
-        <div className="span-4">
-          <Section title="My day" meta="Actions, messages and notes for this shift">
-            <DeskDayList items={deskToday} />
-          </Section>
-        </div>
+    <div className="grid">
+      <div className="span-8 stack-sm">
+        <Section title="Next decision" meta="One card · decide or open Inbox" actions={<Link className="link" href="/inbox">Open Inbox</Link>}>
+          {nextProposal ? (
+            <DecisionCard p={nextProposal} role={role} href={nextInbox ? `/inbox/${nextInbox.id}` : "/inbox"} />
+          ) : (
+            <EmptyState title="Nothing waiting" body="When the agent needs a person, the card appears here." />
+          )}
+        </Section>
+        <Section
+          title="Waiting for a person"
+          meta={`${waiting.length} open`}
+          actions={waiting.length > QUEUE_MAX ? <Link className="link" href="/inbox">All {waiting.length}</Link> : null}
+          flush
+        >
+          <div className="rows">
+            {shown.map((i) => (
+              <Link key={i.id} href={`/inbox/${i.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
+                <span style={{ minWidth: 0 }}>
+                  <span className="row-title" style={{ display: "block" }}>{i.title}</span>
+                  <span className="row-sub">{[placeOf(i), D.byId.role(i.owner).name, i.due ? `due ${rel(i.due)}` : ""].filter(Boolean).join(" · ")}</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </Section>
+      </div>
+      <div className="span-4">
+        <Section title="My day" meta="This shift" flush>
+          <DeskDayList items={deskToday} />
+        </Section>
       </div>
     </div>
   );
@@ -125,11 +143,15 @@ function Overview() {
 
 function PlantView({ role }: { role: RoleId }) {
   const waiting = D.proposals.filter((p) => p.state === "Waiting");
+  const inboxWaiting = D.inboxItems.filter((i) => i.bucket === "waiting");
+  const queue = inboxWaiting.slice(0, QUEUE_MAX);
   const seeValue = grant(role, "see-plant-value") !== "hidden";
+  const first = waiting[0];
+  const firstInbox = first ? D.inboxItems.find((i) => i.ref === first.id) : undefined;
   return (
     <div className="stack">
       <KpiRow label="Plant today" items={[
-        { label: "Needs a decision", value: String(D.inboxItems.filter((i) => i.bucket === "waiting").length), foot: <>{waiting.length} proposals, 1 trial signature, 1 correction</>, href: "/inbox" },
+        { label: "Needs a decision", value: String(inboxWaiting.length), foot: <>{waiting.length} proposals, 1 trial signature, 1 correction</>, href: "/inbox" },
         { label: "Lines", value: "2", foot: <>1 trial, 1 proposing, 0 recommend-only</> },
         { label: "Lots at risk", value: String(D.lots.filter((l) => l.riskWord === "At risk").length), foot: <>of {D.lots.filter((l) => l.status !== "complete").length} open lots</>, href: "/quality" },
         seeValue
@@ -141,25 +163,26 @@ function PlantView({ role }: { role: RoleId }) {
         <div className="span-8 stack">
           <Section title="Needs a decision" meta={`${waiting.length} proposals inside signed limits`} actions={<Link className="link" href="/inbox">Open Inbox</Link>} flush>
             <div className="stack-sm" style={{ padding: "var(--space-3)" }}>
-              <DecisionCard p={waiting[0]} role={role} href="/inbox/in-1" />
-              {waiting.slice(1).map((p) => (
-                <Link key={p.id} href={`/inbox/${D.inboxItems.find((i) => i.ref === p.id)!.id}`} className="row card row-proposal" style={{ gridTemplateColumns: "minmax(0,1fr) auto auto auto" }}>
+              {first ? <DecisionCard p={first} role={role} href={firstInbox ? `/inbox/${firstInbox.id}` : "/inbox"} /> : null}
+              {queue.filter((i) => i.ref !== first?.id).map((i) => (
+                <Link key={i.id} href={`/inbox/${i.id}`} className="row" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
                   <span style={{ minWidth: 0 }}>
-                    <span className="row-title" style={{ display: "block" }}>{D.inboxItems.find((i) => i.ref === p.id)!.title}</span>
-                    <span className="row-sub">{D.byId.line(p.lineId)!.short} · {p.predicted.name} {p.predicted.low} to {p.predicted.high} {p.predicted.unit} · {p.weakestLabel}</span>
+                    <span className="row-title" style={{ display: "block" }}>{i.title}</span>
+                    <span className="row-sub">{[placeOf(i), D.byId.role(i.owner).name, i.due ? `due ${rel(i.due)}` : ""].filter(Boolean).join(" · ")}</span>
                   </span>
-                  <ModeTag mode={p.mode} />
-                  <span className="muted" style={{ fontSize: 12 }}>expires {rel(p.expiresAt)}</span>
-                  <span className="link" style={{ fontSize: 13 }}>Review</span>
                 </Link>
               ))}
+              <Link className="row" href="/?view=shift" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
+                <span style={{ minWidth: 0 }}>
+                  <span className="row-title" style={{ display: "block" }}>Shift so far</span>
+                  <span className="row-sub">Timeline and proof updates</span>
+                </span>
+              </Link>
             </div>
           </Section>
         </div>
         <div className="span-4 stack">
-          <Section title="Stamped did this shift" meta="Shift 1, 06:00 to 14:00" flush><ShiftTimeline limit={7} /></Section>
           <Section title="Lots at risk" actions={<Link className="link" href="/quality">Quality</Link>} flush><LotsAtRisk /></Section>
-          <Section title="Proof updates" meta="Evidence on demand" flush><ProofUpdates /></Section>
         </div>
       </div>
     </div>

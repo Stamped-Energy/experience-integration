@@ -86,17 +86,19 @@ export function SideNav({ inboxCount }: { inboxCount: number }) {
   const plantForced = useRef(false);
   const prefBeforePlant = useRef<boolean | null>(null);
 
-  // Sync open module from path; remember last module
+  // Sync open module from path; remember last module. On Home, Quality head opens Quality.
   useEffect(() => {
     if (pathModule) {
       setOpenModule(pathModule);
       writeStoredModule(pathModule);
       saveLastScreen(pathModule, path);
+    } else if (role === "quality-head" && (path === "/" || path.startsWith("/?"))) {
+      setOpenModule("quality");
     } else {
       const stored = readStoredModule();
       if (stored) setOpenModule(stored);
     }
-  }, [path, pathModule]);
+  }, [path, pathModule, role]);
 
   useEffect(() => {
     const onFlags = () => setScreenTick((n) => n + 1);
