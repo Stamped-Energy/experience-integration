@@ -176,3 +176,27 @@
   .act-slot { display: flex; flex-direction: column; grid-row: auto; gap: 8px; }
   .act-pack-span { grid-column: auto; }
 }
+
+/* Agent at work showcase (client page) */
+.aaw { gap: var(--space-5); }
+.aaw-authority { margin: 0 0 var(--space-2); font-size: 13px; max-width: 72ch; }
+.aaw-strip { margin: 0 0 var(--space-4); font-size: 13px; color: var(--text-secondary); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.aaw-empty { margin: 0; padding: var(--space-3) var(--space-4); font-size: 13px; }
+.aaw-more { margin: 0; padding: var(--space-2) var(--space-4) var(--space-3); font-size: 13px; }
+.aaw-wait { list-style: none; margin: 0; padding: 0; }
+.aaw-wait-row { display: flex; gap: var(--space-3); align-items: flex-start; justify-content: space-between; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border); }
+.aaw-wait-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.aaw-wait-copy b { font-size: 14px; font-weight: 500; }
+.aaw-tried { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-3); }
+.aaw-story { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); padding: var(--space-3) var(--space-4); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.aaw-story-compared { margin: 0; font-size: 14px; font-weight: 500; line-height: 1.4; }
+.aaw-story-picked { margin: 0; font-size: 13px; }
+.aaw-story-band { margin: 0; font-size: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.aaw-story-actions { display: flex; gap: var(--space-3); align-items: center; margin-top: 4px; flex-wrap: wrap; }
+.aaw-learned { list-style: none; margin: 0; padding: 0; }
+.aaw-learned li { padding: 10px var(--space-4); border-bottom: 1px solid var(--border); font-size: 13px; line-height: 1.45; }
+.aaw .working { margin-bottom: 0; }
+@media (max-width: 767px) {
+  .aaw-wait-row { flex-direction: column; align-items: stretch; }
+  .aaw-tried { grid-template-columns: minmax(0, 1fr); }
+}
