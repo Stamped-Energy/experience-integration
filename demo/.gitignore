@@ -10,3 +10,4 @@ dist
 .cloudflare/
 test-results/
 playwright-report/
+.env*.local

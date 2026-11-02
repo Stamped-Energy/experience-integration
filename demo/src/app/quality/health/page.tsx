@@ -5,7 +5,7 @@ import { Workspace } from "@/components/shell/Shell";
 import { KpiRow, PageHeader } from "@/components/ui/primitives";
 import { qualityHealthAreas, statusStrip, worstQualityCells } from "@/lib/demo/healthMap";
 import { loopCampaigns } from "@/lib/demo/loopRuns";
-import { crumbs } from "@/components/quality/common";
+import { crumbs, lotNo, qualityEyebrow } from "@/components/quality/common";
 
 export const metadata = { title: "Health map" };
 
@@ -14,7 +14,7 @@ export default function QualityHealthPage() {
   const qSims = loopCampaigns.filter((c) => c.area === "quality" && c.kind === "simulation").length;
   return (
     <Workspace crumbs={crumbs({ label: "Health map" })} askContext="Quality health map">
-      <PageHeader eyebrow="Quality · Scan" title="Health map" meta="Join coverage and line risk by area. ISA words only. Demonstration data." actions={<AskButton context="Quality health map" label="Ask about this map" />}
+      <PageHeader eyebrow={qualityEyebrow("/quality/health")} title="Health map" meta="Join coverage and line risk by area; demonstration data." actions={<AskButton context="Quality health map" label="Ask about this map" />}
       />
       <QualityHubTabs />
       <HealthStatusStrip {...strip} />

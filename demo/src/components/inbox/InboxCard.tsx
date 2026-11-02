@@ -19,9 +19,11 @@ export function InboxCard({ item, role, link = true }: { item: InboxItem; role: 
   const Title = () => <h3 className="card-title">{href ? <StretchLink href={href}>{item.title}</StretchLink> : item.title}</h3>;
   const Head = ({ src, line, extra }: { src: string; line?: string; extra?: React.ReactNode }) => (
     <div className="card-head">
-      <span className="src">{src}</span>{line ? <><span className="dotsep">·</span><span>{line}</span></> : null}
-      <span className="dotsep">·</span><span className="mono">{nameOf(item.ref)}</span>
-      <span className="right">{extra}{item.bucket === "waiting" ? <Tag tone="accent">Needs a decision</Tag> : item.bucket === "task" ? <Tag>Task</Tag> : <Tag>Decided</Tag>}{item.bucket === "waiting" && item.due ? <span className="muted">expires {rel(item.due)}, then nothing changes</span> : item.due ? <span className="muted">due {rel(item.due)}</span> : null}</span>
+      <span className="card-head-meta">
+        <span className="src">{src}</span>{line ? <><span className="dotsep">·</span><span>{line}</span></> : null}
+        <span className="dotsep">·</span><span className="mono card-head-clip" title={nameOf(item.ref)}>{nameOf(item.ref)}</span>
+      </span>
+      <span className="right">{extra}{item.bucket === "waiting" ? <Tag tone="accent">Needs a decision</Tag> : item.bucket === "task" ? <Tag>Task</Tag> : <Tag>Decided</Tag>}{item.bucket === "waiting" && item.due ? <span className="muted">expires {rel(item.due)}</span> : item.due ? <span className="muted">due {rel(item.due)}</span> : null}</span>
     </div>
   );
   if (item.kind === "trial-signature") {

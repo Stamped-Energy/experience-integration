@@ -37,14 +37,7 @@ html {
   flex: none;
 }
 
-.card-head .right {
-  flex-wrap: nowrap;
-  min-width: 0;
-  max-width: 100%;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: thin;
-}
+/* Status tags stay visible; long meta truncates via .card-head-meta (never wrap the head). */
 
 .card-foot .strip {
   flex-wrap: nowrap;

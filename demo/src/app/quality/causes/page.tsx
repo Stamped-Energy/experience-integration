@@ -1,9 +1,11 @@
 import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
+import { AskButton } from "@/components/shell/ShellClient";
+import { EngineeringGuard } from "@/components/shell/EngineeringGuard";
 import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { AbstainNote } from "@/components/ask/common";
 import { CauseFamilyBadge, causeNodeLabel, isDesignCause } from "@/components/quality/CauseFamilyBadge";
-import { QualityTabs, crumbs } from "@/components/quality/common";
+import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import { DESIGN_CAUSE_META } from "@/lib/demo/causeFamily";
 import type { CauseEdge } from "@/lib/demo/causal-contracts";
 import { diagnoseCase, NODE_LABEL, queryGraph } from "@/lib/demo/engine";
@@ -14,7 +16,6 @@ const TEMPLATE_NAME: Record<string, string> = { forging: "Forging", "heat-treatm
 const label = (id: string) => NODE_LABEL[id] ?? id;
 const DIAGNOSE_ASSET = "example-forge-press";
 const ABSTAIN_ASSET = "a-mixer";
-const CAUSAL_VERSION = "0.2.0";
 
 export default function CausesPage() {
   const { graphs, edges } = queryGraph({});
@@ -24,16 +25,13 @@ export default function CausesPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Cause graphs" })} askContext="Cause graphs">
       <PageHeader
-        eyebrow="Quality"
+        eyebrow={qualityEyebrow("/quality/causes")}
         title="Cause graphs"
-        meta={
-          <span style={{ display: "inline-flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            Example data: the forging and heat-treatment node templates (D130), not this plant&apos;s lines. Every link is declared by the template with a literature source and has no plant evidence yet. Causal engine contract {CAUSAL_VERSION}.
-            <Tag tone="warning">Example data</Tag>
-          </span>
-        }
+        meta="Forging and heat-treatment templates · declared links only"
+        actions={<AskButton context="Cause graphs" label="Ask about cause graphs" />}
       />
       <QualityHubTabs />
+      <EngineeringGuard backHref="/quality/actions" backLabel="Back to Quality actions">
       <div className="grid">
         <div className="span-12">
           <div className="grid">
@@ -58,7 +56,7 @@ export default function CausesPage() {
                         { key: "src", label: "Source", render: (e) => <span className="cell-sub">{e.evidence[0]?.ref.split(" ").slice(-1)[0]}</span> },
                       ]}
                     />
-                    <div style={{ padding: 16 }} className="cell-sub">
+                    <div className="section-pad cell-sub">
                       Nodes: {g.nodes.map((n) => label(n.node_id)).join(", ")}
                     </div>
                   </Section>
@@ -92,19 +90,19 @@ export default function CausesPage() {
                 ]}
               />
             ) : (
-              <div style={{ padding: 16 }}>
+              <div className="section-pad">
                 <AbstainNote text={kase.abstainReason} />
               </div>
             )}
           </Section>
           <Section title="Design as a cause family" meta={DESIGN_CAUSE_META} flush>
-            <p className="cell-sub" style={{ padding: 16 }}>
+            <p className="cell-sub section-pad">
               Ranked causes carry a family badge. When the root node is design (fillet, draft, allowance, tolerance),
               a Design cause tag appears so scrap is not assumed to be a setpoint miss. Taxonomy lives in causal #126;
               until that merges, badges use the same node-type map shipped in the UI.
             </p>
             <DataTable
-              caption="Illustrative design-tagged roots"
+              caption="Design-tagged roots"
               rows={[
                 { root_node: "fillet_radius", note: "Underfill / lap risk from tight fillet (FIA / Van Tyne)" },
                 { root_node: "draft_angle", note: "Ejection and mismatch risk from shallow draft" },
@@ -120,7 +118,6 @@ export default function CausesPage() {
                       {causeNodeLabel(r.root_node, label)}
                       <CauseFamilyBadge nodeId={r.root_node} />
                       <Tag tone="accent">Design cause</Tag>
-                      <Tag tone="warning">Illustrative</Tag>
                     </span>
                   ),
                 },
@@ -129,7 +126,7 @@ export default function CausesPage() {
             />
           </Section>
           <Section title="Abstain when the asset has no case" meta={`diagnose(${ABSTAIN_ASSET}) has no example case, so the tool abstains rather than inventing findings`} flush>
-            <div style={{ padding: 16 }}>
+            <div className="section-pad">
               {abstained.ok ? (
                 <p className="cell-sub">Unexpected: a diagnosis was returned for {ABSTAIN_ASSET}.</p>
               ) : (
@@ -139,6 +136,7 @@ export default function CausesPage() {
           </Section>
         </div>
       </div>
+      </EngineeringGuard>
     </Workspace>
   );
 }

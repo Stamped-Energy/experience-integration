@@ -1,15 +1,23 @@
-/** Shared helpers for the Process area: sub-navigation, crumbs and run lookups. */
+/** Shared helpers for the Process area: hub chrome, crumbs and run lookups. */
 import * as D from "@/lib/demo/data";
 import type { Line, Run } from "@/lib/demo/types";
 import type { Crumb } from "@/components/shell/Shell";
+import { hubForProcessPath } from "@/lib/module/hubs";
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 
 export type ProcessTab =
   | "measurement" | "settings" | "model-fit" | "trials"
   | "simulate" | "modules" | "drift" | "tool-life" | "cycle-time" | "oee" | "smed"
   | "lines" | "actions" | "proposals";
 
-export function ProcessTabs(_: { active: ProcessTab }) {
-  return null;
+/** @deprecated Use ProcessHubTabs. Kept so detail routes keep hub chrome. */
+export function ProcessTabs(_props: { active: ProcessTab }) {
+  return <ProcessHubTabs />;
+}
+
+export function processEyebrow(path: string): string {
+  const hub = hubForProcessPath(path);
+  return hub ? `Process · ${hub.sidebarLabel}` : "Process";
 }
 
 export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Demonstration plant", href: "/" }, { label: "Process", href: "/process/proposals" }, ...rest];

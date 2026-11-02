@@ -7,7 +7,7 @@ import { DecisionCard } from "@/components/cards/DecisionCard";
 import { RunChart } from "@/components/ui/charts";
 import { PageHeader, Section } from "@/components/ui/primitives";
 import { FitChecks } from "@/components/process/FitChecks";
-import { ProcessTabs, crumbs, outcome, outcomeName, runsOf, specOf } from "@/components/process/common";
+import { crumbs, outcome, outcomeName, processEyebrow, runsOf, specOf } from "@/components/process/common";
 import { demoRole } from "@/lib/role";
 
 export const metadata = { title: "Model fit" };
@@ -18,7 +18,7 @@ export default async function ModelFitPage() {
   const fits = D.modelFits.slice().sort((a) => (a.state === "accepted" ? 1 : -1));
   return (
     <Workspace crumbs={crumbs({ label: "Model fit" })} askContext="Model fit">
-      <PageHeader eyebrow="Process" title="Model fit" meta="A model of each machine predicts outcomes with a band. Its numbers are used only after four checks pass, including 90% intervals covering 85 to 95% of held-out points."
+      <PageHeader eyebrow={processEyebrow("/process/model-fit")} title="Model fit" meta="Outcome bands are used only after the four fit checks pass."
         actions={<AskButton context="Model fit" label="Ask about model fit" />} />
       <ProcessHubTabs />
       <div className="grid">

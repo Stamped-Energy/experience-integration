@@ -6,17 +6,18 @@
       "modules": {
         "process": {
           "actions": true,
-          "dashboards": true,
-          "plant": true,
+          "lines": true,
+          "performance": true,
           "reports": true,
-          "analytics": true
+          "setup": true,
+          "engineering": true
         },
         "quality": {
           "actions": true,
-          "inspect": true,
+          "lots": true,
           "analytics": true,
-          "simulations": true,
-          "setup": true
+          "setup": true,
+          "engineering": true
         }
       }
     }

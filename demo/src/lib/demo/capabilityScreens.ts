@@ -86,25 +86,48 @@ export type SpcChartCard = {
   illustrative: true;
   characteristicId: string;
   name: string;
+  lineId: string;
   chart: "xbar_r" | "i_mr";
   values: number[];
   rangeValues?: number[];
   ucl: number;
   lcl: number;
   cl: number;
-  usl?: number;
-  lsl?: number;
-  cp?: number;
-  cpk?: number;
-  hits: { rule: string; at: number }[];
+  usl: number;
+  lsl: number;
+  cp: number;
+  cpk: number;
+  pp: number;
+  ppk: number;
+  n: number;
+  /** Critical characteristics use Cpk target 1.67; others 1.33 (IATF). */
+  critical: boolean;
+  period: string;
+  relatedLotId?: string;
+  actionId?: string;
+  hits: { rule: string; plain: string; at: number }[];
   label: EvidenceLabel;
 };
+
+export const CPK_TARGET_STANDARD = 1.33;
+export const CPK_TARGET_CRITICAL = 1.67;
+
+export function cpkTarget(card: Pick<SpcChartCard, "critical">): number {
+  return card.critical ? CPK_TARGET_CRITICAL : CPK_TARGET_STANDARD;
+}
+
+export function controlState(card: SpcChartCard): "In control" | "Rule signal" | "Out of control" {
+  if (!card.hits.length) return "In control";
+  const beyond = card.hits.some((h) => /beyond|WE1/i.test(h.rule) || /beyond/i.test(h.plain));
+  return beyond ? "Out of control" : "Rule signal";
+}
 
 export const spcCharts: SpcChartCard[] = [
   {
     ...I,
     characteristicId: "char-viscosity",
-    name: "Viscosity (Line A)",
+    name: "Viscosity",
+    lineId: "line-a",
     chart: "i_mr",
     values: [2480, 2495, 2510, 2505, 2520, 2535, 2550, 2540, 2565, 2580, 2570, 2595],
     rangeValues: [12, 8, 15, 10, 9, 14, 11, 13, 18, 16, 10, 22],
@@ -115,13 +138,21 @@ export const spcCharts: SpcChartCard[] = [
     lsl: 2380,
     cp: 1.21,
     cpk: 1.05,
-    hits: [{ rule: "WE1 (point beyond limit)", at: 11 }],
+    pp: 1.1,
+    ppk: 0.98,
+    n: 48,
+    critical: false,
+    period: "Last 12 subgroups · this week",
+    relatedLotId: "lot-a-3307",
+    actionId: "ex-q1",
+    hits: [{ rule: "WE1", plain: "One point beyond the upper control limit", at: 11 }],
     label: "Estimated",
   },
   {
     ...I,
     characteristicId: "char-weight",
-    name: "Part weight (Line B)",
+    name: "Part weight",
+    lineId: "line-b",
     chart: "xbar_r",
     values: [48.1, 48.0, 47.9, 48.2, 47.8, 47.7, 47.6, 47.5, 47.9, 48.0],
     rangeValues: [0.35, 0.28, 0.31, 0.42, 0.38, 0.33, 0.29, 0.36, 0.34, 0.3],
@@ -132,11 +163,18 @@ export const spcCharts: SpcChartCard[] = [
     lsl: 47.2,
     cp: 1.45,
     cpk: 1.32,
+    pp: 1.38,
+    ppk: 1.28,
+    n: 120,
+    critical: true,
+    period: "Last 10 subgroups · this week",
+    relatedLotId: "lot-b-7711",
     hits: [],
     label: "Measured",
   },
 ];
 
+/** @deprecated Prefer spcCharts; kept for the capability route until it redirects. */
 export type CapabilityCard = {
   illustrative: true;
   characteristicId: string;
@@ -150,10 +188,18 @@ export type CapabilityCard = {
   usl: number;
 };
 
-export const capabilityCards: CapabilityCard[] = [
-  { ...I, characteristicId: "char-viscosity", name: "Viscosity", n: 48, cp: 1.21, cpk: 1.05, pp: 1.1, ppk: 0.98, lsl: 2380, usl: 2600 },
-  { ...I, characteristicId: "char-weight", name: "Part weight", n: 120, cp: 1.45, cpk: 1.32, pp: 1.38, ppk: 1.28, lsl: 47.2, usl: 48.8 },
-];
+export const capabilityCards: CapabilityCard[] = spcCharts.map((c) => ({
+  ...I,
+  characteristicId: c.characteristicId,
+  name: c.name,
+  n: c.n,
+  cp: c.cp,
+  cpk: c.cpk,
+  pp: c.pp,
+  ppk: c.ppk,
+  lsl: c.lsl,
+  usl: c.usl,
+}));
 
 export type GaugeRrCard = {
   illustrative: true;

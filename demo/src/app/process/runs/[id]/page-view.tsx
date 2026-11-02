@@ -11,8 +11,9 @@ import { AskButton } from "@/components/shell/ShellClient";
 import { RunChart } from "@/components/ui/charts";
 import { Confidence } from "@/components/ui/Confidence";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
-import { ProcessTabs, crumbs, outcome, outcomeName, packOf, proofForRun, runLabel, runsOf, specOf, trialArm } from "@/components/process/common";
+import { crumbs, outcome, outcomeName, packOf, processEyebrow, proofForRun, runLabel, runsOf, specOf, trialArm } from "@/components/process/common";
 
 
 export default function RunDetail() {
@@ -43,7 +44,7 @@ export default function RunDetail() {
   ];
   return (
     <Workspace crumbs={crumbs({ label: line.short, href: `/process/lines/${line.id}` }, { label: runLabel(run) })} askContext={runLabel(run)}>
-      <PageHeader eyebrow={`Process · ${line.name}`} title={runLabel(run)}
+      <PageHeader eyebrow={processEyebrow(`/process/runs/${run.id}`)} title={runLabel(run)}
         meta={<span >{nameOf(run.id)} · {dayMonth(run.start)} {hhmm(run.start)} to {hhmm(run.end)} · {run.product}</span>}
         actions={<>
           {prev ? <Link className="btn btn-sm btn-quiet" href={`/process/runs/${prev.id}`}>Previous</Link> : null}
@@ -51,7 +52,7 @@ export default function RunDetail() {
           {proof ? <Link className="btn btn-sm btn-accent" href={`${base}?evidence=${proof.id}`} scroll={false}>Evidence</Link> : null}
           <AskButton context={runLabel(run)} label="Ask about this run" />
         </>} />
-      <ProcessTabs active="lines" />
+      <ProcessHubTabs />
       <div className="grid">
         <div className="span-8 stack">
           <Section title="Outcomes" flush>

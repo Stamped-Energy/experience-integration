@@ -1,7 +1,8 @@
 "use client";
 
 /**
- * Loop health gauge — single semicircle track + value arc (PlantCraft GaugeDial pattern, Apache-2.0).
+ * Loop health gauge: single semicircle track + value arc (PlantCraft GaugeDial pattern, Apache-2.0).
+ * Value fill uses stroke-dasharray on the same path as the track so it never jumps the large-arc.
  */
 
 export function gaugeRange(value: number, low = 0, high = 100): [number, number] {
@@ -48,22 +49,23 @@ export function LoopHealthGauge({
   const cy = 100;
   const r = 72;
   const stroke = 10;
-  const point = (x: number, radius = r) => {
-    const angle = Math.PI * (1 - share(x, min, max));
-    return [cx + radius * Math.cos(angle), cy - radius * Math.sin(angle)] as const;
-  };
-  const arc = (from: number, to: number) => {
-    const [x0, y0] = point(from);
-    const [x1, y1] = point(to);
-    const large = share(to, min, max) - share(from, min, max) > 0.5 ? 1 : 0;
-    return `M ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}`;
-  };
-  const clamped = Math.max(min, Math.min(max, value));
+  // Upper semicircle: left → top → right (sweep 0 in SVG y-down coords).
+  const track = `M ${cx - r} ${cy} A ${r} ${r} 0 0 0 ${cx + r} ${cy}`;
+  const filled = Math.round(share(value, min, max) * 1000) / 10;
   return (
     <article className="pc-gauge">
       <svg viewBox="0 0 200 120" role="img" aria-label={`${label}: ${value} ${unit}`}>
-        <path d={arc(min, max)} className="pc-gauge-track" strokeWidth={stroke} />
-        <path d={arc(min, clamped)} stroke={colour} className="pc-gauge-value" strokeWidth={stroke} />
+        <path d={track} className="pc-gauge-track" strokeWidth={stroke} />
+        {filled > 0 ? (
+          <path
+            d={track}
+            stroke={colour}
+            className="pc-gauge-value"
+            strokeWidth={stroke}
+            pathLength={100}
+            strokeDasharray={`${filled} ${100 - filled}`}
+          />
+        ) : null}
         <text x={cx - r + 4} y={cy + 16} className="pc-gauge-end" textAnchor="middle">
           {min}
         </text>

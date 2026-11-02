@@ -7,7 +7,7 @@ export function RunChart({ values, spec, height = 120, width = 560, label, highl
   const pts = values.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
   const breach = spec ? values.map((v, i) => (v < spec[0] || v > spec[1] ? i : -1)).filter((i) => i >= 0) : [];
   return (
-    <svg className="chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label} preserveAspectRatio="none">
+    <svg className="chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label} preserveAspectRatio="xMidYMid meet">
       {spec ? (
         <>
           <line x1={32} x2={width - 8} y1={y(spec[1])} y2={y(spec[1])} stroke="var(--border-strong)" strokeDasharray="3 3" />

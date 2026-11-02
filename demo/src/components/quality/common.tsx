@@ -1,10 +1,10 @@
-/** Shared helpers for the Quality area: sub-navigation, crumbs and lot lookups. */
-import { exampleActions } from "@/lib/demo/actions";
-import { qualityWork } from "@/lib/demo/agent";
+/** Shared helpers for the Quality area: hub chrome, crumbs and lot lookups. */
 import * as D from "@/lib/demo/data";
 import type { Lot } from "@/lib/demo/types";
 import type { Crumb } from "@/components/shell/Shell";
-import { Tabs, Tag, type Tone } from "@/components/ui/primitives";
+import { Tag, type Tone } from "@/components/ui/primitives";
+import { hubForQualityPath } from "@/lib/module/hubs";
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 
 export type QualityTab =
   | "lots"
@@ -32,8 +32,14 @@ export const threshold = (lotId: string) => {
   return D.linePacks.find((p) => p.id === D.byId.line(lot.lineIds[0])!.linePackId)!.linkThreshold;
 };
 
-export function QualityTabs(_: { active: QualityTab }) {
-  return null;
+/** @deprecated Use QualityHubTabs. Kept so detail routes keep hub chrome. */
+export function QualityTabs(_props: { active: QualityTab }) {
+  return <QualityHubTabs />;
+}
+
+export function qualityEyebrow(path: string): string {
+  const hub = hubForQualityPath(path);
+  return hub ? `Quality · ${hub.sidebarLabel}` : "Quality";
 }
 
 export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Demonstration plant", href: "/" }, { label: "Quality", href: "/quality/actions" }, ...rest];

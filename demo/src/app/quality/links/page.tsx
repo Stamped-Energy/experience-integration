@@ -10,10 +10,10 @@ import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { Confidence } from "@/components/ui/Confidence";
 import { RunChart } from "@/components/ui/charts";
-import { DataTable, EvidenceIds, EvidenceTag, Illustrative, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
+import { DataTable, PageHeader, Section } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { runLabel } from "@/components/process/common";
-import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, specOf, threshold, weakestJoin, belowThreshold } from "@/components/quality/common";
+import { JoinTag, RiskTag, belowThreshold, crumbs, gradeOf, lotNo, qualityEyebrow, threshold } from "@/components/quality/common";
 
 export const metadata = { title: "Link confirmations" };
 export default async function Links() {
@@ -23,10 +23,10 @@ export default async function Links() {
   const allowed = can(role, "confirm-lot-link");
   return (
     <Workspace crumbs={crumbs({ label: "Link confirmations" })} askContext="Lot link confirmations">
-      <PageHeader eyebrow="Quality" title="Link confirmations" meta="Links below the pack threshold wait for a person. Until confirmed, anything resting on them stays unverified." actions={<AskButton context="Link confirmations" label="Ask about links" />} />
+      <PageHeader eyebrow={qualityEyebrow("/quality/links")} title="Link confirmations" meta="Links below the pack threshold wait for a person." actions={<AskButton context="Link confirmations" label="Ask about links" />} />
       <QualityHubTabs />
       <div className="grid">
-        <div className="span-7 stack">
+        <div className="span-8 stack">
           {weak.map((l) => {
             const lot = D.byId.lot(l.lotId)!;
             const thr = threshold(l.lotId);
@@ -46,7 +46,7 @@ export default async function Links() {
             );
           })}
         </div>
-        <div className="span-5 stack ctx">
+        <div className="span-4 stack ctx">
           <Section title="All links" meta={`${D.lotLinks.length} links · lowest first`} flush>
             <DataTable caption="Links" rowKey={(l) => l.id} rows={all.slice(0, 27)} columns={[
               { key: "l", label: "Lot", mono: true, render: (l) => <Link className="link" href={`/quality/lots/${l.lotId}`}>{lotNo(l.lotId)}</Link> },

@@ -13,10 +13,10 @@ import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { Confidence } from "@/components/ui/Confidence";
 import { RunChart } from "@/components/ui/charts";
-import { DataTable, EvidenceIds, EvidenceTag, Illustrative, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
+import { DataTable, EvidenceIds, EvidenceTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { runLabel } from "@/components/process/common";
-import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, specOf, threshold, weakestJoin, belowThreshold } from "@/components/quality/common";
+import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, qualityEyebrow, specOf, threshold, weakestJoin } from "@/components/quality/common";
 import { notFound } from "next/navigation";
 
 export default function Investigation() {
@@ -30,13 +30,13 @@ export default function Investigation() {
   const base = `/quality/investigations/${inv.id}`;
   return (
     <Workspace crumbs={crumbs({ label: "Investigations", href: "/quality/investigations" }, { label: inv.title })} askContext={inv.title}>
-      <PageHeader eyebrow={`Investigation · ${inv.status}`} title={inv.title} meta={`Opened by ${inv.openedBy} · ${inv.lotIds.length} lots · ${inv.runIds.length} runs`}
+      <PageHeader eyebrow={qualityEyebrow(`/quality/investigations/${inv.id}`)} title={inv.title} meta={`Opened by ${inv.openedBy} · ${inv.lotIds.length} lots · ${inv.runIds.length} runs`}
         actions={<>{proof ? <Link className="btn btn-sm btn-accent" href={`${base}?evidence=${proof.id}`} scroll={false}>Evidence</Link> : null}<AskButton context={inv.title} label="Ask about this case" /></>} />
       <QualityTabs active="investigations" />
       <div className="grid">
         <div className="span-8 stack">
           <Section title="Case file" flush>
-            <ul className="tl" style={{ padding: 16 }}>{inv.entries.map((e) => <li key={e.at}><span className="t">{dayMonth(e.at)} {hhmm(e.at)}</span><span className={`k ${e.type === "conclusion" ? "a" : "s"}`} /><span><b style={{ textTransform: "capitalize" }}>{e.type}</b> · {e.text} <EvidenceIds ids={e.evidenceIds} /></span><span><EvidenceTag label={e.label} /></span></li>)}</ul>
+            <ul className="tl section-pad">{inv.entries.map((e) => <li key={e.at}><span className="t">{dayMonth(e.at)} {hhmm(e.at)}</span><span className={`k ${e.type === "conclusion" ? "a" : "s"}`} /><span><b style={{ textTransform: "capitalize" }}>{e.type}</b> · {e.text} <EvidenceIds ids={e.evidenceIds} /></span><span><EvidenceTag label={e.label} /></span></li>)}</ul>
           </Section>
           <Section title="Lots in this case" flush>
             <DataTable caption="Lots" rowKey={(l) => l.id} rows={lots} columns={[

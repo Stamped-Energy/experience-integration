@@ -22,6 +22,14 @@ export const Icon = {
   arrow: (p: P) => <svg {...base} {...p}><path d="M5 12h14M13 6l6 6-6 6" /></svg>,
   check: (p: P) => <svg {...base} {...p}><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>,
   lock: (p: P) => <svg {...base} {...p}><rect x="5" y="11" width="14" height="9" rx="1.5" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>,
+  /* Process / Quality sidebar hub pages */
+  actions: (p: P) => <svg {...base} {...p}><rect x="5" y="4.5" width="14" height="15" rx="1.5" /><path d="M8.5 9h7M8.5 12.5h7M8.5 16h4" /></svg>,
+  dashboards: (p: P) => <svg {...base} {...p}><rect x="3.5" y="3.5" width="7" height="7" rx="1" /><rect x="13.5" y="3.5" width="7" height="7" rx="1" /><rect x="3.5" y="13.5" width="7" height="7" rx="1" /><rect x="13.5" y="13.5" width="7" height="7" rx="1" /></svg>,
+  reports: (p: P) => <svg {...base} {...p}><path d="M7 3.5h7.2L19 8.3V20H7z" /><path d="M14.2 3.5V8.3H19" /><path d="M10 12h6M10 15.5h4" /></svg>,
+  analytics: (p: P) => <svg {...base} {...p}><path d="M4 18.5V5.5M4 18.5h16" /><path d="M8 15V11M12.5 15V8M17 15v-4.5" /></svg>,
+  inspect: (p: P) => <svg {...base} {...p}><circle cx="11" cy="11" r="6" /><path d="m20 20-4.5-4.5" /><path d="M9 11h4M11 9v4" /></svg>,
+  simulations: (p: P) => <svg {...base} {...p}><path d="M5 7.5h6.5v9H5z" /><path d="M11.5 12h3.2l4.3-4.5v9L14.7 12" /></svg>,
+  setup: (p: P) => <svg {...base} {...p}><circle cx="12" cy="12" r="3" /><path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M6.1 6.1l1.6 1.6M16.3 16.3l1.6 1.6M17.9 6.1l-1.6 1.6M7.7 16.3l-1.6 1.6" /></svg>,
 };
 
 export function StampedMark() {

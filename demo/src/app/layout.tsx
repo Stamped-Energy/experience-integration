@@ -11,6 +11,7 @@ import "@/styles/quality.css";
 import "@/styles/plant.css";
 import "@/styles/ask.css";
 import "@/styles/settings.css";
+import "@/styles/agent.css";
 import "@/styles/activity.css";
 import "@/styles/pfd-diagram.css";
 import "@/styles/view-screens.css";

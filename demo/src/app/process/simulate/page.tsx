@@ -4,9 +4,8 @@ import { Suspense } from "react";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, KpiRow, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { crumbs, processEyebrow } from "@/components/process/common";
 import {
-  SIMULATE_PAGE_META,
   formatDelta,
   formatRate,
   getLineTrial,
@@ -69,9 +68,9 @@ export default async function SimulatePage({
   return (
     <Workspace crumbs={crumbs({ label: "Simulate and trial" })} askContext="Simulate">
       <PageHeader
-        eyebrow="Process"
+        eyebrow={processEyebrow("/process/simulate")}
         title="Simulate and trial"
-        meta={SIMULATE_PAGE_META}
+        meta="Synthetic line trial versus baseline. Will-not-get-worse abstains until pack thresholds are fitted."
         actions={<AskButton context="Simulate" label="Ask about this trial" />}
       />
       <ProcessHubTabs />
@@ -216,8 +215,8 @@ export default async function SimulatePage({
           <Section title="Open pack values" flush>
             <p className="muted" style={{ padding: 12 }}>
               Line-pack thresholds for will-not-get-worse are not yet fitted. The check abstains
-              rather than inventing a pass. Money ROI stays off this screen until plant tariffs are
-              set (D157).
+              rather than inventing a pass. Money value stays off this screen until plant tariffs are
+              set.
             </p>
           </Section>
         </div>

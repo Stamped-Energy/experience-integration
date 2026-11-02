@@ -80,8 +80,10 @@ export function LayerProposal({ role }: { role: RoleId }) {
   const allowed = ["process-engineer", "plant-head"].includes(role);
   return (
     <article className="card decision" id="layer">
-      <div className="card-head"><span className="src">Process agent</span><span className="dotsep">·</span><span>{D.byId.line(p.lineId)!.short}</span>
-        <span className="right"><Tag tone="info">New control layer</Tag><Tag tone="accent">Needs a decision</Tag></span></div>
+      <div className="card-head">
+        <span className="card-head-meta"><span className="src">Process agent</span><span className="dotsep">·</span><span>{D.byId.line(p.lineId)!.short}</span></span>
+        <span className="right"><Tag tone="info">New control layer</Tag><Tag tone="accent">Needs a decision</Tag></span>
+      </div>
       <div className="card-body">
         <div className="card-block"><h3 className="card-title">{p.title}</h3><p className="card-obs">{p.summary}</p></div>
         <TwinBlock rows={p.rows} runs={p.sim.runs} fit={p.sim.fit} label={p.sim.label} />

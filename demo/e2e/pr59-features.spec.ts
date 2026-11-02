@@ -1,9 +1,13 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("PR-59 feature gates", () => {
-  test("reports use horizontal tabs synced to ?section=", async ({ page }) => {
+  test("reports index lists reports and detail uses section tabs", async ({ page }) => {
     await page.goto("/process/reports");
     await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("heading", { name: "Reports", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Export as" }).first()).toBeVisible();
+    await page.getByRole("link", { name: /Forging and HT/ }).click();
+    await page.waitForURL(/\/process\/reports\/rep-forge-week/);
     const tablist = page.getByRole("tablist", { name: "Report sections" });
     await expect(tablist).toBeVisible();
     await expect(page.locator(".rep-outline")).toHaveCount(0);
@@ -21,10 +25,17 @@ test.describe("PR-59 feature gates", () => {
   test("SPC page shows control chart limits and capability strip", async ({ page }) => {
     await page.goto("/quality/spc");
     await page.waitForLoadState("networkidle");
-    await expect(page.getByText("Demonstration SPC")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Control and capability", exact: true })).toBeVisible();
+    await expect(page.getByLabel("Capability summary")).toBeVisible();
     await expect(page.getByText(/Cp\s+\d+\.\d+/).first()).toBeVisible();
     await expect(page.getByText(/Cpk\s+\d+\.\d+/).first()).toBeVisible();
     await expect(page.locator(".spc-chart-card").first()).toBeVisible();
+  });
+
+  test("capability route redirects to Control and capability", async ({ page }) => {
+    await page.goto("/quality/capability");
+    await page.waitForURL("**/quality/spc**");
+    await expect(page.getByRole("heading", { name: "Control and capability", exact: true })).toBeVisible();
   });
 
   test("disabling a screen hides nav and redirects direct URL", async ({ page }) => {
@@ -42,6 +53,9 @@ test.describe("PR-59 feature gates", () => {
   });
 
   test("loop dashboard gauge is a single value arc", async ({ page }) => {
+    await page.goto("/process/proposals");
+    await page.waitForLoadState("networkidle");
+    await page.locator(".role-switch select").selectOption("stamped-engineer");
     await page.goto("/process/dashboards");
     await page.waitForLoadState("networkidle");
     const gauge = page.locator(".pc-gauge").first();
@@ -58,5 +72,48 @@ test.describe("PR-59 feature gates", () => {
     await page.waitForLoadState("networkidle");
     await expect(page.locator(".dg-canvas")).toBeVisible();
     await expect(page.getByText("PlantCraft")).toHaveCount(0);
+  });
+
+  for (const path of ["/quality/agent", "/process/agent"] as const) {
+    test(`Agent at work on ${path} shows four sections`, async ({ page }) => {
+      await page.goto(path);
+      await page.waitForLoadState("networkidle");
+      await expect(page.getByRole("heading", { name: "Agent at work", exact: true })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Working on now" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Waiting on you" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Tried on the model" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Learned this week" })).toBeVisible();
+      await expect(page.getByText(/camp-|loop-|prop-|D1\d{2}/)).toHaveCount(0);
+    });
+  }
+
+  test("plant head does not see Engineering in Process nav", async ({ page }) => {
+    await page.goto("/process/proposals");
+    await page.waitForLoadState("networkidle");
+    await page.locator(".role-switch select").selectOption("plant-head");
+    await page.goto("/process/proposals");
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("navigation", { name: "Product" }).getByRole("link", { name: /^Engineering/ })).toHaveCount(0);
+  });
+
+  test("stamped engineer sees Engineering and modules content", async ({ page }) => {
+    await page.goto("/process/proposals");
+    await page.waitForLoadState("networkidle");
+    await page.locator(".role-switch select").selectOption("stamped-engineer");
+    await page.goto("/process/modules");
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByText("Engineering view").first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Modules and shadow" })).toBeVisible();
+    await expect(page.getByText("This console is for Stamped engineers")).toHaveCount(0);
+  });
+
+  test("plant head on modules sees soft Engineering guard", async ({ page }) => {
+    await page.goto("/process/proposals");
+    await page.waitForLoadState("networkidle");
+    await page.locator(".role-switch select").selectOption("plant-head");
+    await page.goto("/process/modules");
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("heading", { name: "This console is for Stamped engineers" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Switch to Stamped engineer" })).toBeVisible();
   });
 });

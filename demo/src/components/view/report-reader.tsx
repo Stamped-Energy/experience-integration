@@ -26,29 +26,31 @@ function StatStrip({ section }: { section: ReportSection }) {
 function EventsBlock({ section }: { section: ReportSection }) {
   const rows = section.events ?? [];
   return (
-    <table className="rep-table">
-      <caption>{section.title}</caption>
-      <thead>
-        <tr>
-          <th>When</th>
-          <th>Event</th>
-          <th>About</th>
-          <th>What happened</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={row.at + row.title}>
-            <td className="num">{row.at}</td>
-            <td>
-              <Tag tone={row.severity === "critical" ? "critical" : row.severity === "warning" ? "warning" : "neutral"}>{row.title}</Tag>
-            </td>
-            <td>{row.about}</td>
-            <td>{row.summary}</td>
+    <div className="rep-table-wrap">
+      <table className="rep-table">
+        <caption>{section.title}</caption>
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>Event</th>
+            <th>About</th>
+            <th>What happened</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.at + row.title}>
+              <td className="num">{row.at}</td>
+              <td>
+                <Tag tone={row.severity === "critical" ? "critical" : row.severity === "warning" ? "warning" : "neutral"}>{row.title}</Tag>
+              </td>
+              <td>{row.about}</td>
+              <td>{row.summary}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -107,7 +109,7 @@ export function ReportReader({ report }: { report: DemoReport }) {
       const next = new URLSearchParams(window.location.search);
       next.set("section", id);
       router.replace(`${pathname}?${next.toString()}`, { scroll: false });
-      const el = main.current?.querySelector(`#${id}`);
+      const el = main.current?.querySelector(`#${CSS.escape(id)}`);
       el?.scrollIntoView({ behavior: "smooth", block: "start" });
     },
     [pathname, router],
@@ -131,7 +133,7 @@ export function ReportReader({ report }: { report: DemoReport }) {
       { root, rootMargin: "-20% 0px -55% 0px", threshold: [0.2, 0.6] },
     );
     outline.forEach(({ id }) => {
-      const el = root.querySelector(`#${id}`);
+      const el = root.querySelector(`#${CSS.escape(id)}`);
       if (el) obs.observe(el);
     });
     return () => obs.disconnect();
@@ -157,19 +159,20 @@ export function ReportReader({ report }: { report: DemoReport }) {
           </button>
         ))}
       </div>
-      <article className="rep-paper" ref={main}>
-        <header className="rep-cover">
-          <p className="muted">{report.periodLabel}</p>
-          <h2>{report.name}</h2>
-          <p className="secondary">{report.covers}</p>
-          <p className="pfd-demo-banner">Demonstration report · not sent externally</p>
-        </header>
-        {report.sections.map((section) => (
-          <section key={section.id} id={section.id} className="rep-section" role="tabpanel" aria-labelledby={`rep-tab-${section.id}`}>
-            <h3>{section.title}</h3>
-            <SectionBody section={section} />
-          </section>
-        ))}
+      <article className="rep-paper">
+        <div className="rep-paper-scroll" ref={main}>
+          <header className="rep-cover">
+            <p className="muted">{report.periodLabel}</p>
+            <h2>{report.name}</h2>
+            <p className="secondary">{report.covers}</p>
+          </header>
+          {report.sections.map((section) => (
+            <section key={section.id} id={section.id} className="rep-section" role="tabpanel" aria-labelledby={`rep-tab-${section.id}`}>
+              <h3>{section.title}</h3>
+              <SectionBody section={section} />
+            </section>
+          ))}
+        </div>
       </article>
     </div>
   );

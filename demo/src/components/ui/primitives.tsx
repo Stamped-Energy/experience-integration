@@ -30,6 +30,7 @@ export function VerdictTag({ verdict }: { verdict: Verdict }) {
   return <Tag tone={VERDICT_TONE[verdict]}>{verdict}</Tag>;
 }
 
+/** Showcase marker for illustrative figures. Kept as a no-op so client/investor pages stay clean. */
 export function Illustrative() {
   return null;
 }

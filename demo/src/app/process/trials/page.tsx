@@ -12,7 +12,7 @@ import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { DataTable, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { SwitchbackSchedule } from "@/components/process/SwitchbackSchedule";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { crumbs, processEyebrow } from "@/components/process/common";
 
 export const metadata = { title: "Trials and stops" };
 const tone = (s: string) => (s === "running" ? "info" : s === "awaiting signature" ? "accent" : s === "stopped" ? "critical" : "neutral") as "info" | "accent" | "critical" | "neutral";
@@ -23,7 +23,7 @@ export default async function Trials() {
   const waiting = D.trials.filter((t) => t.status === "awaiting signature");
   return (
     <Workspace crumbs={crumbs({ label: "Trials and stops" })} askContext="Trials">
-      <PageHeader eyebrow="Process" title="Trials and stops" meta="A trial alternates the change with the checked prior configuration on a schedule locked before it starts. Stop restores the prior."
+      <PageHeader eyebrow={processEyebrow("/process/trials")} title="Trials and stops" meta="Change alternates with the prior configuration on a locked schedule. Stop restores the prior."
         actions={<><AskButton context="Trials" label="Ask about trials" /></>} />
       <ProcessHubTabs />
       <div className="grid">
@@ -49,7 +49,10 @@ export default async function Trials() {
           <Section title="Waiting for signature" meta="Signer set per plant" flush>
             {waiting.map((t) => (
               <article key={t.id} className={`card decision ${clickableSurface}`} style={{ margin: 12 }}>
-                <div className="card-head"><span className="src">Process engineer A.</span><span className="dotsep">·</span><span>{D.byId.line(t.lineId)!.short}</span><span className="right"><Tag tone="accent">Needs a signature</Tag></span></div>
+                <div className="card-head">
+                  <span className="card-head-meta"><span className="src">Process engineer A.</span><span className="dotsep">·</span><span>{D.byId.line(t.lineId)!.short}</span></span>
+                  <span className="right"><Tag tone="accent">Needs a signature</Tag></span>
+                </div>
                 <div className="card-body"><div className="card-block"><h3 className="card-title"><StretchLink href={`/process/trials/${t.id}`}>{t.change}</StretchLink></h3><p className="card-obs">{t.schedule.join(". ")}. Restores {Object.values(t.restoreTarget)[0]} on Stop.</p></div></div>
                 <div className={stretchOver}><CardActions actions={[{ id: "sign", label: "Sign trial order", primary: true, allowed: can(role, "sign-trial"), reason: deniedReason("sign-trial", "sign"), done: "Signed." }]} /></div>
               </article>

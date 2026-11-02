@@ -7,7 +7,7 @@
 
 .module-workspace { min-width: 0; display: contents; }
 
-/* Obsolete top-nav page tabs — hidden */
+/* Obsolete top-nav page tabs: hidden */
 .module-page-tabs { display: none !important; }
 .module-nav { display: none !important; }
 .module-strip-wrap { display: none; }

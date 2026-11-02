@@ -18,8 +18,10 @@ export function QuestionCard({ v, canAnswer, canAssign, me, people, assignee }: 
   return (
     <article className={`card qcard${q.abnormal ? " q-abn" : ""}`} data-answered={!!answered || !!done}>
       <div className="card-head">
-        <span className="src">Agent question</span><span className="dotsep">·</span><span>{q.type}</span>
-        {v.line ? <><span className="dotsep">·</span><span>{v.line}</span></> : null}
+        <span className="card-head-meta">
+          <span className="src">Agent question</span><span className="dotsep">·</span><span>{q.type}</span>
+          {v.line ? <><span className="dotsep">·</span><span className="card-head-clip">{v.line}</span></> : null}
+        </span>
         <span className="right">
           {q.abnormal ? <span className="tag tag-critical">Abnormal</span> : null}
           {answered || done ? <span className="tag tag-success">Answered</span> : <span className={`tag${q.urgency === "High" ? " tag-accent" : ""}`}>{q.urgency}</span>}

@@ -169,10 +169,10 @@ function LineView({ element, path, show, selected, onDown }: { element: LineElem
   const line = (points: Point[]) => points.map((point, index) => `${index ? "L" : "M"}${point[0]} ${point[1]}`).join(" ");
   const d = line(path);
   const drawing = lineDrawing(path, element.kind, element.arrow);
-  const color = element.kind === "process" ? mediumColor(element.medium || "process") : undefined;
+  const ink = element.kind === "process" ? mediumColor(element.medium || "process") : undefined;
   const spot = element.label ? labelSpot(path) : null;
   return <g className={`dg-el dg-line dg-line-${element.kind}${selected ? " dg-selected" : ""}`} data-element={element.id} data-on={show?.on === true ? "true" : show?.on === false ? "false" : undefined}
-    style={color ? { color } : undefined} onPointerDown={onDown ? (event) => onDown(event, element) : undefined}>
+    style={ink ? { color: ink } : undefined} onPointerDown={onDown ? (event) => onDown(event, element) : undefined}>
     <title>{tooltip([show], element.label || element.medium)}</title>
     <path className="dg-line-hit" d={d} />
     <path className="dg-line-path" d={line(drawing.stroke)} />

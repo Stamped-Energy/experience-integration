@@ -94,12 +94,12 @@ export default function GoLivePage() {
               <li>Prove what you can on the plant emulator (M1E) and in the product first.</li>
               <li>Plant people still sign every plant-owned gate before writes are enabled.</li>
               <li>Record date, name and evidence for each row. Commissioning is separate: see the Plant Box commissioning runbook.</li>
-              <li>There is no hardware revoke switch (D115). Revoke is software-only on the lease.</li>
+              <li>There is no hardware revoke switch. Revoke is software-only on the lease.</li>
             </ul>
           </Section>
         </div>
         <div className="span-4 stack">
-          <Section title="Demonstration plant" meta="D117">
+          <Section title="Demonstration plant" meta="Showcase site">
             <div className="rows">
               <div className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
                 <span>Proven in product / M1E</span>
@@ -125,7 +125,7 @@ export default function GoLivePage() {
             <p className="muted" style={{ fontSize: 12, margin: "12px 0 0" }}>
               {blocked
                 ? "Go-live is blocked until the plant signs the remaining gates (update window or security path, role assignments, DPDP)."
-                : "Every plant-owned gate is signed. Process exit still needs six weeks live with writes on (D126, D136)."}
+                : "Every plant-owned gate is signed. Process exit still needs six weeks live with writes on."}
             </p>
           </Section>
           <Section title="Related">

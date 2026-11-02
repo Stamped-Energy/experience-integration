@@ -11,7 +11,7 @@ import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { SwitchbackSchedule } from "@/components/process/SwitchbackSchedule";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { crumbs, processEyebrow } from "@/components/process/common";
 
 const htone = (r: string) => (r === "holding" ? "success" : r === "faded" ? "critical" : "warning") as "success" | "critical" | "warning";
 
@@ -26,7 +26,7 @@ export default function Measurement() {
   const progress = trial.switches.length;
   return (
     <Workspace crumbs={crumbs({ label: "Measurement plans" }, { label: nameOf(plan.id) })} askContext={`Measurement plan ${nameOf(plan.id)}`}>
-      <PageHeader eyebrow="Process" title="Measurement plans and holding check" meta="How a change will be judged is locked, hashed and versioned before the first switch. The holding check looks again later."
+      <PageHeader eyebrow={processEyebrow("/process/measurement")} title="Measurement plans and holding check" meta="How a change is judged is locked before the first switch. Holding check looks again later."
         actions={<AskButton context={nameOf(plan.id)} label="Ask about this plan" />} />
       <ProcessHubTabs />
       <div className="grid">

@@ -37,7 +37,9 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
   return (
     <FoldCard summary={summary} labelledBy={`${a.id}-t`} anchor={a.id}>
       <div className="card-head">
-        <span className="src">{a.area} agent</span><span className="dotsep">·</span><span>{line.short}</span>
+        <span className="card-head-meta">
+          <span className="src">{a.area} agent</span><span className="dotsep">·</span><span className="card-head-clip">{line.short}</span>
+        </span>
         <span className="right">{a.steps.map((s) => <span key={s} className="ex-step" data-step={s}>{STEP_WORD[s]}</span>)}{c ? <Tag tone="success">{c.state}</Tag> : null}</span>
       </div>
       <div className="card-body ex-h">
@@ -135,51 +137,63 @@ function ActionGrid({ list, role }: { list: ExampleAction[]; role: RoleId }) {
   );
 }
 
-const NEEDS: Record<ActionGroup, (a: ExampleAction) => string> = {
-  decision: (a) => `${names(a.who.roles)} to decide`,
-  trial: () => "Nothing needed while it runs",
-  running: () => "Nothing needed. Stop is always there",
-  closed: (a) => (a.closed ? `Accepted by ${a.closed.by}` : "Checked against the records"),
-};
-const G_TONE = { decision: "info", trial: "neutral", running: "success", closed: "neutral" } as const;
-
 /** Actions for one area, optionally one line. Filters come from the URL. */
 export function listActions(area: "Process" | "Quality", lineId?: string) {
   return exampleActions.filter((a) => a.area === area && (!lineId || a.lineId === lineId));
 }
 
-/** Compact brief for an overview: a few rows, each opens inline; the full card lives in the Actions tab. */
-export function ActionsBrief({ area, lineId, href, limit = 4 }: { area: "Process" | "Quality"; lineId?: string; href: string; limit?: number }) {
+/** Compact brief for an overview: the same foldable action cards as the Actions board, capped for the page. */
+export function ActionsBrief({
+  area,
+  role,
+  lineId,
+  href,
+  limit = 4,
+}: {
+  area: "Process" | "Quality";
+  role: RoleId;
+  lineId?: string;
+  href: string;
+  limit?: number;
+}) {
   const list = listActions(area, lineId);
-  const open = list.filter((a) => groupOf(a) !== "closed").sort((a, b) => GROUPS.findIndex((g) => g.id === groupOf(a)) - GROUPS.findIndex((g) => g.id === groupOf(b)));
+  const open = list
+    .filter((a) => groupOf(a) !== "closed")
+    .sort((a, b) => GROUPS.findIndex((g) => g.id === groupOf(a)) - GROUPS.findIndex((g) => g.id === groupOf(b)));
   const count = (g: ActionGroup) => list.filter((a) => groupOf(a) === g).length;
-  const summary = [count("decision") ? `${count("decision")} need a decision` : "", count("trial") ? `${count("trial")} being tried` : "", count("running") ? `${count("running")} running on its own` : ""].filter(Boolean).join(" · ");
+  const summary = [
+    count("decision") ? `${count("decision")} need a decision` : "",
+    count("trial") ? `${count("trial")} being tried` : "",
+    count("running") ? `${count("running")} running on its own` : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const shown = open.slice(0, limit);
   return (
-    <section className="brief" aria-labelledby={`brief-${area}${lineId ?? ""}`}>
-      <div className="brief-head"><h2 id={`brief-${area}${lineId ?? ""}`}>Actions</h2><span className="muted">{summary || "Nothing open"}</span><Link className="link" href={href} style={{ marginLeft: "auto" }}>See all actions</Link></div>
-      <div className="brief-rows">
-        {open.slice(0, limit).map((a) => {
-          const g = groupOf(a);
-          return (
-            <details key={a.id} className="brief-row">
-              <summary>
-                <Tag tone={G_TONE[g]}>{GROUPS.find((x) => x.id === g)!.label}</Tag>
-                <span className="brief-t">{a.title}</span>
-                <span className="brief-n">{NEEDS[g](a)}</span>
-                {a.expected ? <EvidenceTag label={a.expected.label} /> : <span />}
-                <svg className="brief-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden><path d="m6 9 6 6 6-6" /></svg>
-              </summary>
-              <div className="brief-body">
-                <p>{a.seen}</p>
-                <p><span className="label">The change</span> {a.action}</p>
-                {a.expected ? <p><span className="label">Expected</span> {a.expected.label}, band {a.expected.band}</p> : null}
-                <Link className="btn btn-sm" href={`${href}#${a.id}`}>Open in Actions</Link>
-              </div>
-            </details>
-          );
-        })}
+    <section className="brief brief-cards" aria-labelledby={`brief-${area}${lineId ?? ""}`}>
+      <div className="brief-head">
+        <h2 id={`brief-${area}${lineId ?? ""}`}>Actions</h2>
+        <span className="muted">{summary || "Nothing open"}</span>
+        <Link className="link" href={href} style={{ marginLeft: "auto" }}>
+          See all actions
+        </Link>
       </div>
-      {open.length > limit ? <div className="brief-more"><Link className="link" href={href}>{open.length - limit} more open</Link></div> : null}
+      {shown.length ? (
+        <div className="ex-cards act-cards brief-card-grid">
+          {shown.map((a) => (
+            <ExampleActionCard key={a.id} a={a} role={role} />
+          ))}
+        </div>
+      ) : (
+        <p className="brief-empty muted">Nothing open right now.</p>
+      )}
+      {open.length > limit ? (
+        <div className="brief-more">
+          <Link className="link" href={href}>
+            {open.length - limit} more open
+          </Link>
+        </div>
+      ) : null}
     </section>
   );
 }

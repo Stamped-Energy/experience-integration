@@ -5,8 +5,9 @@ const OLD: [string, string][] = [
   ["/overview", "/"], ["/demo", "/"], ["/login", "/"], ["/tools", "/"], ["/energy", "/?view=owner"], ["/intensity", "/?view=owner"],
   ["/alarms", "/inbox"], ["/alarms/:id", "/inbox"], ["/prescriptions", "/inbox"], ["/prescriptions/:id", "/inbox"],
   ["/evidence", "/process"], ["/evidence/:id", "/process"], ["/analyst", "/ask"], ["/equipment", "/plant"], ["/live", "/plant"],
-  ["/plant-map", "/plant"], ["/reports", "/activity"], ["/settings/admin", "/settings"], ["/settings/assignments", "/settings"],
-  ["/settings/integrations", "/settings"],
+  ["/plant-map", "/plant"], ["/reports", "/activity"], ["/settings/admin", "/settings"], ["/settings/assignments", "/settings/assignment"],
+  ["/quality/capability", "/quality/spc"],
+  ["/quality/capa", "/quality/investigations"],
 ];
 
 const nextConfig: NextConfig = {

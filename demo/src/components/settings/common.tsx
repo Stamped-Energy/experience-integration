@@ -48,12 +48,46 @@ export function SettingsPage({ section, title, meta, actions, children, help, ch
       <div className="set-layout">
         <nav className="set-side" aria-label="Settings sections">
           <div className="set-side-h">Settings</div>
-          {SECTIONS.map((x) => <Link key={x.key} href={x.href} className={`set-link${x.key === section ? " on" : ""}`} aria-current={x.key === section ? "page" : undefined}><span>{x.label}</span><span className="set-sub">{x.sub}</span></Link>)}
-          
+          <Link href="/settings" className="set-link">
+            <span>All settings</span>
+            <span className="set-sub">Overview</span>
+          </Link>
+          {SECTIONS.map((x) => (
+            <Link
+              key={x.key}
+              href={x.href}
+              className={`set-link${x.key === section ? " on" : ""}`}
+              aria-current={x.key === section ? "page" : undefined}
+            >
+              <span>{x.label}</span>
+              <span className="set-sub">{x.sub}</span>
+            </Link>
+          ))}
         </nav>
         <div className="set-main">
-          <PageHeader eyebrow="Settings" title={title} meta={meta} actions={actions} />
-          {attention.length && section === "limits" ? <div className="set-attn"><b>Needs attention</b>{attention.slice(0, 3).map((x) => <Link key={x.k} href={x.href}>{x.t}</Link>)}</div> : null}
+          <PageHeader
+            eyebrow="Settings"
+            title={title}
+            meta={meta}
+            actions={
+              <>
+                <Link className="btn btn-sm btn-quiet" href="/settings">
+                  All settings
+                </Link>
+                {actions}
+              </>
+            }
+          />
+          {attention.length && section === "limits" ? (
+            <div className="set-attn">
+              <b>Needs attention</b>
+              {attention.slice(0, 3).map((x) => (
+                <Link key={x.k} href={x.href}>
+                  {x.t}
+                </Link>
+              ))}
+            </div>
+          ) : null}
           <div className="stack">
             {children}
             {side ? <div className="stack">{side}</div> : null}

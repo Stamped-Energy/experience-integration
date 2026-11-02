@@ -1,8 +1,9 @@
 import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
+import { EngineeringGuard } from "@/components/shell/EngineeringGuard";
 import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { QualityTabs, crumbs } from "@/components/quality/common";
+import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import {
   capaParetoDemo,
   changeControlDemo,
@@ -23,20 +24,13 @@ export default function CauseGapPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Cause gap" })} askContext="Cause gap context">
       <PageHeader
-        eyebrow="Quality"
+        eyebrow={qualityEyebrow("/quality/cause-gap")}
         title="Cause gap"
-        meta={
-          <span style={{ display: "inline-flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            Operator and shift rates, environment joins, change log, CAPA root-cause Pareto, poka-yoke gaps.
-            Eng Lead kernels via get_operator_shift_context, get_environment_ingest,
-            get_change_control_log, get_capa_category_pareto, get_poka_yoke_gap. Recommend only; never blame.
-            <Tag tone="warning">Example data</Tag>
-          </span>
-        }
+        meta="Operator, environment, change log, CAPA and poka-yoke context"
         actions={<AskButton context="Cause gap" label="Ask about cause gap" />}
       />
       <QualityHubTabs />
-
+      <EngineeringGuard backHref="/quality/actions" backLabel="Back to Quality actions">
       <Section title="Operator and shift rates" meta="get_operator_shift_context · aggregates first · pseudonyms only · never blame" flush>
         <div style={{ padding: "12px 16px", display: "grid", gap: 16, minWidth: 0 }}>
           <p className="muted" style={{ margin: 0, fontSize: 13 }}>
@@ -160,6 +154,7 @@ export default function CauseGapPage() {
           </div>
         </div>
       </Section>
+      </EngineeringGuard>
     </Workspace>
   );
 }

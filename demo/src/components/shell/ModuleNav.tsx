@@ -3,13 +3,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ModuleDefinition } from "@/lib/module/types";
-import { screenActive } from "@/lib/module/definitions";
+import { processModule, qualityModule, screenActive } from "@/lib/module/definitions";
 import { countForScreen } from "@/lib/module/counts";
+import { hubsVisibleTo, PROCESS_HUBS, QUALITY_HUBS } from "@/lib/module/hubs";
+import { useRole } from "@/lib/role.client";
+
+function screensForModule(module: ModuleDefinition, role: string) {
+  const hubs = module.id === "process" ? PROCESS_HUBS : QUALITY_HUBS;
+  const visible = new Set(hubsVisibleTo(role, hubs).map((h) => h.sidebarHref));
+  return module.groups.flatMap((g) => g.screens).filter((s) => visible.has(s.href));
+}
 
 /** Primary module pages as a horizontal tab row under the header (coral underline). */
 export function ModulePageTabs({ module }: { module: ModuleDefinition }) {
   const path = usePathname();
-  const screens = module.groups.flatMap((g) => g.screens);
+  const role = useRole();
+  const screens = screensForModule(module, role);
   return (
     <nav className="module-page-tabs" aria-label={`${module.label} pages`}>
       <div className="module-page-tabs-inner" role="tablist">
@@ -42,7 +51,8 @@ export function ModuleNav({ module }: { module: ModuleDefinition }) {
 
 export function ModuleMobileStrip({ module }: { module: ModuleDefinition }) {
   const path = usePathname();
-  const screens = module.groups.flatMap((g) => g.screens);
+  const role = useRole();
+  const screens = screensForModule(module ?? (path.startsWith("/quality") ? qualityModule : processModule), role);
   return (
     <div className="module-strip-wrap">
       <div className="module-strip" role="navigation" aria-label={`${module.label} screens`}>

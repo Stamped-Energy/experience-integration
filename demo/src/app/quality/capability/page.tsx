@@ -2,7 +2,7 @@ import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, Illustrative, PageHeader, Section } from "@/components/ui/primitives";
-import { QualityTabs, crumbs } from "@/components/quality/common";
+import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import { capabilityCards } from "@/lib/demo/capabilityScreens";
 
 export const metadata = { title: "Capability" };
@@ -11,9 +11,9 @@ export default function CapabilityPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Capability" })} askContext="Process capability">
       <PageHeader
-        eyebrow="Quality"
+        eyebrow={qualityEyebrow("/quality/capability")}
         title="Capability"
-        meta="Cp / Cpk / Pp / Ppk · Recommend only · Illustrative until store samples exist"
+        meta="Cp, Cpk, Pp and Ppk; recommend only."
         actions={
           <>
             <Illustrative />

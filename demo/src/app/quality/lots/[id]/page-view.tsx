@@ -17,7 +17,7 @@ import { RunChart } from "@/components/ui/charts";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { runLabel } from "@/components/process/common";
-import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, labOf, linksOf, lotNo, proofForLot, propOf, specOf, threshold, weakestJoin, whyRisk } from "@/components/quality/common";
+import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, labOf, linksOf, lotNo, proofForLot, propOf, qualityEyebrow, specOf, threshold, weakestJoin, whyRisk } from "@/components/quality/common";
 
 
 export default function LotDetail() {
@@ -36,7 +36,7 @@ export default function LotDetail() {
   const base = `/quality/lots/${lot.id}`;
   return (
     <Workspace crumbs={crumbs({ label: "Lots", href: "/quality" }, { label: `Lot ${lotNo(lot.id)}` })} askContext={`Lot ${lotNo(lot.id)}`}>
-      <PageHeader eyebrow={`Lot · ${line.name}`} title={`Lot ${lotNo(lot.id)} · ${gradeOf(lot).name}`}
+      <PageHeader eyebrow={qualityEyebrow(`/quality/lots/${lot.id}`)} title={`Lot ${lotNo(lot.id)} · ${gradeOf(lot).name}`}
         meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><RiskTag risk={lot.riskWord} />{lot.status} · started {dayMonth(lot.startedAt)} {hhmm(lot.startedAt)}</span>}
         actions={<>{proof ? <Link className="btn btn-sm btn-accent" href={`${base}?evidence=${proof.id}`} scroll={false}>Evidence</Link> : null}<AskButton context={`Lot ${lotNo(lot.id)}`} label="Ask about this lot" /></>} />
       <QualityTabs active="lots" />
@@ -46,7 +46,7 @@ export default function LotDetail() {
             {whyRisk(lot).map((line) => <p key={line} style={{ margin: "0 0 8px", lineHeight: 1.5 }}>{line}</p>)}
           </Section>
           <Section title="Join" meta={`Quality owns the lot join; every link carries its confidence · pack threshold ${thr} · weakest label sets the lot`} flush actions={<JoinTag label={weakestJoin(lot)} />}>
-            <div className="join" style={{ padding: 16 }}>
+            <div className="join section-pad">
               <div className="join-lot"><div className="label">Lot</div><div className="mono" style={{ fontWeight: 600 }}>{lotNo(lot.id)}</div><div className="cell-sub">{lot.stages.join(" · ")}</div></div>
               <div className="join-edges" aria-hidden />
               <div className="join-runs">{links.map((l) => {

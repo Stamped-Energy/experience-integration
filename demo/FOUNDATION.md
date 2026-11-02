@@ -62,13 +62,15 @@ Rules: confidence follows the method. Proposals and Ask answers show a label and
 ## 6. Routes
 | Route | State |
 |---|---|
-| `/` Home, `?view=overview\|plant\|shift\|line\|owner` | Built. `/` opens on Overview. The other four views are unchanged. |
-| `/inbox?tab=waiting\|tasks\|decided`, `/inbox/[id]` | Built. |
-| `/process`, `/quality`, `/plant`, `/ask`, `/settings`, `/activity` | Stubs (`AreaStub`). Proto Bot builds these. |
+| `/` Home, `?view=overview\|plant\|shift\|line\|owner` | Built. `/` opens on Overview. |
+| `/inbox?tab=waiting\|tasks\|decided\|questions`, `/inbox/[id]` | Built. |
+| `/process/**` | Built. Client hubs: Actions, Lines, Performance, Reports, Setup. Engineering hub (Stamped engineer): Loop dashboard, Optimisation, Simulation campaigns, Modules, Model upkeep. Hub tabs via `ProcessHubTabs`. Agent at work: `/process/agent`. Reports: index + detail with Export as. |
+| `/quality/**` | Built. Client hubs: Actions, Lots, Analytics, Setup. Engineering hub (Stamped engineer): Simulation campaigns, Monitor tuning, Cause gap, Cause graphs. Agent at work: `/quality/agent`. Control and capability: `/quality/spc` (Capability redirects here). CAPA redirects into Investigations. |
+| `/plant/**`, `/ask/**`, `/settings/**`, `/activity/**` | Built. |
 | `/planning` | Coming soon page. |
 | Old energy routes | Redirect in `next.config.ts` (spec §13). |
 
-Conventions: one folder per area under `src/app/<area>/`; sub-screens as nested routes (`/process/lines/[id]`), view state in search params so links preview and share; evidence on demand as `?evidence=<proofId>` on the run or lot page (Proof is not an area). Every page: `Workspace` → `PageHeader` → content on the 12-column `.grid` with `.span-N`. At 1440 and 1920 fill the width with a context column (`span-4`) rather than leaving gutters.
+Conventions: one folder per area under `src/app/<area>/`; sub-screens as nested routes (`/process/lines/[id]`), view state in search params so links preview and share; evidence on demand as `?evidence=<proofId>` on the run or lot page (Proof is not an area). Every page: `Workspace` → `PageHeader` → hub tabs (Process/Quality) → content on the 12-column `.grid` with `.span-N`. Prefer main `span-8` + context `span-4` with `.ctx`. Eyebrow for hub screens: `Process · {hub.sidebarLabel}` or `Quality · {hub.sidebarLabel}`. See `docs/SOURCE_ALIGNMENT.md` when docs and code disagree.
 
 ## 7. Copy
 No em dashes. British/Indian spelling. No "unlock", "superpower", "platform" as pitch, client names, WhatsApp or Maintenance. Authority line: "Stamped works inside limits set beforehand." Every rupee figure tagged Illustrative. `pnpm lint` enforces part of this.

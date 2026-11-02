@@ -6,7 +6,7 @@ import { CrumbTools } from "./CrumbTools";
 
 export interface Crumb { label: string; href?: string }
 
-/** Classic crumb bar — module chrome lives in SideNav. */
+/** Classic crumb bar: module chrome lives in SideNav. */
 export function WorkspaceHeader({ crumbs, askContext }: { crumbs: Crumb[]; askContext?: string }) {
   return (
     <header className="crumbbar">

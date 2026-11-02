@@ -2,9 +2,8 @@ import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { crumbs, processEyebrow } from "@/components/process/common";
 import {
-  CYCLE_TIME_PAGE_META,
   CYCLE_STATES,
   CYCLE_STATE_LABEL,
   listCycleBreakdowns,
@@ -65,20 +64,15 @@ export default function CycleTimePage() {
   return (
     <Workspace crumbs={crumbs({ label: "Cycle time" })} askContext="Cycle time">
       <PageHeader
-        eyebrow="Process"
+        eyebrow={processEyebrow("/process/cycle-time")}
         title="Cycle time"
-        meta={CYCLE_TIME_PAGE_META}
-        actions={
-          <>
-            <Tag tone="warning">Illustrative</Tag>
-            <AskButton context="Cycle time" label="Ask about cycle time" />
-          </>
-        }
+        meta="Dwell and share by cycle state"
+        actions={<AskButton context="Cycle time" label="Ask about cycle time" />}
       />
       <ProcessHubTabs />
       <div className="grid">
-        <div className="span-8 xl-span-9 stack">
-          <Section title="Stations" meta="Samples passed until cycle-state store is wired" flush>
+        <div className="span-12 stack">
+          <Section title="Stations" flush>
             <DataTable
               caption="Cycle-time stations"
               rows={cards}
@@ -113,25 +107,15 @@ export default function CycleTimePage() {
           <Section title="Dwell by state" meta={`${ok.length} of ${cards.length} stations with a breakdown`}>
             <div className="stack" style={{ gap: 16 }}>
               {cards.map((card) => (
-                <div key={card.asset_id} className="card" style={{ padding: 16 }}>
+                <div key={card.asset_id} className="card section-pad">
                   <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
                     <strong>{card.station}</strong>
                     <span className="cell-sub">{card.window_label}</span>
-                    <Tag tone="warning">Illustrative</Tag>
                   </div>
                   <ShareBars card={card} />
                 </div>
               ))}
             </div>
-          </Section>
-        </div>
-        <div className="span-4 xl-span-3 stack ctx">
-          <Section title="How this stays honest">
-            <ul className="stack" style={{ gap: 8, paddingLeft: 18, margin: 0 }}>
-              <li className="cell-sub">Shares sum to 1.0 over a positive window. No OEE target is invented.</li>
-              <li className="cell-sub">Fewer than two samples abstain rather than invent dwell.</li>
-              <li className="cell-sub">Live cards call get_cycle_time_breakdown; store-backed samples still pending.</li>
-            </ul>
           </Section>
         </div>
       </div>

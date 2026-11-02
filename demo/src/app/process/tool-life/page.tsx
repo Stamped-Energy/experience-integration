@@ -2,9 +2,8 @@ import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { crumbs, processEyebrow } from "@/components/process/common";
 import {
-  TOOL_LIFE_PAGE_META,
   listToolCards,
   type ToolCard,
   type ToolLifeResult,
@@ -24,20 +23,15 @@ export default function ToolLifePage() {
   return (
     <Workspace crumbs={crumbs({ label: "Tool life" })} askContext="Tool life">
       <PageHeader
-        eyebrow="Process"
+        eyebrow={processEyebrow("/process/tool-life")}
         title="Tool life"
-        meta={TOOL_LIFE_PAGE_META}
-        actions={
-          <>
-            <Tag tone="warning">Illustrative</Tag>
-            <AskButton context="Tool life" label="Ask about tool life" />
-          </>
-        }
+        meta="Remaining tool life estimates"
+        actions={<AskButton context="Tool life" label="Ask about tool life" />}
       />
       <ProcessHubTabs />
       <div className="grid">
-        <div className="span-8 xl-span-9 stack">
-          <Section title="Machining tools" meta="Recommend only · Inputs passed until tool-life store is wired" flush>
+        <div className="span-12 stack">
+          <Section title="Machining tools" flush>
             <DataTable
               caption="Tool life cards"
               rows={cards}
@@ -95,11 +89,10 @@ export default function ToolLifePage() {
               {cards.map((t) => {
                 const r: ToolLifeResult = t.result;
                 return (
-                  <div key={t.tool_id} className="card" style={{ padding: 16 }}>
+                  <div key={t.tool_id} className="card section-pad">
                     <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                       <strong>{t.tool_name}</strong>
                       {resultTag(t)}
-                      <Tag tone="warning">Illustrative</Tag>
                     </div>
                     <p className="cell-sub" style={{ marginTop: 8 }}>
                       {r.kind === "estimate" ? r.reason : r.detail}
@@ -107,7 +100,7 @@ export default function ToolLifePage() {
                     {r.kind === "abstain" ? (
                       <p className="cell-sub" style={{ marginTop: 4 }}>
                         Abstain reason: <span className="mono">{r.reason}</span>. Fit Taylor n and C on plant data, or
-                        supply a CNC life_limit. Stamped never invents coefficients.
+                        supply a CNC life_limit.
                       </p>
                     ) : (
                       <p className="cell-sub" style={{ marginTop: 4 }}>
@@ -119,16 +112,6 @@ export default function ToolLifePage() {
                 );
               })}
             </div>
-          </Section>
-        </div>
-        <div className="span-4 xl-span-3 stack ctx">
-          <Section title="How this stays honest">
-            <ul className="stack" style={{ gap: 8, paddingLeft: 18, margin: 0 }}>
-              <li className="cell-sub">Taylor n and C are never defaulted. Open coefficients abstain.</li>
-              <li className="cell-sub">Recommend change only when remaining_threshold is set by the plant.</li>
-              <li className="cell-sub">No CNC or magazine write path. A person still changes the tool.</li>
-              <li className="cell-sub">Live cards call get_tool_life_estimate; store-backed life_used still pending.</li>
-            </ul>
           </Section>
         </div>
       </div>
