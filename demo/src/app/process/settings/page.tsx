@@ -16,7 +16,7 @@ export default async function RunningSettings() {
   return (
     <Workspace crumbs={crumbs({ label: "Running settings" })} askContext="Running settings">
       <PageHeader eyebrow={processEyebrow("/process/settings")} title="Running settings" meta="Every value written, its mode, who signed the window, and when it expires."
-        actions={<><Link className="btn btn-sm" href="/settings">Signed limits</Link><AskButton context="Running settings" label="Ask about settings" /></>} />
+        actions={<><Link className="btn btn-sm" href="/settings">Plant settings</Link><AskButton context="Running settings" label="Ask about settings" /></>} />
       <ProcessHubTabs />
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
