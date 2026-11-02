@@ -14,14 +14,14 @@ import { RunChart } from "@/components/ui/charts";
 import { DataTable, EvidenceIds, EvidenceTag, Illustrative, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { runLabel } from "@/components/process/common";
-import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, specOf, threshold, weakestJoin, belowThreshold } from "@/components/quality/common";
+import { JoinTag, RiskTag, crumbs, gradeOf, lotNo, propOf, qualityEyebrow, specOf, weakestJoin } from "@/components/quality/common";
 
 export const metadata = { title: "Corrections to process" };
 export default async function Corrections() {
   const role = demoRole();
   return (
     <Workspace crumbs={crumbs({ label: "Corrections to process" })} askContext="Corrections to process">
-      <PageHeader eyebrow="Quality" title="Corrections to process" meta="Quality asks; Process decides. A correction becomes a proposal on the line and goes through the same limits and approvals." actions={<AskButton context="Corrections" label="Ask about corrections" />} />
+      <PageHeader eyebrow={qualityEyebrow("/quality/corrections")} title="Corrections to process" meta="Quality asks; Process decides inside the same signed limits." actions={<AskButton context="Corrections" label="Ask about corrections" />} />
       <QualityHubTabs />
       <div className="grid">
         {D.corrections.map((c) => {

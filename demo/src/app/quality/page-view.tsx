@@ -20,7 +20,7 @@ import { AskedHere, Learned, Qualification, WorkingOn } from "@/components/agent
 import * as A from "@/lib/demo/agent";
 import { Tabs } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
-import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, labOf, linksOf, lotNo, proofForLot, propOf, specOf, threshold, weakestJoin } from "@/components/quality/common";
+import { JoinTag, RiskTag, crumbs, gradeOf, labOf, linksOf, lotNo, proofForLot, propOf, qualityEyebrow, specOf, threshold, weakestJoin } from "@/components/quality/common";
 
 const RANK = { "At risk": 0, Watch: 1, "On track": 2 } as const;
 
@@ -43,7 +43,7 @@ export default function LotsAtRisk() {
   const atRisk = D.lots.filter((l) => l.riskWord === "At risk");
   return (
     <Workspace crumbs={crumbs({ label: sp.tab === "actions" ? "Actions" : sp.tab === "agent" ? "Agent work" : "Lots at risk" })} askContext="Lots at risk">
-      <PageHeader eyebrow="Quality" title={actions ? "Quality actions" : agent ? "Agent work on quality" : "Lots at risk"} meta={actions ? "Every quality action, grouped by what it needs from you." : agent ? "What the agent is doing on quality, and what it needs from you." : "Lots that may miss spec, and how sure the agent is. Select a lot to see why."}
+      <PageHeader eyebrow={qualityEyebrow("/quality")} title={actions ? "Quality actions" : agent ? "Agent work on quality" : "Lots at risk"} meta={actions ? "Open quality work, grouped by what it needs from you." : agent ? "What the agent is doing, and what it needs from you." : "Lots that may miss spec, with how sure the join and band are."}
         actions={<><Link className="btn btn-sm" href="/quality/links">{D.lotLinks.filter((l) => l.status === "suggested" && l.link_confidence < 0.8).length} links to confirm</Link><AskButton context="Lots at risk" label="Ask about lots" /></>} />
       <QualityHubTabs />
       {actions ? <><ActionsBoard area="Quality" role={role} base="/quality" status={sp.status} line={sp.line} mine={sp.mine} /></> : null}

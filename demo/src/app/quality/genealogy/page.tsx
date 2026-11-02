@@ -4,7 +4,7 @@ import * as D from "@/lib/demo/data";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { QualityTabs, crumbs, lotNo } from "@/components/quality/common";
+import { crumbs, lotNo, qualityEyebrow } from "@/components/quality/common";
 import { genealogyTraces } from "@/lib/demo/capabilityScreens";
 
 export const metadata = { title: "Genealogy trace" };
@@ -18,9 +18,9 @@ export default function GenealogyPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Genealogy trace" })} askContext="Genealogy trace">
       <PageHeader
-        eyebrow="Quality"
+        eyebrow={qualityEyebrow("/quality/genealogy")}
         title="Genealogy trace"
-        meta="Forward / backward · Recommend only · Illustrative edges until lineage store feeds the screen"
+        meta="Forward and backward trace; recommend only."
         actions={
           <>
             <Illustrative />
@@ -31,7 +31,7 @@ export default function GenealogyPage() {
       <QualityHubTabs />
       <div className="stack">
         {genealogyTraces.map((t) => (
-          <Section key={`${t.startId}-${t.direction}`} title={`From ${t.startId}`} meta={t.direction} flush>
+          <Section key={`${t.startId}-${t.direction}`} title={`From ${t.startId.startsWith("lot-") ? `Lot ${lotNo(t.startId)}` : t.startId}`} meta={t.direction} flush>
             <DataTable
               caption={`Trace ${t.direction}`}
               rows={t.nodes}

@@ -5,7 +5,7 @@ import { AskButton } from "@/components/shell/ShellClient";
 import { Workspace } from "@/components/shell/Shell";
 import { KpiRow, PageHeader } from "@/components/ui/primitives";
 import { loopCampaigns } from "@/lib/demo/loopRuns";
-import { crumbs } from "@/components/quality/common";
+import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import { StaticPageFallback } from "@/components/page/StaticPageFallback";
 
 export const metadata = { title: "Simulations" };
@@ -30,7 +30,7 @@ function Body() {
 export default function QualitySimulationsPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Simulations" })} askContext="Quality simulations">
-      <PageHeader eyebrow="Quality · Improve" title="Simulations" meta="Quality loop and sampling simulations use the same compare pattern as Process. Demonstration data." actions={<AskButton context="Quality simulations" label="Ask about simulations" />}
+      <PageHeader eyebrow={qualityEyebrow("/quality/simulations")} title="Simulations" meta="Quality sampling loops on demonstration data." actions={<AskButton context="Quality simulations" label="Ask about simulations" />}
       />
       <QualityHubTabs />
       <Suspense fallback={<StaticPageFallback><p className="muted">Loading…</p></StaticPageFallback>}>

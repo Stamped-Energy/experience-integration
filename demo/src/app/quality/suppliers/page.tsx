@@ -2,7 +2,7 @@ import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { QualityTabs, crumbs } from "@/components/quality/common";
+import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import { supplierScores } from "@/lib/demo/capabilityScreens";
 
 export const metadata = { title: "Supplier scorecard" };
@@ -11,9 +11,9 @@ export default function SuppliersPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Supplier scorecard" })} askContext="Supplier scorecard">
       <PageHeader
-        eyebrow="Quality"
+        eyebrow={qualityEyebrow("/quality/suppliers")}
         title="Supplier scorecard"
-        meta="Defect ppm and SCAR drafts · Recommend only · Illustrative until store feeds the screen"
+        meta="Defect ppm and SCAR drafts; recommend only."
         actions={
           <>
             <Illustrative />

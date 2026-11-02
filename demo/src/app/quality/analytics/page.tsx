@@ -5,11 +5,8 @@ import { AskButton } from "@/components/shell/ShellClient";
 import { Workspace } from "@/components/shell/Shell";
 import { DataTable, KpiRow, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { Sparkline } from "@/components/ui/charts";
-import { crumbs } from "@/components/quality/common";
+import { belowThreshold, crumbs, lotNo, qualityEyebrow } from "@/components/quality/common";
 import * as D from "@/lib/demo/data";
-import { belowThreshold } from "@/components/quality/common";
-
-export const metadata = { title: "Analytics" };
 
 export default function QualityAnalyticsPage() {
   const atRisk = D.lots.filter((l) => l.riskWord === "At risk").length;
@@ -21,7 +18,7 @@ export default function QualityAnalyticsPage() {
   const lowLinks = belowThreshold();
   return (
     <Workspace crumbs={crumbs({ label: "Analytics" })} askContext="Quality analytics">
-      <PageHeader eyebrow="Quality · Scan" title="Analytics" meta="Drift, yield and lab lag on demonstration data." actions={<AskButton context="Quality analytics" label="Ask about quality trends" />}
+      <PageHeader eyebrow={qualityEyebrow("/quality/analytics")} title="Analytics" meta="Drift, yield and lab lag on demonstration data." actions={<AskButton context="Quality analytics" label="Ask about quality trends" />}
       />
       <QualityHubTabs />
       <KpiRow
@@ -47,7 +44,7 @@ export default function QualityAnalyticsPage() {
               rowKey={(l) => l.id}
               rows={D.lots.filter((l) => l.riskWord === "At risk")}
               columns={[
-                { key: "l", label: "Lot", render: (l) => <Link className="link" href={`/quality/lots/${l.id}`}>{l.id.replace("lot-", "").toUpperCase()}</Link> },
+                { key: "l", label: "Lot", render: (l) => <Link className="link" href={`/quality/lots/${l.id}`}>{lotNo(l.id)}</Link> },
                 { key: "line", label: "Line", render: (l) => D.byId.line(l.lineIds[0])!.short },
                 { key: "t", label: "Trend", render: () => <Sparkline values={[48, 47, 46, 45, 44, 43]} width={100} height={24} label="Hardness demo" /> },
                 { key: "s", label: "Status", render: () => <Tag tone="warning">At risk</Tag> },
@@ -66,7 +63,7 @@ export default function QualityAnalyticsPage() {
             <div className="rows">
               {lowLinks.slice(0, 4).map((link) => (
                 <Link key={link.id} className="row" href="/quality/links">
-                  <span><span className="row-title">{D.byId.lot(link.lotId)!.id}</span><span className="row-sub">Confidence {Math.round(link.link_confidence * 100)}%</span></span>
+                  <span><span className="row-title">Lot {lotNo(link.lotId)}</span><span className="row-sub">Confidence {Math.round(link.link_confidence * 100)}%</span></span>
                   <span className="link">Review</span>
                 </Link>
               ))}

@@ -2,7 +2,7 @@ import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { QualityTabs, crumbs } from "@/components/quality/common";
+import { crumbs, lotNo, qualityEyebrow } from "@/components/quality/common";
 import { capaCases } from "@/lib/demo/capabilityScreens";
 
 export const metadata = { title: "8D / CAPA" };
@@ -17,9 +17,9 @@ export default function CapaPage() {
   return (
     <Workspace crumbs={crumbs({ label: "8D / CAPA" })} askContext="8D CAPA tracker">
       <PageHeader
-        eyebrow="Quality"
+        eyebrow={qualityEyebrow("/quality/capa")}
         title="8D / CAPA"
-        meta="D-step tracker · Recommend only · Illustrative lifecycle until store cards cover the screen"
+        meta="8D case tracker; recommend only."
         actions={
           <>
             <Illustrative />
@@ -60,7 +60,7 @@ export default function CapaPage() {
               label: "Lots",
               render: (r) => (
                 <span className="mono" style={{ overflowWrap: "anywhere" }}>
-                  {r.lotIds.length ? r.lotIds.join(", ") : "-"}
+                  {r.lotIds.length ? r.lotIds.map((id) => lotNo(id)).join(", ") : "-"}
                 </span>
               ),
             },

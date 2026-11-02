@@ -13,13 +13,13 @@ import { RunChart } from "@/components/ui/charts";
 import { DataTable, EvidenceIds, EvidenceTag, Illustrative, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { runLabel } from "@/components/process/common";
-import { JoinTag, QualityTabs, RiskTag, crumbs, gradeOf, linksOf, lotNo, propOf, specOf, threshold, weakestJoin, belowThreshold } from "@/components/quality/common";
+import { JoinTag, RiskTag, crumbs, gradeOf, lotNo, propOf, qualityEyebrow, specOf, weakestJoin } from "@/components/quality/common";
 
 export const metadata = { title: "Investigations" };
 export default async function Investigations() {
   return (
     <Workspace crumbs={crumbs({ label: "Investigations" })} askContext="Quality investigations">
-      <PageHeader eyebrow="Quality" title="Investigations" meta="A case file per question: lots, linked runs, evidence and a conclusion that ends in a proof record." actions={<AskButton context="Investigations" label="Ask about investigations" />} />
+      <PageHeader eyebrow={qualityEyebrow("/quality/investigations")} title="Investigations" meta="Case file per question: lots, runs, evidence, and a conclusion." actions={<AskButton context="Investigations" label="Ask about investigations" />} />
       <QualityHubTabs />
       <div className="grid">
         {D.investigations.map((i) => {

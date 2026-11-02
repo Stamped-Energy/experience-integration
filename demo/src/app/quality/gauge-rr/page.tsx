@@ -2,7 +2,7 @@ import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { QualityTabs, crumbs } from "@/components/quality/common";
+import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import { gaugeRrCards } from "@/lib/demo/capabilityScreens";
 
 export const metadata = { title: "Gauge R&R" };
@@ -11,9 +11,9 @@ export default function GaugeRrPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Gauge R&R" })} askContext="Gauge R&R">
       <PageHeader
-        eyebrow="Quality"
+        eyebrow={qualityEyebrow("/quality/gauge-rr")}
         title="Gauge R&R"
-        meta="%GRR and ndc · Recommend only · Illustrative until MSA store exists"
+        meta="%GRR and ndc; recommend only."
         actions={
           <>
             <Illustrative />

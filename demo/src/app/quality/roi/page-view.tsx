@@ -6,7 +6,7 @@ import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { PageHeader, Tag } from "@/components/ui/primitives";
 import { D157RoiReportPanel } from "@/components/quality/D157RoiReportPanel";
-import { QualityTabs, crumbs } from "@/components/quality/common";
+import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import { DEMO_D157_NO_COSTS, DEMO_D157_WITH_COSTS } from "@/lib/d157-roi-report";
 
 export default function RoiPageView() {
@@ -18,16 +18,15 @@ export default function RoiPageView() {
   return (
     <Workspace crumbs={crumbs({ label: "D157 ROI report" })} askContext="D157 ROI report">
       <PageHeader
-        eyebrow="Quality"
+        eyebrow={qualityEyebrow("/quality/roi")}
         title="D157 ROI report"
-        meta={
-          <span style={{ display: "inline-flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            Rejection and scrap rate deltas first. Money only after Set unit costs.
+        meta="Rejection and scrap deltas first; money only after you set unit costs."
+        actions={
+          <>
             <Tag tone="warning">Example data</Tag>
-            <Tag>quality.get_d157_roi_report</Tag>
-          </span>
+            <AskButton context="D157 ROI report" label="Ask about ROI" />
+          </>
         }
-        actions={<AskButton context="D157 ROI report" label="Ask about ROI" />}
       />
       <QualityHubTabs />
       <div className="grid">
