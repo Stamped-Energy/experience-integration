@@ -64,7 +64,7 @@ Rules: confidence follows the method. Proposals and Ask answers show a label and
 |---|---|
 | `/` Home, `?view=overview\|plant\|shift\|line\|owner` | Built. `/` opens on Overview. |
 | `/inbox?tab=waiting\|tasks\|decided\|questions`, `/inbox/[id]` | Built. |
-| `/process/**` | Built. Sidebar hubs in `src/lib/module/hubs.ts` (Actions, Dashboards, Process plant, Reports, Analytics). In-page hub tabs via `ProcessHubTabs`. |
+| `/process/**` | Built. Sidebar hubs in `src/lib/module/hubs.ts` (Actions, Dashboards, Process plant, Reports, Analytics). In-page hub tabs via `ProcessHubTabs`. Reports: index at `/process/reports`, detail at `/process/reports/[id]` with Export as (PDF/Excel/CSV/Word). |
 | `/quality/**` | Built. Sidebar hubs (Actions, Inspect, Analytics, Simulations, Setup). In-page hub tabs via `QualityHubTabs`. |
 | `/plant/**`, `/ask/**`, `/settings/**`, `/activity/**` | Built. |
 | `/planning` | Coming soon page. |

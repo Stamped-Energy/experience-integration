@@ -55,7 +55,7 @@ export function screenActive(href: string, path: string): boolean {
     return path === "/process/line" || path === "/process/health";
   }
   if (href === "/process/reports") {
-    return path === "/process/reports";
+    return path === "/process/reports" || path.startsWith("/process/reports/");
   }
   if (href === "/process/analytics") {
     return (

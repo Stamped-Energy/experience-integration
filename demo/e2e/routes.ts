@@ -11,6 +11,7 @@ export const PROCESS_ROUTES = [
   "/process/line",
   "/process/health",
   "/process/reports",
+  "/process/reports/rep-forge-week",
   "/process/analytics",
   "/process/optimisation",
   "/process/simulations",

@@ -1,9 +1,13 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("PR-59 feature gates", () => {
-  test("reports use horizontal tabs synced to ?section=", async ({ page }) => {
+  test("reports index lists reports and detail uses section tabs", async ({ page }) => {
     await page.goto("/process/reports");
     await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("heading", { name: "Reports", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Export as" }).first()).toBeVisible();
+    await page.getByRole("link", { name: /Forging and HT/ }).click();
+    await page.waitForURL(/\/process\/reports\/rep-forge-week/);
     const tablist = page.getByRole("tablist", { name: "Report sections" });
     await expect(tablist).toBeVisible();
     await expect(page.locator(".rep-outline")).toHaveCount(0);

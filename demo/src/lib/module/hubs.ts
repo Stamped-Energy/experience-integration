@@ -51,7 +51,7 @@ export const PROCESS_HUBS: HubDef[] = [
     id: "reports",
     sidebarLabel: "Reports",
     sidebarHref: "/process/reports",
-    tabs: [{ href: "/process/reports", label: "Shift note", match: (p) => p === "/process/reports" }],
+    tabs: [{ href: "/process/reports", label: "All reports", match: exactOrPrefix("/process/reports") }],
   },
   {
     id: "analytics",
