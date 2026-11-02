@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Loop health gauge — single semicircle track + value arc (PlantCraft GaugeDial pattern, Apache-2.0).
+ * Loop health gauge: single semicircle track + value arc (PlantCraft GaugeDial pattern, Apache-2.0).
  */
 
 export function gaugeRange(value: number, low = 0, high = 100): [number, number] {

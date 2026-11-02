@@ -250,9 +250,9 @@ export function shownAt(elements: Element[], data: DiagramData | null, times: Re
 
 /** A value as the diagram writes it: the decimals asked for, else as many as its size needs. */
 export function formatValue(value: number | string | null | undefined, decimals?: number | null): string {
-  if (value === null || value === undefined) return "—";
+  if (value === null || value === undefined) return "-";
   if (typeof value === "string") return value;
-  if (!Number.isFinite(value)) return "—";
+  if (!Number.isFinite(value)) return "-";
   if (decimals !== null && decimals !== undefined) return value.toFixed(decimals);
   const size = Math.abs(value);
   return value.toFixed(size >= 1000 ? 0 : size >= 100 ? 1 : size >= 1 ? 2 : 3);

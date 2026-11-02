@@ -5,7 +5,7 @@ import { AskButton } from "@/components/shell/ShellClient";
 import { Workspace } from "@/components/shell/Shell";
 import { KpiRow, PageHeader } from "@/components/ui/primitives";
 import { loopCampaigns } from "@/lib/demo/loopRuns";
-import { crumbs } from "@/components/process/common";
+import { crumbs, processEyebrow } from "@/components/process/common";
 import { StaticPageFallback } from "@/components/page/StaticPageFallback";
 
 export const metadata = { title: "Simulations" };
@@ -33,9 +33,9 @@ export default function ProcessSimulationsPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Simulations" })} askContext="Process simulations">
       <PageHeader
-        eyebrow="Process · Improve"
+        eyebrow={processEyebrow("/process/simulations")}
         title="Simulations"
-        meta="Agents try many loop configurations in simulation. Compare up to four runs; approval only on the DecisionCard."
+        meta="Compare up to four runs in simulation. Accept only through the DecisionCard."
         actions={<AskButton context="Process simulations" label="Ask about simulations" />}
       />
       <ProcessHubTabs />

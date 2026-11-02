@@ -5,7 +5,7 @@ import { AskButton } from "@/components/shell/ShellClient";
 import { Workspace } from "@/components/shell/Shell";
 import { PageHeader } from "@/components/ui/primitives";
 import { DEMO_LOOP_HEALTH, DEMO_PV_TRENDS } from "@/lib/demo/dashboards";
-import { crumbs } from "@/components/process/common";
+import { crumbs, processEyebrow } from "@/components/process/common";
 
 export const metadata = { title: "Dashboards" };
 
@@ -13,9 +13,9 @@ export default function ProcessDashboardsPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Dashboards" })} askContext="Process dashboards">
       <PageHeader
-        eyebrow="Process · Scan"
+        eyebrow={processEyebrow("/process/dashboards")}
         title="Dashboards"
-        meta="Loop health (0–100) and 12-hour PV/SP/OP trends. Demonstration data only."
+        meta="Loop health and 12-hour PV/SP/OP trends."
         actions={<AskButton context="Process dashboards" label="Ask about these loops" />}
       />
       <ProcessHubTabs />

@@ -12,7 +12,7 @@ import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { DataTable, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { SwitchbackSchedule } from "@/components/process/SwitchbackSchedule";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { crumbs, processEyebrow } from "@/components/process/common";
 
 export const metadata = { title: "Trials and stops" };
 const tone = (s: string) => (s === "running" ? "info" : s === "awaiting signature" ? "accent" : s === "stopped" ? "critical" : "neutral") as "info" | "accent" | "critical" | "neutral";
@@ -23,7 +23,7 @@ export default async function Trials() {
   const waiting = D.trials.filter((t) => t.status === "awaiting signature");
   return (
     <Workspace crumbs={crumbs({ label: "Trials and stops" })} askContext="Trials">
-      <PageHeader eyebrow="Process" title="Trials and stops" meta="A trial alternates the change with the checked prior configuration on a schedule locked before it starts. Stop restores the prior."
+      <PageHeader eyebrow={processEyebrow("/process/trials")} title="Trials and stops" meta="Change alternates with the prior configuration on a locked schedule. Stop restores the prior."
         actions={<><AskButton context="Trials" label="Ask about trials" /></>} />
       <ProcessHubTabs />
       <div className="grid">

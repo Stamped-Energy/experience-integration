@@ -60,7 +60,7 @@ export const PROCESS_HUBS: HubDef[] = [
     tabs: [
       { href: "/process/analytics", label: "Overview", match: (p) => p === "/process/analytics" },
       { href: "/process/optimisation", label: "Loop runs", match: (p) => p === "/process/optimisation" },
-      { href: "/process/simulations", label: "Simulations", match: (p) => p === "/process/simulations" },
+      { href: "/process/simulations", label: "Simulations", match: (p) => p === "/process/simulations" || p === "/process/simulate" },
       {
         href: "/process/measurement",
         label: "Setup",

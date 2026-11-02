@@ -2,7 +2,7 @@
 
 This folder is the Stamped product as a working web app, running on a fictional demonstration plant with illustrative data. It needs no API, database or plant connection. It is deployed as showcase.stamped.work (Vercel project `demo-stamped`, root directory `demo`). The server-backed product lives in `packages/web` at the repo root and is not changed by this app.
 
-The source of truth for what the product should be is stamped-external `design/product-ui/PRODUCT_UI_SPEC.md`. How the code is organised (tokens, components, data module, route conventions) is in [FOUNDATION.md](FOUNDATION.md); read it before building on this app.
+The source of truth for what the product should be is stamped-external `design/product-ui/PRODUCT_UI_SPEC.md`. How the code is organised (tokens, components, data module, route conventions) is in [FOUNDATION.md](FOUNDATION.md); read it before building on this app. When docs and the live demo disagree, see [docs/SOURCE_ALIGNMENT.md](docs/SOURCE_ALIGNMENT.md) and [docs/UI_CONTRACT.md](docs/UI_CONTRACT.md).
 
 ## Run it
 

@@ -20,6 +20,21 @@ button { font: inherit; color: inherit; }
 .muted { color: var(--text-muted); }
 .secondary { color: var(--text-secondary); }
 .label { font-size: var(--type-label); line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.type-small { font-size: var(--type-small); line-height: var(--lh-small); }
+.type-meta { font-size: var(--type-meta); line-height: 18px; color: var(--text-secondary); }
+.section-pad { padding: var(--space-4); }
+.section-pad-tight { padding: var(--space-3) var(--space-4); }
+.cell-stack { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cell-stack .cell-sub { display: block; font-size: var(--type-meta); color: var(--text-muted); font-family: var(--font-mono); }
+.row-actions { grid-template-columns: minmax(0, 1fr) auto; }
+.link-strong { color: var(--accent-700); font-weight: 600; }
+.link-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
+.main-col { grid-column: span 8; }
+.ctx-col { grid-column: span 4; }
+@media (min-width: 1800px) {
+  .main-col.xl-widen { grid-column: span 9; }
+  .ctx-col.xl-narrow { grid-column: span 3; }
+}
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 999px; border: 3px solid var(--canvas); }

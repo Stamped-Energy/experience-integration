@@ -19,7 +19,7 @@ import { AskedHere, ControlStack, LayerProposal, Learned, Onboarding, WorkingOn 
 import { Tabs } from "@/components/ui/primitives";
 import * as A from "@/lib/demo/agent";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
-import { crumbs, outcome, outcomeName, packOf, proofForRun, runLabel, runsOf, specOf, trialArm } from "@/components/process/common";
+import { crumbs, outcome, outcomeName, packOf, processEyebrow, proofForRun, runLabel, runsOf, specOf, trialArm } from "@/components/process/common";
 
 export default function LineDetail() {
   const { id } = useParams() as { id: string };
@@ -45,7 +45,7 @@ export default function LineDetail() {
   const table = all.slice().reverse().slice(0, Number(sp.n ?? 16));
   return (
     <Workspace crumbs={crumbs({ label: line.short, href: base }, { label: "Line detail" })} askContext={line.name}>
-      <PageHeader eyebrow={`Process · ${pack.equipmentClass}`} title={line.name}
+      <PageHeader eyebrow={processEyebrow(base)} title={line.name}
         meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><LineModeTag mode={line.mode} />{line.product} · {line.status}</span>}
         actions={<><Link className="btn btn-sm" href={`/plant`}>Line on plant map</Link><AskButton context={line.name} label="Ask about this line" /></>} />
       <ProcessHubTabs />

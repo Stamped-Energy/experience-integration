@@ -5,7 +5,7 @@ import { AskButton } from "@/components/shell/ShellClient";
 import { Workspace } from "@/components/shell/Shell";
 import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { AlarmBars } from "@/components/view/alarm-bars";
-import { crumbs } from "@/components/process/common";
+import { crumbs, processEyebrow } from "@/components/process/common";
 import { DEMO_LOOP_CATALOG } from "@/lib/demo/loopRunsExpand";
 import { processHealthAreas, statusStrip, worstProcessCells } from "@/lib/demo/healthMap";
 import * as D from "@/lib/demo/data";
@@ -29,9 +29,9 @@ export default function ProcessAnalyticsPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Analytics" })} askContext="Process analytics overview">
       <PageHeader
-        eyebrow="Process · Scan"
+        eyebrow={processEyebrow("/process/analytics")}
         title="Analytics overview"
-        meta="Results by status, recent alarms, health map, monitors, and the action queue on demonstration data."
+        meta="Results, alarms, health map, monitors, and the action queue in one view."
         actions={<AskButton context="Process analytics" label="Ask about analytics" />}
       />
       <ProcessHubTabs />

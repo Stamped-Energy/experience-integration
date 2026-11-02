@@ -10,8 +10,9 @@ import { DecisionCard } from "@/components/cards/DecisionCard";
 import { Confidence } from "@/components/ui/Confidence";
 import { RunChart } from "@/components/ui/charts";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { FitChecks } from "@/components/process/FitChecks";
-import { ProcessTabs, crumbs, outcome, runLabel, runsOf } from "@/components/process/common";
+import { crumbs, outcome, runLabel, runsOf, processEyebrow } from "@/components/process/common";
 import { proposalIds } from "@/lib/static-paths";
 
 export function generateStaticParams() {
@@ -38,10 +39,10 @@ export default async function ProposalTest({ params }: { params: Promise<{ id: s
   const withheld = p.state === "Withheld";
   return (
     <Workspace crumbs={crumbs({ label: "Proposals", href: "/process/proposals" }, { label: nameOf(p.id) })} askContext={p.id}>
-      <PageHeader eyebrow={`Proposal and test · ${line.name}`} title={`${win?.name ?? p.param}: ${withheld ? "no number offered" : `${p.current} to ${p.proposed} ${win?.unit ?? ""}`}`}
+      <PageHeader eyebrow={processEyebrow(`/process/proposals/${p.id}`)} title={`${win?.name ?? p.param}: ${withheld ? "no number offered" : `${p.current} to ${p.proposed} ${win?.unit ?? ""}`}`}
         meta={<span >{nameOf(p.id)} · optimiser {p.optimiserVersion} · raised {dayMonth(p.createdAt)} {hhmm(p.createdAt)}</span>}
         actions={<><Link className="btn btn-sm btn-quiet" href="/process/proposals">All proposals</Link><AskButton context={nameOf(p.id)} label="Ask about this proposal" /></>} />
-      <ProcessTabs active="proposals" />
+      <ProcessHubTabs />
       <div className="grid">
         <div className="span-8 stack">
           <DecisionCard p={p} role={role} />

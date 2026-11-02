@@ -7,7 +7,7 @@ import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, ModeTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { crumbs, processEyebrow } from "@/components/process/common";
 
 export const metadata = { title: "Running settings" };
 
@@ -15,7 +15,7 @@ export default async function RunningSettings() {
   const writes = D.setpointWrites.slice().reverse();
   return (
     <Workspace crumbs={crumbs({ label: "Running settings" })} askContext="Running settings">
-      <PageHeader eyebrow="Process" title="Running settings" meta="Every value Stamped wrote, its mode, who signed the window and when it expires. Stamped works inside limits set beforehand."
+      <PageHeader eyebrow={processEyebrow("/process/settings")} title="Running settings" meta="Every value written, its mode, who signed the window, and when it expires."
         actions={<><Link className="btn btn-sm" href="/settings">Signed limits</Link><AskButton context="Running settings" label="Ask about settings" /></>} />
       <ProcessHubTabs />
       <div className="grid">

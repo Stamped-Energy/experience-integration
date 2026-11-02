@@ -18,7 +18,8 @@ import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { SwitchbackSchedule } from "@/components/process/SwitchbackSchedule";
-import { ProcessTabs, crumbs, runLabel } from "@/components/process/common";
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
+import { crumbs, processEyebrow, runLabel } from "@/components/process/common";
 
 
 export default function TrialDetail() {
@@ -40,10 +41,10 @@ export default function TrialDetail() {
   const skipped = t.switches.filter((s) => s.skippedReason);
   return (
     <Workspace crumbs={crumbs({ label: "Trials", href: "/process/trials" }, { label: nameOf(t.id) })} askContext={t.change}>
-      <PageHeader eyebrow={`Trial · ${line.name}`} title={t.change}
+      <PageHeader eyebrow={processEyebrow(`/process/trials/${t.id}`)} title={t.change}
         meta={<span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><Tag tone={t.status === "running" ? "info" : t.status === "awaiting signature" ? "accent" : "neutral"}>{t.status}</Tag><span >{nameOf(t.id)}</span>Drafted by {t.draftedBy}{t.signedAt ? ` · signed by Plant head A. ${dayMonth(t.signedAt)}` : ""}</span>}
         actions={<>{proof ? <Link className="btn btn-sm btn-accent" href={`${base}?evidence=${proof.id}`} scroll={false}>Evidence</Link> : null}<AskButton context={t.change} label="Ask about this trial" /></>} />
-      <ProcessTabs active="trials" />
+      <ProcessHubTabs />
       <div className="grid">
         <div className="span-8 stack">
           <Section title="Stop" meta="What Stop does on this trial" flush>

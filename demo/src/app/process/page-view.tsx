@@ -16,7 +16,7 @@ import { DataTable, EvidenceTag, LineModeTag, ModeTag, PageHeader, Section, Tag,
 import { ActionsBoard, ActionsBrief } from "@/components/cards/ExampleActions";
 import { IdleList } from "@/components/agent/blocks";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
-import { ProcessTabs, crumbs, outcome, outcomeName, packOf, proofForRun, runLabel, runsOf, specOf } from "@/components/process/common";
+import { crumbs, outcome, outcomeName, packOf, processEyebrow, proofForRun, runLabel, runsOf, specOf } from "@/components/process/common";
 
 
 export default function ProcessLines() {
@@ -30,7 +30,7 @@ export default function ProcessLines() {
   const fits = Object.fromEntries(D.modelFits.map((f) => [f.lineId, f]));
   return (
     <Workspace crumbs={crumbs({ label: actions ? "Actions" : "Lines" })} askContext="Process lines">
-      <PageHeader eyebrow="Process" title={actions ? "Process actions" : "Lines"} meta={actions ? "Every action on both lines, grouped by what it needs from you." : "What the agent suggests on each line, and what needs your decision."}
+      <PageHeader eyebrow={processEyebrow("/process")} title={actions ? "Process actions" : "Lines"} meta={actions ? "Open work on both lines, grouped by what it needs from you." : "What the agent suggests on each line, and what needs a decision."}
         actions={<><Link className="btn btn-sm" href="/process/proposals">{open.length} proposals waiting</Link><AskButton context="Process lines" label="Ask about lines" /></>} />
       <ProcessHubTabs />
       {actions ? <><ActionsBoard area="Process" role={role} base="/process" status={sp.status} line={sp.line} mine={sp.mine} /></> : (<>

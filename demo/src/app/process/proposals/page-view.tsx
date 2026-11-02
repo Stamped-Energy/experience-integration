@@ -12,7 +12,7 @@ import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DecisionCard } from "@/components/cards/DecisionCard";
 import { DataTable, EmptyState, EvidenceTag, ModeTag, PageHeader, Section, Tabs, Tag } from "@/components/ui/primitives";
-import { crumbs } from "@/components/process/common";
+import { crumbs, processEyebrow } from "@/components/process/common";
 
 type F = "waiting" | "running" | "closed";
 const GROUP: Record<F, CardState[]> = { waiting: ["Waiting", "Proposed"], running: ["Running trial", "Running stay", "Measuring", "Verdict", "Holding"], closed: ["Declined", "Expired", "Withheld", "Abstained", "Stopped"] };
@@ -27,18 +27,18 @@ export default function Proposals() {
   const q = (x: string, l?: string) => `/process/proposals?f=${x}${l ? `&line=${l}` : ""}`;
   return (
     <Workspace crumbs={crumbs({ label: "Proposals" })} askContext="Process proposals">
-      <PageHeader eyebrow="Process" title="Proposals" meta="The optimiser computes the number inside the signed window; the agent explains it. People with the right accept, adjust in band or decline."
+      <PageHeader eyebrow={processEyebrow("/process/proposals")} title="Proposals" meta="Optimiser number inside the signed window. Accept, adjust in band, or decline."
         actions={<AskButton context="Process proposals" label="Ask about proposals" />} />
       <ProcessHubTabs />
       <div className="grid">
-        <div className="span-8 xl-span-7 stack">
+        <div className="span-8 xl-span-9 stack">
           <div style={{ display: "flex", gap: 16, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
             <Tabs label="Proposal state" items={(["waiting", "running", "closed"] as F[]).map((x) => ({ href: q(x, sp.line), label: x === "waiting" ? "Waiting" : x === "running" ? "Running and measuring" : "Closed", count: D.proposals.filter((p) => GROUP[x].includes(p.state) && inLine(p.lineId)).length, active: x === f }))} />
             <div className="chips">{[undefined, ...D.lines.map((l) => l.id)].map((l) => <Link key={l ?? "all"} className="chip" aria-current={sp.line === l ? "true" : undefined} href={q(f, l)} scroll={false}>{l ? D.byId.line(l)!.short : "All lines"}</Link>)}</div>
           </div>
           {list.length ? <div className="stack">{list.map((p) => <DecisionCard key={p.id} p={p} role={role} href={`/process/proposals/${p.id}`} />)}</div> : <EmptyState title="Nothing in this view" body="When the optimiser finds a better setting inside the signed window, the proposal appears here." />}
         </div>
-        <div className="span-4 xl-span-5 stack ctx">
+        <div className="span-4 xl-span-3 stack ctx">
           <div className="stack">
             <Section title="Running and measuring" meta="Written values and what Stop does" flush>
               <div className="rows">{D.proposals.filter((p) => GROUP.running.includes(p.state) && inLine(p.lineId)).map((p) => (

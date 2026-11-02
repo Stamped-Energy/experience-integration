@@ -1,11 +1,11 @@
 import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import Link from "next/link";
-import { DRIFT_PAGE_META, driftProposals } from "@/lib/demo/driftProposals";
+import { driftProposals } from "@/lib/demo/driftProposals";
 import { dayMonth, hhmm } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { crumbs, processEyebrow } from "@/components/process/common";
 
 export const metadata = { title: "Drift proposals" };
 
@@ -14,9 +14,9 @@ export default function DriftPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Drift proposals" })} askContext="Drift proposals">
       <PageHeader
-        eyebrow="Process"
+        eyebrow={processEyebrow("/process/drift")}
         title="Drift proposals"
-        meta={DRIFT_PAGE_META}
+        meta="Re-identify or retune when error limits are breached. Nothing applies until a person approves."
         actions={
           <>
             <Illustrative />

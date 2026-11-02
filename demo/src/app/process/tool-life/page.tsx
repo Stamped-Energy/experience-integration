@@ -1,10 +1,9 @@
 import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { crumbs, processEyebrow } from "@/components/process/common";
 import {
-  TOOL_LIFE_PAGE_META,
   listToolCards,
   type ToolCard,
   type ToolLifeResult,
@@ -24,12 +23,12 @@ export default function ToolLifePage() {
   return (
     <Workspace crumbs={crumbs({ label: "Tool life" })} askContext="Tool life">
       <PageHeader
-        eyebrow="Process"
+        eyebrow={processEyebrow("/process/tool-life")}
         title="Tool life"
-        meta={TOOL_LIFE_PAGE_META}
+        meta="Remaining tool life estimates. Recommend only until the store is wired."
         actions={
           <>
-            <Tag tone="warning">Illustrative</Tag>
+            <Illustrative />
             <AskButton context="Tool life" label="Ask about tool life" />
           </>
         }
@@ -95,7 +94,7 @@ export default function ToolLifePage() {
               {cards.map((t) => {
                 const r: ToolLifeResult = t.result;
                 return (
-                  <div key={t.tool_id} className="card" style={{ padding: 16 }}>
+                  <div key={t.tool_id} className="card section-pad">
                     <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                       <strong>{t.tool_name}</strong>
                       {resultTag(t)}

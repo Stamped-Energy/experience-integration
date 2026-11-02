@@ -1,8 +1,8 @@
 import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { crumbs, processEyebrow } from "@/components/process/common";
 import { smedSteps } from "@/lib/demo/capabilityScreens";
 
 export const metadata = { title: "SMED" };
@@ -19,12 +19,12 @@ export default function SmedPage() {
   return (
     <Workspace crumbs={crumbs({ label: "SMED" })} askContext="SMED changeover">
       <PageHeader
-        eyebrow="Process"
+        eyebrow={processEyebrow("/process/smed")}
         title="SMED"
-        meta="Recommend moving internal steps to external when safe · Store events when present, else caller inputs"
+        meta="Move internal changeover steps external when safe."
         actions={
           <>
-            <Tag tone="warning">Illustrative</Tag>
+            <Illustrative />
             <AskButton context="SMED" label="Ask about changeover" />
           </>
         }

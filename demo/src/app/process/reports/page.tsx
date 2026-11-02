@@ -4,7 +4,7 @@ import { AskButton } from "@/components/shell/ShellClient";
 import { Workspace } from "@/components/shell/Shell";
 import { PageHeader } from "@/components/ui/primitives";
 import { FORGING_SHIFT_REPORT } from "@/lib/demo/plantReport";
-import { crumbs } from "@/components/process/common";
+import { crumbs, processEyebrow } from "@/components/process/common";
 
 export const metadata = { title: "Reports" };
 
@@ -12,12 +12,13 @@ export default function ProcessReportsPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Reports" })} askContext="Process reports">
       <PageHeader
-        eyebrow="Process · Scan"
+        eyebrow={processEyebrow("/process/reports")}
         title="Reports"
-        meta="Narrative shift notes with sections, stat strips, and inline trends. Demonstration only."
+        meta="Narrative shift notes with sections, stat strips, and inline trends."
         actions={<AskButton context="Process reports" label="Ask about this report" />}
       />
       <ProcessHubTabs />
+      <p className="pfd-demo-banner">Demonstration data only.</p>
       <ReportReader report={FORGING_SHIFT_REPORT} />
     </Workspace>
   );

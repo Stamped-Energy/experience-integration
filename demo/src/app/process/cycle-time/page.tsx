@@ -1,10 +1,9 @@
 import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { crumbs, processEyebrow } from "@/components/process/common";
 import {
-  CYCLE_TIME_PAGE_META,
   CYCLE_STATES,
   CYCLE_STATE_LABEL,
   listCycleBreakdowns,
@@ -65,12 +64,12 @@ export default function CycleTimePage() {
   return (
     <Workspace crumbs={crumbs({ label: "Cycle time" })} askContext="Cycle time">
       <PageHeader
-        eyebrow="Process"
+        eyebrow={processEyebrow("/process/cycle-time")}
         title="Cycle time"
-        meta={CYCLE_TIME_PAGE_META}
+        meta="Dwell and share by cycle state. Live when the session is connected."
         actions={
           <>
-            <Tag tone="warning">Illustrative</Tag>
+            <Illustrative />
             <AskButton context="Cycle time" label="Ask about cycle time" />
           </>
         }
@@ -113,7 +112,7 @@ export default function CycleTimePage() {
           <Section title="Dwell by state" meta={`${ok.length} of ${cards.length} stations with a breakdown`}>
             <div className="stack" style={{ gap: 16 }}>
               {cards.map((card) => (
-                <div key={card.asset_id} className="card" style={{ padding: 16 }}>
+                <div key={card.asset_id} className="card section-pad">
                   <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
                     <strong>{card.station}</strong>
                     <span className="cell-sub">{card.window_label}</span>

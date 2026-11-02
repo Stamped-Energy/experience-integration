@@ -2,7 +2,7 @@ import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import * as demoModules from "@/lib/demo/modules";
-import { MODULES_PAGE_META, SHADOW_PAGE_META, shadowLanes } from "@/lib/demo/shadowCompare";
+import { SHADOW_PAGE_META, shadowLanes } from "@/lib/demo/shadowCompare";
 import {
   DRIFT_RECOVERY_METHOD,
   EXAMPLE_OPEN_GATE_CONSTRAINTS,
@@ -14,7 +14,7 @@ import {
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { crumbs, processEyebrow } from "@/components/process/common";
 
 const DEMO_LOOP_RUN_ID = "loop-prop-101";
 
@@ -45,9 +45,9 @@ export default function ModulesPageView() {
   return (
     <Workspace crumbs={crumbs({ label: "Modules and shadow" })} askContext="Control modules">
       <PageHeader
-        eyebrow="Process"
+        eyebrow={processEyebrow("/process/modules")}
         title="Modules and shadow"
-        meta={MODULES_PAGE_META}
+        meta="Registered control modules and shadow compare lanes for the demonstration plant."
         actions={
           <>
             <Illustrative />

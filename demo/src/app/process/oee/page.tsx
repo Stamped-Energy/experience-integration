@@ -1,8 +1,8 @@
 import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { ProcessTabs, crumbs } from "@/components/process/common";
+import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { crumbs, processEyebrow } from "@/components/process/common";
 import { oeeLossCards } from "@/lib/demo/capabilityScreens";
 
 export const metadata = { title: "OEE loss tree" };
@@ -12,12 +12,12 @@ export default function OeePage() {
   return (
     <Workspace crumbs={crumbs({ label: "OEE loss tree" })} askContext="OEE loss tree">
       <PageHeader
-        eyebrow="Process"
+        eyebrow={processEyebrow("/process/oee")}
         title="OEE loss tree"
-        meta="Availability × performance × quality · Recommend only · Store samples when present, else caller inputs"
+        meta="Availability, performance and quality losses. Recommend only."
         actions={
           <>
-            <Tag tone="warning">Illustrative</Tag>
+            <Illustrative />
             <AskButton context="OEE loss tree" label="Ask about OEE" />
           </>
         }
