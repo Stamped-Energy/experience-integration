@@ -22,7 +22,6 @@
 }
 
 .pc-gauge {
-  overflow: visible;
   text-align: center;
   padding: var(--space-4) var(--space-3) var(--space-4);
   border: 1px solid var(--border);
@@ -34,22 +33,22 @@
   align-items: center;
   gap: 2px;
   min-height: 100%;
-  overflow: visible;
+  overflow: hidden;
 }
 .pc-gauge svg {
   width: 100%;
   max-width: 168px;
   height: auto;
   display: block;
-  overflow: visible;
+  overflow: hidden;
   margin: 0 auto;
 }
-.pc-gauge-track { fill: none; stroke: var(--border); stroke-width: 8; stroke-linecap: butt; }
-.pc-gauge-band { fill: none; stroke-width: 8; opacity: 0.22; }
+.pc-gauge-track { fill: none; stroke: var(--border); stroke-width: 10; stroke-linecap: butt; }
+.pc-gauge-band { fill: none; stroke-width: 10; opacity: 0.22; }
 .pc-gauge-band-critical { stroke: var(--critical); }
 .pc-gauge-band-warning { stroke: var(--warning); }
 .pc-gauge-band-success { stroke: var(--success); }
-.pc-gauge-value { fill: none; stroke-width: 8; stroke-linecap: round; }
+.pc-gauge-value { fill: none; stroke-width: 10; stroke-linecap: butt; }
 .pc-gauge-end { fill: var(--text-muted); font-size: 10px; font-family: var(--font-mono); }
 .pc-gauge-number {
   margin-top: -6px;
