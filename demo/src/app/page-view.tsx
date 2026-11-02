@@ -16,7 +16,7 @@ import { DecisionCard, deniedReason } from "@/components/cards/DecisionCard";
 import { CardActions } from "@/components/cards/CardActions";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { PairedBars } from "@/components/ui/charts";
-import { DataTable, EmptyState, Illustrative, KpiRow, LineModeTag, ModeTag, PageHeader, Section, Tabs, Tag, VerdictTag } from "@/components/ui/primitives";
+import { DataTable, EmptyState, KpiRow, LineModeTag, ModeTag, PageHeader, Section, Tabs, Tag, VerdictTag } from "@/components/ui/primitives";
 import { LineStrip, LotsAtRisk, NoteClaims, ProofUpdates, RecentActivity, ShiftTimeline, proofHref } from "@/components/home/blocks";
 import { DeskDayList } from "@/components/desk/desk-day";
 import { deskToday } from "@/lib/demo/desk";
@@ -30,12 +30,18 @@ export default function Home() {
   const sp = Object.fromEntries(useSearchParams().entries());
   const role = demoRole();
   const view = (VIEWS.some((v) => v.id === sp.view) ? sp.view : "overview") as ViewId;
-  const title = { overview: "Demonstration plant", plant: "Plant today", shift: "Shift 2, starting", line: "My line now", owner: "Value and what happened" }[view];
-  const meta = { overview: `${dayMonth(D.DEMO_NOW)} · ${hhmm(D.DEMO_NOW)} IST. A proposal stays inside a band a named person signed. Nothing is written until that person accepts it.`, plant: `${D.site.name} · ${dayMonth(D.DEMO_NOW)} · ${hhmm(D.DEMO_NOW)} IST`, shift: "Shift 1 handed over at 14:00 IST. Here is what changed and what is waiting.", line: "Current settings inside the signed band, and the next proposal.", owner: "Value at the plant's own prices. Verified and Indicative are shown apart and never added." }[view];
+  const title = { overview: D.site.name, plant: "Plant today", shift: "Shift 2, starting", line: "My line now", owner: "Value and what happened" }[view];
+  const meta = {
+    overview: `${dayMonth(D.DEMO_NOW)} · ${hhmm(D.DEMO_NOW)} IST`,
+    plant: `${dayMonth(D.DEMO_NOW)} · ${hhmm(D.DEMO_NOW)} IST`,
+    shift: "Shift 1 handed over at 14:00 IST",
+    line: D.byId.line("line-a")!.name,
+    owner: "Verified and Indicative shown apart",
+  }[view];
   return (
-    <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Home" }, { label: VIEWS.find((v) => v.id === view)!.label }]} askContext={`Home · ${view}`}>
+    <Workspace crumbs={[{ label: D.site.name, href: "/" }, { label: "Home" }, { label: VIEWS.find((v) => v.id === view)!.label }]} askContext={`Home · ${view}`}>
       <PageHeader eyebrow="Home" title={title} meta={meta} brand={view === "owner"}
-        actions={view === "overview" ? <><Link className="btn btn-sm" href="/activity/summary">This week's summary</Link><Illustrative /></> : <><Tag>{D.byId.role(role).name} view</Tag><AskButton label="Ask about this view" className="btn btn-sm" context={`Home · ${view}`} /></>} />
+        actions={view === "overview" ? <Link className="btn btn-sm" href="/activity/summary">This week's summary</Link> : <><Tag>{D.byId.role(role).name} view</Tag><AskButton label="Ask about this view" className="btn btn-sm" context={`Home · ${view}`} /></>} />
       {view === "overview" && grant(role, "see-plant-value") !== "hidden" ? <OverviewValue /> : null}
       <Tabs label="Home views" items={VIEWS.map((v) => ({ href: `/?view=${v.id}`, label: v.label, active: v.id === view }))} />
       {view === "overview" ? <Overview /> : null}
@@ -56,8 +62,8 @@ function OverviewValue() {
   return (
     <div className="stack" style={{ marginBottom: "var(--space-5)" }}>
       <KpiRow label="Value at this plant's prices" items={[
-        { label: "Verified", value: lakh(sum(verified)), unit: "/month", tags: <Illustrative />, foot: <>{verified.length} measured changes. Open Owner for the proof.</>, href: "/?view=owner" },
-        { label: "Indicative", value: lakh(sum(indicative)), unit: "/month", tags: <Illustrative />, foot: <>Still being measured. Kept separate from Verified.</>, href: "/?view=owner" },
+        { label: "Verified", value: lakh(sum(verified)), unit: "/month", foot: <>{verified.length} measured changes. Open Owner for the proof.</>, href: "/?view=owner" },
+        { label: "Indicative", value: lakh(sum(indicative)), unit: "/month", foot: <>Still being measured. Kept separate from Verified.</>, href: "/?view=owner" },
         { label: "Lots caught early", value: String(lotsCaught), foot: <>Flagged this week, before discharge</>, href: "/quality" },
       ]} />
     </div>
@@ -127,7 +133,7 @@ function PlantView({ role }: { role: RoleId }) {
         { label: "Lines", value: "2", foot: <>1 trial, 1 proposing, 0 recommend-only</> },
         { label: "Lots at risk", value: String(D.lots.filter((l) => l.riskWord === "At risk").length), foot: <>of {D.lots.filter((l) => l.status !== "complete").length} open lots</>, href: "/quality" },
         seeValue
-          ? { label: "Verified value", value: lakh(sum(verified)), unit: "/month", tags: <Illustrative />, foot: <>Indicative shown on the owner view</>, href: "/?view=owner" }
+          ? { label: "Verified value", value: lakh(sum(verified)), unit: "/month", foot: <>Indicative shown on the owner view</>, href: "/?view=owner" }
           : { label: "Verified changes", value: String(verified.length), foot: <>Value hidden for this role</> },
       ]} />
       <LineStrip />
@@ -277,14 +283,14 @@ function OwnerView({ role }: { role: RoleId }) {
   return (
     <div className="stack">
       <KpiRow label="Value at the plant's prices" items={[
-        { label: "Verified", value: lakh(sum(verified)), unit: "/month", tags: <><Tag tone="success">R3 to R4</Tag><Illustrative /></>, foot: <>{verified.length} changes, each with a proof record</>, href: proofHref(verified[0].proofRecordId) },
-        { label: "Indicative", value: lakh(sum(indicative)), unit: "/month", tags: <><Tag>R2</Tag><Illustrative /></>, foot: <>Not yet verified, never added to Verified</>, href: proofHref(indicative[0].proofRecordId) },
+        { label: "Verified", value: lakh(sum(verified)), unit: "/month", tags: <Tag tone="success">R3 to R4</Tag>, foot: <>{verified.length} changes, each with a proof record</>, href: proofHref(verified[0].proofRecordId) },
+        { label: "Indicative", value: lakh(sum(indicative)), unit: "/month", tags: <Tag>R2</Tag>, foot: <>Not yet verified, never added to Verified</>, href: proofHref(indicative[0].proofRecordId) },
         { label: "Changes verified", value: String(verified.length), foot: <>of {D.proofRecords.length} measured, incl. 2 no change, 1 inconclusive</> },
         { label: "Lots caught early", value: String(lotsCaught), foot: <>this week, before discharge</>, href: "/quality" },
       ]} />
       <div className="grid">
         <div className="span-8 stack">
-          <Section title="Value by week" meta="₹ thousand, Verified filled, Indicative outlined, side by side and never stacked" actions={<Illustrative />}>
+          <Section title="Value by week" meta="₹ thousand · Verified filled, Indicative outlined">
             <PairedBars a={D.verifiedWeekly} b={D.indicativeWeekly} labels={weeks} width={760} height={168} label="Verified and Indicative value by week" />
             <div className="limits-legend" style={{ marginTop: 8 }}>
               <span><i style={{ background: "var(--accent-500)" }} />Verified</span>
@@ -295,7 +301,7 @@ function OwnerView({ role }: { role: RoleId }) {
             <div className="idle-total">
               <div><span className="label">Lost per week while they wait</span><b>{inr(A.idleProposals.reduce((a, p) => a + A.idleInr(p).perWeek, 0))}</b></div>
               <div><span className="label">Lost so far</span><b>{inr(A.idleProposals.reduce((a, p) => a + A.idleInr(p).lostSoFar, 0))}</b></div>
-              <div><span className="label">Worth per month if accepted</span><b>{inr(A.idleProposals.reduce((a, p) => a + A.idleInr(p).perMonth, 0))}</b><Illustrative /></div>
+              <div><span className="label">Worth per month if accepted</span><b>{inr(A.idleProposals.reduce((a, p) => a + A.idleInr(p).perMonth, 0))}</b></div>
             </div>
             <IdleList rupees role={role} />
           </Section>

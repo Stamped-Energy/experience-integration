@@ -33,13 +33,12 @@ export default function ProcessAnalyticsPage() {
         actions={<AskButton context="Process performance" label="Ask about performance" />}
       />
       <ProcessHubTabs />
-      <p className="pfd-demo-banner">Demonstration data · open the health map for area-by-area status.</p>
       <p className="spc-summary">
         <Link className="link" href="/process/health">Open health map</Link>
         {" · "}full plant status by area
       </p>
       <div className="grid anal-overview">
-        <Section className="span-8" title="Results by status" meta="Loop and result health · demo" flush>
+        <Section className="span-8" title="Results by status" meta="Loop and result health" flush>
           <div className="anal-status-row">
             {RESULT_STATUS.map((row) => (
               <div key={row.status} className="anal-status-card">
@@ -50,11 +49,11 @@ export default function ProcessAnalyticsPage() {
             ))}
           </div>
         </Section>
-        <Section className="span-4" title="Alarms · last 14 days" meta="Demonstration counts" flush>
+        <Section className="span-4" title="Alarms · last 14 days" flush>
           <div className="anal-alarm-body">
             <AlarmBars values={ALARM_DAYS} />
             <p className="muted" style={{ fontSize: 12, margin: "4px 12px 12px" }}>
-              Total <strong className="num">{ALARM_DAYS.reduce((a, b) => a + b, 0)}</strong> alarms across 14 demonstration days.
+              Total <strong className="num">{ALARM_DAYS.reduce((a, b) => a + b, 0)}</strong> alarms across 14 days.
             </p>
           </div>
         </Section>
@@ -71,7 +70,7 @@ export default function ProcessAnalyticsPage() {
             ))}
           </div>
         </Section>
-        <Section className="span-6" title="Monitors" meta="Demonstration loops" flush>
+        <Section className="span-6" title="Monitors" flush>
           <DataTable
             caption="Loop monitors"
             rowKey={(r) => r.loopId}

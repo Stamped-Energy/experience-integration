@@ -1,7 +1,7 @@
 import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { crumbs, processEyebrow } from "@/components/process/common";
 import {
   CYCLE_STATES,
@@ -66,18 +66,13 @@ export default function CycleTimePage() {
       <PageHeader
         eyebrow={processEyebrow("/process/cycle-time")}
         title="Cycle time"
-        meta="Dwell and share by cycle state. Live when the session is connected."
-        actions={
-          <>
-            <Illustrative />
-            <AskButton context="Cycle time" label="Ask about cycle time" />
-          </>
-        }
+        meta="Dwell and share by cycle state"
+        actions={<AskButton context="Cycle time" label="Ask about cycle time" />}
       />
       <ProcessHubTabs />
       <div className="grid">
-        <div className="span-8 xl-span-9 stack">
-          <Section title="Stations" meta="Samples passed until cycle-state store is wired" flush>
+        <div className="span-12 stack">
+          <Section title="Stations" flush>
             <DataTable
               caption="Cycle-time stations"
               rows={cards}
@@ -116,21 +111,11 @@ export default function CycleTimePage() {
                   <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
                     <strong>{card.station}</strong>
                     <span className="cell-sub">{card.window_label}</span>
-                    <Tag tone="warning">Illustrative</Tag>
                   </div>
                   <ShareBars card={card} />
                 </div>
               ))}
             </div>
-          </Section>
-        </div>
-        <div className="span-4 xl-span-3 stack ctx">
-          <Section title="How this stays honest">
-            <ul className="stack" style={{ gap: 8, paddingLeft: 18, margin: 0 }}>
-              <li className="cell-sub">Shares sum to 1.0 over a positive window. No OEE target is invented.</li>
-              <li className="cell-sub">Fewer than two samples abstain rather than invent dwell.</li>
-              <li className="cell-sub">Live cards read the cycle-time breakdown; store-backed samples still pending.</li>
-            </ul>
           </Section>
         </div>
       </div>

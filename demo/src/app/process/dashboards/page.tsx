@@ -21,7 +21,6 @@ export default function ProcessDashboardsPage() {
       />
       <ProcessHubTabs />
       <EngineeringGuard backHref="/process/proposals" backLabel="Back to Process actions">
-      <p className="pfd-demo-banner">Demonstration data · under 50 critical, under 75 watch, 75+ healthy.</p>
       <section className="dash-gauge-grid" aria-label="Loop health">
         {DEMO_LOOP_HEALTH.map((row) => (
           <LoopHealthGauge key={row.id} label={row.label} value={row.health} tone={row.tone} line={row.line} />

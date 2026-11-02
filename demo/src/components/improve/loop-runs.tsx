@@ -12,7 +12,7 @@ import { RUN_TYPE_LABEL, RUN_TYPE_SOON, runsForCampaign } from "@/lib/demo/loopR
 import { inr } from "@/lib/format";
 import { grant } from "@/lib/rbac";
 import { demoRole } from "@/lib/role";
-import { DataTable, Illustrative, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, Section, Tag } from "@/components/ui/primitives";
 import { DecisionCard } from "@/components/cards/DecisionCard";
 import { proposals } from "@/lib/demo/data";
 
@@ -56,9 +56,9 @@ export function LoopCampaignTable({ rows, showOwner }: { rows: LoopCampaign[]; s
         ...(showOwner
           ? [{
               key: "o",
-              label: "Illustrative INR / month",
+              label: "INR / month",
               align: "right" as const,
-              render: (r: LoopCampaign) => (r.ownerInrPerMonth != null ? <><span className="num">{inr(r.ownerInrPerMonth)}</span><Illustrative /></> : "n/a"),
+              render: (r: LoopCampaign) => (r.ownerInrPerMonth != null ? <span className="num">{inr(r.ownerInrPerMonth)}</span> : "n/a"),
             }]
           : []),
         { key: "k", label: "", align: "right", render: (r) => <Link className="link" href={`?campaign=${r.id}`}>Open</Link> },

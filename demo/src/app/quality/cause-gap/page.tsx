@@ -26,12 +26,7 @@ export default function CauseGapPage() {
       <PageHeader
         eyebrow={qualityEyebrow("/quality/cause-gap")}
         title="Cause gap"
-        meta={
-          <span style={{ display: "inline-flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            Operator, environment, change log, CAPA and poka-yoke context; recommend only.
-            <Tag tone="warning">Example data</Tag>
-          </span>
-        }
+        meta="Operator, environment, change log, CAPA and poka-yoke context"
         actions={<AskButton context="Cause gap" label="Ask about cause gap" />}
       />
       <QualityHubTabs />

@@ -3,13 +3,10 @@
 
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
-import {
-  AGENT_AUTHORITY_LINE,
-  type AgentShowcaseBundle,
-} from "@/lib/demo/agentShowcase";
+import { type AgentShowcaseBundle } from "@/lib/demo/agentShowcase";
 import type { RoleId } from "@/lib/demo/types";
 import { useRole } from "@/lib/role.client";
-import { EvidenceTag, Illustrative, Section, Tag, type Tone } from "@/components/ui/primitives";
+import { EvidenceTag, Section, Tag, type Tone } from "@/components/ui/primitives";
 
 const STATUS_TONE: Record<string, Tone> = {
   Investigating: "neutral",
@@ -32,9 +29,8 @@ export function AgentAtWork({
 
   return (
     <div className="aaw stack">
-      <p className="aaw-authority muted">{AGENT_AUTHORITY_LINE}</p>
       <p className="aaw-strip" aria-label="Agent status">
-        {strip} <Illustrative />
+        {strip}
       </p>
 
       <section className="working aaw-now" aria-labelledby="aaw-now-h">

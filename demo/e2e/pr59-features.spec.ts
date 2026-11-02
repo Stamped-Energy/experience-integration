@@ -26,7 +26,7 @@ test.describe("PR-59 feature gates", () => {
     await page.goto("/quality/spc");
     await page.waitForLoadState("networkidle");
     await expect(page.getByRole("heading", { name: "Control and capability", exact: true })).toBeVisible();
-    await expect(page.getByText("Demonstration SPC")).toBeVisible();
+    await expect(page.getByLabel("Capability summary")).toBeVisible();
     await expect(page.getByText(/Cp\s+\d+\.\d+/).first()).toBeVisible();
     await expect(page.getByText(/Cpk\s+\d+\.\d+/).first()).toBeVisible();
     await expect(page.locator(".spc-chart-card").first()).toBeVisible();

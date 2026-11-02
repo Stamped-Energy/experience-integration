@@ -2,7 +2,7 @@ import Link from "next/link";
 import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { EvidenceTag, Illustrative, PageHeader, Section, Tag, type Tone } from "@/components/ui/primitives";
+import { EvidenceTag, PageHeader, Section, Tag, type Tone } from "@/components/ui/primitives";
 import { SpcControlChart } from "@/components/view/spc-control-chart";
 import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import * as D from "@/lib/demo/data";
@@ -142,15 +142,9 @@ export default function SpcPage() {
         eyebrow={qualityEyebrow("/quality/spc")}
         title="Control and capability"
         meta="Control chart and Cpk together for each characteristic. Cpk target 1.33, or 1.67 when critical."
-        actions={
-          <>
-            <Illustrative />
-            <AskButton context="Control and capability" label="Ask about SPC" />
-          </>
-        }
+        actions={<AskButton context="Control and capability" label="Ask about SPC" />}
       />
       <QualityHubTabs />
-      <p className="pfd-demo-banner">Demonstration SPC · Cp/Cpk illustrative · not verified savings</p>
       <p className="spc-summary" aria-label="Capability summary">
         {s.n} characteristics · {s.inControl} in control · {s.signals} open signals · {s.under} Cpk under target
       </p>

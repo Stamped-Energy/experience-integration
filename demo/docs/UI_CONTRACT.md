@@ -49,7 +49,7 @@ Approved after source alignment (`docs/SOURCE_ALIGNMENT.md`).
 
 - British/Indian spelling; no em dashes; no banned pitch words.
 - Subheads: one short sentence (aim ≤110 characters) stating what the page is for or what to do next.
-- Prefer “Demonstration data” / Illustrative tag over long caveats in the subtitle.
+- Prefer short factual subheads. Do not stamp Illustrative tags or “Demonstration data” banners on client-facing pages.
 - Status vocabulary aligned with card states (Waiting, Needs a decision, Running, Closed).
 - Lot ids via `lotNo()`; run labels via shared helpers.
 - Client `src/app` routes: no ADR codes (D1xx), `get_*` names, SECOM, PlantCraft, or caller-supplied. Engineering folders are allowlisted in `scripts/check-copy.mjs`.

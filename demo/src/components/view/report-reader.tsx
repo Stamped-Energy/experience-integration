@@ -165,7 +165,6 @@ export function ReportReader({ report }: { report: DemoReport }) {
             <p className="muted">{report.periodLabel}</p>
             <h2>{report.name}</h2>
             <p className="secondary">{report.covers}</p>
-            <p className="pfd-demo-banner">Demonstration report · not sent externally</p>
           </header>
           {report.sections.map((section) => (
             <section key={section.id} id={section.id} className="rep-section" role="tabpanel" aria-labelledby={`rep-tab-${section.id}`}>

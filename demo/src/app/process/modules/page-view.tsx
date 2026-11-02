@@ -14,7 +14,7 @@ import {
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { EngineeringGuard } from "@/components/shell/EngineeringGuard";
-import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { crumbs, processEyebrow } from "@/components/process/common";
 
 const DEMO_LOOP_RUN_ID = "loop-prop-101";
@@ -48,19 +48,14 @@ export default function ModulesPageView() {
       <PageHeader
         eyebrow={processEyebrow("/process/modules")}
         title="Modules and shadow"
-        meta="Registered control modules and shadow compare lanes for the demonstration plant."
-        actions={
-          <>
-            <Illustrative />
-            <AskButton context="Control modules" label="Ask about modules" />
-          </>
-        }
+        meta="Registered control modules and shadow compare lanes"
+        actions={<AskButton context="Control modules" label="Ask about modules" />}
       />
       <ProcessHubTabs />
       <EngineeringGuard backHref="/process/proposals" backLabel="Back to Process actions">
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
-          <Section title="Module registry" meta="Illustrative registry · empty list is honest when none are registered" flush>
+          <Section title="Module registry" meta="Empty list when none are registered" flush>
             <DataTable
               caption="Control modules"
               rows={registry}
@@ -75,7 +70,7 @@ export default function ModulesPageView() {
             />
           </Section>
 
-          <Section title="Shadow compare" meta={<>{SHADOW_PAGE_META} · <Tag tone="warning">Example lanes</Tag></>}>
+          <Section title="Shadow compare" meta={SHADOW_PAGE_META}>
             <div className="stack" style={{ gap: 12 }}>
               {shadowLanes.map((lane) => (
                 <div key={lane.module_id} className="card-block stack-sm">
@@ -95,7 +90,7 @@ export default function ModulesPageView() {
           {prop101 && selected ? (
             <Section
               title="Example compare on one proposal"
-              meta={<><Tag tone="warning">Example data</Tag> {prop101.id} · selected <span className="mono">{selected.module_id}</span> · loop <span className="mono">{DEMO_LOOP_RUN_ID}</span></>}
+              meta={<>{prop101.id} · selected <span className="mono">{selected.module_id}</span> · loop <span className="mono">{DEMO_LOOP_RUN_ID}</span></>}
             >
               <DataTable
                 caption="Module outputs on one loop run"
@@ -160,15 +155,6 @@ export default function ModulesPageView() {
             <p className="secondary" style={{ margin: "12px 0 0", fontSize: 12, lineHeight: 1.5 }}>
               Example open-gate constraints: {EXAMPLE_OPEN_GATE_CONSTRAINTS.join("; ")}. Label <Tag tone="accent">{DRIFT_RECOVERY_METHOD}</Tag> recommend only, never write.
             </p>
-          </Section>
-          <Section title="How this stays honest">
-            <ul className="stack-sm" style={{ margin: 0, paddingLeft: 18, fontSize: 13 }}>
-              <li>Model predictive control stays shadow by default. It may recommend only when the deploy gate is open; the UI labels that path <span className="mono">{DRIFT_RECOVERY_METHOD}</span>.</li>
-              <li>Reinforcement learning stays shadow until a trained, shielded policy exists.</li>
-              <li>The supervisor picks and explains; it never sets a number (D151).</li>
-              <li>Live shadow compare abstains when model_fit_ref or a trained policy is missing. No invented moves.</li>
-              <li>Evidence on modules stays empty until a real emulator pass is linked.</li>
-            </ul>
           </Section>
         </div>
       </div>

@@ -5,7 +5,7 @@ import { dayMonth, hhmm } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { EngineeringGuard } from "@/components/shell/EngineeringGuard";
-import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { crumbs, processEyebrow } from "@/components/process/common";
 
 export const metadata = { title: "Model upkeep" };
@@ -17,19 +17,14 @@ export default function DriftPage() {
       <PageHeader
         eyebrow={processEyebrow("/process/drift")}
         title="Model upkeep"
-        meta="Re-identify or retune when error limits are breached. Nothing applies until a person approves."
-        actions={
-          <>
-            <Illustrative />
-            <AskButton context="Model upkeep" label="Ask about model upkeep" />
-          </>
-        }
+        meta="Re-identify or retune when error limits are breached"
+        actions={<AskButton context="Model upkeep" label="Ask about model upkeep" />}
       />
       <ProcessHubTabs />
       <EngineeringGuard backHref="/process/proposals" backLabel="Back to Process actions">
       <div className="grid">
         <div className="span-8 xl-span-9 stack">
-          <Section title="Pending retune and re-identification" meta={<><Tag tone="warning">Example data</Tag> recommend-only · not Quality lot drift</>} flush>
+          <Section title="Pending retune and re-identification" meta="Recommend only · not Quality lot drift" flush>
             <DataTable
               caption="Drift proposals"
               rows={rows}
@@ -44,7 +39,7 @@ export default function DriftPage() {
             />
           </Section>
           {rows.map((p) => (
-            <Section key={p.proposal_id} title={p.summary} meta={<><Tag tone="warning">Illustrative</Tag> {p.proposal_id} · pack <span className="mono">{p.pack_id ?? "unset"}</span></>}>
+            <Section key={p.proposal_id} title={p.summary} meta={<>{p.proposal_id} · pack <span className="mono">{p.pack_id ?? "unset"}</span></>}>
               <ul className="stack-sm" style={{ margin: 0, paddingLeft: 18, fontSize: 13 }}>
                 {p.findings.map((f, i) => (
                   <li key={`${p.proposal_id}-${i}`}>

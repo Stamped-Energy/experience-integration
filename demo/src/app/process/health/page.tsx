@@ -20,7 +20,6 @@ export default function ProcessHealthPage() {
       />
       <ProcessHubTabs />
       <HealthStatusStrip {...strip} />
-      <p className="pfd-demo-banner">Demonstration data · health cells use ISA words, not bare percentages.</p>
       <KpiRow
         label="Scan summary"
         items={[

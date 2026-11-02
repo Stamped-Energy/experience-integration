@@ -19,7 +19,6 @@ export default function ProcessLinePage() {
           actions={<AskButton context="Process plant" label="Ask about this plant" />}
         />
         <ProcessHubTabs />
-        <p className="pfd-demo-banner">Demonstration data only.</p>
         <PlantDiagramViewer />
       </div>
     </Workspace>

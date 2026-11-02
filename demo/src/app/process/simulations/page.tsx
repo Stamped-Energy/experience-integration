@@ -16,7 +16,7 @@ function Body() {
   return (
     <>
       <KpiRow
-        label="Process simulations (demo)"
+        label="Process simulations"
         items={[
           { label: "Campaigns", value: String(rows.length) },
           { label: "Running", value: String(rows.filter((c) => c.status === "running").length) },
@@ -24,7 +24,6 @@ function Body() {
           { label: "Compare limit", value: "4 runs" },
         ]}
       />
-      <p className="pfd-demo-banner">Demonstration data · accept only through DecisionCard on a chosen run.</p>
       <SimulationsWorkspace campaigns={loopCampaigns} kind="simulation" area="process" />
     </>
   );
@@ -36,7 +35,7 @@ export default function ProcessSimulationsPage() {
       <PageHeader
         eyebrow={processEyebrow("/process/simulations")}
         title="Simulation campaigns"
-        meta="Compare up to four runs in simulation. Accept only through the DecisionCard."
+        meta="Compare up to four runs · accept on a chosen run"
         actions={<AskButton context="Process simulations" label="Ask about simulations" />}
       />
       <ProcessHubTabs />

@@ -30,9 +30,9 @@ export function VerdictTag({ verdict }: { verdict: Verdict }) {
   return <Tag tone={VERDICT_TONE[verdict]}>{verdict}</Tag>;
 }
 
-/** Showcase marker for illustrative figures (PRODUCT_UI_SPEC §11 / §12.2). */
+/** Showcase marker for illustrative figures. Kept as a no-op so client/investor pages stay clean. */
 export function Illustrative() {
-  return <Tag title="Demonstration plant. Illustrative data.">Illustrative</Tag>;
+  return null;
 }
 
 export function PageHeader({ eyebrow, title, meta, actions, brand, className }: { eyebrow?: string; title: string; meta?: ReactNode; actions?: ReactNode; brand?: boolean; className?: string }) {

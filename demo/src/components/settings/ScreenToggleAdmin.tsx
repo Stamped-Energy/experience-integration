@@ -45,7 +45,6 @@ export function ScreenTogglePanel() {
 
   return (
     <>
-      <p className="pfd-demo-banner">Demonstration · toggles layer on top of demo/src/config/screens.json</p>
       <Section title="Site" meta="Which plant configuration to edit">
         <div style={{ padding: 16, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <label className="secondary">

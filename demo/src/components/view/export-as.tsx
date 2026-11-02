@@ -109,7 +109,7 @@ export function ExportAsMenu({
         <h2>{pending ? `Export as ${pending}` : "Export"}</h2>
         <div className="confirm-body">
           <p>
-            {reportName}. Evidence labels stay on every figure. Demonstration export only; nothing leaves the plant.
+            {reportName}. Evidence labels stay on every figure.
           </p>
         </div>
         <p className="muted">nothing is changed until you confirm.</p>

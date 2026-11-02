@@ -63,7 +63,6 @@ export default async function ProcessReportDetailPage({ params }: { params: Prom
         }
       />
       <ProcessHubTabs />
-      <p className="pfd-demo-banner">Demonstration data only. {report.summary}</p>
       <ReportReader report={report} />
     </Workspace>
   );

@@ -16,7 +16,7 @@ function Body() {
   return (
     <>
       <KpiRow
-        label="Quality simulations (demo)"
+        label="Quality simulations"
         items={[
           { label: "Campaigns", value: String(rows.length) },
           { label: "Sampling loops", value: "2" },
@@ -31,7 +31,7 @@ function Body() {
 export default function QualitySimulationsPage() {
   return (
     <Workspace crumbs={crumbs({ label: "Simulation campaigns" })} askContext="Quality simulations">
-      <PageHeader eyebrow={qualityEyebrow("/quality/simulations")} title="Simulation campaigns" meta="Quality sampling loops on demonstration data." actions={<AskButton context="Quality simulations" label="Ask about simulations" />}
+      <PageHeader eyebrow={qualityEyebrow("/quality/simulations")} title="Simulation campaigns" meta="Quality sampling loops" actions={<AskButton context="Quality simulations" label="Ask about simulations" />}
       />
       <QualityHubTabs />
       <EngineeringGuard backHref="/quality/actions" backLabel="Back to Quality actions">

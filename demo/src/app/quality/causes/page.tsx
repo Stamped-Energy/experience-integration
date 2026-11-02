@@ -27,12 +27,7 @@ export default function CausesPage() {
       <PageHeader
         eyebrow={qualityEyebrow("/quality/causes")}
         title="Cause graphs"
-        meta={
-          <span style={{ display: "inline-flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            Forging and heat-treatment templates (D130); declared links only, no plant evidence yet.
-            <Tag tone="warning">Example data</Tag>
-          </span>
-        }
+        meta="Forging and heat-treatment templates · declared links only"
         actions={<AskButton context="Cause graphs" label="Ask about cause graphs" />}
       />
       <QualityHubTabs />
@@ -107,7 +102,7 @@ export default function CausesPage() {
               until that merges, badges use the same node-type map shipped in the UI.
             </p>
             <DataTable
-              caption="Illustrative design-tagged roots"
+              caption="Design-tagged roots"
               rows={[
                 { root_node: "fillet_radius", note: "Underfill / lap risk from tight fillet (FIA / Van Tyne)" },
                 { root_node: "draft_angle", note: "Ejection and mismatch risk from shallow draft" },

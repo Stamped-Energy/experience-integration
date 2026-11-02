@@ -125,7 +125,7 @@ export const MIXING_SHIFT_REPORT: DemoReport = {
       kind: "text",
       title: "Handover summary",
       body:
-        "Line A finished six Grade A-12 batches this shift. Viscosity stayed inside the signed window. Mixer speed was nudged once under standing approval. No Stop events. Demonstration data only.",
+        "Line A finished six Grade A-12 batches this shift. Viscosity stayed inside the signed window. Mixer speed was nudged once under standing approval. No Stop events.",
     },
     {
       id: "outcome",
@@ -194,7 +194,7 @@ export const MOULDING_SCRAP_REPORT: DemoReport = {
       kind: "text",
       title: "Week at a glance",
       body:
-        "Line B Housing B-40 scrap sat above the plant target early in the week, then eased after a bounded hold-pressure change. Cavity weight on Press P3 remains on watch. Demonstration data only.",
+        "Line B Housing B-40 scrap sat above the plant target early in the week, then eased after a bounded hold-pressure change. Cavity weight on Press P3 remains on watch.",
     },
     {
       id: "scrap",
@@ -202,7 +202,7 @@ export const MOULDING_SCRAP_REPORT: DemoReport = {
       title: "Scrap rate",
       stats: [
         { label: "This week", value: "3.1%", note: "Plant target 2.5%", accent: false },
-        { label: "After change", value: "2.4%", note: "Last three shifts · illustrative", accent: true },
+        { label: "After change", value: "2.4%", note: "Last three shifts", accent: true },
       ],
     },
     {
@@ -263,7 +263,7 @@ export const TRIAL_VERDICT_REPORT: DemoReport = {
       kind: "text",
       title: "Verdict",
       body:
-        "Trial TR-104 tested a narrower soak band on furnace zone 2. The verdict is Improved at rung R3 (Verified). Effect and interval stay on the proof record. Demonstration data only.",
+        "Trial TR-104 tested a narrower soak band on furnace zone 2. The verdict is Improved at rung R3 (Verified). Effect and interval stay on the proof record.",
     },
     {
       id: "effect",
@@ -271,7 +271,7 @@ export const TRIAL_VERDICT_REPORT: DemoReport = {
       title: "Effect on soak short alarms",
       stats: [
         { label: "Effect", value: "−38%", note: "Alarm rate vs control arm", accent: true },
-        { label: "Interval", value: "−52 to −18%", note: "95% band · illustrative", accent: false },
+        { label: "Interval", value: "−52 to −18%", note: "95% band", accent: false },
       ],
     },
     {
@@ -339,7 +339,7 @@ export const OEE_WEEK_REPORT: DemoReport = {
       kind: "text",
       title: "Week summary",
       body:
-        "Plant OEE for the demonstration week sat near plan. Availability was steady. Performance dipped on Line B Tuesday during a cavity-weight watch. Quality stayed inside grade. Figures are illustrative.",
+        "Plant OEE for the week sat near plan. Availability was steady. Performance dipped on Line B Tuesday during a cavity-weight watch. Quality stayed inside grade.",
     },
     {
       id: "oee",
@@ -348,7 +348,7 @@ export const OEE_WEEK_REPORT: DemoReport = {
       stats: [
         { label: "Availability", value: "91%", note: "Planned production time", accent: false },
         { label: "Performance", value: "87%", note: "Dip on Line B Tue", accent: false },
-        { label: "Quality", value: "96%", note: "First-pass · illustrative", accent: true },
+        { label: "Quality", value: "96%", note: "First-pass", accent: true },
       ],
     },
     {

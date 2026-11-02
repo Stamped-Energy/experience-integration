@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { AskButton } from "@/components/shell/ShellClient";
 import { Workspace } from "@/components/shell/Shell";
-import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { ExportAsMenu } from "@/components/view/export-as";
 import { PLANT_REPORTS, type DemoReport } from "@/lib/demo/plantReport";
 import { crumbs, processEyebrow } from "@/components/process/common";
@@ -27,14 +27,13 @@ export default function ProcessReportsPage() {
       <PageHeader
         eyebrow={processEyebrow("/process/reports")}
         title="Reports"
-        meta="Shift notes, trial verdicts, and MIS packs for the lines you run. Export keeps evidence labels on every figure."
+        meta="Shift notes, trial verdicts, and MIS packs"
         actions={<AskButton context="Process reports" label="Ask about reports" />}
       />
       <ProcessHubTabs />
-      <p className="pfd-demo-banner">Demonstration data only.</p>
       <div className="grid">
         <div className="span-8 stack">
-          <Section title="Plant reports" meta={`${PLANT_REPORTS.length} reports`} actions={<Illustrative />} flush>
+          <Section title="Plant reports" meta={`${PLANT_REPORTS.length} reports`} flush>
             <DataTable
               caption="Plant reports"
               rowKey={(r) => r.id}
@@ -103,7 +102,7 @@ export default function ProcessReportsPage() {
               <li>Each export is written to the audit log in a live plant.</li>
             </ul>
           </Section>
-          <Section title="By industry" meta="Demonstration plant" flush>
+          <Section title="By industry" flush>
             <div className="rows">
               {["Batch mixing", "Discrete moulding", "Forging and heat treatment", "Plant MIS", "Process measurement"].map((industry) => {
                 const n = PLANT_REPORTS.filter((r) => r.industry === industry).length;
