@@ -79,7 +79,7 @@ export default function LineDetail() {
           </div>
         </div>
       ) : (<>
-      <ActionsBrief area="Process" lineId={line.id} href={`/process/actions?line=${line.id}`} />
+      <ActionsBrief area="Process" role={role} lineId={line.id} href={`/process/actions?line=${line.id}`} />
       <div className="grid line-grid">
         <div className="span-8 xl-span-9 stack">
           <Section title={`${name} per ${pack.labels.unit}`} meta={`Last ${shown.length} ${pack.labels.runs.toLowerCase()} · spec dashed${trialStart >= 0 ? " · shaded: trial running" : ""}`} flush>

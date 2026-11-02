@@ -59,7 +59,7 @@ export default function LotsAtRisk() {
           </div>
         </div>
       ) : (<>
-      <ActionsBrief area="Quality" href="/quality/actions" limit={3} />
+      <ActionsBrief area="Quality" role={role} href="/quality/actions" limit={3} />
       <NoReleaseLine />
       <div className="grid">
         <div className="span-8 stack">

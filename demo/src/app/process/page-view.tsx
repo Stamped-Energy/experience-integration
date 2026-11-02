@@ -34,7 +34,7 @@ export default function ProcessLines() {
         actions={<><Link className="btn btn-sm" href="/process/proposals">{open.length} proposals waiting</Link><AskButton context="Process lines" label="Ask about lines" /></>} />
       <ProcessHubTabs />
       {actions ? <><ActionsBoard area="Process" role={role} base="/process" status={sp.status} line={sp.line} mine={sp.mine} /></> : (<>
-      <ActionsBrief area="Process" href="/process/actions" />
+      <ActionsBrief area="Process" role={role} href="/process/actions" />
       <div className="grid">
         <div className="span-12">
           <Section title="Lines" meta="Mode, running settings against the signed band, last runs" flush>
