@@ -84,7 +84,7 @@ a.h-item:hover, .h-item:hover { background: var(--surface-subtle); }
 .a-prose { font-size: 15px; line-height: 1.6; display: flex; flex-direction: column; gap: var(--space-2); align-items: flex-start; }
 .a-lead { margin: 0; font-size: 16px; font-weight: 500; }
 .a-rest { margin: 0; }
-.smark { display: inline-flex; align-items: center; justify-content: center; min-width: 16px; height: 16px; padding: 0 3px; margin-left: 2px; font-size: 10px; font-family: var(--font-mono); border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text-secondary); vertical-align: super; cursor: pointer; line-height: 1; }
+.smark { display: inline-flex; align-items: center; justify-content: center; min-width: 16px; height: 16px; padding: 0 3px; margin-left: 2px; font-size: var(--type-label); font-family: var(--font-mono); border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface); color: var(--text-secondary); vertical-align: super; cursor: pointer; line-height: 1; }
 .smark:hover { color: var(--text-primary); border-color: var(--text-primary); }
 .cchip { position: relative; font-size: 12px; }
 .cchip summary { list-style: none; cursor: pointer; display: inline-flex; gap: 0; align-items: center; border: 1px solid var(--border-strong); border-radius: 999px; padding: 2px 10px; background: var(--surface); }

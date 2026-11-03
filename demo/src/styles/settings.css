@@ -72,7 +72,7 @@
 .rbac td button.hidden { color: var(--text-tertiary, var(--text-secondary)); opacity: .55; }
 .rbac td button:disabled { cursor: default; }
 .rbac td button.changed { outline: 2px dashed var(--accent-500); outline-offset: 1px; }
-.rbac tr.signing td:first-child::after { content: "set per plant"; margin-left: 6px; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--accent-700); }
+.rbac tr.signing td:first-child::after { content: "set per plant"; margin-left: 6px; font-size: var(--type-label); text-transform: uppercase; letter-spacing: .04em; color: var(--accent-700); }
 .amatrix { width: 100%; border-collapse: collapse; font-size: 12px; }
 .amatrix th, .amatrix td { border-bottom: 1px solid var(--border); padding: 6px; text-align: center; }
 .amatrix th:first-child, .amatrix td:first-child { text-align: left; }

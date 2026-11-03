@@ -60,7 +60,7 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 .rail-item[aria-current="page"] { background: var(--accent-50); color: var(--accent-700); }
 .rail-item[aria-current="page"]::before { content: ""; position: absolute; left: -8px; top: 10px; bottom: 10px; width: 2px; background: var(--accent-500); border-radius: 2px; }
 .rail-item .rail-soon { position: absolute; right: 3px; top: 3px; width: 6px; height: 6px; border-radius: 999px; background: var(--border-strong); }
-.rail-item .rail-count { position: absolute; right: 0; top: 0; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--accent-500); color: #FFFFFF; font-size: 10px; line-height: 16px; font-weight: 600; text-align: center; }
+.rail-item .rail-count { position: absolute; right: 0; top: 0; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--accent-500); color: #FFFFFF; font-size: var(--type-label); line-height: 16px; font-weight: 600; text-align: center; }
 .rail-sep { width: 24px; height: 1px; background: var(--border); margin: var(--space-2) 0; }
 .rail-spacer { flex: 1; }
 .rail-tip {
@@ -130,7 +130,7 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 .side-badge {
   position: absolute; right: 0; top: 0; min-width: 16px; height: 16px; padding: 0 4px;
   border-radius: 999px; background: var(--accent-500); color: #FFFFFF;
-  font-size: 10px; line-height: 16px; font-weight: 600; text-align: center; font-family: var(--font-mono);
+  font-size: var(--type-label); line-height: 16px; font-weight: 600; text-align: center; font-family: var(--font-mono);
 }
 .side-badge-muted {
   position: static; background: var(--surface-sunken); color: var(--text-muted); flex: none;
@@ -472,7 +472,7 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 .mode-line { display: flex; gap: var(--space-2); align-items: flex-start; font-size: 13px; color: var(--text-secondary); }
 .feedback { font-size: 13px; color: var(--success-text); display: flex; gap: 6px; align-items: center; }
 
-.strip { display: flex; align-items: center; gap: 0; font-size: 11px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.02em; }
+.strip { display: flex; align-items: center; gap: 0; font-size: var(--type-label); font-family: var(--font-sans); text-transform: uppercase; letter-spacing: 0.02em; }
 .strip .st { display: flex; align-items: center; gap: 6px; color: var(--text-muted); white-space: nowrap; }
 .strip .st::before { content: ""; width: 7px; height: 7px; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface); }
 .strip .st.done { color: var(--text-secondary); }
@@ -509,7 +509,7 @@ a.row:hover { background: var(--surface-subtle); }
 .desk-row:last-child { border-bottom: 0; }
 .desk-row:hover { background: var(--surface-subtle); }
 .desk-time {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   color: var(--text-muted);
   padding-top: 2px;
@@ -542,7 +542,7 @@ a.row:hover { background: var(--surface-subtle); }
 
 /* Charts */
 .chart { display: block; width: 100%; height: auto; overflow: visible; }
-.chart text { font-family: var(--font-mono); font-size: 10px; fill: var(--text-muted); }
+.chart text { font-family: var(--font-mono); font-size: var(--type-label); fill: var(--text-muted); }
 
 /* Empty, stale */
 .empty {

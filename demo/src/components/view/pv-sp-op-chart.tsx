@@ -63,7 +63,7 @@ export function PvSpOpTrendCard({
     const textMuted = cssVar("--text-muted", "#8A8A86");
     const textPrimary = cssVar("--text-primary", "#202020");
     const geist = cssVar("--font-geist", "Geist");
-    const geistMono = cssVar("--font-geist-mono", "Geist Mono");
+    const geistMono = cssVar("--font-mono", "Geist Mono");
     const fontSans = `${geist}, "Geist", Inter, system-ui, sans-serif`;
     const fontMono = `${geistMono}, "Geist Mono", ui-monospace, monospace`;
 

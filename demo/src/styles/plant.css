@@ -11,11 +11,11 @@
 .pmap-read { font-size: 18px; font-variant-numeric: tabular-nums; line-height: 22px; }
 .pmap-read small { font-size: 11px; color: var(--text-secondary); margin-left: 3px; }
 .pmap-tag { font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pmap-cards { position: absolute; top: 6px; right: 8px; font-size: 10px; font-weight: 600; color: var(--accent-600); text-transform: uppercase; letter-spacing: .04em; }
+.pmap-cards { position: absolute; top: 6px; right: 8px; font-size: var(--type-label); font-weight: 600; color: var(--accent-600); text-transform: uppercase; letter-spacing: .04em; }
 .pmap-sec.dec { border-color: var(--accent-600); }
 .gap-strip { position: relative; height: 18px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-subtle); }
 .gap-strip i { position: absolute; top: 0; bottom: 0; background: var(--warning); opacity: .8; }
-.gap-axis { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+.gap-axis { display: flex; justify-content: space-between; font-size: var(--type-label); color: var(--text-secondary); margin-top: 2px; }
 .qc { display: flex; height: 8px; border-radius: 2px; overflow: hidden; min-width: 90px; background: var(--border); }
 .qc i:nth-child(1) { background: var(--text-secondary); } .qc i:nth-child(2) { background: var(--warning); } .qc i:nth-child(3) { background: var(--critical); }
 .lease { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border: 1px solid var(--border); border-radius: var(--radius-md); }
@@ -91,7 +91,7 @@ dialog.confirm p { font-size: 13px; margin: 0 0 8px; }
 .ptile-badge.overdue { border-color: var(--critical, #B42318); color: var(--critical, #B42318); }
 .ptile-hover { display: none; position: absolute; z-index: 5; top: calc(100% + 4px); left: 0; padding: 6px 8px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
 .ptile:hover .ptile-hover { display: block; }
-.ptile-hover .label { display: block; font-size: 10px; margin-bottom: 2px; }
+.ptile-hover .label { display: block; font-size: var(--type-label); margin-bottom: 2px; }
 .ptile-kids { display: flex; flex-wrap: wrap; gap: 4px; }
 .pchip { display: inline-flex; gap: 6px; align-items: center; font-size: 11px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-subtle); color: var(--text-primary); text-decoration: none; }
 .pchip b { font-family: var(--font-mono); font-weight: 500; }
@@ -110,4 +110,4 @@ dialog.confirm p { font-size: 13px; margin: 0 0 8px; }
 .ptile-tag { min-width: 0; }
 .pgrid { align-items: start; }
 .ptile-marks { flex-direction: column; align-items: flex-end; gap: 1px; }
-.isa-sec { font-size: 10px; color: var(--text-secondary); font-weight: 400; white-space: nowrap; }
+.isa-sec { font-size: var(--type-label); color: var(--text-secondary); font-weight: 400; white-space: nowrap; }
