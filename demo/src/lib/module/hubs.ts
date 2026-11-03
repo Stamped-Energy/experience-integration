@@ -31,7 +31,7 @@ export const PROCESS_HUBS: HubDef[] = [
     tabs: [
       { href: "/process/proposals", label: "Proposals", match: exactOrPrefix("/process/proposals") },
       { href: "/process/trials", label: "Trials and stops", match: exactOrPrefix("/process/trials") },
-      { href: "/process/actions", label: "Action queue", match: (p) => p === "/process/actions" },
+      { href: "/process/actions", label: "Action queue", match: (p) => p === "/process/actions" || p.startsWith("/process/actions/") },
       { href: "/process/agent", label: "Agent at work", match: (p) => p === "/process/agent" },
     ],
   },
@@ -100,7 +100,7 @@ export const QUALITY_HUBS: HubDef[] = [
     sidebarHref: "/quality/actions",
     audience: "client",
     tabs: [
-      { href: "/quality/actions", label: "Action cards", match: (p) => p === "/quality/actions" },
+      { href: "/quality/actions", label: "Action cards", match: (p) => p === "/quality/actions" || p.startsWith("/quality/actions/") },
       { href: "/quality/investigations", label: "Investigations and 8D", match: exactOrPrefix("/quality/investigations") },
       { href: "/quality/corrections", label: "Corrections", match: (p) => p === "/quality/corrections" },
       { href: "/quality/links", label: "Link confirmations", match: (p) => p === "/quality/links" },

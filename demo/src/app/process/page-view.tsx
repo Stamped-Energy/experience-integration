@@ -13,7 +13,6 @@ import { DecisionCard } from "@/components/cards/DecisionCard";
 import { Sparkline } from "@/components/ui/charts";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, EvidenceTag, LineModeTag, ModeTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
-import { ActionsBoard, ActionsBrief } from "@/components/cards/ExampleActions";
 import { IdleList } from "@/components/agent/blocks";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { crumbs, outcome, outcomeName, packOf, processEyebrow, proofForRun, runLabel, runsOf, specOf } from "@/components/process/common";
@@ -22,19 +21,16 @@ import { crumbs, outcome, outcomeName, packOf, processEyebrow, proofForRun, runL
 export default function ProcessLines() {
   const sp = Object.fromEntries(useSearchParams().entries());
   if (sp.tab === "actions") redirect("/process/actions");
-  const actions = false;
-  if (!actions && sp.line && D.byId.line(sp.line)) redirect(`/process/lines/${sp.line}`);
+  if (sp.line && D.byId.line(sp.line)) redirect(`/process/lines/${sp.line}`);
   const role = demoRole();
   const open = D.proposals.filter((p) => p.state === "Waiting");
   const recent = D.runs.slice().sort((a, b) => b.end.localeCompare(a.end)).slice(0, 10);
   const fits = Object.fromEntries(D.modelFits.map((f) => [f.lineId, f]));
   return (
-    <Workspace crumbs={crumbs({ label: actions ? "Actions" : "Lines" })} askContext="Process lines">
-      <PageHeader eyebrow={processEyebrow("/process")} title={actions ? "Process actions" : "Lines"} meta={actions ? "Open work on both lines, grouped by what it needs from you." : "What the agent suggests on each line, and what needs a decision."}
+    <Workspace crumbs={crumbs({ label: "Lines" })} askContext="Process lines">
+      <PageHeader eyebrow={processEyebrow("/process")} title="Lines" meta="What the agent suggests on each line, and what needs a decision."
         actions={<><Link className="btn btn-sm" href="/process/proposals">{open.length} proposals waiting</Link><AskButton context="Process lines" label="Ask about lines" /></>} />
       <ProcessHubTabs />
-      {actions ? <><ActionsBoard area="Process" role={role} base="/process" status={sp.status} line={sp.line} mine={sp.mine} /></> : (<>
-      <ActionsBrief area="Process" role={role} href="/process/actions" />
       <div className="grid">
         <div className="span-12">
           <Section title="Lines" meta="Mode, running settings against the signed band, last runs" flush>
@@ -88,7 +84,6 @@ export default function ProcessLines() {
           </Section>
         </div>
       </div>
-      </>)}
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref="/process" /> : null}
     </Workspace>
   );

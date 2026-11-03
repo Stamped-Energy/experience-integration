@@ -3,6 +3,13 @@ import assert from "node:assert/strict";
 import * as D from "../src/lib/demo/data";
 import { exampleActions } from "../src/lib/demo/actions";
 
+test("every action names an outcome with before, after and label", () => {
+  for (const a of exampleActions) {
+    assert.ok(a.outcome.metric && a.outcome.before && a.outcome.after, a.id);
+    assert.ok(["Measured", "Estimated", "Modelled", "Assumed", "Unknown"].includes(a.outcome.label), a.id);
+  }
+});
+
 test("example actions are illustrative, on real lines, with valid roles", () => {
   for (const a of exampleActions) {
     assert.equal(a.illustrative, true, a.id);
@@ -50,6 +57,7 @@ test("open examples stay apart from accepted ones, and a live trial is labelled"
   const { readFileSync } = await import("node:fs");
   const src = readFileSync(new URL("../src/components/cards/ExampleActions.tsx", import.meta.url), "utf8");
   assert.ok(src.includes("Needs a decision") && src.includes("Accepted and closed"));
+  assert.ok(src.includes("actionOutcomeLine") && src.includes("Open"));
   assert.ok(src.includes("Trial running"));
   assert.ok(!exampleActions.some((a) => a.id === "ex-p7" || a.id === "ex-q7"));
   for (const area of ["Process", "Quality"] as const) {

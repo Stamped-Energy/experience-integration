@@ -5,7 +5,7 @@ Action cards for Process and Quality: each card shows what Stamped saw, the evid
 import Link from "next/link";
 import type { ActionStep, ExampleAction, RoleId } from "@/lib/demo/types";
 import { byId, roles } from "@/lib/demo/data";
-import { exampleActions } from "@/lib/demo/actions";
+import { exampleActions, actionHref, actionOutcomeLine } from "@/lib/demo/actions";
 import { can } from "@/lib/rbac";
 import { EvidenceTag, Tag } from "@/components/ui/primitives";
 import { dayMonth, hhmm } from "@/lib/format";
@@ -31,7 +31,12 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
   const summary = (
     <span className="ex-sum">
       <span className="ex-sum-t">{a.title}</span>
-      <span className="ex-sum-m"><Tag tone={c ? "success" : status === "Needs a decision" ? "info" : "neutral"}>{status}</Tag><span>{c ? `${c.by} · ${dayMonth(c.at)}` : names(a.who.roles)}</span></span>
+      <span className="ex-sum-o">{actionOutcomeLine(a.outcome)}</span>
+      <span className="ex-sum-m">
+        <Tag tone={c ? "success" : status === "Needs a decision" ? "info" : "neutral"}>{status}</Tag>
+        <span>{c ? `${c.by} · ${dayMonth(c.at)}` : names(a.who.roles)}</span>
+        <Link className="btn btn-sm ex-open" href={actionHref(a)} onClick={(e) => e.stopPropagation()} scroll={false}>Open</Link>
+      </span>
     </span>
   );
   return (
@@ -65,7 +70,8 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
           </div>
         )}
         <div className="ex-meta">
-          {a.href ? <Link className="link" href={a.href} scroll={false}>{a.hrefLabel ?? "Open"}</Link> : null}
+          <Link className="link" href={actionHref(a)} scroll={false}>Open full detail</Link>
+          {a.href ? <Link className="link" href={a.href} scroll={false}>{a.hrefLabel ?? "Related record"}</Link> : null}
           <span className="spacer" />
           <Assign initial={A.assigned[a.id]} people={A.PEOPLE} canAssign={A.ASSIGNERS.includes(role)} by={A.ME[role] ?? "Plant head A."} />
         </div>

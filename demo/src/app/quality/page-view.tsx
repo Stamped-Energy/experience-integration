@@ -15,7 +15,6 @@ import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { Confidence } from "@/components/ui/Confidence";
 import { DataTable, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
-import { ActionsBoard, ActionsBrief, listActions } from "@/components/cards/ExampleActions";
 import { AskedHere, Learned, Qualification, WorkingOn } from "@/components/agent/blocks";
 import * as A from "@/lib/demo/agent";
 import { Tabs } from "@/components/ui/primitives";
@@ -39,15 +38,13 @@ export default function LotsAtRisk() {
   const prop = propOf(sel), spec = specOf(sel), lab = labOf(sel), links = linksOf(sel);
   const proof = proofForLot(sel);
   const agent = sp.tab === "agent";
-  const actions = sp.tab === "actions";
   const atRisk = D.lots.filter((l) => l.riskWord === "At risk");
   return (
-    <Workspace crumbs={crumbs({ label: sp.tab === "actions" ? "Actions" : sp.tab === "agent" ? "Agent work" : "Lots at risk" })} askContext="Lots at risk">
-      <PageHeader eyebrow={qualityEyebrow("/quality")} title={actions ? "Quality actions" : agent ? "Agent work on quality" : "Lots at risk"} meta={actions ? "Open quality work, grouped by what it needs from you." : agent ? "What the agent is doing, and what it needs from you." : "Lots that may miss spec, with how sure the join and band are."}
+    <Workspace crumbs={crumbs({ label: agent ? "Agent work" : "Lots at risk" })} askContext="Lots at risk">
+      <PageHeader eyebrow={qualityEyebrow("/quality")} title={agent ? "Agent work on quality" : "Lots at risk"} meta={agent ? "What the agent is doing, and what it needs from you." : "Lots that may miss spec, with how sure the join and band are."}
         actions={<><Link className="btn btn-sm" href="/quality/links">{D.lotLinks.filter((l) => l.status === "suggested" && l.link_confidence < 0.8).length} links to confirm</Link><AskButton context="Lots at risk" label="Ask about lots" /></>} />
       <QualityHubTabs />
-      {actions ? <><ActionsBoard area="Quality" role={role} base="/quality" status={sp.status} line={sp.line} mine={sp.mine} /></> : null}
-      {actions ? null : agent ? (
+      {agent ? (
         <div className="grid">
           <div className="span-8 stack">
                         <WorkingOn items={A.qualityWork} />
@@ -59,7 +56,6 @@ export default function LotsAtRisk() {
           </div>
         </div>
       ) : (<>
-      <ActionsBrief area="Quality" role={role} href="/quality/actions" limit={3} />
       <NoReleaseLine />
       <div className="grid">
         <div className="span-8 stack">

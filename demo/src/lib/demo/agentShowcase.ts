@@ -211,7 +211,7 @@ export function agentShowcase(area: AgentArea): AgentShowcaseBundle {
     waiting,
     tried: (area === "quality" ? QUALITY_TRIED : PROCESS_TRIED).slice(0, CAP_TRIED),
     learned: learnedLines(area),
-    seeAllActionsHref: area === "quality" ? "/quality" : "/process/actions",
+    seeAllActionsHref: area === "quality" ? "/quality/actions" : "/process/actions",
     seeAllProposalsHref: area === "quality" ? "/quality/investigations" : "/process/proposals",
   };
 }

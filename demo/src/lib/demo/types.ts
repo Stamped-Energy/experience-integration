@@ -193,9 +193,19 @@ export interface ShiftEvent extends Illustrative { at: string; lineId: string; t
 /** One step of the chain Stamped runs: see it, explain it, change it within limits, try it, check it, keep what works. */
 export type ActionStep = "Detect" | "Explain" | "Propose" | "Trial" | "Verify" | "Learn" | "Decide";
 /** A worked example action for the Process and Quality overviews. Illustrative; shows how an outcome is reached. */
+/** Named plant outcome this action moves, with before and after figures on the demo model. */
+export interface ActionOutcome {
+  metric: string;
+  before: string;
+  after: string;
+  label: EvidenceLabel;
+}
+
 export interface ExampleAction extends Illustrative {
   id: string; area: "Process" | "Quality"; lineId: string; steps: ActionStep[]; mechanism: string;
   title: string; seen: string; evidence: { text: string; label: EvidenceLabel; id?: string }[];
+  /** Outcome the action drives, shown on cards and the detail page header. */
+  outcome: ActionOutcome;
   action: string;
   /** Who acts, and how: on its own under a standing approval, a named role decides, or recommend only. */
   who: { how: "On its own, inside the signed band" | "A person decides" | "Recommend only" | "Record only"; roles: RoleId[]; note: string };

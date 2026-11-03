@@ -14,7 +14,7 @@ import { DecisionCard } from "@/components/cards/DecisionCard";
 import { RunChart } from "@/components/ui/charts";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, EvidenceTag, LineModeTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
-import { ActionsBoard, ActionsBrief, listActions } from "@/components/cards/ExampleActions";
+import { ActionsBoard, listActions } from "@/components/cards/ExampleActions";
 import { AskedHere, ControlStack, LayerProposal, Learned, Onboarding, WorkingOn } from "@/components/agent/blocks";
 import { Tabs } from "@/components/ui/primitives";
 import * as A from "@/lib/demo/agent";
@@ -79,7 +79,6 @@ export default function LineDetail() {
           </div>
         </div>
       ) : (<>
-      <ActionsBrief area="Process" role={role} lineId={line.id} href={`/process/actions?line=${line.id}`} />
       <div className="grid line-grid">
         <div className="span-8 xl-span-9 stack">
           <Section title={`${name} per ${pack.labels.unit}`} meta={`Last ${shown.length} ${pack.labels.runs.toLowerCase()} · spec dashed${trialStart >= 0 ? " · shaded: trial running" : ""}`} flush>
