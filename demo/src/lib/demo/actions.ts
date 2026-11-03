@@ -12,6 +12,7 @@ const I = { illustrative: true } as const;
 export const exampleActions: T.ExampleAction[] = [
   /* ---------------- Process ---------------- */
   { ...I, id: "ex-p1", area: "Process", lineId: "line-a", steps: ["Detect", "Propose"], mechanism: "Keeping a batch on its best path",
+    outcome: { metric: "Viscosity at discharge", before: "2480 to 2560 mPa·s", after: "2460 to 2540 mPa·s", label: "Modelled" },
     title: "Batch 2418 is heating up slowly, so the hold step runs 2 min longer",
     seen: "Batch 2418 reached hold temperature 4 min later than the best 20 batches of Grade A-12. The jacket inlet ran 1.5 °C cool after the cooling water changeover.",
     evidence: [{ text: "Batch temperature against the best-batch path", label: "Measured", id: "EV-A-1194" }, { text: "Jacket inlet temperature, last 6 h", label: "Measured", id: "EV-A-1195" }],
@@ -20,6 +21,7 @@ export const exampleActions: T.ExampleAction[] = [
     expected: { label: "Modelled", band: "viscosity 2460 to 2540 mPa·s at discharge" },
     why: "Catching a slow batch while it runs saves the batch, instead of finding it at the lab." },
   { ...I, id: "ex-p2", area: "Process", lineId: "line-a", steps: ["Propose"], mechanism: "Settings that follow the product",
+    outcome: { metric: "Viscosity, first batch", before: "2720 to 2880 mPa·s", after: "2650 to 2790 mPa·s", label: "Estimated" },
     title: "Grade A-14 is next: start it from its own best batches",
     seen: "After batch 2420 the line changes from Grade A-12 to A-14. The last two A-14 changeovers each needed one batch reworked.",
     evidence: [{ text: "5 best A-14 batches, hold time and agitator speed", label: "Measured", id: "EV-A-1061" }, { text: "Two reworked first batches after changeover", label: "Measured", id: "EV-A-1064" }],
@@ -29,6 +31,7 @@ export const exampleActions: T.ExampleAction[] = [
     expected: { label: "Estimated", band: "first batch viscosity 2650 to 2790 mPa·s, spec 2600 to 2840" },
     why: "Starting each product from its own best runs cuts the reworked batch after every changeover." },
   { ...I, id: "ex-p3", area: "Process", lineId: "line-a", steps: ["Trial"], mechanism: "Trying a setting properly",
+    outcome: { metric: "Time to target viscosity", before: "11.5 to 12.4 min", after: "8.0 to 11.0 min", label: "Measured" },
     title: "Hold temperature 86 °C is being tried on alternate batches",
     seen: "The model expects 86 °C to reach target viscosity sooner, but the history alone cannot separate that from charge mass.",
     evidence: [{ text: "Measurement plan locked before the first switch", label: "Measured" }, { text: "10 of 16 batches done, 1 skipped and recorded", label: "Measured", id: "EV-A-1102" }],
@@ -38,6 +41,7 @@ export const exampleActions: T.ExampleAction[] = [
     why: "An alternating trial tells a real gain apart from luck, so the plant only keeps changes that work.",
     href: "/process/trials/trial-1", hrefLabel: "Open the trial" },
   { ...I, id: "ex-p4", area: "Process", lineId: "line-b", steps: ["Detect", "Explain", "Propose"], mechanism: "Energy per good part",
+    outcome: { metric: "Energy per good part", before: "0.42 kWh/t", after: "0.36 to 0.39 kWh/t", label: "Estimated" },
     title: "Energy per good part on Press P3 rose after the resin change",
     seen: "Energy per good part is up on Line B, even after adjusting for output and the product mix. It started when the resin dryer moved to a longer cycle for the new resin lot.",
     evidence: [{ text: "Energy per good part, adjusted for output and mix", label: "Estimated", id: "EV-B-2230" }, { text: "Resin dew point steady at minus 40 °C for 30 min before the end of each cycle", label: "Measured", id: "EV-B-2231" }],
@@ -47,6 +51,7 @@ export const exampleActions: T.ExampleAction[] = [
     expected: { label: "Estimated", band: "0.03 to 0.06 kWh less per good part" },
     why: "Counting energy against good parts, not hours run, shows waste that a meter reading hides." },
   { ...I, id: "ex-p5", area: "Process", lineId: "line-b", steps: ["Verify", "Learn"], mechanism: "Checking a past change",
+    outcome: { metric: "Parts per shift", before: "820 parts", after: "836 to 847 parts", label: "Measured" },
     title: "Cycle time 33.2 s is still paying off two weeks later",
     seen: "Stamped compared shift runs at 33.2 s with matched runs before the change: same tool, same resin lot.",
     evidence: [{ text: "Parts per shift from the production system", label: "Measured", id: "EV-B-2101" }, { text: "Holding at 6 and 14 days", label: "Measured" }],
@@ -56,6 +61,7 @@ export const exampleActions: T.ExampleAction[] = [
     why: "Each gain is checked against the plant's own records before anyone counts it, and the agent learns from what held.",
     href: "/process?evidence=proof-3", hrefLabel: "See the proof" },
   { ...I, id: "ex-p6", area: "Process", lineId: "line-b", steps: ["Propose", "Learn"], mechanism: "Tightening a limit, never widening it",
+    outcome: { metric: "Scrap from hold pressure", before: "2.1% from band excursions", after: "0% in 34 shift runs", label: "Measured" },
     title: "Hold pressure band on Tool T3 narrowed to 640 to 820 bar",
     seen: "Every short shot and every flash defect in 40 shift runs came from hold pressure below 640 or above 820 bar, inside the signed band of 600 to 850 bar.",
     evidence: [{ text: "Defects by hold pressure, 40 shift runs", label: "Measured", id: "EV-B-2120" }, { text: "Signed band 600 to 850 bar", label: "Measured" }],
@@ -66,6 +72,7 @@ export const exampleActions: T.ExampleAction[] = [
 
   /* ---------------- Quality ---------------- */
   { ...I, id: "ex-q1", area: "Quality", lineId: "line-b", steps: ["Detect", "Decide"], mechanism: "A decision on the floor",
+    outcome: { metric: "Part weight, cavity 2", before: "47.9 g", after: "48.0 g target band", label: "Estimated" },
     title: "Lot 7713 parts are running light on cavity 2. Hold and check them?",
     seen: "Part weight on cavity 2 has fallen 0.12 g over three shift runs. Every part is still in spec, but the estimated band for lot 7713 now touches the lower limit of 47.6 g.",
     evidence: [{ text: "Vision check part weight, cavity 2", label: "Measured", id: "EV-B-2214" }, { text: "Lot 7713 estimated band 47.5 to 48.0 g", label: "Estimated" }, { text: "Lowering melt temperature was declined: flash on the parting line", label: "Measured" }],
@@ -80,6 +87,7 @@ export const exampleActions: T.ExampleAction[] = [
     why: "A light part found before packing is a few minutes of weighing. Found by the customer, it is a returned lot.",
     href: "/quality/lots/lot-b-7713", hrefLabel: "Open lot 7713" },
   { ...I, id: "ex-q2", area: "Quality", lineId: "line-a", steps: ["Detect"], mechanism: "The lab result, before the lab",
+    outcome: { metric: "Viscosity", before: "2580–2660", after: "2540–2630 mPa·s", label: "Modelled" },
     title: "Lot 3307 viscosity is heading for the upper limit: sample it early",
     seen: "Stamped estimates lot 3307 from its linked batches, torque and temperature. The band sits across the upper spec limit of 2600 mPa·s.",
     evidence: [{ text: "Viscosity band 2540 to 2630 mPa·s", label: "Modelled" }, { text: "End-of-hold torque on linked batches 2416 and 2417", label: "Measured", id: "EV-A-1188" }],
@@ -90,6 +98,7 @@ export const exampleActions: T.ExampleAction[] = [
     why: "Knowing the likely lab result 40 min early leaves time to fix the lot instead of reworking it.",
     href: "/quality/lots/lot-a-3307", hrefLabel: "Open lot 3307" },
   { ...I, id: "ex-q3", area: "Quality", lineId: "line-a", steps: ["Explain", "Propose"], mechanism: "Tracing a lot to its cause",
+    outcome: { metric: "Viscosity, next batches", before: "2610 to 2680 mPa·s", after: "2520 to 2590 mPa·s", label: "Modelled" },
     title: "Lots 3307 and 3296 share one cause: high torque at the end of hold",
     seen: "Both lots link to batches 2416 and 2417. Charge mass was in recipe on both, but end-of-hold torque ran 6% above the grade's best batches.",
     evidence: [{ text: "Lot to batch links, with their confidence", label: "Estimated", id: "EV-A-1185" }, { text: "End-of-hold torque, both batches", label: "Measured", id: "EV-A-1188" }, { text: "Charge mass inside recipe", label: "Measured" }],
@@ -99,6 +108,7 @@ export const exampleActions: T.ExampleAction[] = [
     why: "Tying each bad lot to the exact batches and readings behind it turns a complaint into a specific fix.",
     href: "/quality/investigations/inv-1", hrefLabel: "Open the investigation" },
   { ...I, id: "ex-q4", area: "Quality", lineId: "line-b", steps: ["Learn", "Decide"], mechanism: "Inspection where it matters",
+    outcome: { metric: "Inspection time, cavity 1", before: "60 min per shift", after: "30 min per shift", label: "Measured" },
     title: "Cavity 1 has been steady for 30 shift runs: weigh it every 2 hours",
     seen: "Cavity 1 part weight has stayed in the middle of its spec for 30 shift runs, across two resin lots. Cavity 2 has not.",
     evidence: [{ text: "Cavity 1 part weight, 30 shift runs", label: "Measured", id: "EV-B-2190" }, { text: "Vision check still sees every part", label: "Measured" }],
@@ -108,6 +118,7 @@ export const exampleActions: T.ExampleAction[] = [
     expected: { label: "Measured", band: "part weight 48.0 to 48.4 g on cavity 1, spec 47.6 to 48.8 g" },
     why: "Inspection time goes where the risk is, so drifting parts are caught sooner without adding staff." },
   { ...I, id: "ex-q5", area: "Quality", lineId: "line-b", steps: ["Verify"], mechanism: "Checking a correction held",
+    outcome: { metric: "Scrap", before: "3.2%", after: "2.9%", label: "Measured" },
     title: "The hold pressure correction for light parts is holding",
     seen: "Quality asked Process to raise hold pressure after light parts on lot 7711. Stamped checked the lots made since against the vision and lab records.",
     evidence: [{ text: "Part weight on lots made after the change", label: "Measured", id: "EV-B-1911" }, { text: "Investigation closed with this result", label: "Measured" }],
@@ -117,6 +128,7 @@ export const exampleActions: T.ExampleAction[] = [
     why: "A fix only counts once the quality records show it held, and the next drift starts from what worked.",
     href: "/quality/investigations/inv-2", hrefLabel: "Open the investigation" },
   { ...I, id: "ex-q6", area: "Quality", lineId: "line-b", steps: ["Explain"], mechanism: "Joining a lot to the runs that made it",
+    outcome: { metric: "Link confidence, lot 7721", before: "0.71", after: "0.94", label: "Measured" },
     title: "Lot 7721 linked to shift run 681 after a scanner gap",
     seen: "The lot label scan was missing for one hour, so Stamped matched lot 7721 to its run from timing, recipe and sequence. The link was below the confidence threshold, so it went to a person.",
     evidence: [{ text: "Time, recipe and sequence agree; scanned id missing", label: "Estimated", id: "EV-B-2150" }, { text: "Packing record for lot 7721", label: "Measured" }],
@@ -125,3 +137,79 @@ export const exampleActions: T.ExampleAction[] = [
     closed: { state: "Accepted", changed: "Lot 7721 linked to shift run 681", by: "Quality head A.", at: at(-4, -2), result: { status: "Verified", label: "Measured", band: "link confirmed against the packing record" } },
     why: "A lot that carries the readings of the run that made it can be traced in minutes when a complaint comes in." },
 ];
+
+export const byActionId = Object.fromEntries(exampleActions.map((a) => [a.id, a])) as Record<string, T.ExampleAction>;
+
+export function getAction(id: string) {
+  return byActionId[id];
+}
+
+export function actionHref(a: Pick<T.ExampleAction, "id" | "area">) {
+  return `${a.area === "Process" ? "/process" : "/quality"}/actions/${a.id}`;
+}
+
+/** Plain-text outcome for tests and search. */
+export function actionOutcomeLine(o: T.ExampleAction["outcome"]) {
+  return `${o.metric} ${o.before} → ${o.after} (${o.label.toLowerCase()})`;
+}
+
+const SHORT_TITLE: Record<string, string> = {
+  "ex-q1": "Hold and check lot 7713 (cavity 2 running light)",
+  "ex-p3": "Hold temperature 86 °C trial on alternate batches",
+  "ex-p2": "Grade A-14 changeover settings for batch 2421",
+  "ex-p4": "Dryer cycle after resin change on Line B",
+  "ex-p6": "Hold pressure band narrowed on Tool T3",
+};
+
+export function actionShortTitle(a: T.ExampleAction) {
+  return SHORT_TITLE[a.id] ?? a.title;
+}
+
+/** Closed cards show a measured result line; open cards use the modelled or estimated outcome. */
+export function actionOutcomeForDisplay(a: T.ExampleAction): T.ActionOutcome {
+  if (a.closed) {
+    return { ...a.outcome, label: "Measured", after: a.outcome.after };
+  }
+  return a.outcome;
+}
+
+const WHO_SHORT: Record<T.ExampleAction["who"]["how"], string> = {
+  "On its own, inside the signed band": "On its own",
+  "A person decides": "Person decides",
+  "Recommend only": "Recommend only",
+  "Record only": "Record only",
+};
+
+export function whoDecidesShort(how: T.ExampleAction["who"]["how"]) {
+  return WHO_SHORT[how];
+}
+
+/** Display parts for the outcome line: metric, "47.9 g now", "48.0 g target". */
+export function outcomePhrase(o: T.ActionOutcome) {
+  const now = /\bnow\b/i.test(o.before) ? o.before.trim() : `${o.before.trim()} now`;
+  let target = o.after.trim().replace(/\s*target\s+band\b/i, " target").replace(/\s*,?\s*band\s+.*/i, "").trim();
+  if (!/\btarget\b/i.test(target) && !/mPa·s$/i.test(target)) target = `${target} target`;
+  return { metric: o.metric, now, target };
+}
+
+const OPTION_SHORT: Record<string, Record<string, string>> = {
+  "ex-q1": { segregate: "Hold and check", continue: "Keep running", sample: "Weigh every 30 min" },
+  "ex-q2": { early: "Sample at end of hold", normal: "Keep normal sample" },
+  "ex-p2": { accept: "Use these settings", keep: "Keep current recipe" },
+  "ex-p4": { accept: "Plan the change", decline: "Decline with reason" },
+  "ex-q4": { accept: "Change inspection plan", keep: "Keep hourly checks" },
+};
+
+export function optionShortLabel(actionId: string, optionId: string, fallback: string) {
+  return OPTION_SHORT[actionId]?.[optionId] ?? fallback;
+}
+
+/** Primary and secondary options for card and detail bars (consistent order). */
+export function decisionOptionPair(a: T.ExampleAction) {
+  if (!a.options?.length) return { primary: undefined, secondary: undefined };
+  const primary = a.options.find((o) => o.primary) ?? a.options[0];
+  const secondary =
+    a.options.find((o) => o.id !== primary.id && /continue|keep|decline|normal|reject/i.test(o.id)) ??
+    a.options.find((o) => o.id !== primary.id);
+  return { primary, secondary };
+}

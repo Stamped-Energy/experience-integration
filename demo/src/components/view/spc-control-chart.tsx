@@ -19,9 +19,16 @@ export type SpcControlChartProps = {
   lcl: number;
   usl?: number;
   lsl?: number;
+  targetY?: number;
+  unit?: string;
   cp?: number;
   cpk?: number;
   height?: number;
+  /** Fixed y-axis for spec charts (shows LSL band and headroom). */
+  yMin?: number;
+  yMax?: number;
+  /** When set, only these spec lines are drawn (no CL/UCL/LCL). */
+  specLinesOnly?: boolean;
 };
 
 export function SpcControlChart({
@@ -35,9 +42,14 @@ export function SpcControlChart({
   lcl,
   usl,
   lsl,
+  targetY,
+  unit,
   cp,
   cpk,
   height = 220,
+  yMin,
+  yMax,
+  specLinesOnly = false,
 }: SpcControlChartProps) {
   const host = useRef<HTMLDivElement>(null);
 
@@ -45,16 +57,42 @@ export function SpcControlChart({
     if (!host.current) return undefined;
     const chart = echarts.init(host.current, undefined, { renderer: "canvas" });
     const hitSet = new Set(primary.hits ?? []);
+    const lastIdx = primary.values.length - 1;
     const x = primary.values.map((_, i) => String(i + 1));
+    const yName = unit ? `${primary.label} (${unit})` : primary.label;
+    const markArea =
+      lsl != null && usl != null
+        ? [
+            {
+              itemStyle: { color: "rgba(34, 197, 94, 0.14)" },
+              data: [[{ yAxis: lsl }, { yAxis: usl }]],
+            },
+          ]
+        : undefined;
+    const lineEnd = { position: "end" as const, formatter: "{b}", color: "#475569", fontSize: 11 };
     const markLine = {
       symbol: "none",
-      data: [
-        { yAxis: cl, name: "CL", lineStyle: { color: "#64748b", type: "solid" } },
-        { yAxis: ucl, name: "UCL", lineStyle: { color: "#C27803", type: "dashed" } },
-        { yAxis: lcl, name: "LCL", lineStyle: { color: "#C27803", type: "dashed" } },
-        ...(usl != null ? [{ yAxis: usl, name: "USL", lineStyle: { color: "#DC2626", type: "dotted" } }] : []),
-        ...(lsl != null ? [{ yAxis: lsl, name: "LSL", lineStyle: { color: "#DC2626", type: "dotted" } }] : []),
-      ],
+      label: lineEnd,
+      data: specLinesOnly
+        ? [
+            ...(lsl != null
+              ? [{ yAxis: lsl, name: `LSL ${lsl}`, lineStyle: { color: "#DC2626", type: "solid", width: 2 } }]
+              : []),
+            ...(usl != null
+              ? [{ yAxis: usl, name: `USL ${usl}`, lineStyle: { color: "#DC2626", type: "solid", width: 2 } }]
+              : []),
+            ...(targetY != null
+              ? [{ yAxis: targetY, name: `Target ${targetY}`, lineStyle: { color: "#64748b", type: "dashed", width: 2 } }]
+              : []),
+          ]
+        : [
+            { yAxis: cl, name: "CL", lineStyle: { color: "#64748b", type: "solid" } },
+            { yAxis: ucl, name: "UCL", lineStyle: { color: "#C27803", type: "dashed" } },
+            { yAxis: lcl, name: "LCL", lineStyle: { color: "#C27803", type: "dashed" } },
+            ...(usl != null ? [{ yAxis: usl, name: "USL", lineStyle: { color: "#DC2626", type: "solid", width: 1.5 } }] : []),
+            ...(lsl != null ? [{ yAxis: lsl, name: "LSL", lineStyle: { color: "#DC2626", type: "solid", width: 1.5 } }] : []),
+            ...(targetY != null ? [{ yAxis: targetY, name: "Target", lineStyle: { color: "#64748b", type: "dashed" } }] : []),
+          ],
     };
     const series: Array<Record<string, unknown>> = [
       {
@@ -62,12 +100,22 @@ export function SpcControlChart({
         type: "line",
         data: primary.values.map((v, i) => ({
           value: v,
-          itemStyle: hitSet.has(i) ? { color: "#DC2626", borderColor: "#DC2626" } : undefined,
-          symbolSize: hitSet.has(i) ? 10 : 6,
+          itemStyle: hitSet.has(i) || i === lastIdx ? { color: "#E85D4C", borderColor: "#E85D4C" } : undefined,
+          symbolSize: hitSet.has(i) || i === lastIdx ? 10 : 6,
         })),
         showSymbol: true,
         lineStyle: { color: "#2563eb", width: 2 },
         markLine,
+        markArea,
+        markPoint:
+          lastIdx >= 0
+            ? {
+                symbol: "pin",
+                symbolSize: 42,
+                data: [{ name: "Now", coord: [lastIdx, primary.values[lastIdx]], value: primary.values[lastIdx] }],
+                label: { formatter: "{c}", fontSize: 11 },
+              }
+            : undefined,
       },
     ];
     if (secondary?.values.length) {
@@ -82,15 +130,15 @@ export function SpcControlChart({
     }
     chart.setOption({
       aria: { enabled: true, decal: { show: false } },
-      grid: { left: 48, right: secondary ? 48 : 24, top: 36, bottom: 32 },
+      grid: { left: 48, right: secondary ? 48 : 72, top: 36, bottom: 32 },
       tooltip: { trigger: "axis" },
       xAxis: { type: "category", data: x, boundaryGap: false },
       yAxis: secondary
         ? [
-            { type: "value", scale: true, name: primary.label },
+            { type: "value", scale: yMin == null && yMax == null, min: yMin, max: yMax, name: yName },
             { type: "value", scale: true, name: secondary.label },
           ]
-        : { type: "value", scale: true, name: primary.label },
+        : { type: "value", scale: yMin == null && yMax == null, min: yMin, max: yMax, name: yName },
       series: series as echarts.EChartsCoreOption["series"],
     });
     const ro = new ResizeObserver(() => chart.resize());
@@ -99,7 +147,7 @@ export function SpcControlChart({
       ro.disconnect();
       chart.dispose();
     };
-  }, [primary, secondary, cl, ucl, lcl, usl, lsl, chartKind]);
+  }, [primary, secondary, cl, ucl, lcl, usl, lsl, targetY, unit, chartKind, yMin, yMax, specLinesOnly]);
 
   return (
     <div className="spc-chart-card">

@@ -5,16 +5,13 @@ import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import * as D from "@/lib/demo/data";
-import { demoRole } from "@/lib/role";
 import { dayMonth, hhmm, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { DecisionCard } from "@/components/cards/DecisionCard";
+import { openActionCount } from "@/components/cards/ExampleActions";
 import { Sparkline } from "@/components/ui/charts";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, EvidenceTag, LineModeTag, ModeTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
-import { ActionsBoard, ActionsBrief } from "@/components/cards/ExampleActions";
-import { IdleList } from "@/components/agent/blocks";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { crumbs, outcome, outcomeName, packOf, processEyebrow, proofForRun, runLabel, runsOf, specOf } from "@/components/process/common";
 
@@ -22,19 +19,16 @@ import { crumbs, outcome, outcomeName, packOf, processEyebrow, proofForRun, runL
 export default function ProcessLines() {
   const sp = Object.fromEntries(useSearchParams().entries());
   if (sp.tab === "actions") redirect("/process/actions");
-  const actions = false;
-  if (!actions && sp.line && D.byId.line(sp.line)) redirect(`/process/lines/${sp.line}`);
-  const role = demoRole();
+  if (sp.line && D.byId.line(sp.line)) redirect(`/process/lines/${sp.line}`);
   const open = D.proposals.filter((p) => p.state === "Waiting");
   const recent = D.runs.slice().sort((a, b) => b.end.localeCompare(a.end)).slice(0, 10);
   const fits = Object.fromEntries(D.modelFits.map((f) => [f.lineId, f]));
+  const openActions = openActionCount("Process");
   return (
-    <Workspace crumbs={crumbs({ label: actions ? "Actions" : "Lines" })} askContext="Process lines">
-      <PageHeader eyebrow={processEyebrow("/process")} title={actions ? "Process actions" : "Lines"} meta={actions ? "Open work on both lines, grouped by what it needs from you." : "What the agent suggests on each line, and what needs a decision."}
-        actions={<><Link className="btn btn-sm" href="/process/proposals">{open.length} proposals waiting</Link><AskButton context="Process lines" label="Ask about lines" /></>} />
+    <Workspace crumbs={crumbs({ label: "Lines" })} askContext="Process lines">
+      <PageHeader eyebrow={processEyebrow("/process")} title="Lines" meta="Line status, recent runs and running settings."
+        actions={<AskButton context="Process lines" label="Ask about lines" />} />
       <ProcessHubTabs />
-      {actions ? <><ActionsBoard area="Process" role={role} base="/process" status={sp.status} line={sp.line} mine={sp.mine} /></> : (<>
-      <ActionsBrief area="Process" role={role} href="/process/actions" />
       <div className="grid">
         <div className="span-12">
           <Section title="Lines" meta="Mode, running settings against the signed band, last runs" flush>
@@ -49,7 +43,7 @@ export default function ProcessLines() {
             ]} />
           </Section>
         </div>
-        <div className="span-8 xl-span-9 stack">
+        <div className="span-12 stack">
           <div className="xl-cols-2">
             <Section title="Recent runs" meta="Both lines, newest first" flush actions={<Link className="link" href="/process/lines/line-a">All runs</Link>}>
               <DataTable caption="Recent runs" rowKey={(r) => r.id} rows={recent} rowHref={(r) => `/process/runs/${r.id}`} columns={[
@@ -71,24 +65,12 @@ export default function ProcessLines() {
               ]} />
             </Section>
           </div>
-        </div>
-        <div className="span-4 xl-span-3 stack ctx">
-          <Section title="Left on the table" meta="Proposals nobody has decided" flush><IdleList rupees={false} role={role} /></Section>
-          <Section title="Proposals waiting" meta={`${open.length} to decide`} actions={<Link className="link" href="/process/proposals">All</Link>} flush>
-                        {open.length ? <div className="rows">{open.map((p) => (
-              <Link key={p.id} className="row" href={`/process/proposals/${p.id}`} style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
-                <span style={{ minWidth: 0 }}><span className="row-title" style={{ display: "block" }}>{D.byId.window(p.lineId, p.param)?.name} {p.current} to {p.proposed}</span><span className="row-sub">{D.byId.line(p.lineId)!.short} · expires {rel(p.expiresAt)}</span></span>
-                <Tag tone="accent">Needs a decision</Tag>
-              </Link>))}</div> : null}
-          </Section>
-          <Section title="Stops" meta="Last 14 days" flush>
-            <ul className="tl">{D.stopEvents.map((s) => (
-              <li key={s.id}><span className="t">{dayMonth(s.at)}</span><span className="k x" /><span>{s.effect}<span className="cell-sub">{s.by} · {D.byId.line(s.lineId)!.short} · {s.mode}</span></span><Tag tone={s.restoreResult === "restored" ? "success" : "neutral"}>{s.restoreResult}</Tag></li>
-            ))}</ul>
-          </Section>
+          <Link className="open-actions-row" href="/process/actions">
+            <span>Open actions ({openActions})</span>
+            <span className="muted">Agent cards and trials on the Actions board</span>
+          </Link>
         </div>
       </div>
-      </>)}
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref="/process" /> : null}
     </Workspace>
   );

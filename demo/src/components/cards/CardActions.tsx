@@ -3,11 +3,24 @@
 import { useState, type ReactNode } from "react";
 import { Icon } from "@/components/shell/icons";
 import { AdjustInBand, type AdjustSpec } from "@/components/process/AdjustInBand";
+import { Assign } from "@/components/agent/Assign";
 
 export interface ActionSpec { id: string; label: string; primary?: boolean; allowed: boolean; reason?: string; done: ReactNode }
 export interface StopSpec { effect: string; allowed: boolean; reason?: string }
 
-export function CardActions({ actions, stop, large, adjust }: { actions: ActionSpec[]; stop?: StopSpec; large?: boolean; adjust?: AdjustSpec }) {
+export function CardActions({
+  actions,
+  stop,
+  large,
+  adjust,
+  assignBar,
+}: {
+  actions: ActionSpec[];
+  stop?: StopSpec;
+  large?: boolean;
+  adjust?: AdjustSpec;
+  assignBar?: { initial?: { to: string; by: string }; people: string[]; canAssign: boolean; by: string };
+}) {
   const [done, setDone] = useState<ReactNode>(null);
   const [adjusting, setAdjusting] = useState(false);
   const denied = actions.find((a) => !a.allowed);
@@ -26,11 +39,25 @@ export function CardActions({ actions, stop, large, adjust }: { actions: ActionS
   }
   return (
     <div className="card-foot">
-      {actions.map((a) => (
-        <button key={a.id} type="button" className={`btn${a.primary ? " btn-primary" : ""}${size}`} disabled={!a.allowed}
-          title={!a.allowed ? a.reason : undefined} onClick={() => (a.id === "adjust" && adjust ? setAdjusting(true) : setDone(a.done))}>{a.label}</button>
-      ))}
+      {actions.map((a) => {
+        const deniedPrimary = a.primary && !a.allowed;
+        return (
+          <button
+            key={a.id}
+            type="button"
+            className={`btn${a.primary ? (deniedPrimary ? " btn-primary-denied" : " btn-primary") : ""}${size}`}
+            disabled={!a.allowed}
+            title={!a.allowed ? a.reason : undefined}
+            onClick={() => (a.id === "adjust" && adjust ? setAdjusting(true) : setDone(a.done))}
+          >
+            {a.label}
+          </button>
+        );
+      })}
       {denied ? <span className="why-not"><Icon.lock width={12} height={12} style={{ verticalAlign: -1, marginRight: 4 }} />{denied.reason}</span> : null}
+      {assignBar?.canAssign ? (
+        <Assign initial={assignBar.initial} people={assignBar.people} canAssign by={assignBar.by} buttonOnly />
+      ) : null}
       <span className="spacer" />
       {stop ? (
         <button type="button" className={`btn btn-stop${size}`} disabled={!stop.allowed} title={stop.allowed ? stop.effect : stop.reason}

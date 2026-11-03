@@ -315,6 +315,19 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 .ask-launch-mark { background: var(--mascot-body, #F75440); clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); }
 .btn-primary { background: var(--accent-fill); border-color: var(--accent-fill); color: #FFFFFF; }
 .btn-primary:hover { background: var(--accent-600); border-color: var(--accent-600); }
+.btn-primary-denied {
+  background: transparent;
+  border-color: var(--accent-500);
+  color: var(--accent-700);
+  opacity: 1;
+  cursor: not-allowed;
+}
+.btn.btn-primary-denied[disabled] {
+  background: transparent;
+  border-color: var(--accent-500);
+  color: var(--accent-700);
+  opacity: 1;
+}
 .btn-accent { border-color: var(--accent-300); color: var(--accent-700); }
 .btn-accent:hover { background: var(--accent-50); }
 .btn-quiet { border-color: transparent; background: transparent; color: var(--text-secondary); }
