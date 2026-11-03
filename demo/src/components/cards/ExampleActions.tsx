@@ -3,83 +3,141 @@ Action cards for Process and Quality: each card shows what Stamped saw, the evid
  * the change it makes or asks for, who decides, and the expected result as a label and band.
  */
 import Link from "next/link";
+import { useState } from "react";
 import type { ActionStep, ExampleAction, RoleId } from "@/lib/demo/types";
 import { byId, roles } from "@/lib/demo/data";
-import { exampleActions, actionHref, actionOutcomeLine } from "@/lib/demo/actions";
+import {
+  exampleActions,
+  actionHref,
+  actionOutcomeForDisplay,
+  whoDecidesShort,
+} from "@/lib/demo/actions";
 import { can } from "@/lib/rbac";
-import { EvidenceTag, Tag } from "@/components/ui/primitives";
+import { Tag } from "@/components/ui/primitives";
 import { dayMonth, hhmm } from "@/lib/format";
 import { FoldCard } from "./FoldCard";
+import { ActionOutcomeLine } from "./ActionOutcomeLine";
 import { ShowMore } from "./ShowMore";
 import * as A from "@/lib/demo/agent";
 import { Assign } from "@/components/agent/Assign";
 import { CardActions } from "./CardActions";
 import { deniedReason } from "./DecisionCard";
+import { stretchOver } from "@/components/ui/StretchLink";
 
 const STEP_WORD: Record<ActionStep, string> = { Detect: "See", Explain: "Explain", Propose: "Change", Trial: "Try", Verify: "Check", Learn: "Learn", Decide: "Decide" };
-const HOW_TONE = { "On its own, inside the signed band": "success", "A person decides": "info", "Recommend only": "warning", "Record only": "neutral" } as const;
-const names = (ids: RoleId[]) => { const n = ids.map((r) => roles.find((x) => x.id === r)!.name); return n.length > 1 ? `${n.slice(0, -1).join(", ")} or ${n[n.length - 1]}` : n[0]; };
+
+const names = (ids: RoleId[]) => {
+  const n = ids.map((r) => roles.find((x) => x.id === r)!.name);
+  return n.length > 1 ? `${n.slice(0, -1).join(", ")} or ${n[n.length - 1]}` : n[0];
+};
+
+function whyLines(why: string, seen: string): [string, string] {
+  const w = why.trim();
+  const s = seen.trim();
+  if (w.length <= 120) return [s.length > 100 ? `${s.slice(0, 97)}…` : s, w];
+  const cut = w.lastIndexOf(". ", 110);
+  const first = cut > 40 ? w.slice(0, cut + 1) : w.slice(0, 110);
+  const second = cut > 40 ? w.slice(cut + 2) : "";
+  return [first, second || s.slice(0, 100)];
+}
+
+function StepMenu({ steps }: { steps: ActionStep[] }) {
+  const [open, setOpen] = useState(false);
+  const label = steps.map((s) => STEP_WORD[s]).join(" · ");
+  return (
+    <span className={`ex-step-menu ${stretchOver}`}>
+      <button type="button" className="btn btn-sm btn-quiet" aria-expanded={open} aria-haspopup="menu" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen((o) => !o); }}>
+        Steps
+      </button>
+      {open ? (
+        <span className="ex-step-menu-pop" role="menu">
+          {steps.map((s) => (
+            <span key={s} role="menuitem" className="ex-step" data-step={s}>
+              {STEP_WORD[s]}
+            </span>
+          ))}
+        </span>
+      ) : (
+        <span className="sr-only">{label}</span>
+      )}
+    </span>
+  );
+}
 
 export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId }) {
   const line = byId.line(a.lineId)!;
   const allowed = a.who.roles.includes(role);
-  const stop = a.who.how === "On its own, inside the signed band" ? { effect: "Stopped. The previous setting comes back and nothing new is written.", allowed: can(role, "press-stop", a.lineId), reason: deniedReason("press-stop", "press Stop") } : undefined;
+  const stop = a.who.how === "On its own, inside the signed band"
+    ? { effect: "Stopped. The previous setting comes back and nothing new is written.", allowed: can(role, "press-stop", a.lineId), reason: deniedReason("press-stop", "press Stop") }
+    : undefined;
   const c = a.closed;
   const trialing = !c && a.steps.includes("Trial");
   const status = c ? c.state : trialing ? "Trial running" : a.who.how === "On its own, inside the signed band" ? "Running on its own" : a.who.how === "Record only" ? "Checked" : a.who.how === "Recommend only" ? "Recommend only" : "Needs a decision";
+  const statusTone = c ? "success" : status === "Needs a decision" ? "info" : status === "Trial running" ? "accent" : "neutral";
   const canAct = allowed || !!stop?.allowed;
+  const href = actionHref(a);
+  const outcome = actionOutcomeForDisplay(a);
+  const [why1, why2] = whyLines(a.why, a.seen);
   const summary = (
     <span className="ex-sum">
       <span className="ex-sum-t">{a.title}</span>
-      <span className="ex-sum-o">{actionOutcomeLine(a.outcome)}</span>
+      <ActionOutcomeLine outcome={outcome} />
       <span className="ex-sum-m">
-        <Tag tone={c ? "success" : status === "Needs a decision" ? "info" : "neutral"}>{status}</Tag>
-        <span>{c ? `${c.by} · ${dayMonth(c.at)}` : names(a.who.roles)}</span>
-        <Link className="btn btn-sm ex-open" href={actionHref(a)} onClick={(e) => e.stopPropagation()} scroll={false}>Open</Link>
+        <Tag tone={statusTone}>{status}</Tag>
+        <span className="ex-sum-who">{c ? `${c.by} · ${dayMonth(c.at)}` : names(a.who.roles)}</span>
+        <Link className={`btn btn-sm ex-open ${stretchOver}`} href={href} scroll={false}>
+          Open
+        </Link>
       </span>
     </span>
   );
+  const footerMeta = c
+    ? `${c.changed} · ${c.by} · ${c.state}`
+    : `${a.action} · ${whoDecidesShort(a.who.how)} · ${names(a.who.roles)}`;
+
   return (
-    <FoldCard summary={summary} labelledBy={`${a.id}-t`} anchor={a.id}>
+    <FoldCard summary={summary} labelledBy={`${a.id}-t`} anchor={a.id} detailHref={href}>
       <div className="card-head">
         <span className="card-head-meta">
-          <span className="src">{a.area} agent</span><span className="dotsep">·</span><span className="card-head-clip">{line.short}</span>
+          <span className="src">{a.area} agent</span>
+          <span className="dotsep">·</span>
+          <span className="card-head-clip">{line.short}</span>
         </span>
-        <span className="right">{a.steps.map((s) => <span key={s} className="ex-step" data-step={s}>{STEP_WORD[s]}</span>)}{c ? <Tag tone="success">{c.state}</Tag> : null}</span>
+        <span className="right">
+          <StepMenu steps={a.steps} />
+          {c ? <Tag tone="success">{c.state}</Tag> : null}
+        </span>
       </div>
-      <div className="card-body ex-h">
-        <div className="ex-left">
-          <span className="label">{a.mechanism}</span>
-          <h3 className="card-title" id={`${a.id}-t`}>{a.title}</h3>
-          <p className="card-obs">{a.seen}</p>
-          <ul className="ex-ev">{a.evidence.map((e) => <li key={e.text}><EvidenceTag label={e.label} /><span>{e.text}{e.id ? <span className="mono muted"> · {e.id}</span> : null}</span></li>)}</ul>
-          <p className="ex-why"><b>Why it matters:</b> {a.why}</p>
-        </div>
-        <div className="ex-right">
-        {c ? (
-          <div className="ex-grid">
-            <span className="label">Changed</span><span>{c.changed}</span>
-            <span className="label">{c.state === "Kept" ? "Kept by" : "Accepted by"}</span><span>{c.by} · {dayMonth(c.at)} {hhmm(c.at)}</span>
-            <span className="label">Result</span><span><Tag tone={c.result.status === "Verified" ? "success" : "neutral"}>{c.result.status}</Tag> <b>{c.result.label}</b>, band {c.result.band}</span>
-          </div>
-        ) : (
-          <div className="ex-grid">
-            <span className="label">{a.who.how === "Record only" ? "Result" : "The change"}</span><span>{a.action}</span>
-            {a.expected ? <><span className="label">Expected</span><span><b>{a.expected.label}</b>, band {a.expected.band}</span></> : null}
-            <span className="label">Who decides</span><span><Tag tone={HOW_TONE[a.who.how]}>{a.who.how}</Tag> <span className="muted">{names(a.who.roles)}</span></span>
-          </div>
-        )}
-        <div className="ex-meta">
-          <Link className="link" href={actionHref(a)} scroll={false}>Open full detail</Link>
-          {a.href ? <Link className="link" href={a.href} scroll={false}>{a.hrefLabel ?? "Related record"}</Link> : null}
-          <span className="spacer" />
+      <div className="card-body ex-body-simple">
+        <span className="label">{a.mechanism}</span>
+        <h3 className="card-title" id={`${a.id}-t`}>
+          {a.title}
+        </h3>
+        <ActionOutcomeLine outcome={outcome} />
+        <p className="ex-why-line">{why1}</p>
+        {why2 ? <p className="ex-why-line">{why2}</p> : null}
+        <p className="ex-foot-meta muted">{footerMeta}</p>
+        <div className={`ex-meta ex-meta-foot ${stretchOver}`}>
           <Assign initial={A.assigned[a.id]} people={A.PEOPLE} canAssign={A.ASSIGNERS.includes(role)} by={A.ME[role] ?? "Plant head A."} />
         </div>
-        </div>
       </div>
-      {!c && (a.options || stop) ? (canAct
-        ? <CardActions actions={(a.options ?? []).map((o) => ({ ...o, allowed, reason: `${names(a.who.roles)} can decide`, done: <span>{o.done} <Link href="/activity">Recorded in Activity.</Link></span> }))} stop={stop} />
-        : null) : null}
+      {!c && (a.options || stop) ? (
+        canAct ? (
+          <CardActions
+            actions={(a.options ?? []).map((o) => ({
+              ...o,
+              allowed,
+              reason: `${names(a.who.roles)} can decide`,
+              done: (
+                <span>
+                  {o.done} <Link href="/activity">Recorded in Activity.</Link>
+                </span>
+              ),
+            }))}
+            stop={stop}
+          />
+        ) : null
+      ) : null}
     </FoldCard>
   );
 }
@@ -98,19 +156,28 @@ export function groupOf(a: ExampleAction): ActionGroup {
   return "decision";
 }
 function GroupHead({ g, n, className }: { g: (typeof GROUPS)[number]; n: number; className?: string }) {
-  return <h3 className={className}>{g.label} <span className="cnt">{n}</span><span className="act-sub">{g.sub}</span></h3>;
+  return (
+    <h3 className={className}>
+      {g.label} <span className="cnt">{n}</span>
+      <span className="act-sub">{g.sub}</span>
+    </h3>
+  );
 }
 
 /** One two-column grid. A group with a spare cell takes the next group's card instead of leaving a hole. */
 function ActionGrid({ list, role }: { list: ExampleAction[]; role: RoleId }) {
   const blocks = GROUPS.map((g) => ({ g, xs: list.filter((a) => groupOf(a) === g.id) })).filter((b) => b.xs.length);
   if (blocks.length <= 1) {
-    return <>{blocks.map(({ g, xs }) => (
-      <section key={g.id} className="ex-group act-group" aria-label={g.label}>
-        <GroupHead g={g} n={xs.length} />
-        <ShowMore className="ex-cards act-cards">{xs.map((a) => <ExampleActionCard key={a.id} a={a} role={role} />)}</ShowMore>
-      </section>
-    ))}</>;
+    return (
+      <>
+        {blocks.map(({ g, xs }) => (
+          <section key={g.id} className="ex-group act-group" data-act-group={g.id} aria-label={g.label}>
+            <GroupHead g={g} n={xs.length} />
+            <ShowMore className="ex-cards act-cards">{xs.map((a) => <ExampleActionCard key={a.id} a={a} role={role} />)}</ShowMore>
+          </section>
+        ))}
+      </>
+    );
   }
   const slots = blocks.flatMap(({ g, xs }) => xs.map((a, i) => ({ g, a, lead: i === 0, n: xs.length })));
   const rows: (typeof slots)[] = [];
@@ -124,7 +191,9 @@ function ActionGrid({ list, role }: { list: ExampleAction[]; role: RoleId }) {
           return (
             <div key={row[0].a.id} className="act-pack-row">
               {head ? <GroupHead g={row[0].g} n={row[0].n} className="act-pack-span" /> : null}
-              {row.map((s) => <ExampleActionCard key={s.a.id} a={s.a} role={role} />)}
+              {row.map((s) => (
+                <ExampleActionCard key={s.a.id} a={s.a} role={role} />
+              ))}
             </div>
           );
         }
@@ -146,6 +215,10 @@ function ActionGrid({ list, role }: { list: ExampleAction[]; role: RoleId }) {
 /** Actions for one area, optionally one line. Filters come from the URL. */
 export function listActions(area: "Process" | "Quality", lineId?: string) {
   return exampleActions.filter((a) => a.area === area && (!lineId || a.lineId === lineId));
+}
+
+export function openActionCount(area: "Process" | "Quality", lineId?: string) {
+  return listActions(area, lineId).filter((a) => groupOf(a) !== "closed").length;
 }
 
 /** Compact brief for an overview: the same foldable action cards as the Actions board, capped for the page. */
@@ -205,22 +278,59 @@ export function ActionsBrief({
 }
 
 /** The detailed home of all action cards: open first, grouped by what they need, then accepted and closed. */
-export function ActionsBoard({ area, role, lineId, base, status, line, mine }: { area: "Process" | "Quality"; role: RoleId; lineId?: string; base: string; status?: string; line?: string; mine?: string }) {
+export function ActionsBoard({
+  area,
+  role,
+  lineId,
+  base,
+  status,
+  line,
+  mine,
+}: {
+  area: "Process" | "Quality";
+  role: RoleId;
+  lineId?: string;
+  base: string;
+  status?: string;
+  line?: string;
+  mine?: string;
+}) {
   const me = A.ME[role];
   const all = listActions(area, lineId ?? line);
   const list = all.filter((a) => (!status || groupOf(a) === status) && (!mine || (me && A.assigned[a.id]?.to === me)));
-  const q = (p: Record<string, string | undefined>) => { const u = new URLSearchParams({ tab: "actions" }); const v = { status, line, mine, ...p }; for (const [k, x] of Object.entries(v)) if (x) u.set(k, x); return `${base}?${u}`; };
-  const chip = (on: boolean, href: string, label: string, n?: number) => <Link className={`chip${on ? " on" : ""}`} href={href} scroll={false}>{label}{n !== undefined ? <span className="cnt">{n}</span> : null}</Link>;
+  const q = (p: Record<string, string | undefined>) => {
+    const u = new URLSearchParams({ tab: "actions" });
+    const v = { status, line, mine, ...p };
+    for (const [k, x] of Object.entries(v)) if (x) u.set(k, x);
+    return `${base}?${u}`;
+  };
+  const chip = (on: boolean, href: string, label: string, n?: number) => (
+    <Link className={`chip${on ? " on" : ""}`} href={href} scroll={false}>
+      {label}
+      {n !== undefined ? <span className="cnt">{n}</span> : null}
+    </Link>
+  );
   const lines = [...new Set(listActions(area).map((a) => a.lineId))];
   return (
     <div className="act-board">
       <div className="act-filters" role="group" aria-label="Filter actions">
         <span className="chips">
           {chip(!status, q({ status: undefined }), "All", all.length)}
-          {GROUPS.filter((g) => status === g.id || all.some((a) => groupOf(a) === g.id)).map((g) => chip(status === g.id, q({ status: g.id }), g.label, all.filter((a) => groupOf(a) === g.id).length))}
+          {GROUPS.filter((g) => status === g.id || all.some((a) => groupOf(a) === g.id)).map((g) =>
+            chip(status === g.id, q({ status: g.id }), g.label, all.filter((a) => groupOf(a) === g.id).length),
+          )}
         </span>
-        {lineId ? null : <span className="chips">{chip(!line, q({ line: undefined }), "All lines")}{lines.map((l) => chip(line === l, q({ line: l }), byId.line(l)!.short))}</span>}
-        {me ? <span className="chips">{chip(!!mine, q({ mine: mine ? undefined : "1" }), "Assigned to me", all.filter((a) => A.assigned[a.id]?.to === me).length)}</span> : null}
+        {lineId ? null : (
+          <span className="chips">
+            {chip(!line, q({ line: undefined }), "All lines")}
+            {lines.map((l) => chip(line === l, q({ line: l }), byId.line(l)!.short))}
+          </span>
+        )}
+        {me ? (
+          <span className="chips">
+            {chip(!!mine, q({ mine: mine ? undefined : "1" }), "Assigned to me", all.filter((a) => A.assigned[a.id]?.to === me).length)}
+          </span>
+        ) : null}
       </div>
       {list.length === 0 ? <p className="secondary" style={{ margin: 0 }}>No actions match these filters.</p> : null}
       <ActionGrid list={list} role={role} />

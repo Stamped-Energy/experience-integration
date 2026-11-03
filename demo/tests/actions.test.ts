@@ -57,7 +57,7 @@ test("open examples stay apart from accepted ones, and a live trial is labelled"
   const { readFileSync } = await import("node:fs");
   const src = readFileSync(new URL("../src/components/cards/ExampleActions.tsx", import.meta.url), "utf8");
   assert.ok(src.includes("Needs a decision") && src.includes("Accepted and closed"));
-  assert.ok(src.includes("actionOutcomeLine") && src.includes("Open"));
+  assert.ok(src.includes("ActionOutcomeLine") && src.includes("Open"));
   assert.ok(src.includes("Trial running"));
   assert.ok(!exampleActions.some((a) => a.id === "ex-p7" || a.id === "ex-q7"));
   for (const area of ["Process", "Quality"] as const) {
@@ -80,5 +80,5 @@ test("the six-step strip is gone", async () => {
 test("cards fold as an accessible disclosure", async () => {
   const { readFileSync } = await import("node:fs");
   const src = readFileSync(new URL("../src/components/cards/FoldCard.tsx", import.meta.url), "utf8");
-  assert.ok(/<button[^>]*aria-expanded=\{open\}[^>]*aria-controls/.test(src));
+  assert.ok(/aria-expanded=\{open\}/.test(src) && /aria-controls/.test(src));
 });

@@ -127,7 +127,7 @@
 .ex-chev { flex: none; margin-top: 2px; transition: transform .15s; color: var(--text-secondary); }
 .ex-card[data-open="true"] .ex-chev { transform: rotate(180deg); }
 .ex-card[data-open="false"] .ex-body { display: none; }
-.ex-card[data-open="true"] .ex-fold { border-bottom: 1px solid var(--border); }
+.ex-card[data-open="true"] .ex-fold-row { border-bottom: 1px solid var(--border); }
 .ex-sum { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; text-align: left; }
 .ex-sum-t { font-size: 15px; font-weight: 600; line-height: 1.35; color: var(--text-primary); }
 .ex-sum-o { font-size: 12px; font-weight: 500; color: var(--text-secondary); font-variant-numeric: tabular-nums; }

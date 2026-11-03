@@ -17,6 +17,7 @@ export interface ActionDetailExtra {
     lcl: number;
     usl?: number;
     lsl?: number;
+    unit?: string;
     cpk?: number;
   };
   linkedLots?: string[];
@@ -84,6 +85,9 @@ export const ACTION_DETAIL: Record<string, ActionDetailExtra> = {
       cl: 720,
       ucl: 850,
       lcl: 600,
+      lsl: 640,
+      usl: 820,
+      unit: "bar",
       cpk: 1.12,
     },
     similarCases: [{ title: "Hold pressure 720 bar proposal", href: "/process/proposals/prop-101", band: "0.6 pp less scrap at R3" }],

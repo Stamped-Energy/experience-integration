@@ -148,7 +148,38 @@ export function actionHref(a: Pick<T.ExampleAction, "id" | "area">) {
   return `${a.area === "Process" ? "/process" : "/quality"}/actions/${a.id}`;
 }
 
-/** One-line outcome for cards, e.g. Scrap 3.2% to 2.6 to 2.9% (measured). */
+/** Plain-text outcome for tests and search. */
 export function actionOutcomeLine(o: T.ExampleAction["outcome"]) {
-  return `${o.metric} ${o.before} to ${o.after} (${o.label.toLowerCase()})`;
+  return `${o.metric} ${o.before} → ${o.after} (${o.label.toLowerCase()})`;
+}
+
+const SHORT_TITLE: Record<string, string> = {
+  "ex-q1": "Hold and check lot 7713 (cavity 2 running light)",
+  "ex-p3": "Hold temperature 86 °C trial on alternate batches",
+  "ex-p2": "Grade A-14 changeover settings for batch 2421",
+  "ex-p4": "Dryer cycle after resin change on Line B",
+  "ex-p6": "Hold pressure band narrowed on Tool T3",
+};
+
+export function actionShortTitle(a: T.ExampleAction) {
+  return SHORT_TITLE[a.id] ?? a.title;
+}
+
+/** Closed cards show a measured result line; open cards use the modelled or estimated outcome. */
+export function actionOutcomeForDisplay(a: T.ExampleAction): T.ActionOutcome {
+  if (a.closed) {
+    return { ...a.outcome, label: "Measured", after: a.outcome.after };
+  }
+  return a.outcome;
+}
+
+const WHO_SHORT: Record<T.ExampleAction["who"]["how"], string> = {
+  "On its own, inside the signed band": "On its own",
+  "A person decides": "Person decides",
+  "Recommend only": "Recommend only",
+  "Record only": "Record only",
+};
+
+export function whoDecidesShort(how: T.ExampleAction["who"]["how"]) {
+  return WHO_SHORT[how];
 }

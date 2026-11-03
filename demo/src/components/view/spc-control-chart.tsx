@@ -19,6 +19,7 @@ export type SpcControlChartProps = {
   lcl: number;
   usl?: number;
   lsl?: number;
+  unit?: string;
   cp?: number;
   cpk?: number;
   height?: number;
@@ -35,6 +36,7 @@ export function SpcControlChart({
   lcl,
   usl,
   lsl,
+  unit,
   cp,
   cpk,
   height = 220,
@@ -45,7 +47,18 @@ export function SpcControlChart({
     if (!host.current) return undefined;
     const chart = echarts.init(host.current, undefined, { renderer: "canvas" });
     const hitSet = new Set(primary.hits ?? []);
+    const lastIdx = primary.values.length - 1;
     const x = primary.values.map((_, i) => String(i + 1));
+    const yName = unit ? `${primary.label} (${unit})` : primary.label;
+    const markArea =
+      lsl != null && usl != null
+        ? [
+            {
+              itemStyle: { color: "rgba(220, 38, 38, 0.08)" },
+              data: [[{ yAxis: lsl }, { yAxis: usl }]],
+            },
+          ]
+        : undefined;
     const markLine = {
       symbol: "none",
       data: [
@@ -62,12 +75,22 @@ export function SpcControlChart({
         type: "line",
         data: primary.values.map((v, i) => ({
           value: v,
-          itemStyle: hitSet.has(i) ? { color: "#DC2626", borderColor: "#DC2626" } : undefined,
-          symbolSize: hitSet.has(i) ? 10 : 6,
+          itemStyle: hitSet.has(i) || i === lastIdx ? { color: "#E85D4C", borderColor: "#E85D4C" } : undefined,
+          symbolSize: hitSet.has(i) || i === lastIdx ? 10 : 6,
         })),
         showSymbol: true,
         lineStyle: { color: "#2563eb", width: 2 },
         markLine,
+        markArea,
+        markPoint:
+          lastIdx >= 0
+            ? {
+                symbol: "pin",
+                symbolSize: 42,
+                data: [{ name: "Now", coord: [lastIdx, primary.values[lastIdx]], value: primary.values[lastIdx] }],
+                label: { formatter: "{c}", fontSize: 11 },
+              }
+            : undefined,
       },
     ];
     if (secondary?.values.length) {
@@ -87,10 +110,10 @@ export function SpcControlChart({
       xAxis: { type: "category", data: x, boundaryGap: false },
       yAxis: secondary
         ? [
-            { type: "value", scale: true, name: primary.label },
+            { type: "value", scale: true, name: yName },
             { type: "value", scale: true, name: secondary.label },
           ]
-        : { type: "value", scale: true, name: primary.label },
+        : { type: "value", scale: true, name: yName },
       series: series as echarts.EChartsCoreOption["series"],
     });
     const ro = new ResizeObserver(() => chart.resize());
@@ -99,7 +122,7 @@ export function SpcControlChart({
       ro.disconnect();
       chart.dispose();
     };
-  }, [primary, secondary, cl, ucl, lcl, usl, lsl, chartKind]);
+  }, [primary, secondary, cl, ucl, lcl, usl, lsl, unit, chartKind]);
 
   return (
     <div className="spc-chart-card">

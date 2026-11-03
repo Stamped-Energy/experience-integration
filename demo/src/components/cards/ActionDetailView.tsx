@@ -2,48 +2,63 @@
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
-import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
-import type { RoleId } from "@/lib/demo/types";
-import { actionHref, actionOutcomeLine, getAction } from "@/lib/demo/actions";
-import { detailFor } from "@/lib/demo/actionDetail";
+import type { ExampleAction, RoleId } from "@/lib/demo/types";
+import { actionHref, actionOutcomeForDisplay, actionShortTitle, getAction, whoDecidesShort } from "@/lib/demo/actions";
+import { detailFor, type ActionDetailExtra } from "@/lib/demo/actionDetail";
 import { byId, roles, runs } from "@/lib/demo/data";
 import { demoRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
 import { dayMonth, hhmm } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
+import { ActionOutcomeLine } from "@/components/cards/ActionOutcomeLine";
 import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
-import { Confidence } from "@/components/ui/Confidence";
-import { RunChart } from "@/components/ui/charts";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { SpcControlChart } from "@/components/view/spc-control-chart";
+import { SpcControlChart, type SpcControlChartProps } from "@/components/view/spc-control-chart";
 import { Assign } from "@/components/agent/Assign";
 import * as A from "@/lib/demo/agent";
 import { crumbs as processCrumbs, processEyebrow, runLabel } from "@/components/process/common";
 import { crumbs as qualityCrumbs, lotNo, qualityEyebrow } from "@/components/quality/common";
-
-const STEP_WORD = { Detect: "See", Explain: "Explain", Propose: "Change", Trial: "Try", Verify: "Check", Learn: "Learn", Decide: "Decide" } as const;
-const HOW_TONE = { "On its own, inside the signed band": "success", "A person decides": "info", "Recommend only": "warning", "Record only": "neutral" } as const;
 
 function roleNames(ids: RoleId[]) {
   const n = ids.map((r) => roles.find((x) => x.id === r)!.name);
   return n.length > 1 ? `${n.slice(0, -1).join(", ")} or ${n[n.length - 1]}` : n[0];
 }
 
-function parseBandNumbers(before: string, after: string): { low: number; point: number; high: number } | null {
-  const num = (s: string) => {
-    const m = s.match(/-?\d+(?:\.\d+)?/g);
-    if (!m?.length) return null;
-    const xs = m.map(Number);
-    if (xs.length >= 2) return { low: Math.min(xs[0], xs[1]), high: Math.max(xs[0], xs[1]), point: (xs[0] + xs[1]) / 2 };
-    return { low: xs[0], high: xs[0], point: xs[0] };
+function trendAsSpc(trend: NonNullable<ActionDetailExtra["trend"]>): SpcControlChartProps {
+  const values = trend.values;
+  const mean = values.reduce((a, b) => a + b, 0) / values.length;
+  const sd = Math.sqrt(values.reduce((s, v) => s + (v - mean) ** 2, 0) / values.length) || Math.abs(mean) * 0.02 || 1;
+  const unit = trend.unit ?? "";
+  return {
+    title: trend.label,
+    subtitle: unit ? `Unit: ${unit}` : undefined,
+    chartKind: "i_mr",
+    primary: {
+      label: unit || trend.label,
+      values,
+      hits: [values.length - 1],
+    },
+    cl: +mean.toFixed(3),
+    ucl: +(mean + 3 * sd).toFixed(3),
+    lcl: +(mean - 3 * sd).toFixed(3),
+    lsl: trend.spec?.[0],
+    usl: trend.spec?.[1],
   };
-  const b = num(before);
-  const a = num(after);
-  if (!b || !a) return null;
-  return { low: Math.min(b.low, a.low), high: Math.max(b.high, a.high), point: a.point };
+}
+
+function detailBarOptions(a: ExampleAction) {
+  if (!a.options?.length) return [];
+  const primary = a.options.find((o) => o.primary) ?? a.options[0];
+  const decline =
+    a.options.find((o) => /decline|keep|continue|normal|reject|sample/i.test(o.id) && o.id !== primary.id) ??
+    a.options.find((o) => o !== primary);
+  return [
+    { ...primary, label: "Decide", primary: true },
+    ...(decline ? [{ ...decline, label: "Decline", primary: false as const }] : []),
+    { id: "reassign", label: "Reassign", primary: false as const, done: "Use Approval to assign or reassign this action." },
+  ];
 }
 
 export function ActionDetailView({ id }: { id: string }) {
@@ -52,106 +67,134 @@ export function ActionDetailView({ id }: { id: string }) {
   const role = demoRole();
   const line = byId.line(a.lineId)!;
   const detail = detailFor(a);
-  const base = actionHref(a);
-  const crumbs = a.area === "Process"
-    ? processCrumbs({ label: "Actions", href: "/process/actions" }, { label: a.title })
-    : qualityCrumbs({ label: "Actions", href: "/quality/actions" }, { label: a.title });
-  const eyebrow = a.area === "Process" ? processEyebrow(base) : qualityEyebrow(base);
+  const listHref = a.area === "Process" ? "/process/actions" : "/quality/actions";
+  const crumbs =
+    a.area === "Process"
+      ? processCrumbs({ label: "Actions", href: listHref }, { label: actionShortTitle(a) })
+      : qualityCrumbs({ label: "Actions", href: listHref }, { label: actionShortTitle(a) });
+  const eyebrow = a.area === "Process" ? processEyebrow(actionHref(a)) : qualityEyebrow(actionHref(a));
   const c = a.closed;
-  const stop = a.who.how === "On its own, inside the signed band"
-    ? { effect: "Stopped. The previous setting comes back and nothing new is written.", allowed: can(role, "press-stop", a.lineId), reason: deniedReason("press-stop", "press Stop") }
-    : undefined;
+  const stop =
+    a.who.how === "On its own, inside the signed band"
+      ? { effect: "Stopped. The previous setting comes back and nothing new is written.", allowed: can(role, "press-stop", a.lineId), reason: deniedReason("press-stop", "press Stop") }
+      : undefined;
   const allowed = a.who.roles.includes(role);
   const canAct = allowed || !!stop?.allowed;
-  const bandNums = parseBandNumbers(a.outcome.before, a.outcome.after);
-  const unitMatch = a.outcome.before.match(/[a-zA-Z·%/]+/g);
-  const unit = unitMatch?.find((u) => u.length > 1 && !/^(to|pp|min)$/i.test(u)) ?? "";
+  const outcome = actionOutcomeForDisplay(a);
+  const charts: SpcControlChartProps[] = [];
+  if (detail.spc) charts.push(detail.spc);
+  if (detail.trend) charts.push(trendAsSpc(detail.trend));
+  const barOpts = detailBarOptions(a);
 
   return (
-    <Workspace crumbs={crumbs} askContext={a.title}>
+    <Workspace crumbs={crumbs} askContext={actionShortTitle(a)}>
+      <p className="detail-back">
+        <Link className="link" href={listHref} scroll={false}>
+          ← Back to actions
+        </Link>
+      </p>
       <PageHeader
         eyebrow={eyebrow}
-        title={a.title}
+        title={actionShortTitle(a)}
         meta={
           <span style={{ display: "inline-flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-            <Tag tone={c ? "success" : "neutral"}>{a.mechanism}</Tag>
+            <Tag tone="neutral">{a.mechanism}</Tag>
             <span className="muted">{line.short}</span>
-            <span className="mono" style={{ fontSize: 13 }}>{actionOutcomeLine(a.outcome)}</span>
           </span>
         }
-        actions={
-          <>
-            {a.href ? <Link className="btn btn-sm" href={a.href} scroll={false}>{a.hrefLabel ?? "Related record"}</Link> : null}
-            <AskButton context={a.title} label="Ask about this action" />
-          </>
-        }
+        actions={<AskButton context={actionShortTitle(a)} label="Ask about this action" />}
       />
-      {a.area === "Process" ? <ProcessHubTabs /> : <QualityHubTabs />}
+      <div className="action-detail-hero">
+        <ActionOutcomeLine outcome={outcome} size="hero" />
+      </div>
+      {!c && (barOpts.length || stop) && canAct ? (
+        <div className="action-detail-bar">
+          <CardActions
+            large
+            actions={barOpts.map((o) => ({
+              id: o.id,
+              label: o.label,
+              primary: o.primary,
+              allowed: o.id === "reassign" ? A.ASSIGNERS.includes(role) : allowed,
+              reason: o.id === "reassign" ? "Shift lead, process engineer, quality head or plant head can assign." : `${roleNames(a.who.roles)} can decide`,
+              done: (
+                <span>
+                  {o.done} <Link href="/activity">Recorded in Activity.</Link>
+                </span>
+              ),
+            }))}
+            stop={stop}
+          />
+        </div>
+      ) : null}
       <div className="grid">
         <div className="span-8 stack">
           <Section title="Summary">
             <p style={{ margin: "0 0 8px", lineHeight: 1.5 }}>{a.seen}</p>
-            <p className="ex-why" style={{ margin: 0 }}><b>Why it matters:</b> {a.why}</p>
-            <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {a.steps.map((s) => (
-                <span key={s} className="ex-step" data-step={s}>{STEP_WORD[s]}</span>
-              ))}
-            </div>
+            <p className="ex-why" style={{ margin: 0 }}>
+              <b>Why it matters:</b> {a.why}
+            </p>
           </Section>
-          <Section title="Outcome before and after" meta={`${a.outcome.label} on the demonstration plant model`}>
-            {bandNums ? (
-              <Confidence
-                kind="prediction"
-                label={a.outcome.label}
-                measure={a.outcome.metric}
-                unit={unit.replace(/^·/, "")}
-                low={bandNums.low}
-                point={bandNums.point}
-                high={bandNums.high}
-                drivers={a.evidence.map((e) => e.text).slice(0, 3)}
-                fit="accepted"
-                method={`Before ${a.outcome.before}; target ${a.outcome.after} (${a.outcome.label.toLowerCase()})`}
-              />
-            ) : (
-              <dl className="facts-grid">
-                <dt>Before</dt><dd>{a.outcome.before}</dd>
-                <dt>After</dt><dd>{a.outcome.after}</dd>
-                <dt>Basis</dt><dd>{a.outcome.label}</dd>
-              </dl>
-            )}
-            {a.expected ? <p className="muted" style={{ margin: "8px 0 0", fontSize: 13 }}>Expected band: {a.expected.band} ({a.expected.label.toLowerCase()})</p> : null}
+          <Section title="Outcome" meta={`${outcome.label} on the demonstration plant model`}>
+            <ActionOutcomeLine outcome={outcome} />
             {c?.result ? (
-              <p style={{ margin: "8px 0 0", fontSize: 13 }}>
-                <Tag tone={c.result.status === "Verified" ? "success" : "neutral"}>{c.result.status}</Tag>{" "}
-                {c.result.label.toLowerCase()} result: {c.result.band}
+              <p style={{ margin: "12px 0 0", fontSize: 13 }}>
+                <Tag tone={c.result.status === "Verified" ? "success" : "neutral"}>{c.result.status}</Tag> {c.result.band}
               </p>
             ) : null}
           </Section>
-          <Section title="Evidence" meta="Trends, control charts and sensor-backed records">
-            <ul className="ex-ev" style={{ marginBottom: 12 }}>
-              {a.evidence.map((e) => (
-                <li key={e.text}>
-                  <EvidenceTag label={e.label} />
-                  <span>{e.text}{e.id ? <span className="mono muted"> · {e.id}</span> : null}</span>
+          <Section title="Evidence" meta="Trends, control charts and sensor-backed records" flush>
+            <DataTable
+              caption="Evidence records"
+              rowKey={(e) => e.id ?? e.text}
+              rows={a.evidence}
+              columns={[
+                { key: "id", label: "Source", mono: true, render: (e) => e.id ?? "—" },
+                { key: "l", label: "Label", render: (e) => <EvidenceTag label={e.label} /> },
+                { key: "t", label: "Record", render: (e) => e.text },
+              ]}
+            />
+            {charts.length ? (
+              <div className="action-detail-charts">
+                {charts.map((ch) => (
+                  <SpcControlChart key={ch.title} {...ch} height={220} />
+                ))}
+              </div>
+            ) : null}
+          </Section>
+          <Section title="Recommended steps">
+            <ol style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.5 }}>
+              {detail.steps.map((s) => (
+                <li key={s} style={{ marginBottom: 6 }}>
+                  {s}
                 </li>
               ))}
-            </ul>
-            {detail.trend ? (
-              <div className="chart-pad">
-                <RunChart
-                  values={detail.trend.values}
-                  spec={detail.trend.spec}
-                  width={720}
-                  height={160}
-                  label={detail.trend.label}
-                />
-              </div>
-            ) : null}
-            {detail.spc ? (
-              <div style={{ marginTop: detail.trend ? 16 : 0 }}>
-                <SpcControlChart {...detail.spc} height={200} />
-              </div>
-            ) : null}
+            </ol>
+          </Section>
+        </div>
+        <div className="span-4 stack ctx">
+          <Section title="Approval" meta="Recommend only; the operator or named role approves in the plant system">
+            <dl className="facts-grid">
+              <dt>Change</dt>
+              <dd>{c ? c.changed : a.action}</dd>
+              <dt>Who</dt>
+              <dd>
+                <Tag tone="neutral">{whoDecidesShort(a.who.how)}</Tag> {roleNames(a.who.roles)}
+              </dd>
+              <dt>Note</dt>
+              <dd>{a.who.note}</dd>
+              {c ? (
+                <>
+                  <dt>Decision</dt>
+                  <dd>
+                    {c.by} · {dayMonth(c.at)} {hhmm(c.at)}
+                  </dd>
+                </>
+              ) : null}
+            </dl>
+            <div className="ex-meta action-detail-assign" style={{ marginTop: 12 }}>
+              <Assign initial={A.assigned[a.id]} people={A.PEOPLE} canAssign={A.ASSIGNERS.includes(role)} by={A.ME[role] ?? "Plant head A."} />
+            </div>
           </Section>
           {(detail.linkedLots?.length || detail.linkedRuns?.length) ? (
             <Section title="Linked lots and runs" flush>
@@ -167,65 +210,48 @@ export function ActionDetailView({ id }: { id: string }) {
                 ]}
                 columns={[
                   { key: "k", label: "Type", render: (r) => r.kind },
-                  { key: "l", label: "Record", render: (r) => <Link className="link" href={r.href}>{r.label}</Link> },
+                  { key: "l", label: "Record", render: (r) => (
+                    <Link className="link" href={r.href}>
+                      {r.label}
+                    </Link>
+                  ) },
                 ]}
               />
             </Section>
           ) : null}
-          {detail.simulation ? (
-            <Section title="Simulation or trial" meta={detail.simulation.summary}>
-              <Link className="link" href={detail.simulation.href}>{detail.simulation.title}</Link>
-            </Section>
-          ) : null}
           {detail.similarCases?.length ? (
-            <Section title="Similar past cases" flush>
+            <Section title="Similar cases" flush>
               <div className="rows">
                 {detail.similarCases.map((s) => (
                   <Link key={s.href} href={s.href} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
-                    <span><span className="row-title" style={{ display: "block" }}>{s.title}</span><span className="row-sub">{s.band}</span></span>
+                    <span>
+                      <span className="row-title" style={{ display: "block" }}>
+                        {s.title}
+                      </span>
+                      <span className="row-sub">{s.band}</span>
+                    </span>
                     <Tag tone="neutral">Open</Tag>
                   </Link>
                 ))}
               </div>
             </Section>
           ) : null}
-        </div>
-        <div className="span-4 stack ctx">
-          <Section title="Recommended steps">
-            <ol style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.5 }}>
-              {detail.steps.map((s) => <li key={s} style={{ marginBottom: 6 }}>{s}</li>)}
-            </ol>
-          </Section>
           <Section title="Risks">
             <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.5 }}>
-              {detail.risks.map((r) => <li key={r} style={{ marginBottom: 6 }}>{r}</li>)}
+              {detail.risks.map((r) => (
+                <li key={r} style={{ marginBottom: 6 }}>
+                  {r}
+                </li>
+              ))}
             </ul>
           </Section>
-          <Section title="Approval" meta="Recommend only; the operator or named role approves in the plant system">
-            <dl className="facts-grid">
-              <dt>Change</dt><dd>{c ? c.changed : a.action}</dd>
-              <dt>Who</dt><dd><Tag tone={HOW_TONE[a.who.how]}>{a.who.how}</Tag> {roleNames(a.who.roles)}</dd>
-              <dt>Note</dt><dd>{a.who.note}</dd>
-              {c ? <><dt>Decision</dt><dd>{c.by} · {dayMonth(c.at)} {hhmm(c.at)}</dd></> : null}
-            </dl>
-            <div className="ex-meta" style={{ marginTop: 12 }}>
-              <Assign initial={A.assigned[a.id]} people={A.PEOPLE} canAssign={A.ASSIGNERS.includes(role)} by={A.ME[role] ?? "Plant head A."} />
-            </div>
-            {!c && (a.options || stop) && canAct ? (
-              <CardActions
-                actions={(a.options ?? []).map((o) => ({
-                  ...o,
-                  allowed,
-                  reason: `${roleNames(a.who.roles)} can decide`,
-                  done: <span>{o.done} <Link href="/activity">Recorded in Activity.</Link></span>,
-                }))}
-                stop={stop}
-              />
-            ) : null}
-            {!c && a.who.how === "Recommend only" && !a.options ? (
-              <p className="muted" style={{ margin: "12px 0 0", fontSize: 13 }}>No write-back from this screen. Plan the change in the plant system after acceptance.</p>
-            ) : null}
-          </Section>
+          {detail.simulation ? (
+            <Section title="Simulation or trial" meta={detail.simulation.summary}>
+              <Link className="link" href={detail.simulation.href}>
+                {detail.simulation.title}
+              </Link>
+            </Section>
+          ) : null}
         </div>
       </div>
     </Workspace>
