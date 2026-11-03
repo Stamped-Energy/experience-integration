@@ -70,9 +70,15 @@ export function SpcControlChart({
   useEffect(() => {
     if (!host.current) return undefined;
     const chart = echarts.init(host.current, undefined, { renderer: "canvas" });
-    const labelColor = cssVar("--text-secondary", "#64748b");
+    const labelColor = cssVar("--text-secondary", "#5F5F5C");
     const accent = cssVar("--accent-500", "#F75440");
-    const seriesBlue = cssVar("--cat-2", "#2563eb");
+    const seriesBlue = cssVar("--cat-2", "#4A6FA5");
+    const critical = cssVar("--critical", "#D0312D");
+    const warning = cssVar("--warning", "#E0A526");
+    const muted = cssVar("--text-muted", "#8A8A86");
+    const secondaryLine = cssVar("--info", "#3B79C4");
+    const textPrimary = cssVar("--text-primary", "#202020");
+    const fontMono = cssVar("--font-mono", "Geist Mono");
     const hitSet = new Set(primary.hits ?? []);
     const lastIdx = primary.values.length - 1;
     const x = primary.values.map((_, i) => String(i + 1));
@@ -85,29 +91,29 @@ export function SpcControlChart({
             data: [[{ yAxis: lsl }, { yAxis: usl }]],
           }
         : undefined;
-    const lineEnd = { position: "end" as const, formatter: "{b}", color: labelColor, fontSize: 11 };
+    const lineEnd = { position: "end" as const, formatter: "{b}", color: labelColor, fontSize: 11, fontFamily: fontMono };
     const markLine = {
       symbol: "none",
       label: lineEnd,
       data: specLinesOnly
         ? [
             ...(lsl != null
-              ? [{ yAxis: lsl, name: `LSL ${lsl}`, lineStyle: { color: "#DC2626", type: "solid", width: 2 } }]
+              ? [{ yAxis: lsl, name: `LSL ${lsl}`, lineStyle: { color: critical, type: "solid", width: 2 } }]
               : []),
             ...(usl != null
-              ? [{ yAxis: usl, name: `USL ${usl}`, lineStyle: { color: "#DC2626", type: "solid", width: 2 } }]
+              ? [{ yAxis: usl, name: `USL ${usl}`, lineStyle: { color: critical, type: "solid", width: 2 } }]
               : []),
             ...(targetY != null
-              ? [{ yAxis: targetY, name: `Target ${targetY}`, lineStyle: { color: "#64748b", type: "dashed", width: 2 } }]
+              ? [{ yAxis: targetY, name: `Target ${targetY}`, lineStyle: { color: muted, type: "dashed", width: 2 } }]
               : []),
           ]
         : [
-            { yAxis: cl, name: "CL", lineStyle: { color: "#64748b", type: "solid" } },
-            { yAxis: ucl, name: "UCL", lineStyle: { color: "#C27803", type: "dashed" } },
-            { yAxis: lcl, name: "LCL", lineStyle: { color: "#C27803", type: "dashed" } },
-            ...(usl != null ? [{ yAxis: usl, name: "USL", lineStyle: { color: "#DC2626", type: "solid", width: 1.5 } }] : []),
-            ...(lsl != null ? [{ yAxis: lsl, name: "LSL", lineStyle: { color: "#DC2626", type: "solid", width: 1.5 } }] : []),
-            ...(targetY != null ? [{ yAxis: targetY, name: "Target", lineStyle: { color: "#64748b", type: "dashed" } }] : []),
+            { yAxis: cl, name: "CL", lineStyle: { color: muted, type: "solid" } },
+            { yAxis: ucl, name: "UCL", lineStyle: { color: warning, type: "dashed" } },
+            { yAxis: lcl, name: "LCL", lineStyle: { color: warning, type: "dashed" } },
+            ...(usl != null ? [{ yAxis: usl, name: "USL", lineStyle: { color: critical, type: "solid", width: 1.5 } }] : []),
+            ...(lsl != null ? [{ yAxis: lsl, name: "LSL", lineStyle: { color: critical, type: "solid", width: 1.5 } }] : []),
+            ...(targetY != null ? [{ yAxis: targetY, name: "Target", lineStyle: { color: muted, type: "dashed" } }] : []),
           ],
     };
     const series: Array<Record<string, unknown>> = [
@@ -129,7 +135,7 @@ export function SpcControlChart({
                 symbol: "pin",
                 symbolSize: 42,
                 data: [{ name: "Now", coord: [lastIdx, primary.values[lastIdx]], value: primary.values[lastIdx] }],
-                label: { formatter: "{c}", fontSize: 11, color: cssVar("--text-primary", "#0f172a") },
+                label: { formatter: "{c}", fontSize: 11, fontFamily: fontMono, color: textPrimary },
               }
             : undefined,
       },
@@ -141,20 +147,47 @@ export function SpcControlChart({
         data: secondary.values,
         yAxisIndex: 1,
         showSymbol: false,
-        lineStyle: { color: "#0ea5e9", width: 1.5, type: "dashed" },
+        lineStyle: { color: secondaryLine, width: 1.5, type: "dashed" },
       });
     }
     chart.setOption({
       aria: { enabled: true, decal: { show: false } },
       grid: { left: 48, right: secondary ? 48 : 72, top: 36, bottom: 32 },
       tooltip: { trigger: "axis" },
-      xAxis: { type: "category", data: x, boundaryGap: false },
+      xAxis: {
+        type: "category",
+        data: x,
+        boundaryGap: false,
+        axisLabel: { color: muted, fontSize: 11, fontFamily: fontMono },
+      },
       yAxis: secondary
         ? [
-            { type: "value", scale: yMin == null && yMax == null, min: yMin, max: yMax, name: yName },
-            { type: "value", scale: true, name: secondary.label },
+            {
+              type: "value",
+              scale: yMin == null && yMax == null,
+              min: yMin,
+              max: yMax,
+              name: yName,
+              axisLabel: { color: muted, fontSize: 11, fontFamily: fontMono },
+              nameTextStyle: { color: muted, fontSize: 11, fontFamily: fontMono },
+            },
+            {
+              type: "value",
+              scale: true,
+              name: secondary.label,
+              axisLabel: { color: muted, fontSize: 11, fontFamily: fontMono },
+              nameTextStyle: { color: muted, fontSize: 11, fontFamily: fontMono },
+            },
           ]
-        : { type: "value", scale: yMin == null && yMax == null, min: yMin, max: yMax, name: yName },
+        : {
+            type: "value",
+            scale: yMin == null && yMax == null,
+            min: yMin,
+            max: yMax,
+            name: yName,
+            axisLabel: { color: muted, fontSize: 11, fontFamily: fontMono },
+            nameTextStyle: { color: muted, fontSize: 11, fontFamily: fontMono },
+          },
       series: series as echarts.EChartsCoreOption["series"],
     });
     const ro = new ResizeObserver(() => chart.resize());
