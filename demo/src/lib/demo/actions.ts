@@ -72,7 +72,7 @@ export const exampleActions: T.ExampleAction[] = [
 
   /* ---------------- Quality ---------------- */
   { ...I, id: "ex-q1", area: "Quality", lineId: "line-b", steps: ["Detect", "Decide"], mechanism: "A decision on the floor",
-    outcome: { metric: "Part weight, cavity 2", before: "47.9 g", after: "48.0 g target band", label: "Estimated" },
+    outcome: { metric: "Part weight, cavity 2", before: "47.9 g", after: "48.0 g", label: "Estimated" },
     title: "Lot 7713 parts are running light on cavity 2. Hold and check them?",
     seen: "Part weight on cavity 2 has fallen 0.12 g over three shift runs. Every part is still in spec, but the estimated band for lot 7713 now touches the lower limit of 47.6 g.",
     evidence: [{ text: "Vision check part weight, cavity 2", label: "Measured", id: "EV-B-2214" }, { text: "Lot 7713 estimated band 47.5 to 48.0 g", label: "Estimated" }, { text: "Lowering melt temperature was declined: flash on the parting line", label: "Measured" }],
@@ -184,12 +184,11 @@ export function whoDecidesShort(how: T.ExampleAction["who"]["how"]) {
   return WHO_SHORT[how];
 }
 
-/** Display parts for the outcome line: metric, "47.9 g now", "48.0 g target". */
+/** Display parts for the outcome line: metric, "47.9 g now", "48.0 g". */
 export function outcomePhrase(o: T.ActionOutcome) {
   const now = /\bnow\b/i.test(o.before) ? o.before.trim() : `${o.before.trim()} now`;
-  let target = o.after.trim().replace(/\s*target\s+band\b/i, " target").replace(/\s*,?\s*band\s+.*/i, "").trim();
-  if (!/\btarget\b/i.test(target) && !/mPa·s$/i.test(target)) target = `${target} target`;
-  return { metric: o.metric, now, target };
+  const after = o.after.trim().replace(/\s*target\s+band\b/i, "").replace(/\s*,?\s*band\s+.*/i, "").replace(/\btarget\b/gi, "").trim();
+  return { metric: o.metric, now, after };
 }
 
 const OPTION_SHORT: Record<string, Record<string, string>> = {

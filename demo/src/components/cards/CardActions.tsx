@@ -14,20 +14,23 @@ export function CardActions({
   large,
   adjust,
   assignBar,
+  bare,
 }: {
   actions: ActionSpec[];
   stop?: StopSpec;
   large?: boolean;
   adjust?: AdjustSpec;
   assignBar?: { initial?: { to: string; by: string }; people: string[]; canAssign: boolean; by: string };
+  bare?: boolean;
 }) {
   const [done, setDone] = useState<ReactNode>(null);
   const [adjusting, setAdjusting] = useState(false);
   const denied = actions.find((a) => !a.allowed);
   const size = large ? " btn-lg" : "";
+  const footClass = bare ? "card-foot-inline" : "card-foot";
   if (done) {
     return (
-      <div className="card-foot">
+      <div className={footClass}>
         <span className="feedback" role="status"><Icon.check width={16} height={16} />{done}</span>
         <span className="spacer" />
         <button type="button" className={`btn btn-quiet${size}`} onClick={() => setDone(null)}>Undo</button>
@@ -38,7 +41,7 @@ export function CardActions({
     return <AdjustInBand spec={adjust} onCancel={() => setAdjusting(false)} onSend={(v) => { setAdjusting(false); setDone(`Sent ${v} ${adjust.unit} as your adjustment.`); }} />;
   }
   return (
-    <div className="card-foot">
+    <div className={footClass}>
       {actions.map((a) => {
         const deniedPrimary = a.primary && !a.allowed;
         const deniedSecondary = !a.primary && !a.allowed;

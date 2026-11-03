@@ -1,7 +1,8 @@
 "use client";
 /** A card folds to a summary row; optional detail link on the summary, chevron toggles expand. */
 import Link from "next/link";
-import { createContext, useContext, useId, useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { createContext, useContext, useId, useState, type MouseEvent, type ReactNode } from "react";
 import { clickableSurface, stretchOver } from "@/components/ui/StretchLink";
 
 type FoldApi = { open: boolean; toggle: () => void; controlsId: string };
@@ -19,7 +20,7 @@ export function FoldCardChevron({ className }: { className?: string }) {
   return (
     <button
       type="button"
-      className={[ "ex-chev-btn", stretchOver, className ].filter(Boolean).join(" ")}
+      className={["ex-chev-btn", stretchOver, className].filter(Boolean).join(" ")}
       aria-expanded={open}
       aria-controls={controlsId}
       aria-label={open ? "Collapse action" : "Expand action"}
@@ -53,14 +54,29 @@ export function FoldCard({
 }) {
   const [open, setOpen] = useState(false);
   const id = useId();
+  const router = useRouter();
   const surface = detailHref ? clickableSurface : undefined;
   const api: FoldApi = { open, toggle: () => setOpen((o) => !o), controlsId: id };
+
+  function onSurfaceClick(e: MouseEvent<HTMLElement>) {
+    if (!detailHref || open) return;
+    const t = e.target as HTMLElement;
+    if (t.closest("a, button, input, select, textarea, label, [data-no-nav]")) return;
+    router.push(detailHref);
+  }
+
   return (
     <FoldCtx.Provider value={api}>
-      <article id={anchor} className={["card ex-card", surface, className].filter(Boolean).join(" ")} aria-labelledby={labelledBy} data-open={open}>
+      <article
+        id={anchor}
+        className={["card ex-card", surface, className].filter(Boolean).join(" ")}
+        aria-labelledby={labelledBy}
+        data-open={open}
+        onClick={detailHref ? onSurfaceClick : undefined}
+      >
         <div className="ex-fold-row">
           {detailHref ? (
-            <Link href={detailHref} className="ex-fold ex-fold-link" scroll={false} aria-labelledby={labelledBy}>
+            <Link href={detailHref} className="ex-fold ex-fold-link stretch-link" scroll={false} aria-labelledby={labelledBy}>
               {summary}
             </Link>
           ) : (

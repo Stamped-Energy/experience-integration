@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import type { ExampleAction, RoleId } from "@/lib/demo/types";
 import {
   actionHref,
-  actionOutcomeForDisplay,
   actionShortTitle,
   decisionOptionPair,
   getAction,
@@ -13,13 +12,14 @@ import {
   whoDecidesShort,
 } from "@/lib/demo/actions";
 import { detailFor } from "@/lib/demo/actionDetail";
+import { actionOutcomesForDisplay, calculationsForAction } from "@/lib/demo/actionOutcomes";
 import { byId, roles, runs } from "@/lib/demo/data";
 import { demoRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
 import { dayMonth, hhmm } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { ActionOutcomeLine } from "@/components/cards/ActionOutcomeLine";
+import { ActionOutcomeStrip } from "@/components/cards/ActionOutcomeStrip";
 import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
@@ -86,7 +86,8 @@ export function ActionDetailView({ id }: { id: string }) {
     a.who.how === "On its own, inside the signed band"
       ? { effect: "Stopped. The previous setting comes back and nothing new is written.", allowed: can(role, "press-stop", a.lineId), reason: deniedReason("press-stop", "press Stop") }
       : undefined;
-  const outcome = actionOutcomeForDisplay(a);
+  const outcomes = actionOutcomesForDisplay(a);
+  const calcs = calculationsForAction(a);
   const spcChart = detail.spc;
   const barActions = !c && a.options?.length ? detailBarActions(a, role) : [];
 
@@ -109,9 +110,9 @@ export function ActionDetailView({ id }: { id: string }) {
         actions={<AskButton context={actionShortTitle(a)} label="Ask about this action" />}
       />
       <div className="action-detail-hero">
-        <ActionOutcomeLine outcome={outcome} size="hero" />
+        <ActionOutcomeStrip outcomes={outcomes} />
         <p className="action-detail-hero-cap muted">
-          {outcome.label} on the demonstration plant model
+          Illustrative outcomes on the demonstration plant model
           {c?.result ? (
             <>
               {" "}
@@ -137,11 +138,28 @@ export function ActionDetailView({ id }: { id: string }) {
       ) : null}
       <div className="grid action-detail-grid">
         <div className="span-8 stack">
+          <Section title="What changes">
+            <p style={{ margin: "0 0 8px", lineHeight: 1.5, fontWeight: 500 }}>{c ? c.changed : a.action}</p>
+            <p style={{ margin: 0, lineHeight: 1.5 }}>{a.seen}</p>
+          </Section>
           <Section title="Summary">
-            <p style={{ margin: "0 0 8px", lineHeight: 1.5 }}>{a.seen}</p>
             <p className="ex-why" style={{ margin: 0 }}>
               <b>Why it matters:</b> {a.why}
             </p>
+          </Section>
+          <Section title="How we calculated this" meta="Inputs, formula and result for each outcome on this card" flush>
+            <DataTable
+              caption="Outcome calculations"
+              rowKey={(r) => r.metric}
+              rows={calcs}
+              columns={[
+                { key: "m", label: "Metric", render: (r) => <span style={{ fontWeight: 600 }}>{r.metric}</span> },
+                { key: "i", label: "Inputs", render: (r) => <ul className="calc-inputs">{r.inputs.map((x) => <li key={x}>{x}</li>)}</ul> },
+                { key: "f", label: "Formula", render: (r) => r.formula },
+                { key: "r", label: "Result", mono: true, render: (r) => r.result },
+                { key: "l", label: "Basis", render: (r) => <EvidenceTag label={r.label} /> },
+              ]}
+            />
           </Section>
           <Section title="Evidence" meta="Trends, control charts and sensor-backed records" flush>
             <DataTable

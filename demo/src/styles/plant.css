@@ -97,8 +97,8 @@ dialog.confirm p { font-size: 13px; margin: 0 0 8px; }
 .pchip b { font-family: var(--font-mono); font-weight: 500; }
 .pchip.st-act { border-color: var(--critical, #B42318); } .pchip.st-watch { border-color: var(--warning, #E0A100); }
 .bspark { display: block; flex: none; }
-.bspark .band { fill: var(--surface-subtle, #F2F2F0); stroke: var(--border); stroke-width: .5; }
-.bspark .line { stroke: var(--text-secondary); }
+.bspark .band { fill: var(--spark-band, var(--surface-subtle, #F2F2F0)); stroke: var(--border); stroke-width: .5; }
+.bspark .line { stroke: var(--spark-line, var(--text-secondary)); }
 .nodata { display: inline-block; background: repeating-linear-gradient(45deg, var(--surface-subtle), var(--surface-subtle) 3px, transparent 3px, transparent 6px); border: 1px solid var(--border); }
 .pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: var(--space-3); }
 .pgrid-cell { display: flex; flex-direction: column; gap: 4px; }

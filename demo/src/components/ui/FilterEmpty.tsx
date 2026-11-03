@@ -11,12 +11,10 @@ export function FilterEmpty({
 }) {
   return (
     <div className="filter-empty" role="status">
-      <p className="secondary" style={{ margin: 0 }}>
-        No actions match these filters.
-      </p>
+      <p className="filter-empty-title">No actions match these filters.</p>
       {hint ? <p className="muted filter-empty-hint">{hint}</p> : null}
       {clearHref ? (
-        <Link className="btn btn-sm btn-quiet" href={clearHref} scroll={false}>
+        <Link className="btn btn-sm btn-outline" href={clearHref} scroll={false}>
           Clear filters
         </Link>
       ) : null}

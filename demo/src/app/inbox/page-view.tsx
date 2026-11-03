@@ -46,7 +46,7 @@ export default function Inbox() {
           ) : first ? <div className="stack-sm"><InboxCard item={first} role={role} /><div className="assign-bar"><span className="label">Assignee</span><Assign initial={A.assigned[first.id]} people={A.PEOPLE} canAssign={canAssign} by={me ?? "Plant head A."} />{canAssign ? null : <span className="muted" style={{ fontSize: 12 }}>Shift lead, process engineer, quality head or plant head can assign</span>}</div></div> : <EmptyState title="Nothing here" body="Items arrive here when an agent needs a person." />}
           {rest.length ? (
             <Section title="Also in this list" meta={`${rest.length} items`} flush>
-              <div className="rows">
+              <div className="rows rows-click">
                 {rest.map((i) => (
                   <Link key={i.id} href={`/inbox/${i.id}`} className="row" style={{ gridTemplateColumns: "120px minmax(0,1fr) 170px 64px" }}>
                     <Tag>{KIND[i.kind]}</Tag>
