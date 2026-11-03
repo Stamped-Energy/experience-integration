@@ -72,7 +72,7 @@ export const exampleActions: T.ExampleAction[] = [
 
   /* ---------------- Quality ---------------- */
   { ...I, id: "ex-q1", area: "Quality", lineId: "line-b", steps: ["Detect", "Decide"], mechanism: "A decision on the floor",
-    outcome: { metric: "Part weight, cavity 2", before: "47.9 to 48.1 g", after: "47.5 to 48.0 g band", label: "Estimated" },
+    outcome: { metric: "Part weight, cavity 2", before: "47.9 g", after: "48.0 g target band", label: "Estimated" },
     title: "Lot 7713 parts are running light on cavity 2. Hold and check them?",
     seen: "Part weight on cavity 2 has fallen 0.12 g over three shift runs. Every part is still in spec, but the estimated band for lot 7713 now touches the lower limit of 47.6 g.",
     evidence: [{ text: "Vision check part weight, cavity 2", label: "Measured", id: "EV-B-2214" }, { text: "Lot 7713 estimated band 47.5 to 48.0 g", label: "Estimated" }, { text: "Lowering melt temperature was declined: flash on the parting line", label: "Measured" }],
