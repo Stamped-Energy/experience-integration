@@ -30,7 +30,7 @@ test.describe("persona happy paths", () => {
     await expect(page.getByText("Process engineer view")).toBeVisible();
     await page.goto("/process/lines/line-b");
     await page.waitForLoadState("networkidle");
-    await expect(page.getByRole("heading", { name: /Line B/i }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Moulding/i }).first()).toBeVisible();
     await expect(page.getByRole("heading", { name: "Running settings", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: /Accept 760 bar/i }).first()).toBeVisible();
   });
@@ -45,5 +45,18 @@ test.describe("persona happy paths", () => {
     await page.goto("/quality/investigations/inv-1");
     await page.waitForLoadState("load");
     await expect(page.getByRole("heading").first()).toBeVisible();
+  });
+
+  test("presenter start link ?as=role sets cookie and keeps view", async ({ page }) => {
+    await page.context().clearCookies();
+    await page.goto("/?as=quality-head&view=plant");
+    await page.waitForLoadState("networkidle");
+    await expect(page).toHaveURL(/view=plant/);
+    await expect(page).not.toHaveURL(/[?&]as=/);
+    await expect(page.getByRole("heading", { name: "Plant today", exact: true })).toBeVisible();
+    await expect(page.getByText("Quality head view")).toBeVisible();
+    await expect(page.locator(".role-switch select")).toHaveValue("quality-head");
+    const cookies = await page.context().cookies();
+    expect(cookies.find((c) => c.name === ROLE_COOKIE)?.value).toBe("quality-head");
   });
 });

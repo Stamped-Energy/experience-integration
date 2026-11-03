@@ -7,7 +7,7 @@ import type { EvidenceLabel } from "./types";
 
 const I = { illustrative: true as const };
 
-export const CAPABILITY_EXAMPLE_META = "Recommend only · Live quality reads when session connected";
+export const CAPABILITY_EXAMPLE_META = "Recommend only · Live quality reads once the read-api is attached";
 
 export type OeeLossCard = {
   illustrative: true;
@@ -25,8 +25,8 @@ export type OeeLossCard = {
 export const oeeLossCards: OeeLossCard[] = [
   {
     ...I,
-    assetId: "a-mixer",
-    assetName: "Mixer M1",
+    assetId: "a-heater",
+    assetName: "Induction billet heater H1",
     lineId: "line-a",
     oee: 0.62,
     availability: 0.81,
@@ -125,17 +125,17 @@ export function controlState(card: SpcChartCard): "In control" | "Rule signal" |
 export const spcCharts: SpcChartCard[] = [
   {
     ...I,
-    characteristicId: "char-viscosity",
-    name: "Viscosity",
+    characteristicId: "char-billet-temp",
+    name: "Billet exit temperature",
     lineId: "line-a",
     chart: "i_mr",
-    values: [2480, 2495, 2510, 2505, 2520, 2535, 2550, 2540, 2565, 2580, 2570, 2595],
-    rangeValues: [12, 8, 15, 10, 9, 14, 11, 13, 18, 16, 10, 22],
-    ucl: 2620,
-    lcl: 2380,
-    cl: 2500,
-    usl: 2600,
-    lsl: 2380,
+    values: [1208, 1210, 1213, 1212, 1215, 1218, 1221, 1219, 1225, 1229, 1226, 1238],
+    rangeValues: [3, 2, 3, 1, 3, 3, 3, 2, 6, 4, 3, 12],
+    ucl: 1236,
+    lcl: 1184,
+    cl: 1210,
+    usl: 1240,
+    lsl: 1180,
     cp: 1.21,
     cpk: 1.05,
     pp: 1.1,
@@ -215,7 +215,7 @@ export type GaugeRrCard = {
 
 export const gaugeRrCards: GaugeRrCard[] = [
   { ...I, studyId: "grr-1", characteristic: "Cavity weight", grrPct: 18.4, ndc: 7.2, supportsClaim: true, ev: 0.04, av: 0.03, pv: 0.22 },
-  { ...I, studyId: "grr-2", characteristic: "Viscosity cup", grrPct: 32.1, ndc: 3.1, supportsClaim: false, ev: 12, av: 18, pv: 40 },
+  { ...I, studyId: "grr-2", characteristic: "Hardness reading", grrPct: 32.1, ndc: 3.1, supportsClaim: false, ev: 12, av: 18, pv: 40 },
 ];
 
 export type SupplierScore = {
@@ -284,8 +284,8 @@ export type CapaCase = {
 
 export const capaCases: CapaCase[] = [
   { ...I, id: "capa-1", title: "Cavity 2 light parts on Line B", dStep: 4, status: "open", owner: "Quality engineer A.", lotIds: ["lot-b-7713", "lot-b-7719"], due: "2026-11-04" },
-  { ...I, id: "capa-2", title: "Viscosity drift on Line A", dStep: 2, status: "waiting", owner: "Process engineer A.", lotIds: ["lot-a-3307"], due: "2026-11-08" },
-  { ...I, id: "capa-3", title: "Jacket sensor stuck (closed)", dStep: 8, status: "closed", owner: "Plant head A.", lotIds: [], due: "2026-10-20" },
+  { ...I, id: "capa-2", title: "Billet temperature drift on Forge line", dStep: 2, status: "waiting", owner: "Process engineer A.", lotIds: ["lot-a-3307"], due: "2026-11-08" },
+  { ...I, id: "capa-3", title: "Pyrometer stuck on heater H1 (closed)", dStep: 8, status: "closed", owner: "Plant head A.", lotIds: [], due: "2026-10-20" },
 ];
 
 export type SpcFarSweepCard = {
@@ -453,9 +453,9 @@ export const spcToCapaDraftCards: SpcToCapaDraftCard[] = [
     plantId: "plant_demo",
     investigationId: "inv-spc-1",
     lotId: "lot-a-3307",
-    characteristicId: "char-viscosity",
+    characteristicId: "char-billet-temp",
     openedAt: "2026-10-28T10:00:00+00:00",
-    title: "Draft investigation: viscosity WE1 hit on Line A",
+    title: "Draft investigation: billet temperature WE1 hit on Forge line",
     status: "draft",
     ruleHits: [
       {
@@ -463,7 +463,7 @@ export const spcToCapaDraftCards: SpcToCapaDraftCard[] = [
         rule_id: "WE1",
         point_index: 11,
         chart: "i_mr",
-        detail: "Point beyond UCL on illustrative viscosity series",
+        detail: "Point beyond UCL on illustrative billet temperature series",
       },
     ],
     notes: ["spc_to_capa_draft", "recommend_only", "never_writes_mes"],

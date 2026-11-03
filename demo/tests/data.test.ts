@@ -19,8 +19,8 @@ test("cross-links resolve", () => {
 });
 
 test("volumes and rules from data-needs.md", () => {
-  assert.equal(D.lines.length, 2);
-  assert.deepEqual(D.lines.map((l) => l.type).sort(), ["batch", "discrete"]);
+  assert.deepEqual(D.lines.map((l) => l.id), ["line-a", "line-c", "line-d", "line-e", "line-b"]);
+  assert.deepEqual(D.lines.map((l) => l.type).sort(), ["batch", "batch", "discrete", "discrete", "discrete"]);
   assert.ok(D.runs.filter((r) => r.lineId === "line-a").length >= 40);
   assert.equal(D.lots.length, 30);
   assert.equal(D.lots.filter((l) => l.riskWord === "At risk").length, 4);
@@ -97,9 +97,9 @@ test("capability fixtures link to demo lots", () => {
   }
 });
 
-test("scoped Ask threads cover key assets and both lines", () => {
+test("scoped Ask threads cover key assets and the pinned lines", () => {
   const scoped = D.askThreads.filter((t) => t.scope);
-  for (const a of ["a-mixer", "a-hold", "b-press", "b-tool"]) assert.ok(scoped.some((t) => t.scope!.assetId === a), a);
+  for (const a of ["a-heater", "a-press", "b-press", "b-tool"]) assert.ok(scoped.some((t) => t.scope!.assetId === a), a);
   for (const l of ["line-a", "line-b"]) assert.ok(scoped.some((t) => t.scope!.lineId === l && !t.scope!.assetId), l);
   const ids = new Set<string>([...D.proposals, ...D.proofRecords, ...D.lots, ...D.trials, ...D.signedWindows, ...D.standingApprovals, ...D.driftSignals, ...D.assets, ...D.lines].map((x) => x.id));
   for (const t of scoped) {
@@ -110,4 +110,63 @@ test("scoped Ask threads cover key assets and both lines", () => {
     const visible = JSON.stringify([t.title, t.messages.map((m) => [m.text, m.claims?.map((c) => c.text)])]);
     assert.ok(!/₹|\u2014|\b(prop|trial|lot|win|run|proof|sa)-[a-z0-9]/i.test(visible), `${t.id} visible text`);
   }
+});
+
+test("plant: five lines, each with an area, pack, assets, window, setting, model fit and runs", () => {
+  assert.deepEqual(D.lines.map((l) => l.name), ["Forge line", "Heat treatment", "Foundry", "Machining cell", "Moulding"]);
+  for (const l of D.lines) {
+    assert.ok(D.areas.some((a) => a.id === l.areaId), `${l.id} area`);
+    assert.ok(D.byId.linePack(l.linePackId), `${l.id} pack`);
+    assert.ok(D.assets.some((a) => a.lineId === l.id), `${l.id} assets`);
+    assert.ok(D.runs.filter((r) => r.lineId === l.id).length >= 30, `${l.id} runs`);
+    assert.ok(D.signedWindows.some((w) => w.lineId === l.id), `${l.id} window`);
+    assert.ok(D.runningSettings.some((s) => s.lineId === l.id), `${l.id} setting`);
+    assert.ok(D.modelFits.some((f) => f.lineId === l.id), `${l.id} model fit`);
+    const pack = D.byId.linePack(l.linePackId)!;
+    for (const r of D.runs.filter((x) => x.lineId === l.id)) assert.ok(r.outcomes.some((o) => o.name === pack.labels.outcome), `${r.id} outcome`);
+    for (const p of pack.setpoints) assert.ok(D.byId.window(l.id, p), `${l.id} window for ${p}`);
+  }
+  const assetIds = D.assets.map((a) => a.id);
+  assert.equal(new Set(assetIds).size, assetIds.length, "asset ids unique");
+  for (const id of ["asset-vmc-2", "asset-hmc-1"]) assert.equal(D.byId.asset(id)?.lineId, "line-e", id);
+});
+
+test("plant: the mixing pack and mixing assets are gone from the plant model", () => {
+  assert.ok(!D.linePacks.some((p) => p.id === "pack-batch-mixer"));
+  assert.ok(!D.areas.some((a) => /mix/i.test(a.id + a.name)));
+  const modelled = JSON.stringify([D.linePacks, D.lines, D.assets, D.tags]);
+  assert.ok(!/mixer|mixing|viscosity|agitator|hold tank/i.test(modelled), "mixing vocabulary in packs, lines, assets or tags");
+});
+
+test("tags carry a normal range and every reading stays inside it", () => {
+  for (const t of D.tags) {
+    assert.ok(t.range[0] < t.range[1], t.id);
+    for (const r of D.tagReadings.filter((x) => x.tagId === t.id)) assert.ok(r.value >= t.range[0] && r.value <= t.range[1], `${t.id} ${r.value}`);
+  }
+  const range = (id: string) => D.tags.find((t) => t.id === id)!.range;
+  assert.deepEqual(range("tag-a-heater-1"), [1180, 1240]);
+  assert.deepEqual(range("tag-c-furnace-1"), [850, 870]);
+  assert.deepEqual(range("tag-c-quench-1"), [60, 80]);
+  assert.deepEqual(range("tag-d-melt-1"), [1400, 1440]);
+  assert.deepEqual(range("tag-d-spectro-1"), [4.2, 4.4]);
+});
+
+test("operators are scoped to all five lines and can decide on each", () => {
+  for (const l of D.lines) assert.ok(can("operator", "decide-proposal", l.id), l.id);
+  for (const l of D.lines) assert.ok(D.people.some((p) => p.roles.some((r) => r.role === "operator" && r.scope === l.id)), `operator for ${l.id}`);
+});
+test("pinned ids sit on metal-works records and no mixing vocabulary is left in the plant records", () => {
+  assert.equal(D.byId.lot("lot-a-3307")?.lineIds[0], "line-a");
+  assert.equal(D.lotProperties.find((p) => p.lotId === "lot-a-3307")?.name, "Decarb depth");
+  assert.equal(D.runs.find((r) => r.id === "run-a-2417")?.lineId, "line-a");
+  assert.ok("billet-temp" in D.runs.find((r) => r.id === "run-a-2417")!.setpoints);
+  assert.equal(D.investigations.find((i) => i.id === "inv-1")?.title, "Deep decarburisation on axle shaft 4140");
+  assert.equal(D.byId.trial("trial-2")?.lineId, "line-b");
+  for (const l of ["line-c", "line-d", "line-e"]) {
+    assert.ok(D.proposals.some((p) => p.lineId === l), `${l} proposal`);
+    assert.ok(D.lots.some((x) => x.lineIds[0] === l), `${l} lot`);
+  }
+  assert.ok(D.trials.some((t) => t.lineId === "line-c") && D.stopEvents.some((s) => s.lineId === "line-d") && D.investigations.some((i) => i.id === "inv-3"));
+  const records = JSON.stringify([D.runs, D.lots, D.lotProperties, D.proposals, D.trials, D.stopEvents, D.measurementPlans, D.investigations, D.inboxItems, D.shiftEvents, D.corrections, D.signedWindows, D.runningSettings, D.driftSignals, D.askThreads, D.savedAnswers, D.notes]);
+  assert.ok(!/viscosity|mixer|agitator|jacket|hold temperature|hold-temp|hold tank|torque|mPa\u00b7s/i.test(records), "mixing vocabulary in plant records");
 });

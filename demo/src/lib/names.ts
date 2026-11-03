@@ -6,7 +6,11 @@ const settingName = (lineId: string, param: string) => D.runningSettings.find((s
 const unitOf = (lineId: string, param: string) => D.runningSettings.find((s) => s.lineId === lineId && s.param === param)?.unit ?? D.signedWindows.find((w) => w.lineId === lineId && w.param === param)?.unit ?? "";
 const lc = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 
-export const runName = (id: string) => { const r = D.runs.find((x) => x.id === id); return r ? (r.lineId === "line-a" ? `Batch ${tail(id)}` : `Shift run ${tail(id)}`) : id.startsWith("run-a") ? `Batch ${tail(id)}` : `Shift run ${tail(id)}`; };
+/** "Batch 2418" or "Shift run 679": the noun comes from the line's pack. Unknown runs fall back to the id prefix to find the line. */
+export const runName = (id: string) => {
+  const lineId = D.runs.find((x) => x.id === id)?.lineId ?? (id.startsWith("run-a") ? "line-a" : "line-b");
+  return `${D.byId.linePack(D.byId.line(lineId)!.linePackId)!.labels.run} ${tail(id)}`;
+};
 export const lotName = (id: string) => `Lot ${tail(id)}`;
 /** "Agitator speed 150 to 158 rpm" */
 export const proposalName = (id: string) => { const p = D.byId.proposal(id); return p ? `${settingName(p.lineId, p.param)} ${p.current} to ${p.proposed} ${unitOf(p.lineId, p.param)}`.trim() : "Proposal"; };

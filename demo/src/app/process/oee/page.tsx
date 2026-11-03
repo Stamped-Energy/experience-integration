@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { crumbs, processEyebrow } from "@/components/process/common";
 import { oeeLossCards } from "@/lib/demo/capabilityScreens";
 import { oeePartVerdict } from "@/lib/demo/verdicts";
@@ -34,7 +34,7 @@ export default function OeePage() {
         meta="Availability, performance and quality vs an 85% target. Recommend only."
         actions={
           <>
-            <Illustrative />
+            
             <AskButton context="OEE" label="Ask about OEE" />
           </>
         }

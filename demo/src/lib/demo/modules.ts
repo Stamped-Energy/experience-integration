@@ -9,9 +9,9 @@ import type { Proposal } from "./types";
 const M = (m: Omit<ControlModule, "schema_version" | "evidence">): ControlModule => ({ schema_version: "0.1.0", evidence: { emulator_pass: null }, ...m });
 
 export const controlModules: ControlModule[] = [
-  M({ module_id: "mix-rules", module_version: "1.2.0", pack_id: "pack-batch-mixer", type: "rule", mode: "recommend", role: "fallback", inputs: ["torque", "viscosity"], outputs: ["agitator", "hold-time"], cadence: "per_batch",
-    rule: { rules: [{ rule_id: "R-TORQUE-HIGH", when: "End-of-hold torque above the grade's best batches", then: "Raise agitator one step inside the narrowed band" }] } }),
-  M({ module_id: "mix-search", module_version: "2.4.1", pack_id: "pack-batch-mixer", type: "bounded_setting_search", mode: "recommend", role: "primary", inputs: ["torque", "viscosity", "charge-mass"], outputs: ["hold-temp", "hold-time", "agitator"], cadence: "per_batch" }),
+  M({ module_id: "forge-rules", module_version: "1.2.0", pack_id: "pack-forge", type: "rule", mode: "recommend", role: "fallback", inputs: ["billet-temp", "coil-power"], outputs: ["coil-power", "pusher-rate"], cadence: "per_run",
+    rule: { rules: [{ rule_id: "R-BILLET-HOT", when: "Billet exit temperature above the part number's best runs", then: "Lower coil power one step inside the narrowed band" }] } }),
+  M({ module_id: "forge-search", module_version: "2.4.1", pack_id: "pack-forge", type: "bounded_setting_search", mode: "recommend", role: "primary", inputs: ["billet-temp", "coil-power", "pusher-rate"], outputs: ["billet-temp", "coil-power", "pusher-rate"], cadence: "per_run" }),
   M({ module_id: "mould-mpc", module_version: "0.3.0", pack_id: "pack-moulding", type: "mpc", mode: "shadow", role: "challenger", inputs: ["cavity-pressure", "part-weight", "tool-temp"], outputs: ["melt-temp", "hold-pressure", "cycle-time"], cadence: "per_run",
     mpc: { model_kind: "hybrid_twin", offset_free: true, tuning: "supervisory_tuned" } }),
   M({ module_id: "mould-search", module_version: "2.4.1", pack_id: "pack-moulding", type: "bounded_setting_search", mode: "recommend", role: "fallback", inputs: ["part-weight", "tool-temp"], outputs: ["melt-temp", "hold-pressure", "cycle-time"], cadence: "per_run" }),
@@ -26,7 +26,7 @@ export const MODULE_TYPE_LABEL: Record<ControlModule["type"], string> = {
 };
 
 export const moduleOf = (id: string) => controlModules.find((m) => m.module_id === id);
-const unitOf: Record<string, string> = { "hold-pressure": "bar", "melt-temp": "°C", "cycle-time": "s", agitator: "rpm", "hold-temp": "°C", "hold-time": "min" };
+const unitOf: Record<string, string> = { "hold-pressure": "bar", "melt-temp": "°C", "cycle-time": "s", "billet-temp": "°C", "coil-power": "kW", "pusher-rate": "billets/h" };
 export const loopRunOf = (p: Pick<Proposal, "id">) => `loop-${p.id}`;
 
 type Out = ControlModuleOutput;
@@ -42,7 +42,7 @@ const move = (setpoint_id: string, current: number, proposed: number) => ({ setp
 function outputsFor(p: Proposal): Out[] {
   const mainMove = move(p.param, p.current, p.proposed);
   const withheld = p.state === "Withheld";
-  const primary = p.lineId === "line-a" ? "mix-search" : "mould-search";
+  const primary = p.lineId === "line-a" ? "forge-search" : "mould-search";
   const sel: Partial<Out> = withheld
     ? { result: "abstained", abstain_reason: "No setting in the signed band passed the model fit check", reasoning: { method: "Bounded setting search", evidence_ids: p.evidenceIds } }
     : { moves: [mainMove], reasoning: { method: "Bounded setting search", active_constraints: p.safetyFilter.rules, evidence_ids: p.evidenceIds, model_version: p.optimiserVersion } };
@@ -92,8 +92,8 @@ function outputsFor(p: Proposal): Out[] {
   }
   if (p.id === "prop-102") {
     return [
-      base(p, "mix-rules", { moves: [mainMove], reasoning: { method: "Rule-based", rules_fired: ["R-TORQUE-HIGH: end-of-hold torque above the grade's best batches, raise agitator one step"], active_constraints: p.safetyFilter.rules, evidence_ids: p.evidenceIds } }),
-      base(p, "mix-search", { result: "abstained", abstain_reason: "Model of the mixer not yet accepted for this grade" }),
+      base(p, "forge-rules", { moves: [mainMove], reasoning: { method: "Rule-based", rules_fired: ["R-BILLET-HOT: billet exit temperature above the part number's best runs, lower coil power one step"], active_constraints: p.safetyFilter.rules, evidence_ids: p.evidenceIds } }),
+      base(p, "forge-search", { result: "abstained", abstain_reason: "Model of heater H1 not yet accepted for this part number" }),
     ];
   }
   return [base(p, primary, sel)];

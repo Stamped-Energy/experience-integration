@@ -104,7 +104,7 @@ export default function ProcessReportsPage() {
           </Section>
           <Section title="By industry" flush>
             <div className="rows">
-              {["Batch mixing", "Discrete moulding", "Forging and heat treatment", "Plant MIS", "Process measurement"].map((industry) => {
+              {["Discrete moulding", "Forging and heat treatment", "Plant MIS", "Process measurement"].map((industry) => {
                 const n = PLANT_REPORTS.filter((r) => r.industry === industry).length;
                 return (
                   <div key={industry} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>

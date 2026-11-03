@@ -9,19 +9,19 @@ export const DEMO_LOOP_CATALOG: Array<{ loopId: string; family: string; lineId: 
   { loopId: "loop-press-barrel-temp", family: "Press / barrel", lineId: "line-b", short: "Barrel zones" },
   { loopId: "loop-press-hold", family: "Press / hold", lineId: "line-b", short: "Hold pressure" },
   { loopId: "loop-press-tonnage", family: "Press / tonnage", lineId: "line-b", short: "Press tonnage" },
-  { loopId: "loop-forge-induction", family: "Forging / induction", lineId: "line-b", short: "Induction heat" },
-  { loopId: "loop-induction-zone1", family: "Forging / induction", lineId: "line-b", short: "Induction zone 1" },
-  { loopId: "loop-ht-zone1", family: "Heat treat / furnace", lineId: "line-a", short: "Furnace zone 1" },
-  { loopId: "loop-ht-zone2", family: "Heat treat / furnace", lineId: "line-a", short: "Furnace zone 2" },
-  { loopId: "loop-ht-zone3", family: "Heat treat / furnace", lineId: "line-a", short: "Furnace zone 3" },
-  { loopId: "loop-ht-quench", family: "Heat treat / quench", lineId: "line-a", short: "Quench oil" },
-  { loopId: "loop-ht-temper", family: "Heat treat / temper", lineId: "line-a", short: "Temper soak" },
-  { loopId: "loop-cnc-spindle", family: "Machining", lineId: "line-b", short: "Spindle load" },
-  { loopId: "loop-util-compressed-air", family: "Utilities / air", lineId: "line-b", short: "Plant air" },
-  { loopId: "loop-util-cooling-water", family: "Utilities / water", lineId: "line-a", short: "Cooling water" },
-  { loopId: "loop-mixer-agit", family: "Batch / mixer", lineId: "line-a", short: "Agitator torque" },
-  { loopId: "loop-mixer-hold", family: "Batch / hold", lineId: "line-a", short: "Hold time" },
-  { loopId: "loop-qc-sample", family: "Quality / sampling", lineId: "line-a", short: "Hardness sampling" },
+  { loopId: "loop-forge-induction", family: "Forging / induction", lineId: "line-a", short: "Induction heat" },
+  { loopId: "loop-induction-zone1", family: "Forging / induction", lineId: "line-a", short: "Induction zone 1" },
+  { loopId: "loop-forge-coil-power", family: "Forging / induction", lineId: "line-a", short: "Coil power" },
+  { loopId: "loop-forge-pusher", family: "Forging / press feed", lineId: "line-a", short: "Pusher rate" },
+  { loopId: "loop-ht-zone1", family: "Heat treat / furnace", lineId: "line-c", short: "Furnace zone 1" },
+  { loopId: "loop-ht-zone2", family: "Heat treat / furnace", lineId: "line-c", short: "Furnace zone 2" },
+  { loopId: "loop-ht-zone3", family: "Heat treat / furnace", lineId: "line-c", short: "Furnace zone 3" },
+  { loopId: "loop-ht-quench", family: "Heat treat / quench", lineId: "line-c", short: "Quench oil" },
+  { loopId: "loop-ht-temper", family: "Heat treat / temper", lineId: "line-c", short: "Temper soak" },
+  { loopId: "loop-cnc-spindle", family: "Machining", lineId: "line-e", short: "Spindle load" },
+  { loopId: "loop-util-compressed-air", family: "Utilities / air", lineId: "line-a", short: "Plant air" },
+  { loopId: "loop-util-cooling-water", family: "Utilities / water", lineId: "line-c", short: "Cooling water" },
+  { loopId: "loop-qc-sample", family: "Quality / sampling", lineId: "line-c", short: "Hardness sampling" },
   { loopId: "loop-qc-spc", family: "Quality / SPC", lineId: "line-b", short: "Weight SPC" },
 ];
 
@@ -48,7 +48,7 @@ export function generateOptimisationCampaigns(): LoopCampaign[] {
     startedAt: iso(20 + (i % 9), 8 + (i % 10)),
     ownerInrPerMonth: loop.lineId === "line-b" ? 48000 + i * 3200 : 28000 + i * 2100,
     ownerLabel: "Illustrative at plant prices on demonstration data",
-  })).filter((c) => c.loopId.startsWith("loop-") && (c.loopFamily.includes("Press") || c.loopFamily.includes("Heat") || c.loopFamily.includes("Forging") || c.loopFamily.includes("Machining") || c.loopFamily.includes("Utilities") || c.loopFamily.includes("Batch")));
+  })).filter((c) => c.loopId.startsWith("loop-") && (c.loopFamily.includes("Press") || c.loopFamily.includes("Heat") || c.loopFamily.includes("Forging") || c.loopFamily.includes("Machining") || c.loopFamily.includes("Utilities")));
 }
 
 export function generateSimulationCampaigns(): LoopCampaign[] {

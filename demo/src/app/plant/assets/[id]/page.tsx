@@ -9,7 +9,7 @@ import { AskButton } from "@/components/shell/ShellClient";
 import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { RunChart, Sparkline } from "@/components/ui/charts";
-import { DataTable, EvidenceTag, Illustrative, KpiRow, LineModeTag, ModeTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, EvidenceTag, KpiRow, LineModeTag, ModeTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { PlantSectionMap, PlantTabs, crumbs, fmt, latest, openCards, readingsOf, seriesFor, tagsOf } from "@/components/plant/common";
 import { notFound } from "next/navigation";
 import { assetIds } from "@/lib/static-paths";

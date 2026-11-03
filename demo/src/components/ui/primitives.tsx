@@ -30,11 +30,6 @@ export function VerdictTag({ verdict }: { verdict: Verdict }) {
   return <Tag tone={VERDICT_TONE[verdict]}>{verdict}</Tag>;
 }
 
-/** Showcase marker for illustrative figures. Kept as a no-op so client/investor pages stay clean. */
-export function Illustrative() {
-  return null;
-}
-
 export function PageHeader({ eyebrow, title, meta, actions, brand, className }: { eyebrow?: string; title: string; meta?: ReactNode; actions?: ReactNode; brand?: boolean; className?: string }) {
   return (
     <header className={`page-head${className ? ` ${className}` : ""}`}>

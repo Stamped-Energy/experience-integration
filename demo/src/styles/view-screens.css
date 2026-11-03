@@ -49,7 +49,7 @@
 .pc-gauge-band-warning { stroke: var(--warning); }
 .pc-gauge-band-success { stroke: var(--success); }
 .pc-gauge-value { fill: none; stroke-width: 10; stroke-linecap: butt; }
-.pc-gauge-end { fill: var(--text-muted); font-size: 10px; font-family: var(--font-mono); }
+.pc-gauge-end { fill: var(--text-muted); font-size: var(--type-label); font-family: var(--font-mono); }
 .pc-gauge-number {
   margin-top: -6px;
   font-family: var(--font-sans);
@@ -462,7 +462,7 @@
 }
 .export-as-caret {
   margin-left: 6px;
-  font-size: 10px;
+  font-size: var(--type-label);
   opacity: 0.8;
 }
 .export-as-menu {

@@ -7,7 +7,7 @@ import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import { dayMonth, hhmm } from "@/lib/format";
 import { Confidence } from "@/components/ui/Confidence";
-import { EmptyState, EvidenceTag, Illustrative, Tag } from "@/components/ui/primitives";
+import { EmptyState, EvidenceTag, Tag } from "@/components/ui/primitives";
 import type { EvidenceLabel } from "@/lib/demo/types";
 
 const ORDER: EvidenceLabel[] = ["Unknown", "Assumed", "Modelled", "Estimated", "Measured"];
@@ -62,7 +62,7 @@ export function EvidenceSheet({ proofId, closeHref }: { proofId: string; closeHr
                 ))}</tbody>
               </table>
             ) : <p className="muted" style={{ fontSize: 13 }}>No source rows yet. Rows appear once the first measured run ends.</p>}
-            <div className="ev-foot"><Illustrative /><span className="muted">Value at the plant&apos;s prices is shown on Home, owner view, never inside a proof record.</span></div>
+            <div className="ev-foot"><span className="muted">Value at the plant&apos;s prices is shown on Home, owner view, never inside a proof record.</span></div>
           </div>
         )}
       </aside>

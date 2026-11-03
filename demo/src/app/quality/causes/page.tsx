@@ -15,7 +15,7 @@ export const metadata = { title: "Cause graphs" };
 const TEMPLATE_NAME: Record<string, string> = { forging: "Forging", "heat-treatment": "Heat treatment" };
 const label = (id: string) => NODE_LABEL[id] ?? id;
 const DIAGNOSE_ASSET = "example-forge-press";
-const ABSTAIN_ASSET = "a-mixer";
+const ABSTAIN_ASSET = "d-spectro";
 
 export default function CausesPage() {
   const { graphs, edges } = queryGraph({});

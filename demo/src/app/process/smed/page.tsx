@@ -1,7 +1,7 @@
 import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { crumbs, processEyebrow } from "@/components/process/common";
 import { smedSteps } from "@/lib/demo/capabilityScreens";
 
@@ -24,7 +24,7 @@ export default function SmedPage() {
         meta="Move internal changeover steps external when safe."
         actions={
           <>
-            <Illustrative />
+            
             <AskButton context="SMED" label="Ask about changeover" />
           </>
         }

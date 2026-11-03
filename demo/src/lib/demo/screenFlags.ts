@@ -31,15 +31,32 @@ export function siteLabel(siteId: string): string {
   return BASE.sites[siteId]?.label ?? siteId;
 }
 
-function hubIds(module: ScreenFlagModule): string[] {
-  return (module === "process" ? PROCESS_HUBS : QUALITY_HUBS).map((h) => h.id);
+/** Hub ids plus tab-level Process flags (OEE / SMED) that can be toggled independently of Performance. */
+function flagIds(module: ScreenFlagModule): string[] {
+  const hubs = (module === "process" ? PROCESS_HUBS : QUALITY_HUBS).map((h) => h.id);
+  return module === "process" ? [...hubs, "oee", "smed"] : hubs;
+}
+
+const TAB_FLAG_LABELS: Record<string, string> = {
+  oee: "OEE",
+  smed: "Changeovers (SMED)",
+};
+
+export function flagLabel(module: ScreenFlagModule, id: string): string {
+  if (module === "process" && TAB_FLAG_LABELS[id]) return TAB_FLAG_LABELS[id];
+  const hubs = module === "process" ? PROCESS_HUBS : QUALITY_HUBS;
+  return hubs.find((h) => h.id === id)?.sidebarLabel ?? id;
+}
+
+export function orderedFlagIds(module: ScreenFlagModule): string[] {
+  return flagIds(module);
 }
 
 export function baseFlags(siteId: string, module: ScreenFlagModule): Record<string, boolean> {
   const site = BASE.sites[siteId] ?? BASE.sites[BASE.defaultSiteId];
   const mod = site?.modules[module] ?? {};
   const out: Record<string, boolean> = {};
-  for (const id of hubIds(module)) {
+  for (const id of flagIds(module)) {
     out[id] = mod[id] !== false;
   }
   return out;
@@ -84,11 +101,36 @@ export function isScreenEnabled(siteId: string, module: ScreenFlagModule, screen
 }
 
 export function screenIdFromPath(path: string): { module: ScreenFlagModule; id: string } | null {
+  // Tab-level Process flags before hub match so OEE / SMED can hide without killing Performance.
+  if (path === "/process/oee") return { module: "process", id: "oee" };
+  if (path === "/process/smed") return { module: "process", id: "smed" };
   // Match via hub tabs, not sidebarHref prefix (Lines uses `/process`, which would swallow every Process path).
   const process = PROCESS_HUBS.find((h) => h.tabs.some((t) => t.match(path)));
   if (process) return { module: "process", id: process.id };
   const quality = QUALITY_HUBS.find((h) => h.tabs.some((t) => t.match(path)));
   if (quality) return { module: "quality", id: quality.id };
+  return null;
+}
+
+/** Pitch meeting: hide OEE, SMED and Engineering; keep cycle time and tool life under Performance. */
+export function applyPitchPreset(siteId: string) {
+  const processBase = baseFlags(siteId, "process");
+  const overrides: Record<string, boolean> = {
+    ...readOverrides(siteId),
+    oee: false,
+    smed: false,
+    engineering: false,
+  };
+  for (const key of Object.keys(overrides)) {
+    if (key in processBase && overrides[key] === processBase[key]) delete overrides[key];
+  }
+  writeOverrides(siteId, overrides);
+}
+
+/** Tab href → optional Process tab-level flag id. */
+export function processTabFlagId(href: string): "oee" | "smed" | null {
+  if (href === "/process/oee") return "oee";
+  if (href === "/process/smed") return "smed";
   return null;
 }
 

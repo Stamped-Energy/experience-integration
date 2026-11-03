@@ -11,6 +11,7 @@ import * as echarts from "echarts/core";
 import { LineChart } from "echarts/charts";
 import { GridComponent, LegendComponent, TooltipComponent, MarkLineComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
+import { cssVar } from "@/lib/css-vars";
 
 echarts.use([LineChart, GridComponent, LegendComponent, TooltipComponent, MarkLineComponent, CanvasRenderer]);
 
@@ -19,12 +20,6 @@ export interface PvSpOpSeries {
   pv: number[];
   sp: number[];
   op: number[];
-}
-
-function cssVar(name: string, fallback: string) {
-  if (typeof window === "undefined") return fallback;
-  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  return v || fallback;
 }
 
 function formatHour(ms: number) {
@@ -63,7 +58,7 @@ export function PvSpOpTrendCard({
     const textMuted = cssVar("--text-muted", "#8A8A86");
     const textPrimary = cssVar("--text-primary", "#202020");
     const geist = cssVar("--font-geist", "Geist");
-    const geistMono = cssVar("--font-geist-mono", "Geist Mono");
+    const geistMono = cssVar("--font-mono", "Geist Mono");
     const fontSans = `${geist}, "Geist", Inter, system-ui, sans-serif`;
     const fontMono = `${geistMono}, "Geist Mono", ui-monospace, monospace`;
 
@@ -88,7 +83,7 @@ export function PvSpOpTrendCard({
         axisTick: { show: false },
         axisLabel: {
           color: textMuted,
-          fontSize: 10,
+          fontSize: 11,
           fontFamily: fontMono,
           interval: Math.max(0, Math.floor(categories.length / 6) - 1),
         },
@@ -101,7 +96,7 @@ export function PvSpOpTrendCard({
           name: "",
           axisLine: { show: false },
           axisTick: { show: false },
-          axisLabel: { color: textMuted, fontSize: 10, fontFamily: fontMono },
+          axisLabel: { color: textMuted, fontSize: 11, fontFamily: fontMono },
           splitLine: { lineStyle: { color: border, type: "dashed" } },
         },
         {
@@ -112,7 +107,7 @@ export function PvSpOpTrendCard({
           name: "",
           axisLine: { show: false },
           axisTick: { show: false },
-          axisLabel: { color: textMuted, fontSize: 10, fontFamily: fontMono, margin: 8, formatter: (v: number) => `${v}` },
+          axisLabel: { color: textMuted, fontSize: 11, fontFamily: fontMono, margin: 8, formatter: (v: number) => `${v}` },
           splitLine: { show: false },
         },
       ],

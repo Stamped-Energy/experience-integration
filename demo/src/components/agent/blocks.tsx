@@ -5,7 +5,7 @@ import * as D from "@/lib/demo/data";
 import * as A from "@/lib/demo/agent";
 import type { RoleId } from "@/lib/demo/types";
 import { dayMonth, hhmm, inr, rel } from "@/lib/format";
-import { Illustrative, Section, Tag, type Tone } from "@/components/ui/primitives";
+import { Section, Tag, type Tone } from "@/components/ui/primitives";
 import { CardActions } from "@/components/cards/CardActions";
 import { Assign } from "./Assign";
 import { Term } from "@/components/ui/Term";
@@ -17,7 +17,7 @@ export function WorkingOn({ lineId, items: given }: { lineId?: string; items?: A
   if (!items.length) return null;
   return (
     <section className="working" aria-label="What the agent is working on">
-      <div className="working-head"><span className="pulse" aria-hidden /><b>Working on</b><span className="muted">{items.length} now</span><Illustrative /></div>
+      <div className="working-head"><span className="pulse" aria-hidden /><b>Working on</b><span className="muted">{items.length} now</span></div>
       <div className="working-items">
         {items.map((w) => (
           <Link key={w.id} href={w.href} className="work">
@@ -40,7 +40,7 @@ export function AnsweredChip({ qid }: { qid: string }) {
 export function Onboarding() {
   const o = A.onboarding;
   return (
-    <Section title={`New part: ${o.part}`} meta={`Started ${rel(o.started)} · step ${o.current} of 5`} id="onboarding" actions={<Illustrative />}>
+    <Section title={`New part: ${o.part}`} meta={`Started ${rel(o.started)} · step ${o.current} of 5`} id="onboarding">
       <ol className="onb">
         {o.steps.map((s) => (
           <li key={s.n} data-state={s.state}>
@@ -58,7 +58,7 @@ export function Onboarding() {
 
 const K_TONE: Record<A.ControlLayer["state"], Tone> = { Active: "success", "In shadow": "neutral", "Prebuilt, not on": "neutral", Simulating: "info" };
 export function ControlStack({ lineId }: { lineId: string }) {
-  const layers = A.controlStacks[lineId];
+  const layers = A.controlStacks[lineId] ?? [];
   return (
     <Section title="Control stack" meta="Prebuilt for this equipment, tuned at integration" id="control" flush>
       <ol className="cstack">
@@ -144,7 +144,7 @@ export function IdleList({ rupees, role }: { rupees: boolean; role: RoleId }) {
 export function Qualification() {
   const o = A.qualification;
   return (
-    <Section title={o.title} meta={`Started ${rel(o.started)} · step ${o.current} of ${o.steps.length}`} actions={<Illustrative />}>
+    <Section title={o.title} meta={`Started ${rel(o.started)} · step ${o.current} of ${o.steps.length}`}>
       <ol className="onb">
         {o.steps.map((s) => (
           <li key={s.n} data-state={s.state}>

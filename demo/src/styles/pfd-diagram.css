@@ -31,7 +31,7 @@
 }
 
 .pfd-legend-inline i.ok { background: var(--success-tint); border-color: var(--success); }
-.pfd-legend-inline i.watch { background: var(--warning-tint, #FEF3E2); border-color: var(--warning, #C27803); }
+.pfd-legend-inline i.watch { background: var(--warning-tint); border-color: var(--warning); }
 .pfd-legend-inline i.alarm { background: var(--critical-tint); border-color: var(--critical); }
 
 .pfd-legend-note { color: var(--text-muted); }
@@ -82,7 +82,7 @@
 .dg-drawing { fill: var(--surface); stroke: currentColor; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .dg-drawing * { vector-effect: non-scaling-stroke; }
 .dg-sym[data-state="ok"] .pc-state { fill: var(--success-tint); stroke: var(--success); }
-.dg-sym[data-state="warning"] .pc-state { fill: var(--warning-tint, #FEF3E2); stroke: var(--warning, #C27803); }
+.dg-sym[data-state="warning"] .pc-state { fill: var(--warning-tint); stroke: var(--warning); }
 .dg-sym[data-state="alarm"] .pc-state { fill: var(--critical-tint); stroke: var(--critical); }
 .dg-sym[data-state="alarm"] .dg-drawing { animation: dg-blink 1.2s steps(2, start) infinite; }
 .dg-sym[data-state="unknown"] .pc-state { fill: var(--surface); stroke: var(--border); }
@@ -94,7 +94,7 @@
 .dg-line-label { font-size: 12px; font-weight: 600; paint-order: stroke; stroke: var(--surface-2, var(--surface)); stroke-width: 4px; }
 .dg-status-ring { fill: none; stroke-width: 3; pointer-events: none; }
 .dg-sym[data-state="ok"] .dg-status-ring { stroke: var(--success); }
-.dg-sym[data-state="warning"] .dg-status-ring { stroke: var(--warning, #C27803); }
+.dg-sym[data-state="warning"] .dg-status-ring { stroke: var(--warning); }
 .dg-sym[data-state="alarm"] .dg-status-ring { stroke: var(--critical); }
 .dg-sym[data-state="unknown"] .dg-status-ring { stroke: var(--border-strong); }
 .dg-value-box { fill: var(--surface); stroke: var(--border); stroke-width: 1.5; }
@@ -104,7 +104,7 @@
 .dg-clickable:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .dg-sym.dg-picked .dg-drawing { stroke: var(--accent-700, var(--accent)); stroke-width: 2.5; }
 .dg-value-label, .dg-value-unit { fill: var(--text-secondary); }
-.dg-value[data-state="warning"] .dg-value-box { fill: var(--warning-tint, #FEF3E2); stroke: var(--warning, #C27803); }
+.dg-value[data-state="warning"] .dg-value-box { fill: var(--warning-tint); stroke: var(--warning); }
 .dg-value[data-state="alarm"] .dg-value-box { fill: var(--critical-tint); stroke: var(--critical); }
 .dg-line { color: var(--text-secondary); }
 .dg-line-path { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linejoin: round; }

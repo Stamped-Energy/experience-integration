@@ -48,7 +48,7 @@ export interface ToolCard {
 }
 
 export const TOOL_LIFE_PAGE_META =
-  "Taylor or CNC remaining life · Recommend only · Live get_tool_life_estimate when session connected (caller-supplied inputs until store)";
+  "Taylor or CNC remaining life · Recommend only · Live get_tool_life_estimate reads once the read-api is attached (caller-supplied inputs until store)";
 
 /** Pure estimate matching the Process helper rules (for demo + unit tests). */
 export function estimateRemaining(input: {
@@ -142,8 +142,8 @@ function card(
 export const toolCards: ToolCard[] = [
   card({
     tool_id: "tool-endmill-12",
-    asset_id: "asset-cnc-1",
-    station: "CNC 1 · finish pocket",
+    asset_id: "asset-hmc-1",
+    station: "HMC 1 · finish pocket",
     tool_name: "12 mm carbide end mill",
     taylor_n: 0.25,
     taylor_c: 280,
@@ -154,8 +154,8 @@ export const toolCards: ToolCard[] = [
   }),
   card({
     tool_id: "tool-drill-8",
-    asset_id: "asset-cnc-1",
-    station: "CNC 1 · pilot drill",
+    asset_id: "asset-hmc-1",
+    station: "HMC 1 · pilot drill",
     tool_name: "8 mm HSS drill",
     taylor_n: null,
     taylor_c: null,

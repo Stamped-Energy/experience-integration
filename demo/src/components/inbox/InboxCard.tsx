@@ -11,7 +11,7 @@ import { EvidenceIds, ModeTag, Tag } from "@/components/ui/primitives";
 import { DecisionCard, deniedReason } from "@/components/cards/DecisionCard";
 import { CardActions } from "@/components/cards/CardActions";
 
-const PARAM: Record<string, string> = { "tool-temp": "tool temperature", "hold-temp": "hold temperature", "hold-pressure": "hold pressure" };
+const PARAM: Record<string, string> = { "tool-temp": "tool temperature", "billet-temp": "billet exit temperature", "soak-time": "soak time", "hold-pressure": "hold pressure" };
 
 export function InboxCard({ item, role, link = true }: { item: InboxItem; role: RoleId; link?: boolean }) {
   const href = link ? `/inbox/${item.id}` : undefined;

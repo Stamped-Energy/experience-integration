@@ -7,7 +7,7 @@ import * as A from "@/lib/demo/agent";
 import { demoRole } from "@/lib/role";
 import { rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
-import { EvidenceTag, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { EvidenceTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { ActivityTabs, crumbs } from "@/components/activity/common";
 import { IdleList, Learned } from "@/components/agent/blocks";
 
@@ -25,7 +25,7 @@ export default function Summary() {
         actions={<div className="seg" role="group" aria-label="Period"><Link href="/activity/summary" aria-current={period === "week" ? "true" : undefined} scroll={false}>Week</Link><Link href="/activity/summary?p=month" aria-current={period === "month" ? "true" : undefined} scroll={false}>Month</Link></div>} />
       <ActivityTabs active="summary" />
       <section className="sum-reason">
-        <div className="label">Why the numbers moved <Illustrative /></div>
+        <div className="label">Why the numbers moved </div>
         <p>{s.reasoning}</p>
         <div className="label" style={{ marginTop: 8 }}>Next, the agent will focus on</div>
         <ol>{s.next.map((n) => <li key={n}>{n}</li>)}</ol>

@@ -7,7 +7,7 @@ import type { ActionId } from "@/lib/demo/types";
 import { ACTION_LABELS, whoCan } from "@/lib/rbac";
 import { dayMonth, hhmm } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
-import { Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { PageHeader, Section, Tag } from "@/components/ui/primitives";
 
 export type SettingsKey = "limits" | "approvals" | "people" | "routing" | "assignment" | "integrations" | "plant" | "screens";
 export const SECTIONS: { key: SettingsKey; label: string; href: string; sub: string }[] = [
@@ -27,7 +27,7 @@ export function SettingsPage({ section, title, meta, actions, children, help, ch
   const history = D.auditEvents.filter((a) => audit.test(a.action)).slice(0, 5);
   const aside = (
     <>
-      <Section title="About this setting" actions={<Illustrative />}>{help}</Section>
+      <Section title="About this setting">{help}</Section>
       <Section title="Who can change this" flush>
         <div className="rows">{changes.map((a) => <div key={a} className="row" style={{ gridTemplateColumns: "minmax(0,1fr)" }}><span><span className="row-title" style={{ display: "block" }}>{ACTION_LABELS[a]}</span><span className="row-sub">{whoCan(a).map(roleName).join(", ") || "Nobody"}</span></span></div>)}</div>
       </Section>

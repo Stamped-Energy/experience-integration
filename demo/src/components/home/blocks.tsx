@@ -16,8 +16,9 @@ export const proofHref = (id: string) => {
 
 export function lineSeries(line: Line) {
   const rs = D.runs.filter((r) => r.lineId === line.id).slice(-24);
-  const name = line.type === "batch" ? "Viscosity" : "Scrap rate";
-  return { values: rs.map((r) => r.outcomes.find((o) => o.name === name)!.value), name, unit: line.type === "batch" ? "mPa·s" : "%", spec: (line.type === "batch" ? [2380, 2600] : [0, 4]) as [number, number] };
+  const pack = D.byId.linePack(line.linePackId)!;
+  const name = pack.labels.outcome;
+  return { values: rs.map((r) => r.outcomes.find((o) => o.name === name)!.value), name, unit: pack.outcomeUnit, spec: pack.spec, chartSpec: pack.chartSpec, runs: pack.labels.runs.toLowerCase() };
 }
 
 export function LineStrip() {
@@ -37,8 +38,8 @@ export function LineStrip() {
               </div>
             </div>
             <div>
-              <div className="label" style={{ display: "flex", justifyContent: "space-between" }}><span>{s.name}, last 24 {l.type === "batch" ? "batches" : "shift runs"}</span></div>
-              <RunChart values={s.values} spec={l.type === "batch" ? s.spec : undefined} width={220} height={84} label={`${s.name} trend on ${l.short}`} highlightFrom={l.mode === "Trial" ? 14 : undefined} />
+              <div className="label" style={{ display: "flex", justifyContent: "space-between" }}><span>{s.name}, last 24 {s.runs}</span></div>
+              <RunChart values={s.values} spec={s.chartSpec ? s.spec : undefined} width={220} height={84} label={`${s.name} trend on ${l.short}`} highlightFrom={l.mode === "Trial" ? 14 : undefined} />
               <div className="muted" style={{ fontSize: 11 }}>{l.mode === "Trial" ? "Shaded: trial running" : `Spec under ${s.spec[1]} ${s.unit}`}</div>
             </div>
           </div>

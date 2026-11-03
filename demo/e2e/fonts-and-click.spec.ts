@@ -40,6 +40,9 @@ test.describe("font tokens and whole-row click", () => {
       expect(looksToken(row.family), JSON.stringify(row)).toBeTruthy();
       expect(row.family.toLowerCase()).not.toContain("times");
     }
+    const hubTitle = health.find((r) => r.sel.includes("h1"));
+    expect(hubTitle?.family, JSON.stringify(hubTitle)).toMatch(/Geist/i);
+    expect(hubTitle?.family, JSON.stringify(hubTitle)).not.toMatch(/Space Grotesk/i);
 
     await page.goto("/process/analytics");
     await page.waitForLoadState("networkidle");
@@ -61,6 +64,41 @@ test.describe("font tokens and whole-row click", () => {
       if (row.family === "(missing)") continue;
       expect(looksToken(row.family), JSON.stringify(row)).toBeTruthy();
     }
+  });
+
+  test("owner Home brand title uses Space Grotesk; hub titles stay Geist", async ({ page }) => {
+    await page.goto("/?view=owner");
+    await page.waitForLoadState("networkidle");
+    const owner = await fontFamilies(page, [".page-head h1.brand", ".page-head h1"]);
+    const brand = owner.find((r) => r.sel.includes("brand")) ?? owner[0];
+    expect(brand.family, JSON.stringify(brand)).toMatch(/Space Grotesk/i);
+
+    await page.goto("/process/actions");
+    await page.waitForLoadState("networkidle");
+    const actions = await fontFamilies(page, [".page-head h1"]);
+    expect(actions[0].family, JSON.stringify(actions[0])).toMatch(/Geist/i);
+    expect(actions[0].family, JSON.stringify(actions[0])).not.toMatch(/Space Grotesk/i);
+  });
+
+  test("status tags use Geist sans at ops-tag size", async ({ page }) => {
+    await page.goto("/process/actions");
+    await page.waitForLoadState("networkidle");
+    const tag = page.locator(".tag").first();
+    await expect(tag).toBeVisible();
+    const metrics = await tag.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return {
+        family: s.fontFamily,
+        size: s.fontSize,
+        height: s.height,
+        transform: s.textTransform,
+      };
+    });
+    expect(metrics.family, JSON.stringify(metrics)).toMatch(/Geist/i);
+    expect(metrics.family, JSON.stringify(metrics)).not.toMatch(/Mono/i);
+    expect(metrics.size).toBe("12px");
+    expect(metrics.height).toBe("22px");
+    expect(metrics.transform).toBe("none");
   });
 
   test("clicking lot row body (not the name) opens the lot", async ({ page }) => {

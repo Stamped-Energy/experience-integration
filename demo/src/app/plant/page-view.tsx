@@ -6,7 +6,7 @@ import * as D from "@/lib/demo/data";
 import { hhmm, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { DataTable, Illustrative, LineModeTag, ModeTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, LineModeTag, ModeTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { PlantTabs, crumbs, fmt, openCards, seriesFor, tagsOf } from "@/components/plant/common";
 import { BandSpark, StatusGlyph, Tile, assetStatus, bandOf, childrenOf, mainAssets, needsAttention, parentOf, settingsOf, tagStatus } from "@/components/plant/flow";
 import { TileKeys } from "@/components/plant/TileKeys";
@@ -58,7 +58,6 @@ export default function PlantMap() {
         <Link prefetch={false} scroll={false} className={`fchip${need ? " on" : ""}`} href={q({ need: need ? undefined : "1" })} aria-pressed={need}>{need ? "✓ " : ""}Only items needing attention ({attention.length})</Link>
         <span className="spacer" />
         <span className="legend"><StatusGlyph s="act" /><StatusGlyph s="watch" /><StatusGlyph s="trial" /><span className="isa isa-normal">No mark: normal</span><span className="legend-band"><i />Signed band</span></span>
-        <Illustrative />
       </div>
       <div className="grid">
         <div className="span-8 xl-span-9 stack">

@@ -48,6 +48,8 @@
 
   --radius-sm: 4px; --radius-md: 6px; --radius-full: 999px;
   --elevation-1: 0 1px 2px rgba(32, 32, 32, 0.04), 0 4px 12px rgba(32, 32, 32, 0.05);
+  --shadow-sm: var(--elevation-1);
+  --shadow-md: var(--elevation-1);
   --overlay: rgba(32, 32, 32, 0.28);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --duration-fast: 120ms; --duration: 180ms;
@@ -59,7 +61,6 @@
 
   --rail-w: 56px;
   --rail-w-expanded: 232px;
-  --nav-w: 248px;
   --reading-w: 760px;
   --aside-w: 240px;
   --crumb-h: 44px;
@@ -90,6 +91,8 @@
   --spark-line: var(--cat-2-text);
   --spark-band: color-mix(in srgb, var(--chart-muted) 55%, transparent);
   --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-sm: var(--elevation-1);
+  --shadow-md: var(--elevation-1);
   --overlay: rgba(0, 0, 0, 0.55);
 }
 
@@ -98,7 +101,7 @@
 :root {
   --font-display: var(--font-brand), var(--font-sans);
   --spark-line: var(--accent-500);
-  --spark-band: var(--surface-subtle, #F2F2F0);
+  --spark-band: var(--surface-subtle);
   --bottom-bar-h: 56px;
   --ask-w: 400px;
   --type-display: 28px; --lh-display: 36px;

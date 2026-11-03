@@ -3,7 +3,7 @@ import Link from "next/link";
 import * as D from "@/lib/demo/data";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { crumbs, lotNo, qualityEyebrow } from "@/components/quality/common";
 import { genealogyTraces } from "@/lib/demo/capabilityScreens";
 
@@ -23,7 +23,7 @@ export default function GenealogyPage() {
         meta="Forward and backward trace; recommend only."
         actions={
           <>
-            <Illustrative />
+            
             <AskButton context="Genealogy" label="Ask about genealogy" />
           </>
         }

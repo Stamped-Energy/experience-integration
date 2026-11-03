@@ -12,7 +12,7 @@ import { AskButton } from "@/components/shell/ShellClient";
 import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { RunChart, Sparkline } from "@/components/ui/charts";
-import { DataTable, EvidenceTag, Illustrative, KpiRow, LineModeTag, ModeTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, EvidenceTag, KpiRow, LineModeTag, ModeTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { PlantSectionMap, PlantTabs, crumbs, fmt, latest, openCards, readingsOf, tagsOf } from "@/components/plant/common";
 
 export default function LinePacks() {
@@ -38,7 +38,7 @@ export default function LinePacks() {
           </Section>
         </div>
         <div className="span-8 xl-span-6 stack">
-          <Section title={p.equipmentClass} actions={<Illustrative />}>
+          <Section title={p.equipmentClass}>
             <dl className="facts-grid">
               <dt>Run definition</dt><dd>{p.runDefinition}</dd>
               <dt>Model</dt><dd><Link className="link" href="/process/model-fit">{nameOf(p.modelId)}</Link></dd>

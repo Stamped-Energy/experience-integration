@@ -41,12 +41,19 @@ export interface Asset extends Illustrative {
   id: string; lineId: string; name: string;
   section: { x: number; y: number; w: number; h: number }; keyReadingTagId: string;
 }
-export interface Tag extends Illustrative { id: string; assetId: string; lineId: string; name: string; unit: string }
+/** `range` is where the tag's readings sit in normal running (low, high), in `unit`. */
+export interface Tag extends Illustrative { id: string; assetId: string; lineId: string; name: string; unit: string; range: [number, number] }
 export interface TagReading extends Illustrative { tagId: string; runId: string; at: string; value: number; qualityCode: QualityCode; label: EvidenceLabel }
 export interface LinePack extends Illustrative {
   id: string; equipmentClass: string; runDefinition: string; series: string[]; setpoints: string[];
   modelId: string; constraints: string[]; windowTemplate: string;
-  labels: { run: string; runs: string; unit: string; outcome: string }; linkThreshold: number;
+  /** `runShort` is the compact run noun for narrow rows; `outcome` is the outcome measure's name on a run. */
+  labels: { run: string; runs: string; runShort: string; unit: string; outcome: string }; linkThreshold: number;
+  outcomeUnit: string; spec: [number, number];
+  /** Whether the spec band is drawn on small trend charts (the spec is always stated in text). */
+  chartSpec: boolean;
+  /** The setpoint the Line view's recent writes follow. */
+  keySetpoint: string;
 }
 export interface Outcome { name: string; value: number; unit: string; label: EvidenceLabel }
 export interface Run extends Illustrative {

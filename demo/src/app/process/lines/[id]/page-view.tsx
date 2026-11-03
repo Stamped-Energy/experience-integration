@@ -70,7 +70,7 @@ export default function LineDetail() {
         <div className="grid">
           <div className="span-7 stack"><ControlStack lineId={line.id} /></div>
           <div className="span-5 stack">
-            {A.layerProposal.lineId === line.id ? <LayerProposal role={role} /> : <Section title="New control layers"><p className="secondary" style={{ margin: 0, fontSize: 13 }}>Nothing being simulated on {line.short} right now. The RL hold-time policy is learning in shadow and writes nothing.</p></Section>}
+            {A.layerProposal.lineId === line.id ? <LayerProposal role={role} /> : <Section title="New control layers"><p className="secondary" style={{ margin: 0, fontSize: 13 }}>Nothing being simulated on {line.short} right now.</p></Section>}
             <Section title="Tuned settings" meta="Where each one sits inside its signed limits" flush>
               <div className="stack-sm line-bands" style={{ padding: "var(--space-3) var(--space-4)" }}>
                 {settings.map((r) => { const w = wins.find((x) => x.param === r.param)!; return <LimitsBand key={r.param} name={r.name} unit={r.unit} signed={[w.low, w.high]} narrowed={w.narrowedLow !== undefined ? [w.narrowedLow, w.narrowedHigh!] : undefined} current={r.value} signedBy={w.signedBy} signedAt={dayMonth(w.signedAt)} legend={false} />; })}

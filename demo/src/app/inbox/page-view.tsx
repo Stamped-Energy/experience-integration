@@ -3,7 +3,7 @@
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import * as D from "@/lib/demo/data";
-import { demoRole } from "@/lib/role";
+import { useRole } from "@/lib/role.client";
 import { rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { EmptyState, PageHeader, Section, Tabs, Tag } from "@/components/ui/primitives";
@@ -22,21 +22,44 @@ const KIND: Record<string, string> = { proposal: "Proposal", "trial-signature": 
 
 export default function Inbox() {
   const sp = Object.fromEntries(useSearchParams().entries());
-  const role = demoRole();
+  const role = useRole();
   const tab = (TABS.some((t) => t.id === sp.tab) ? sp.tab : "waiting") as (typeof TABS)[number]["id"];
   const heading = TABS.find((t) => t.id === tab)!;
   const me = A.ME[role];
   const canAssign = A.ASSIGNERS.includes(role);
-  const tabs = <Tabs label="Inbox" items={TABS.map((t) => ({ href: `/inbox?tab=${t.id}`, label: t.label, count: t.id === "questions" ? qCount(role) : D.inboxItems.filter((i) => i.bucket === t.id).length, active: t.id === tab }))} />;
+  const tabs = (
+    <Tabs
+      label="Inbox"
+      items={TABS.map((t) => ({
+        href: `/inbox?tab=${t.id}`,
+        label: t.label,
+        count:
+          t.id === "questions"
+            ? qCount(role)
+            : D.inboxItems.filter((i) => i.bucket === t.id && i.owner === role).length,
+        active: t.id === tab,
+      }))}
+    />
+  );
   if (tab === "questions") return <Questions role={role} tabs={tabs} filter={sp.q} />;
-  const all = D.inboxItems.filter((i) => i.bucket === tab);
+  const bucket = D.inboxItems.filter((i) => i.bucket === tab);
+  const forRole = bucket.filter((i) => i.owner === role);
+  const all = tab === "waiting" ? forRole : bucket;
   const items = sp.mine ? all.filter((i) => me && A.assigned[i.id]?.to === me) : all;
   const mine = items.filter((i) => i.owner === role);
   const ordered = [...mine, ...items.filter((i) => i.owner !== role)];
   const [first, ...rest] = ordered;
   return (
     <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Inbox" }, { label: heading.label }]} askContext="Inbox">
-      <PageHeader eyebrow="Inbox" title={heading.label} meta={`${mine.length} of ${items.length} ${mine.length === 1 ? "is" : "are"} for the ${D.byId.role(role).name.toLowerCase()}. Each one names an owner, a due time and the proof.`} />
+      <PageHeader
+        eyebrow="Inbox"
+        title={heading.label}
+        meta={
+          tab === "waiting"
+            ? `${items.length} waiting for the ${D.byId.role(role).name.toLowerCase()}. Each one names a due time and the proof.`
+            : `${mine.length} of ${items.length} ${mine.length === 1 ? "is" : "are"} for the ${D.byId.role(role).name.toLowerCase()}. Each one names an owner, a due time and the proof.`
+        }
+      />
       {tabs}
       {me ? <div className="chips filter-row" role="group" aria-label="Filter"><Link className={`chip${sp.mine ? "" : " on"}`} href={`/inbox?tab=${tab}`} scroll={false}>Everything</Link><Link className={`chip${sp.mine ? " on" : ""}${all.filter((i) => A.assigned[i.id]?.to === me).length === 0 ? " chip-zero" : ""}`} href={`/inbox?tab=${tab}&mine=1`} scroll={false}>Assigned to me <span className="cnt">{all.filter((i) => A.assigned[i.id]?.to === me).length}</span></Link></div> : null}
       <div className="grid">

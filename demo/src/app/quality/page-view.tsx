@@ -1,7 +1,7 @@
 "use client";
 
 import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
-import { useParams, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { nameOf } from "@/lib/names";
@@ -15,9 +15,6 @@ import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { Confidence } from "@/components/ui/Confidence";
 import { DataTable, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
-import { AskedHere, Learned, Qualification, WorkingOn } from "@/components/agent/blocks";
-import * as A from "@/lib/demo/agent";
-import { Tabs } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { JoinTag, RiskTag, crumbs, gradeOf, labOf, linksOf, lotNo, proofForLot, propOf, qualityEyebrow, specOf, threshold, weakestJoin } from "@/components/quality/common";
 
@@ -37,25 +34,12 @@ export default function LotsAtRisk() {
   const sel = D.byId.lot(sp.lot ?? "") ?? sorted[0];
   const prop = propOf(sel), spec = specOf(sel), lab = labOf(sel), links = linksOf(sel);
   const proof = proofForLot(sel);
-  const agent = sp.tab === "agent";
   const atRisk = D.lots.filter((l) => l.riskWord === "At risk");
   return (
-    <Workspace crumbs={crumbs({ label: agent ? "Agent work" : "Lots at risk" })} askContext="Lots at risk">
-      <PageHeader eyebrow={qualityEyebrow("/quality")} title={agent ? "Agent work on quality" : "Lots at risk"} meta={agent ? "What the agent is doing, and what it needs from you." : "Lots that may miss spec, with how sure the join and band are."}
+    <Workspace crumbs={crumbs({ label: "Lots at risk" })} askContext="Lots at risk">
+      <PageHeader eyebrow={qualityEyebrow("/quality")} title="Lots at risk" meta="Lots that may miss spec, with how sure the join and band are."
         actions={<><Link className="btn btn-sm" href="/quality/links">{D.lotLinks.filter((l) => l.status === "suggested" && l.link_confidence < 0.8).length} links to confirm</Link><AskButton context="Lots at risk" label="Ask about lots" /></>} />
       <QualityHubTabs />
-      {agent ? (
-        <div className="grid">
-          <div className="span-8 stack">
-                        <WorkingOn items={A.qualityWork} />
-            <Qualification />
-          </div>
-          <div className="span-4 stack">
-            <AskedHere list={A.questions.filter((q) => A.QUALITY_Q.includes(q.type))} />
-            <Section title="What it learned" flush><Learned items={A.qualityLearned} /></Section>
-          </div>
-        </div>
-      ) : (<>
       <NoReleaseLine />
       <div className="grid">
         <div className="span-8 stack">
@@ -114,7 +98,6 @@ export default function LotsAtRisk() {
           </Section>
         </div>
       </div>
-      </>)}
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref={sp.lot ? `/quality?lot=${sp.lot}` : "/quality"} /> : null}
     </Workspace>
   );

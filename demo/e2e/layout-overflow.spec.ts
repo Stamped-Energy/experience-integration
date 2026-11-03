@@ -14,13 +14,16 @@ async function wrappedLabels(page: Page, selector: string) {
     for (const el of document.querySelectorAll(sel)) {
       const style = getComputedStyle(el);
       if (style.display === "none" || style.visibility === "hidden") continue;
+      // nowrap pills and buttons are single-line by CSS; padding makes scrollHeight/lineHeight look multi-line
+      if (style.whiteSpace === "nowrap" || style.whiteSpace === "pre") continue;
       const rect = el.getBoundingClientRect();
       if (rect.width < 1 || rect.height < 1) continue;
-      const lh = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.2 || 16;
       const sh = el.scrollHeight;
-      const lines = sh / lh;
-      if (lines > 1.45) {
-        bad.push({ selector: sel, text: (el.textContent ?? "").trim().slice(0, 48), sh, ch: el.clientHeight });
+      const ch = el.clientHeight;
+      if (sh <= ch + 1) continue;
+      const lh = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.2 || 16;
+      if (sh / lh > 1.45) {
+        bad.push({ selector: sel, text: (el.textContent ?? "").trim().slice(0, 48), sh, ch });
       }
     }
     return bad;

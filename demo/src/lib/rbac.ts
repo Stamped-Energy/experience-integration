@@ -41,9 +41,9 @@ export function grant(role: RoleId, action: ActionId): Grant {
   return permissions.find((p) => p.role === role && p.action === action)?.value ?? "hidden";
 }
 
-/** Scope check. In the showcase operators are scoped to Line A; everyone else to the site. */
+/** Scope check. In the showcase operators are scoped to the lines; everyone else to the site. */
 export const ROLE_SCOPE: Record<RoleId, string[]> = {
-  operator: ["line-a", "line-b"], // showcase lens: one operator view covers both demo lines
+  operator: ["line-a", "line-b", "line-c", "line-d", "line-e"], // showcase lens: one operator view covers all five demo lines
   "shift-lead": ["site-demo"], "process-engineer": ["site-demo"], "quality-head": ["site-demo"], "plant-head": ["site-demo"],
   owner: ["site-demo"], "stamped-engineer": ["site-demo"], viewer: ["site-demo"],
 };

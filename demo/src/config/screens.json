@@ -8,6 +8,8 @@
           "actions": true,
           "lines": true,
           "performance": true,
+          "oee": true,
+          "smed": true,
           "reports": true,
           "setup": true,
           "engineering": true

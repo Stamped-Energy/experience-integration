@@ -1,7 +1,7 @@
 import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import { supplierScores } from "@/lib/demo/capabilityScreens";
 import { supplierPpmVerdict } from "@/lib/demo/verdicts";
@@ -17,7 +17,7 @@ export default function SuppliersPage() {
         meta="Defect ppm vs a 1,000 ppm target, plus SCAR drafts. Recommend only."
         actions={
           <>
-            <Illustrative />
+            
             <AskButton context="Suppliers" label="Ask about suppliers" />
           </>
         }

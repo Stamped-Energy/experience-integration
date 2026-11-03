@@ -67,12 +67,12 @@
 .rbac th:first-child, .rbac td:first-child { text-align: left; }
 .rbac thead th { font-weight: 500; color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; vertical-align: bottom; }
 .rbac td button { border: 1px solid transparent; background: none; padding: 2px 6px; border-radius: var(--radius-sm); font: inherit; font-size: 11px; cursor: pointer; min-width: 52px; }
-.rbac td button.allow { background: var(--success-tint, #E7F5EC); color: var(--success-text, #1F6B3B); }
+.rbac td button.allow { background: var(--success-tint); color: var(--success-text); }
 .rbac td button.view { border-color: var(--border); color: var(--text-secondary); }
 .rbac td button.hidden { color: var(--text-tertiary, var(--text-secondary)); opacity: .55; }
 .rbac td button:disabled { cursor: default; }
 .rbac td button.changed { outline: 2px dashed var(--accent-500); outline-offset: 1px; }
-.rbac tr.signing td:first-child::after { content: "set per plant"; margin-left: 6px; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--accent-700); }
+.rbac tr.signing td:first-child::after { content: "set per plant"; margin-left: 6px; font-size: var(--type-label); text-transform: uppercase; letter-spacing: .04em; color: var(--accent-700); }
 .amatrix { width: 100%; border-collapse: collapse; font-size: 12px; }
 .amatrix th, .amatrix td { border-bottom: 1px solid var(--border); padding: 6px; text-align: center; }
 .amatrix th:first-child, .amatrix td:first-child { text-align: left; }

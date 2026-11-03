@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
 import { EngineeringGuard } from "@/components/shell/EngineeringGuard";
-import { Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import { FATIGUE_GUARD_STATUS, SECOM_ALARM_TUNE, SECOM_WATCH_TIER } from "@/lib/data/evidence/secomAlarmTune";
 
@@ -39,7 +39,7 @@ export default function MonitorPage() {
         meta="Alarm rules, false-alarm budget and fatigue guard for SPC monitors."
         actions={
           <>
-            <Illustrative />
+            
             <AskButton context="Quality monitor tuning" label="Ask about monitor tuning" />
           </>
         }
