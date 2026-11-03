@@ -24,6 +24,11 @@ export type SpcControlChartProps = {
   cp?: number;
   cpk?: number;
   height?: number;
+  /** Fixed y-axis for spec charts (shows LSL band and headroom). */
+  yMin?: number;
+  yMax?: number;
+  /** When set, only these spec lines are drawn (no CL/UCL/LCL). */
+  specLinesOnly?: boolean;
 };
 
 export function SpcControlChart({
@@ -42,6 +47,9 @@ export function SpcControlChart({
   cp,
   cpk,
   height = 220,
+  yMin,
+  yMax,
+  specLinesOnly = false,
 }: SpcControlChartProps) {
   const host = useRef<HTMLDivElement>(null);
 
@@ -56,21 +64,35 @@ export function SpcControlChart({
       lsl != null && usl != null
         ? [
             {
-              itemStyle: { color: "rgba(220, 38, 38, 0.08)" },
+              itemStyle: { color: "rgba(34, 197, 94, 0.14)" },
               data: [[{ yAxis: lsl }, { yAxis: usl }]],
             },
           ]
         : undefined;
+    const lineEnd = { position: "end" as const, formatter: "{b}", color: "#475569", fontSize: 11 };
     const markLine = {
       symbol: "none",
-      data: [
-        { yAxis: cl, name: "CL", lineStyle: { color: "#64748b", type: "solid" } },
-        { yAxis: ucl, name: "UCL", lineStyle: { color: "#C27803", type: "dashed" } },
-        { yAxis: lcl, name: "LCL", lineStyle: { color: "#C27803", type: "dashed" } },
-        ...(usl != null ? [{ yAxis: usl, name: "USL", lineStyle: { color: "#DC2626", type: "solid", width: 1.5 } }] : []),
-        ...(lsl != null ? [{ yAxis: lsl, name: "LSL", lineStyle: { color: "#DC2626", type: "solid", width: 1.5 } }] : []),
-        ...(targetY != null ? [{ yAxis: targetY, name: "Target", lineStyle: { color: "#64748b", type: "dashed" } }] : []),
-      ],
+      label: lineEnd,
+      data: specLinesOnly
+        ? [
+            ...(lsl != null
+              ? [{ yAxis: lsl, name: `LSL ${lsl}`, lineStyle: { color: "#DC2626", type: "solid", width: 2 } }]
+              : []),
+            ...(usl != null
+              ? [{ yAxis: usl, name: `USL ${usl}`, lineStyle: { color: "#DC2626", type: "solid", width: 2 } }]
+              : []),
+            ...(targetY != null
+              ? [{ yAxis: targetY, name: `Target ${targetY}`, lineStyle: { color: "#64748b", type: "dashed", width: 2 } }]
+              : []),
+          ]
+        : [
+            { yAxis: cl, name: "CL", lineStyle: { color: "#64748b", type: "solid" } },
+            { yAxis: ucl, name: "UCL", lineStyle: { color: "#C27803", type: "dashed" } },
+            { yAxis: lcl, name: "LCL", lineStyle: { color: "#C27803", type: "dashed" } },
+            ...(usl != null ? [{ yAxis: usl, name: "USL", lineStyle: { color: "#DC2626", type: "solid", width: 1.5 } }] : []),
+            ...(lsl != null ? [{ yAxis: lsl, name: "LSL", lineStyle: { color: "#DC2626", type: "solid", width: 1.5 } }] : []),
+            ...(targetY != null ? [{ yAxis: targetY, name: "Target", lineStyle: { color: "#64748b", type: "dashed" } }] : []),
+          ],
     };
     const series: Array<Record<string, unknown>> = [
       {
@@ -108,15 +130,15 @@ export function SpcControlChart({
     }
     chart.setOption({
       aria: { enabled: true, decal: { show: false } },
-      grid: { left: 48, right: secondary ? 48 : 24, top: 36, bottom: 32 },
+      grid: { left: 48, right: secondary ? 48 : 72, top: 36, bottom: 32 },
       tooltip: { trigger: "axis" },
       xAxis: { type: "category", data: x, boundaryGap: false },
       yAxis: secondary
         ? [
-            { type: "value", scale: true, name: yName },
+            { type: "value", scale: yMin == null && yMax == null, min: yMin, max: yMax, name: yName },
             { type: "value", scale: true, name: secondary.label },
           ]
-        : { type: "value", scale: true, name: yName },
+        : { type: "value", scale: yMin == null && yMax == null, min: yMin, max: yMax, name: yName },
       series: series as echarts.EChartsCoreOption["series"],
     });
     const ro = new ResizeObserver(() => chart.resize());
@@ -125,7 +147,7 @@ export function SpcControlChart({
       ro.disconnect();
       chart.dispose();
     };
-  }, [primary, secondary, cl, ucl, lcl, usl, lsl, targetY, unit, chartKind]);
+  }, [primary, secondary, cl, ucl, lcl, usl, lsl, targetY, unit, chartKind, yMin, yMax, specLinesOnly]);
 
   return (
     <div className="spc-chart-card">

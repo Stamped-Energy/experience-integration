@@ -20,6 +20,9 @@ export interface ActionDetailExtra {
     targetY?: number;
     unit?: string;
     cpk?: number;
+    yMin?: number;
+    yMax?: number;
+    specLinesOnly?: boolean;
   };
   linkedLots?: string[];
   linkedRuns?: string[];
@@ -110,6 +113,9 @@ export const ACTION_DETAIL: Record<string, ActionDetailExtra> = {
       targetY: 48.0,
       unit: "g",
       cpk: 1.05,
+      yMin: 47.3,
+      yMax: 49.0,
+      specLinesOnly: true,
     },
     similarCases: [{ title: "Lot 7711 light parts investigation", href: "/quality/investigations/inv-2", band: "hold pressure correction held" }],
     steps: ["Set aside the last 2 hours of cavity 2 parts.", "Weigh 32 parts before the lot is packed.", "Record the decision in Activity; Stamped keeps watching cavity 2."],

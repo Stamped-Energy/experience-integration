@@ -17,11 +17,13 @@ export function ActionOutcomeLine({ outcome, size = "card" }: { outcome: ActionO
     <p className={`ex-outcome ex-outcome--${size}`}>
       <span className="ex-outcome-metric">{metric}</span>{" "}
       <span className="num tabular ex-outcome-now">{now}</span>
-      <span className="ex-outcome-arrow" aria-hidden>
-        {" "}
-        →{" "}
+      <span className="ex-outcome-arrow-target">
+        <span className="ex-outcome-arrow" aria-hidden>
+          {" "}
+          →{" "}
+        </span>
+        <span className="ex-outcome-after num tabular">{target}</span>
       </span>
-      <span className="ex-outcome-after num tabular">{target}</span>
       <span className="ex-outcome-tag">
         <Tag tone="neutral">{TAG[outcome.label]}</Tag>
       </span>

@@ -2,12 +2,41 @@
 /** Assign a card to a person. Shift lead, process engineer, quality head and plant head can assign; others see the chip only. */
 import { useState } from "react";
 
-export function Assign({ initial, people, canAssign, by }: { initial?: { to: string; by: string }; people: string[]; canAssign: boolean; by: string }) {
+export function Assign({
+  initial,
+  people,
+  canAssign,
+  by,
+  buttonOnly,
+}: {
+  initial?: { to: string; by: string };
+  people: string[];
+  canAssign: boolean;
+  by: string;
+  /** Action bar: Reassign control only (assignee shown elsewhere). */
+  buttonOnly?: boolean;
+}) {
   const [a, setA] = useState(initial);
   const [open, setOpen] = useState(false);
+  if (buttonOnly && !canAssign) return null;
   return (
     <span className="assign">
-      {a ? <span className="assignee" title={`Assigned by ${a.by}`}><span className="av">{a.to.split(" ").map((w) => w[0]).join("").slice(0, 2)}</span>{a.to}</span> : <span className="muted">Unassigned</span>}
+      {!buttonOnly ? (
+        a ? (
+          <span className="assignee" title={`Assigned by ${a.by}`}>
+            <span className="av">
+              {a.to
+                .split(" ")
+                .map((w) => w[0])
+                .join("")
+                .slice(0, 2)}
+            </span>
+            {a.to}
+          </span>
+        ) : (
+          <span className="muted">Unassigned</span>
+        )
+      ) : null}
       {canAssign ? (
         <span className="assign-pop">
           <button type="button" className="btn btn-sm btn-quiet" aria-expanded={open} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen((o) => !o); }}>{a ? "Reassign" : "Assign"}</button>

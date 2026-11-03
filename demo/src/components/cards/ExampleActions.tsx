@@ -98,6 +98,7 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
         <Link className={`btn btn-sm ex-open ${stretchOver}`} href={href} scroll={false}>
           Open
         </Link>
+        <FoldCardChevron className="ex-sum-chev" />
       </span>
     </span>
   );

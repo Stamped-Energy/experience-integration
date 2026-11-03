@@ -119,6 +119,7 @@
 @media (min-width: 768px) {
   .ex-card[data-open="false"] .ex-body { display: block; }
   .ex-card .ex-fold { display: none; }
+  .ex-card .ex-fold-row { display: none; }
 }
 .stack > .working { margin-bottom: 0; }
 .chip .cnt { background: none !important; color: inherit !important; border: 0 !important; padding: 0 !important; }
@@ -173,6 +174,7 @@
 .ex-outcome-metric { color: var(--text-primary); font-weight: 600; }
 .ex-outcome-now { color: var(--text-primary); font-weight: 600; }
 .ex-outcome-after { color: #e85d4c; font-weight: 600; }
+.ex-outcome-arrow-target { white-space: nowrap; }
 .ex-outcome-tag { flex: none; font-size: 10px; letter-spacing: 0.04em; transform: translateY(-1px); }
 .ex-outcome-tag .tag { font-size: 10px; padding: 1px 6px; }
 .ex-card[data-open="true"] .ex-fold-row { display: none; }

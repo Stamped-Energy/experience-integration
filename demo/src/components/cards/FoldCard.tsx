@@ -66,7 +66,6 @@ export function FoldCard({
               {summary}
             </button>
           )}
-          {!open ? <FoldCardChevron /> : null}
         </div>
         <div className="ex-body" id={id}>
           {children}

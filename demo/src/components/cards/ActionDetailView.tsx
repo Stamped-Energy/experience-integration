@@ -24,7 +24,6 @@ import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { SpcControlChart } from "@/components/view/spc-control-chart";
-import { Assign } from "@/components/agent/Assign";
 import * as A from "@/lib/demo/agent";
 import { crumbs as processCrumbs, processEyebrow, runLabel } from "@/components/process/common";
 import { crumbs as qualityCrumbs, lotNo, qualityEyebrow } from "@/components/quality/common";
@@ -67,14 +66,6 @@ function detailBarActions(a: ExampleAction, role: RoleId) {
       ),
     });
   }
-  acts.push({
-    id: "reassign",
-    label: "Reassign",
-    primary: false as const,
-    allowed: A.ASSIGNERS.includes(role),
-    reason: "Shift lead, process engineer, quality head or plant head can assign.",
-    done: "Use Approval to assign or reassign this action.",
-  });
   return acts;
 }
 
@@ -131,7 +122,17 @@ export function ActionDetailView({ id }: { id: string }) {
       </div>
       {!c && (barActions.length || stop) ? (
         <div className="action-detail-bar">
-          <CardActions large actions={barActions} stop={stop} />
+          <CardActions
+            large
+            actions={barActions}
+            stop={stop}
+            assignBar={{
+              initial: A.assigned[a.id],
+              people: A.PEOPLE,
+              canAssign: A.ASSIGNERS.includes(role),
+              by: A.ME[role] ?? "Plant head A.",
+            }}
+          />
         </div>
       ) : null}
       <div className="grid action-detail-grid">
@@ -190,7 +191,20 @@ export function ActionDetailView({ id }: { id: string }) {
               ) : null}
             </dl>
             <div className="ex-meta action-detail-assign" style={{ marginTop: 12 }}>
-              <Assign initial={A.assigned[a.id]} people={A.PEOPLE} canAssign={A.ASSIGNERS.includes(role)} by={A.ME[role] ?? "Plant head A."} />
+              {A.assigned[a.id] ? (
+                <span className="assignee" title={`Assigned by ${A.assigned[a.id]!.by}`}>
+                  <span className="av">
+                    {A.assigned[a.id]!.to
+                      .split(" ")
+                      .map((w) => w[0])
+                      .join("")
+                      .slice(0, 2)}
+                  </span>
+                  {A.assigned[a.id]!.to}
+                </span>
+              ) : (
+                <span className="muted">Unassigned</span>
+              )}
             </div>
           </Section>
           {(detail.linkedLots?.length || detail.linkedRuns?.length) ? (

@@ -87,7 +87,7 @@ export const exampleActions: T.ExampleAction[] = [
     why: "A light part found before packing is a few minutes of weighing. Found by the customer, it is a returned lot.",
     href: "/quality/lots/lot-b-7713", hrefLabel: "Open lot 7713" },
   { ...I, id: "ex-q2", area: "Quality", lineId: "line-a", steps: ["Detect"], mechanism: "The lab result, before the lab",
-    outcome: { metric: "Viscosity, lot 3307", before: "2580 to 2660 mPa·s", after: "2540 to 2630 mPa·s", label: "Modelled" },
+    outcome: { metric: "Viscosity", before: "2580–2660", after: "2540–2630 mPa·s", label: "Modelled" },
     title: "Lot 3307 viscosity is heading for the upper limit: sample it early",
     seen: "Stamped estimates lot 3307 from its linked batches, torque and temperature. The band sits across the upper spec limit of 2600 mPa·s.",
     evidence: [{ text: "Viscosity band 2540 to 2630 mPa·s", label: "Modelled" }, { text: "End-of-hold torque on linked batches 2416 and 2417", label: "Measured", id: "EV-A-1188" }],
@@ -188,7 +188,7 @@ export function whoDecidesShort(how: T.ExampleAction["who"]["how"]) {
 export function outcomePhrase(o: T.ActionOutcome) {
   const now = /\bnow\b/i.test(o.before) ? o.before.trim() : `${o.before.trim()} now`;
   let target = o.after.trim().replace(/\s*target\s+band\b/i, " target").replace(/\s*,?\s*band\s+.*/i, "").trim();
-  if (!/\btarget\b/i.test(target)) target = `${target} target`;
+  if (!/\btarget\b/i.test(target) && !/mPa·s$/i.test(target)) target = `${target} target`;
   return { metric: o.metric, now, target };
 }
 
