@@ -2,22 +2,19 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  applyPitchPreset,
   baseFlags,
   defaultSiteId,
   effectiveFlags,
+  flagLabel,
+  orderedFlagIds,
   readOverrides,
   siteIds,
   siteLabel,
   writeOverrides,
   type ScreenFlagModule,
 } from "@/lib/demo/screenFlags";
-import { PROCESS_HUBS, QUALITY_HUBS } from "@/lib/module/hubs";
 import { Section, Tag } from "@/components/ui/primitives";
-
-const hubs: Record<ScreenFlagModule, typeof PROCESS_HUBS> = {
-  process: PROCESS_HUBS,
-  quality: QUALITY_HUBS,
-};
 
 export function ScreenTogglePanel() {
   const [siteId, setSiteId] = useState(defaultSiteId());
@@ -43,6 +40,11 @@ export function ScreenTogglePanel() {
     bump();
   };
 
+  const applyPitch = () => {
+    applyPitchPreset(siteId);
+    bump();
+  };
+
   return (
     <>
       <Section title="Site" meta="Which plant configuration to edit">
@@ -58,29 +60,37 @@ export function ScreenTogglePanel() {
             </select>
           </label>
           <Tag tone="neutral">{siteLabel(siteId)}</Tag>
+          <button type="button" className="btn btn-sm btn-accent" onClick={applyPitch}>
+            Pitch
+          </button>
+          <span className="muted" style={{ fontSize: 13 }}>
+            Hides OEE, changeovers and Engineering. Keeps cycle time and tool life.
+          </span>
         </div>
       </Section>
       {(["process", "quality"] as ScreenFlagModule[]).map((module) => {
         const flags = effectiveFlags(siteId, module);
+        const ids = orderedFlagIds(module);
         return (
           <Section key={module} title={module === "process" ? "Process screens" : "Quality screens"} flush>
             <ul className="rows switch-rows" style={{ margin: 0 }}>
-              {hubs[module].map((hub) => {
-                const on = flags[hub.id] !== false;
-                const overridden = hub.id in overrides;
+              {ids.map((id) => {
+                const on = flags[id] !== false;
+                const overridden = id in overrides;
+                const label = flagLabel(module, id);
                 return (
-                  <li key={hub.id} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto auto" }}>
+                  <li key={id} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto auto" }}>
                     <span>
-                      <span className="row-title">{hub.sidebarLabel}</span>
-                      <span className="row-sub">{hub.sidebarHref}</span>
+                      <span className="row-title">{label}</span>
+                      <span className="row-sub">{id}</span>
                     </span>
                     {overridden ? <Tag tone="warning">Override</Tag> : <Tag tone="neutral">Config</Tag>}
                     <label className="switch-row">
                       <input
                         type="checkbox"
                         checked={on}
-                        aria-label={`${hub.sidebarLabel} enabled`}
-                        onChange={(e) => toggle(module, hub.id, e.target.checked)}
+                        aria-label={`${label} enabled`}
+                        onChange={(e) => toggle(module, id, e.target.checked)}
                       />
                       <span>{on ? "On" : "Off"}</span>
                     </label>

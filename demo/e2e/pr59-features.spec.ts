@@ -52,6 +52,31 @@ test.describe("PR-59 feature gates", () => {
     await reportsToggle.check();
   });
 
+  test("pitch preset hides OEE, SMED and Engineering and keeps cycle time", async ({ page }) => {
+    await page.goto("/settings/screens");
+    await page.waitForLoadState("networkidle");
+    await page.getByRole("button", { name: "Pitch", exact: true }).click();
+    await page.goto("/process/oee");
+    await page.waitForURL("**/process/proposals**");
+    await page.goto("/process/smed");
+    await page.waitForURL("**/process/proposals**");
+    await page.goto("/process/analytics");
+    await page.waitForLoadState("networkidle");
+    const perfTabs = page.getByRole("navigation", { name: /Process · Performance/i });
+    await expect(perfTabs.getByRole("link", { name: "Cycle time" })).toBeVisible();
+    await expect(perfTabs.getByRole("link", { name: "Tool life" })).toBeVisible();
+    await expect(perfTabs.getByRole("link", { name: "OEE" })).toHaveCount(0);
+    await expect(perfTabs.getByRole("link", { name: "Changeovers" })).toHaveCount(0);
+    await page.locator(".role-switch select").selectOption("stamped-engineer");
+    await page.goto("/process/analytics");
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("navigation", { name: "Product" }).getByRole("link", { name: /^Engineering/ })).toHaveCount(0);
+    await page.goto("/settings/screens");
+    await page.getByRole("checkbox", { name: /OEE enabled/i }).check();
+    await page.getByRole("checkbox", { name: /Changeovers \(SMED\) enabled/i }).check();
+    await page.getByRole("checkbox", { name: /Engineering enabled/i }).first().check();
+  });
+
   test("loop dashboard gauge is a single value arc", async ({ page }) => {
     await page.goto("/process/proposals");
     await page.waitForLoadState("networkidle");
