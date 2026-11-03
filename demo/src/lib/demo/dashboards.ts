@@ -69,12 +69,12 @@ function series12h(
 }
 
 export const DEMO_LOOP_HEALTH: LoopHealthRow[] = [
-  { id: "hold", label: "Press hold pressure", line: "Press line B", health: 72, tone: "var(--warning)" },
-  { id: "zone2", label: "Furnace zone 2 soak", line: "HT furnace", health: 58, tone: "var(--warning)" },
-  { id: "barrel", label: "Barrel zone 1", line: "Press line B", health: 91, tone: "var(--success)" },
-  { id: "quench", label: "Quench oil temperature", line: "HT line", health: 84, tone: "var(--success)" },
+  { id: "hold", label: "Press hold pressure", line: "Moulding, Press P3", health: 72, tone: "var(--warning)" },
+  { id: "zone2", label: "Furnace zone 2 soak", line: "Heat treatment, furnace F1", health: 58, tone: "var(--warning)" },
+  { id: "barrel", label: "Barrel zone 1", line: "Moulding, Press P3", health: 91, tone: "var(--success)" },
+  { id: "quench", label: "Quench oil temperature", line: "Heat treatment, tank Q1", health: 84, tone: "var(--success)" },
   { id: "air", label: "Plant air header", line: "Utilities", health: 77, tone: "var(--success)" },
-  { id: "induction", label: "Induction power", line: "Press line B", health: 66, tone: "var(--warning)" },
+  { id: "induction", label: "Coil power, heater H1", line: "Forge line", health: 66, tone: "var(--warning)" },
 ];
 
 export const DEMO_PV_TRENDS: {
@@ -86,30 +86,30 @@ export const DEMO_PV_TRENDS: {
 }[] = [
   {
     id: "hold",
-    title: "Hold pressure · sticky valve",
+    title: "Hold pressure · sticky valve, Press P3",
     caption: "PV hunts around SP while the valve sticks on cavity 2. Demonstration series.",
-    series: series12h("sticky", 605, 2),
+    series: series12h("sticky", 720, 2),
     units: { pv: "bar", sp: "bar", op: "%" },
   },
   {
     id: "furnace",
-    title: "Zone 2 soak · aggressive tuning",
+    title: "Furnace F1 zone 2 soak · aggressive tuning",
     caption: "High-gain controller: dense oscillation around the soak setpoint. Demonstration series.",
-    series: series12h("aggressive", 900, 5),
+    series: series12h("aggressive", 860, 5),
     units: { pv: "°C", sp: "°C", op: "%" },
   },
   {
     id: "quench",
     title: "Quench oil · slow sensor drift",
-    caption: "Oil temperature drifts off SP while cooling water ΔT rises. Demonstration series.",
-    series: series12h("drift", 61, 8),
+    caption: "Oil temperature drifts off SP as baskets run back to back and the cooler ΔT narrows. Demonstration series.",
+    series: series12h("drift", 66, 8),
     units: { pv: "°C", sp: "°C", op: "%" },
   },
   {
     id: "induction",
-    title: "Induction power · healthy loop",
-    caption: "Power follows line-speed steps cleanly after billet gaps. Demonstration series.",
-    series: series12h("healthy", 640, 11),
+    title: "Heater H1 coil power · healthy loop",
+    caption: "Power follows pusher-rate steps cleanly after billet gaps. Demonstration series.",
+    series: series12h("healthy", 470, 11),
     units: { pv: "kW", sp: "kW", op: "%" },
   },
 ];

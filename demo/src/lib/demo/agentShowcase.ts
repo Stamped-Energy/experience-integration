@@ -4,6 +4,7 @@
  * No campaign ids, loop chips, or ADR codes in visible copy.
  */
 import type { EvidenceLabel } from "./types";
+import { DEMO_NOW } from "./data";
 import { learned, qualityLearned, qualityWork, questions, workingOn } from "./agent";
 
 export type AgentArea = "process" | "quality";
@@ -65,17 +66,27 @@ const WHO: Record<string, string> = {
   "plant-head": "Plant head",
 };
 
+/** Relative age against the fixed demo clock, so the label never depends on the viewer's time of day. */
 function ageFromAsked(askedAt: string): string {
-  // askedAt is an ISO-like demo timestamp; show a short relative label from the fixture text pattern
-  if (askedAt.includes("T")) {
-    const h = askedAt.slice(11, 13);
-    if (h) return `${Number(h) || 1} h ago`;
-  }
-  return "Earlier today";
+  const minutes = Math.round((Date.parse(DEMO_NOW) - Date.parse(askedAt)) / 60_000);
+  if (Number.isNaN(minutes) || minutes < 0) return "Earlier today";
+  if (minutes < 60) return `${Math.max(minutes, 1)} min ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours} h ago`;
+  return `${Math.round(hours / 24)} d ago`;
+}
+
+/** Engineering links (twin, optimisation loops) are swapped for plant-facing pages that exist in the same area. */
+function visitorHref(w: { status: AgentNowStatus; href: string }, area: AgentArea): string {
+  const isEngineeringLink = w.href.startsWith("/quality/simulations") || w.href.includes("optimisation") || w.href.includes("loop=");
+  if (!isEngineeringLink) return w.href;
+  if (w.status === "Onboarding") return "/process/lines/line-b?tab=agent";
+  return area === "quality" ? "/quality/investigations" : "/process/proposals";
 }
 
 function nowFromWork(
   items: { id: string; status: AgentNowStatus; lineId: string; title: string; step: string; waits?: string; href: string }[],
+  area: AgentArea,
 ): AgentNowItem[] {
   return items
     .filter((w) => w.status !== "Waiting on you")
@@ -86,13 +97,7 @@ function nowFromWork(
       lineId: w.lineId,
       title: w.title,
       nextStep: w.waits ? `${w.step} · waits on ${w.waits}` : w.step,
-      href: w.href.startsWith("/quality/simulations") || w.href.includes("optimisation") || w.href.includes("loop=")
-        ? w.status === "Onboarding"
-          ? "/process/lines/line-b?tab=agent"
-          : w.lineId === "line-a"
-            ? "/quality/investigations"
-            : "/process/proposals"
-        : w.href,
+      href: visitorHref(w, area),
     }));
 }
 
@@ -115,11 +120,11 @@ function waitingFromQuestions(area: AgentArea): AgentWaitingItem[] {
 const PROCESS_TRIED: AgentTriedStory[] = [
   {
     id: "try-p1",
-    compared: "Three hold-pressure bands on Press P3 against scrap and cycle time",
-    picked: "720 bar hold for the current resin lot",
-    expectedBand: "0.4 to 0.8 pp less scrap",
+    compared: "Three billet exit targets on heater H1 against overheating scrap and heats per 100 parts",
+    picked: "1205 °C on alternate shift runs, inside the signed trial",
+    expectedBand: "overheating scrap 0.7 to 1.1%",
     evidenceLabel: "Modelled",
-    openHref: "/process/proposals",
+    openHref: "/process/trials/trial-1",
     engineeringHref: "/process/optimisation",
   },
   {
@@ -133,11 +138,11 @@ const PROCESS_TRIED: AgentTriedStory[] = [
   },
   {
     id: "try-p3",
-    compared: "Jacket path during heat-up with and without a supervisory layer",
-    picked: "Keep today's path; bring the layer to a signed trial later",
-    expectedBand: "Energy per batch unchanged this week",
+    compared: "Full melt power against a holding level while mould line ML1 is stopped",
+    picked: "Holding level, back to full power ahead of the next pour",
+    expectedBand: "melt energy per tonne 574 kWh",
     evidenceLabel: "Modelled",
-    openHref: "/process/proposals",
+    openHref: "/process/actions/ex-p4",
     engineeringHref: "/process/optimisation",
   },
 ];
@@ -145,24 +150,24 @@ const PROCESS_TRIED: AgentTriedStory[] = [
 const QUALITY_TRIED: AgentTriedStory[] = [
   {
     id: "try-q1",
-    compared: "Borrowed part-weight band for Housing B-52 against 120 held-back parts",
-    picked: "Keep the wide band until six mid-run lab results land",
-    expectedBand: "Watch risk until the quality head approves",
+    compared: "Holding the next basket against cooling the oil to 67 °C on quench tank Q1",
+    picked: "Hold the next basket until the oil is under 72 °C; a person decides",
+    expectedBand: "baskets in spec 97%",
     evidenceLabel: "Estimated",
-    openHref: "/quality/lots",
+    openHref: "/quality/actions/ex-q1",
     engineeringHref: "/quality/simulations",
   },
   {
     id: "try-q2",
-    compared: "End-of-hold torque vs resin lot as the lead for lot 3307 drift",
-    picked: "Sample early when torque rises; leave discharge timing alone",
-    expectedBand: "Catch the lot before discharge",
+    compared: "Billet exit temperature against bar heat as the lead for lot 3307 decarb drift",
+    picked: "Cut a decarb section early when coil power rises; leave inspection timing alone",
+    expectedBand: "Catch the lot before it leaves the line",
     evidenceLabel: "Measured",
     openHref: "/quality/investigations",
   },
   {
     id: "try-q3",
-    compared: "Lab viscosity for lot 3304 against its shorter batch hold",
+    compared: "Lab decarb depth for lot 3304 against its hotter shift run",
     picked: "Waiting on which record to trust before redrawing the band",
     expectedBand: "Lots 3307 and 3308 stay Estimated",
     evidenceLabel: "Assumed",
@@ -207,7 +212,7 @@ export function agentShowcase(area: AgentArea): AgentShowcaseBundle {
 
   return {
     area,
-    now: nowFromWork(nowSource),
+    now: nowFromWork(nowSource, area),
     waiting,
     tried: (area === "quality" ? QUALITY_TRIED : PROCESS_TRIED).slice(0, CAP_TRIED),
     learned: learnedLines(area),

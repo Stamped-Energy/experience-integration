@@ -769,7 +769,8 @@ askThreads.push(
      { text: "Two proposals are waiting: hold pressure on Press P3 and melt temperature for the new resin lot.", evidenceIds: ["EV-B-2190"], label: "Measured" }],
     { label: "Measured", band: "scrap 3.0 to 4.2% over the last 40 shift runs" }, ["prop-101", "prop-103", "line-b"], 0),
 );
-export const suggestedQuestions: string[] = ["What changed on Moulding this shift?", "Which lots are at risk today?", "Is the billet temperature trial on track?", "What is waiting for my decision?"];
+/** Ask panel chips (the panel shows the first three). Each must be a key of SUGGESTED in askRich.ts; tests/ask-copy.test.ts checks that. */
+export const suggestedQuestions: string[] = ["Why are cold billets rising after stops?", "Is quench oil holding hardness in spec?", "Should we hold the next moulds from heat 8836?", "Which lots are at risk today?"];
 export const savedAnswers: T.SavedAnswer[] = [
   { ...I, id: "sa-ans-1", threadId: "ask-2", title: "Tool T3 cycle change, value", savedBy: "Owner A.", at: at(-1), lineId: "line-b", topic: "Process",
     summary: "Parts per shift rose 2.6% after the cycle change; the value at the plant's prices is on the owner's Home.", confidence: { label: "Measured", band: "1.9 to 3.3% parts per shift" }, refs: ["proof-3", "val-1", "prop-105"] },

@@ -30,20 +30,20 @@ export const questions: Question[] = [
     answers: [{ id: "done", label: "Done", then: "I record the 50 shots, refit the borrowed model and plan move 3." }, { id: "skip", label: "Skipped, with a reason", then: "I log the reason and move the test to the next B-52 order." }],
     photo: "Photo of the setting screen (optional)" },
   { id: "q-2", type: "Sensor looks wrong", lineId: "line-a", askedAt: at(0, -0, -40), due: at(0, 2), routedTo: "shift-lead", plantWide: true, urgency: "High", abnormal: true,
-    title: "Jacket inlet sensor on Mixer M1 has read exactly 61.0 °C for 40 min. Is it stuck?",
-    why: "A real jacket loop moves by at least 0.2 °C every few minutes. Flat for 40 min while the flow changed twice is unusual.",
-    evidence: [{ text: "Jacket inlet temperature, flat at 61.0 °C since 13:20", label: "Measured", id: "EV-A-1201" }, { text: "Jacket flow changed at 13:31 and 13:48", label: "Measured", id: "EV-A-1202" }],
-    waits: { text: "Hold-time proposals on Line A", href: "/process/lines/line-a" },
-    meanwhile: "Anything resting on this sensor is recommend-only until someone checks it.",
-    answers: [{ id: "stuck", label: "Yes, stuck", then: "I mark the tag uncertain, keep Line A hold proposals recommend-only and reopen them after the fix." }, { id: "real", label: "No, it is real", then: "I keep the readings and note that the loop was steady on purpose." }, { id: "check", label: "Checking now", then: "I wait for your photo or answer before changing anything." }],
-    photo: "Photo of the local gauge", askedBy: 2 },
+    title: "Billet exit pyrometer on heater H1 has read exactly 1204 °C for 40 min. Is it stuck?",
+    why: "A real billet exit reading moves with every press stop, because billets wait in the coil. Flat for 40 min while the press stopped and restarted twice is unusual.",
+    evidence: [{ text: "Billet exit temperature, flat at 1204 °C since 13:20", label: "Measured", id: "EV-A-1201" }, { text: "Press stopped at 13:31 and restarted at 13:48", label: "Measured", id: "EV-A-1202" }],
+    waits: { text: "Coil power proposals on the Forge line", href: "/process/lines/line-a" },
+    meanwhile: "Anything resting on this pyrometer is recommend-only until someone checks it.",
+    answers: [{ id: "stuck", label: "Yes, stuck", then: "I mark the tag uncertain, keep Forge line coil power proposals recommend-only and reopen them after the fix." }, { id: "real", label: "No, it is real", then: "I keep the readings and note that the exit temperature was steady on purpose." }, { id: "check", label: "Checking now", then: "I wait for your photo or answer before changing anything." }],
+    photo: "Photo of the handheld pyrometer reading", askedBy: 2 },
   { id: "q-3", type: "Data discrepancy", lineId: "line-a", askedAt: at(0, -3), due: at(0, 6), routedTo: "quality-head", plantWide: true, urgency: "Medium",
-    title: "Lab says 2510 mPa·s for lot 3304, but its batch ran 4 min shorter than lot 3296 at the same value. Which is right?",
-    why: "The property band for Grade A-12 uses both lots. If one record is wrong, the band is wrong for the next five lots.",
-    evidence: [{ text: "Lab result lot 3304, 2510 mPa·s", label: "Measured", id: "EV-A-1170" }, { text: "Batch 2409 hold time 51 min vs 55 min for batch 2401", label: "Measured", id: "EV-A-1171" }],
-    waits: { text: "Property band for Grade A-12", href: "/quality" },
+    title: "Lab says decarb depth 0.31 mm for lot 3304, but its shift run left the coil 12 °C hotter than the run behind lot 3296, which read 0.48 mm. Which is right?",
+    why: "The decarb band for axle shaft 4140 uses both lots. If one record is wrong, the band is wrong for the next five lots.",
+    evidence: [{ text: "Lab result lot 3304, decarb depth 0.31 mm", label: "Measured", id: "EV-A-1170" }, { text: "Shift run 2409 billet exit 1226 °C vs 1214 °C for shift run 2401", label: "Measured", id: "EV-A-1171" }],
+    waits: { text: "Decarb band for axle shaft 4140", href: "/quality" },
     meanwhile: "Lots 3307 and 3308 keep their current band, marked Estimated.",
-    answers: [{ id: "lab", label: "Lab is right", then: "I keep the result and look for what else shortened the batch." }, { id: "log", label: "Run log is right", then: "I flag the lab record, rerun the band and tell you which lots move." }, { id: "both", label: "Both, I'll explain", then: "I attach your note and keep both records with a lower weight." }] },
+    answers: [{ id: "lab", label: "Lab is right", then: "I keep the result and look for what else cooled the billets." }, { id: "log", label: "Run log is right", then: "I flag the lab record, rerun the band and tell you which lots move." }, { id: "both", label: "Both, I'll explain", then: "I attach your note and keep both records with a lower weight." }] },
   { id: "q-4", type: "New part material", lineId: "line-b", askedAt: at(-1, -2), routedTo: "operator", plantWide: false, urgency: "High",
     title: "Housing B-52 arrived with no resin grade on the job card. Is it PA66-GF30 like Housing B-40?",
     why: "The agent can only borrow settings from parts with the same resin. The job card field is empty.",
@@ -54,13 +54,13 @@ export const questions: Question[] = [
     photo: "Photo of the bag label",
     answered: { by: "operator", person: "Operator B.", at: at(-1, -1, -20), answer: "Yes, PA66-GF30 (photo of the bag label)", changed: "Resin for Housing B-52 set to PA66-GF30, source: operator. Settings borrowed from Housing B-40 and B-44.", unblocked: { text: "Onboarding moved to step 2", href: "/process/lines/line-b?tab=agent" } } },
   { id: "q-5", type: "Mode label", lineId: "line-a", askedAt: at(0, -5), routedTo: "operator", plantWide: false, urgency: "Low",
-    title: "Mixer M1 sat at 70 °C with the agitator off for 12 min at 09:05. Changeover or idle?",
-    why: "The line pack mode rule could not tell a changeover from an idle wait. Idle minutes count against energy per batch, changeovers do not.",
-    evidence: [{ text: "Agitator speed 0 rpm, 09:05 to 09:17", label: "Measured", id: "EV-A-1188" }],
-    waits: { text: "Energy per batch on Line A", href: "/process/lines/line-a" },
-    meanwhile: "Those 12 minutes are left out of energy per batch.",
-    answers: [{ id: "chg", label: "Changeover", then: "I label it changeover and keep it out of energy per batch." }, { id: "idle", label: "Idle", then: "I count it as idle and add it to energy per batch." }],
-    answered: { by: "operator", person: "Operator A.", at: at(0, -4, -40), answer: "Changeover", changed: "Line pack mode rule now treats agitator off above 65 °C after a discharge as changeover.", unblocked: { text: "Energy per batch on Line A recalculated", href: "/process/lines/line-a" } } },
+    title: "Heater H1 sat at 140 kW with the press stopped for 12 min at 09:05. Die change or idle wait?",
+    why: "The line pack mode rule could not tell a die change from an idle wait. Idle minutes count against heats per 100 parts, die changes do not.",
+    evidence: [{ text: "Coil power 140 kW and no press strokes, 09:05 to 09:17", label: "Measured", id: "EV-A-1189" }],
+    waits: { text: "Heats per 100 parts on the Forge line", href: "/process/lines/line-a" },
+    meanwhile: "Those 12 minutes are left out of heats per 100 parts.",
+    answers: [{ id: "chg", label: "Die change", then: "I label it die change and keep it out of heats per 100 parts." }, { id: "idle", label: "Idle", then: "I count it as idle and add it to heats per 100 parts." }],
+    answered: { by: "operator", person: "Operator A.", at: at(0, -4, -40), answer: "Die change", changed: "Line pack mode rule now treats coil power under 150 kW with the press stopped after a die check as a die change.", unblocked: { text: "Heats per 100 parts on the Forge line recalculated", href: "/process/lines/line-a" } } },
   { id: "q-6", type: "Unlinked lot", lineId: "line-b", askedAt: at(0, -2), due: at(0, 8), routedTo: "quality-head", plantWide: false, urgency: "Medium",
     title: "Lot 7744 has no shift run. It most likely came from run 1182 on Press P3. Confirm?",
     why: "Without a link the lot has no property band, so nobody can see if it is at risk.",
@@ -106,8 +106,8 @@ export interface WorkItem { id: string; status: "Investigating" | "Simulating" |
 export const workingOn: WorkItem[] = [
   { id: "w-1", status: "Simulating", lineId: "line-b", title: "An MPC layer over the barrel loops on Press P3", step: "240 simulated shifts done, comparing against the current stack", href: "/process/optimisation?loop=loop-press-barrel-temp" },
   { id: "w-2", status: "Onboarding", lineId: "line-b", title: "New part Housing B-52", step: "Step 3 of 5, planned test moves", waits: "Operator, next 50 shots", href: "/process/lines/line-b?tab=agent" },
-  { id: "w-3", status: "Investigating", lineId: "line-a", title: "Why lot 3307 viscosity is drifting up", step: "4 of 6 likely causes ruled out", href: "/quality/investigations/inv-1" },
-  { id: "w-4", status: "Waiting on you", lineId: "line-a", title: "Jacket inlet sensor on Mixer M1", step: "Asked if it is stuck", waits: "Shift lead", href: "/inbox?tab=questions" },
+  { id: "w-3", status: "Investigating", lineId: "line-a", title: "Why lot 3307 decarb depth is drifting up", step: "4 of 6 likely causes ruled out", href: "/quality/investigations/inv-1" },
+  { id: "w-4", status: "Waiting on you", lineId: "line-a", title: "Billet exit pyrometer on heater H1", step: "Asked if it is stuck", waits: "Shift lead", href: "/inbox?tab=questions" },
 ];
 
 /* ---------------- New-part onboarding (five steps, the internal approval is never shown to plant workers) ---------------- */
@@ -126,11 +126,11 @@ export const onboarding = {
 export interface ControlLayer { id: string; name: string; kind: "PID" | "Rule-based" | "MPC" | "RL" | "Run-to-run"; scope: string; state: "Active" | "In shadow" | "Prebuilt, not on" | "Simulating"; tuned: string }
 export const controlStacks: Record<string, ControlLayer[]> = {
   "line-a": [
-    { id: "a-l4", name: "Hold-time policy", kind: "RL", scope: "Hold step length per batch", state: "In shadow", tuned: "Learning from 312 batches, writes nothing" },
-    { id: "a-l3", name: "Run-to-run optimiser", kind: "Run-to-run", scope: "Hold temperature, hold time, agitator speed", state: "Active", tuned: "Proposals per batch, inside the signed band" },
-    { id: "a-l2", name: "Batch temperature path", kind: "MPC", scope: "Jacket setpoint during heat-up", state: "Active", tuned: "Horizon and weights tuned at integration" },
-    { id: "a-l1", name: "Batch sequence", kind: "Rule-based", scope: "Charge, heat, hold, discharge", state: "Active", tuned: "Line pack rules, 2 parameters tuned" },
-    { id: "a-l0", name: "Jacket and agitator loops", kind: "PID", scope: "2 loops on Mixer M1", state: "Active", tuned: "Gains tuned to this mixer" },
+    { id: "a-l4", name: "Press-stop policy", kind: "RL", scope: "Coil power level during press stops", state: "In shadow", tuned: "Learning from 312 shift runs, writes nothing" },
+    { id: "a-l3", name: "Run-to-run optimiser", kind: "Run-to-run", scope: "Billet exit temperature, coil power, pusher rate", state: "Active", tuned: "Proposals per shift run, inside the signed band" },
+    { id: "a-l2", name: "Billet heating path", kind: "MPC", scope: "Coil power as each billet moves through heater H1", state: "Active", tuned: "Horizon and weights tuned at integration" },
+    { id: "a-l1", name: "Press sequence", kind: "Rule-based", scope: "Feed, heat, strike, trim", state: "Active", tuned: "Line pack rules, 2 parameters tuned" },
+    { id: "a-l0", name: "Coil and pusher loops", kind: "PID", scope: "2 loops on heater H1", state: "Active", tuned: "Gains tuned to this heater" },
   ],
   "line-b": [
     { id: "b-l4", name: "Supervisory layer over barrel loops", kind: "MPC", scope: "Barrel zones and tool temperature together", state: "Simulating", tuned: "Prebuilt, weights tuned on the twin" },
@@ -157,21 +157,21 @@ export const layerProposal = {
 
 /* ---------------- What the agent learned ---------------- */
 export const learned = [
-  { id: "l-1", at: at(0, -4, -40), kind: "Answer used", text: "Agitator off above 65 °C after a discharge means changeover on Line A.", from: "Operator A. answered a question", state: "In use" },
+  { id: "l-1", at: at(0, -4, -40), kind: "Answer used", text: "Coil power under 150 kW with the press stopped after a die check means a die change on the Forge line.", from: "Operator A. answered a question", state: "In use" },
   { id: "l-2", at: at(-1, -3), kind: "Decline reason", text: "Do not propose melt temperature changes in the first hour after a resin lot change.", from: "Shift lead A. declined a proposal with a reason", state: "In shadow, waiting for the process engineer to promote" },
   { id: "l-3", at: at(-1, -1), kind: "Memory", text: "Housing B-52 uses PA66-GF30, same bag as Housing B-40.", from: "Operator B. sent a photo", state: "Saved to plant memory" },
   { id: "l-4", at: at(-3), kind: "Model refit", text: "Line B model refitted after the night shift material wait was tagged.", from: "Shift lead A. answered a question", state: "Fit accepted" },
-  { id: "l-5", at: at(-5), kind: "Playbook", text: "After a cooling water changeover, check the jacket inlet before the next hold step.", from: "3 accepted hold-time changes", state: "Promoted by Process engineer A." },
+  { id: "l-5", at: at(-5), kind: "Playbook", text: "After a long press stop, read billet exit temperature on the first ten billets before the next coil power change.", from: "3 accepted coil power changes", state: "Promoted by Process engineer A." },
 ];
 
 /* ---------------- Proposals left on the table ---------------- */
 export interface IdleProposal { id: string; lineId: string; title: string; waitingDays: number; lastSeen: string; owner: RoleId; loss: { perWeek: number; unit: string; what: string }; inrPerUnit: number; expected: string }
 const price = (item: string) => prices.find((p) => p.item.startsWith(item))!.value;
 export const idleProposals: IdleProposal[] = [
-  { id: "idle-1", lineId: "line-a", title: "Start Grade A-14 from its own best batches", waitingDays: 5, lastSeen: "Opened once by Shift lead A., 4 days ago", owner: "process-engineer", loss: { perWeek: 0.5, unit: "batches", what: "reworked" }, inrPerUnit: price("Reworked batch"), expected: "Estimated, first batch inside spec" },
+  { id: "idle-1", lineId: "line-a", title: "Start axle shaft 4340 from its own best shift runs", waitingDays: 5, lastSeen: "Opened once by Shift lead A., 4 days ago", owner: "process-engineer", loss: { perWeek: 0.5, unit: "batches", what: "reworked" }, inrPerUnit: price("Reworked batch"), expected: "Estimated, first lot inside spec" },
   { id: "idle-2", lineId: "line-b", title: "Take-out time 0.4 s shorter on the robot", waitingDays: 9, lastSeen: "Not opened since it was raised", owner: "shift-lead", loss: { perWeek: 560, unit: "parts", what: "not made" }, inrPerUnit: price("Extra part"), expected: "Modelled, 1.1 to 1.4% more parts" },
   { id: "idle-3", lineId: "line-b", title: "Resin dryer dew point -40 to -35 °C on dry days", waitingDays: 12, lastSeen: "Assigned to Process engineer A., not opened", owner: "process-engineer", loss: { perWeek: 420, unit: "kWh", what: "extra" }, inrPerUnit: price("Electricity"), expected: "Measured on 6 dry days" },
-  { id: "idle-4", lineId: "line-a", title: "Jacket setpoint 1 °C lower during the hold step", waitingDays: 7, lastSeen: "Opened by Operator C., no decision", owner: "operator", loss: { perWeek: 310, unit: "kWh", what: "extra" }, inrPerUnit: price("Electricity"), expected: "Modelled, viscosity unchanged" },
+  { id: "idle-4", lineId: "line-c", title: "Furnace F1 held cooler between loads", waitingDays: 7, lastSeen: "Opened by Operator E., no decision", owner: "operator", loss: { perWeek: 310, unit: "kWh", what: "extra" }, inrPerUnit: price("Electricity"), expected: "Modelled, hardness unchanged" },
 ];
 export const idleInr = (p: IdleProposal) => ({ perWeek: Math.round(p.loss.perWeek * p.inrPerUnit), lostSoFar: Math.round((p.loss.perWeek * p.inrPerUnit * p.waitingDays) / 7), perMonth: Math.round(p.loss.perWeek * p.inrPerUnit * 4.33) });
 
@@ -216,44 +216,44 @@ export const summaries = {
     label: "Week 43, 14 to 20 Oct", prev: "week 42",
     outcomes: [
       { k: "Scrap rate, Line B", v: "3.2%", d: "from 3.6%", label: "Measured" as EvidenceLabel },
-      { k: "Right first time, Line A", v: "91.4%", d: "from 89.8%", label: "Measured" as EvidenceLabel },
-      { k: "Energy per batch, Line A", v: "412 kWh", d: "from 421 kWh", label: "Estimated" as EvidenceLabel },
+      { k: "Overheating scrap, Forge line", v: "0.9%", d: "from 1.2%", label: "Measured" as EvidenceLabel },
+      { k: "Baskets in hardness spec, Heat treatment", v: "96%", d: "from 93%", label: "Estimated" as EvidenceLabel },
       { k: "Lots caught early", v: "4", d: "before discharge", label: "Measured" as EvidenceLabel },
     ],
     actions: [
       { t: "Cycle time 33.2 s on Tool T3", by: "Operator B.", result: "Verified", band: "2.1 to 3.0% more parts" },
-      { t: "Hold time 57 min for slow batch 2418", by: "Standing approval", result: "Indicative", band: "viscosity 2460 to 2540 mPa·s" },
+      { t: "Coil power held warm through short press stops", by: "Standing approval", result: "Indicative", band: "heats per 100 parts 103 to 105" },
       { t: "Correction from Quality on lot 3307", by: "Process engineer A.", result: "Measuring", band: "result after 6 lots" },
     ],
     accepted: 6, declined: 2, expired: 1, questions: 9, answered: 7, learnedN: 4,
-    reasoning: "Scrap fell on Line B mostly because cycle time 33.2 s held through two resin lot changes, and the night shift's material wait was tagged so it no longer hid the gain. Line A improved because slow batches were caught while they ran. Energy per batch moved less than modelled: the jacket inlet sensor may be stuck, so that number is Estimated until someone checks.",
+    reasoning: "Scrap fell on Line B mostly because cycle time 33.2 s held through two resin lot changes, and the night shift's material wait was tagged so it no longer hid the gain. Overheating scrap on the Forge line fell because billets waiting hot in heater H1 were caught during press stops. Hardness on the quench line moved less than modelled: the oil on tank Q1 is climbing basket to basket, so that number is Estimated until the next basket is sampled.",
     next: ["Finish onboarding Housing B-52 (step 3 of 5)", "Bring the MPC layer on Press P3 to a trial draft", "Get the four proposals left on the table decided"],
   },
   month: {
     label: "October so far, 1 to 20 Oct", prev: "September",
     outcomes: [
       { k: "Scrap rate, Line B", v: "3.3%", d: "from 3.9%", label: "Measured" as EvidenceLabel },
-      { k: "Right first time, Line A", v: "90.6%", d: "from 88.1%", label: "Measured" as EvidenceLabel },
+      { k: "Heats per 100 parts, Forge line", v: "104", d: "from 109", label: "Measured" as EvidenceLabel },
       { k: "Changes verified", v: "3", d: "2 no change, 1 inconclusive", label: "Measured" as EvidenceLabel },
       { k: "Lots caught early", v: "11", d: "before discharge", label: "Measured" as EvidenceLabel },
     ],
     actions: [
       { t: "Cycle time 33.2 s on Tool T3", by: "Operator B.", result: "Verified", band: "2.1 to 3.0% more parts" },
       { t: "Hold pressure 720 bar on Press P3", by: "Shift lead A.", result: "Verified", band: "0.4 to 0.8 pp less scrap" },
-      { t: "Hold temperature trial on Line A", by: "Plant head A.", result: "Measuring", band: "10 of 16 batches" },
+      { t: "Billet temperature trial on the Forge line", by: "Plant head A.", result: "Measuring", band: "10 of 16 shift runs" },
       { t: "Melt temperature 232 °C", by: "Shift lead A.", result: "Declined", band: "reason taught a new rule" },
     ],
     accepted: 21, declined: 6, expired: 3, questions: 31, answered: 26, learnedN: 12,
-    reasoning: "Most of October's gain came from Line B, where two changes were verified on the plant's own records. Line A's gain is smaller and partly still Indicative, because the hold temperature trial is not finished. Six declines were useful: two became rules in shadow. The biggest drag is proposals left waiting, mostly on the process engineer's desk.",
-    next: ["Close the Line A trial and publish its verdict", "Put the Line B MPC layer through a switchback trial", "Cut proposals waiting more than 5 days to zero"],
+    reasoning: "Most of October's gain came from Line B, where two changes were verified on the plant's own records. The Forge line's gain is smaller and partly still Indicative, because the billet temperature trial is not finished. Six declines were useful: two became rules in shadow. The biggest drag is proposals left waiting, mostly on the process engineer's desk.",
+    next: ["Close the Forge line trial and publish its verdict", "Put the Line B MPC layer through a switchback trial", "Cut proposals waiting more than 5 days to zero"],
   },
 };
 
 /* ---------------- Quality agent work ---------------- */
 export const QUALITY_Q: QuestionType[] = ["Data discrepancy", "Unlinked lot", "Lab sample"];
 export const qualityWork: WorkItem[] = [
-  { id: "qw-1", status: "Investigating", lineId: "line-a", title: "Why lot 3307 viscosity is drifting up", step: "4 of 6 likely causes ruled out; end-of-hold torque is the lead", href: "/quality/investigations/inv-1" },
-  { id: "qw-2", status: "Waiting on you", lineId: "line-a", title: "Lab result for lot 3304 does not match its batch", step: "Asked which record is right", waits: "Quality head", href: "/inbox?tab=questions" },
+  { id: "qw-1", status: "Investigating", lineId: "line-a", title: "Why lot 3307 decarb depth is drifting up", step: "4 of 6 likely causes ruled out; billet exit temperature is the lead", href: "/quality/investigations/inv-1" },
+  { id: "qw-2", status: "Waiting on you", lineId: "line-a", title: "Lab result for lot 3304 does not match its shift run", step: "Asked which record is right", waits: "Quality head", href: "/inbox?tab=questions" },
   { id: "qw-3", status: "Simulating", lineId: "line-b", title: "Part weight band for Housing B-52", step: "Checking the borrowed band against 120 held-back parts", href: "/quality/simulations?campaign=camp-q-sim-spc" },
 ];
 export const qualification = {
@@ -268,5 +268,5 @@ export const qualification = {
 export const qualityLearned = [
   { id: "ql-1", at: at(-1, -4), kind: "Answer used", text: "On Line B, a lab sample from the start of a run reads heavier. Ask for a mid-run part.", from: "Quality head A. answered a question", state: "In use" },
   { id: "ql-2", at: at(-2), kind: "Decline reason", text: "Do not send a correction while the lab result is less than 2 h old and unconfirmed.", from: "Process engineer A. declined a correction with a reason", state: "In shadow, waiting for the quality head to promote" },
-  { id: "ql-3", at: at(-4), kind: "Playbook", text: "When torque at the end of hold rises, sample the lot early instead of waiting for discharge.", from: "2 lots caught early", state: "Promoted by Quality head A." },
+  { id: "ql-3", at: at(-4), kind: "Playbook", text: "When coil power rises above 480 kW on a shift run, cut a decarb section early instead of waiting for inspection.", from: "2 lots caught early", state: "Promoted by Quality head A." },
 ];
