@@ -27,18 +27,42 @@ const r2 = (n: number) => Math.round(n * 100) / 100;
 export const site: T.Site = { ...I, id: "site-demo", name: "Demonstration plant", timezone: "Asia/Kolkata", currency: "INR", units: "metric" };
 
 export const areas: T.Area[] = [
-  { ...I, id: "area-mix", siteId: site.id, name: "Mixing hall" },
+  { ...I, id: "area-forge", siteId: site.id, name: "Forge shop" },
+  { ...I, id: "area-heat", siteId: site.id, name: "Heat treatment shop" },
+  { ...I, id: "area-foundry", siteId: site.id, name: "Foundry" },
+  { ...I, id: "area-machining", siteId: site.id, name: "Machining shop" },
   { ...I, id: "area-mould", siteId: site.id, name: "Moulding shop" },
   { ...I, id: "area-util", siteId: site.id, name: "Utilities" },
 ];
 
 export const linePacks: T.LinePack[] = [
   {
-    ...I, id: "pack-batch-mixer", equipmentClass: "Jacketed batch mixer",
-    runDefinition: "One batch, charge to discharge", series: ["Jacket temperature", "Agitator speed", "Torque", "Batch viscosity"],
-    setpoints: ["hold-temp", "hold-time", "agitator"], modelId: "model-a", constraints: ["Jacket temperature under 95 °C", "Hold time at least 40 min"],
-    windowTemplate: "Per grade, signed per quarter", labels: { run: "Batch", runs: "Batches", runShort: "Batch", unit: "batch", outcome: "Viscosity" }, linkThreshold: 0.8,
-    outcomeUnit: "mPa·s", spec: [2380, 2600], chartSpec: true, keySetpoint: "hold-temp",
+    ...I, id: "pack-forge", equipmentClass: "Induction billet heater and screw press",
+    runDefinition: "One shift run", series: ["Billet exit temperature", "Pusher rate", "Coil power", "Press force", "Die temperature"],
+    setpoints: ["billet-temp", "pusher-rate", "coil-power"], modelId: "model-a", constraints: ["Billet exit temperature under 1250 °C", "Die temperature under 300 °C"],
+    windowTemplate: "Per part number, signed per quarter", labels: { run: "Shift run", runs: "Shift runs", runShort: "Run", unit: "part", outcome: "Overheating scrap" }, linkThreshold: 0.8,
+    outcomeUnit: "%", spec: [0, 1.5], chartSpec: true, keySetpoint: "billet-temp",
+  },
+  {
+    ...I, id: "pack-heat-treatment", equipmentClass: "Hardening furnace, quench tank and temper furnace",
+    runDefinition: "One load (basket), charge to unload", series: ["Zone temperature", "Quench oil temperature", "Soak time", "Load mass"],
+    setpoints: ["zone-temp", "quench-oil-temp", "soak-time"], modelId: "model-c", constraints: ["Zone temperature under 880 °C", "Quench oil temperature under 85 °C"],
+    windowTemplate: "Per part family, signed per quarter", labels: { run: "Load", runs: "Loads", runShort: "Load", unit: "load", outcome: "Hardness" }, linkThreshold: 0.8,
+    outcomeUnit: "HRC", spec: [58, 62], chartSpec: true, keySetpoint: "zone-temp",
+  },
+  {
+    ...I, id: "pack-foundry", equipmentClass: "Induction melt furnace and mould line",
+    runDefinition: "One heat, melt to last mould poured", series: ["Pour temperature", "Carbon equivalent", "Melt power", "Hold time"],
+    setpoints: ["pour-temp", "hold-time", "melt-power"], modelId: "model-d", constraints: ["Pour temperature under 1450 °C", "Hold time at least 10 min"],
+    windowTemplate: "Per alloy, signed per quarter", labels: { run: "Heat", runs: "Heats", runShort: "Heat", unit: "casting", outcome: "Casting scrap" }, linkThreshold: 0.8,
+    outcomeUnit: "%", spec: [0, 4], chartSpec: true, keySetpoint: "pour-temp",
+  },
+  {
+    ...I, id: "pack-machining", equipmentClass: "Vertical and horizontal machining centres",
+    runDefinition: "One shift run per cell", series: ["Spindle load", "Cycle time", "Tool life count"],
+    setpoints: ["cycle-time", "spindle-speed", "tool-life-limit"], modelId: "model-e", constraints: ["Spindle load under 85%", "Tool change at or before the life limit"],
+    windowTemplate: "Per part number, signed per quarter", labels: { run: "Shift run", runs: "Shift runs", runShort: "Run", unit: "part", outcome: "Rework" }, linkThreshold: 0.8,
+    outcomeUnit: "%", spec: [0, 3], chartSpec: true, keySetpoint: "cycle-time",
   },
   {
     ...I, id: "pack-moulding", equipmentClass: "Injection moulding cell",
@@ -51,16 +75,43 @@ export const linePacks: T.LinePack[] = [
 
 export const lines: T.Line[] = [
   {
-    ...I, id: "line-a", areaId: "area-mix", name: "Line A · Batch mixing", short: "Line A", type: "batch", linePackId: "pack-batch-mixer",
-    mode: "Trial", product: "Grade A-12", status: "Batch 2418 in hold step",
+    ...I, id: "line-a", areaId: "area-forge", name: "Forge line", short: "Forge", type: "discrete", linePackId: "pack-forge",
+    mode: "Trial", product: "Axle shaft forging", status: "Heater H1 feeding screw press P1, 72 billets/h",
     kpis: [
-      { label: "Batches today", value: "7", label2: "Measured" },
-      { label: "Right first time", value: "91.4", unit: "%", label2: "Measured" },
-      { label: "Energy per batch", value: "412", unit: "kWh", label2: "Measured" },
+      { label: "Parts this shift", value: "552", label2: "Measured" },
+      { label: "Overheating scrap", value: "0.9", unit: "%", label2: "Measured" },
+      { label: "Heats per 100 parts", value: "104", label2: "Measured" },
     ],
   },
   {
-    ...I, id: "line-b", areaId: "area-mould", name: "Line B · Moulding", short: "Line B", type: "discrete", linePackId: "pack-moulding",
+    ...I, id: "line-c", areaId: "area-heat", name: "Heat treatment", short: "Heat treatment", type: "batch", linePackId: "pack-heat-treatment",
+    mode: "Proposing", product: "Axle shaft, case hardened", status: "Load 5118 soaking in hardening furnace F1",
+    kpis: [
+      { label: "Loads today", value: "5", label2: "Measured" },
+      { label: "Hardness in spec", value: "96", unit: "%", label2: "Measured" },
+      { label: "Quench oil", value: "68", unit: "°C", label2: "Measured" },
+    ],
+  },
+  {
+    ...I, id: "line-d", areaId: "area-foundry", name: "Foundry", short: "Foundry", type: "batch", linePackId: "pack-foundry",
+    mode: "Watching", product: "Ductile iron housing", status: "Heat 8836 in melt furnace M1, holding for pour",
+    kpis: [
+      { label: "Heats today", value: "4", label2: "Measured" },
+      { label: "Casting scrap", value: "2.9", unit: "%", label2: "Measured" },
+      { label: "Carbon equivalent", value: "4.3", unit: "%", label2: "Measured" },
+    ],
+  },
+  {
+    ...I, id: "line-e", areaId: "area-machining", name: "Machining cell", short: "Machining", type: "discrete", linePackId: "pack-machining",
+    mode: "Recommend-only", product: "Axle shaft, finish machined", status: "VMC-2 and HMC-1 running, tool life at 61%",
+    kpis: [
+      { label: "Parts this shift", value: "214", label2: "Measured" },
+      { label: "Rework", value: "1.8", unit: "%", label2: "Measured" },
+      { label: "Cycle time", value: "108", unit: "s", label2: "Measured" },
+    ],
+  },
+  {
+    ...I, id: "line-b", areaId: "area-mould", name: "Moulding", short: "Moulding", type: "discrete", linePackId: "pack-moulding",
     mode: "Proposing", product: "Housing B-40", status: "Tool T3 running, 1,840 parts this shift",
     kpis: [
       { label: "Parts this shift", value: "1,840", label2: "Measured" },
@@ -70,21 +121,35 @@ export const lines: T.Line[] = [
   },
 ];
 
+/** [lineId, assetId, name, x, y, w, h]. Machining reuses the CNC asset ids of cycleTime.ts and toolLife.ts. */
 const assetDefs: [string, string, string, number, number, number, number][] = [
-  ["line-a", "a-charge", "Charge hopper", 0, 0, 2, 2], ["line-a", "a-mixer", "Mixer M1", 2, 0, 3, 3], ["line-a", "a-jacket", "Jacket loop", 2, 3, 3, 1],
-  ["line-a", "a-hold", "Hold tank H1", 5, 0, 2, 2], ["line-a", "a-pump", "Discharge pump", 7, 0, 1, 2],
+  ["line-a", "a-heater", "Induction billet heater H1", 0, 0, 3, 3], ["line-a", "a-press", "Screw press P1", 3, 0, 3, 3], ["line-a", "a-trim", "Trim press", 6, 0, 2, 2],
+  ["line-c", "c-furnace", "Hardening furnace F1", 0, 0, 3, 3], ["line-c", "c-quench", "Quench tank Q1", 3, 0, 2, 3], ["line-c", "c-temper", "Temper furnace T1", 5, 0, 3, 3],
+  ["line-d", "d-melt", "Induction melt furnace M1", 0, 0, 3, 3], ["line-d", "d-mould", "Mould line ML1", 3, 0, 3, 3], ["line-d", "d-spectro", "Lab spectrometer", 6, 0, 2, 2],
+  ["line-e", "asset-vmc-2", "VMC-2", 0, 0, 4, 3], ["line-e", "asset-hmc-1", "HMC-1", 4, 0, 4, 3],
   ["line-b", "b-dryer", "Resin dryer", 0, 0, 2, 2], ["line-b", "b-press", "Press P3", 2, 0, 3, 3], ["line-b", "b-tool", "Tool T3", 5, 0, 2, 2],
   ["line-b", "b-robot", "Take-out robot", 7, 0, 1, 2], ["line-b", "b-vision", "Vision check", 7, 2, 1, 1],
 ];
 export const assets: T.Asset[] = assetDefs.map(([lineId, id, name, x, y, w, h]) => ({ ...I, id, lineId, name, section: { x, y, w, h }, keyReadingTagId: `tag-${id}-1` }));
 
-const tagDefs: Record<string, [string, string][]> = {
-  "a-charge": [["Charge mass", "kg"]], "a-mixer": [["Agitator speed", "rpm"], ["Torque", "N·m"], ["Batch temperature", "°C"]],
-  "a-jacket": [["Jacket inlet temperature", "°C"], ["Jacket flow", "m³/h"]], "a-hold": [["Hold time", "min"], ["Viscosity", "mPa·s"]],
-  "a-pump": [["Discharge pressure", "bar"]], "b-dryer": [["Dew point", "°C"]], "b-press": [["Melt temperature", "°C"], ["Hold pressure", "bar"], ["Cycle time", "s"]],
-  "b-tool": [["Tool temperature", "°C"], ["Cavity pressure", "bar"]], "b-robot": [["Take-out time", "s"]], "b-vision": [["Part weight", "g"], ["Reject count", "parts"]],
+/** [name, unit, normal range low, high]. The range is where readings sit in normal running; the first tag is the asset's key reading. */
+const tagDefs: Record<string, [string, string, number, number][]> = {
+  "a-heater": [["Billet exit temperature", "°C", 1180, 1240], ["Pusher rate", "billets/h", 60, 90], ["Coil power", "kW", 420, 520]],
+  "a-press": [["Press force", "kN", 3800, 5200], ["Die temperature", "°C", 200, 280]],
+  "a-trim": [["Trim force", "kN", 500, 800]],
+  "c-furnace": [["Zone temperature", "°C", 850, 870], ["Soak time", "min", 90, 130], ["Load mass", "kg", 800, 1200]],
+  "c-quench": [["Quench oil temperature", "°C", 60, 80]],
+  "c-temper": [["Temper temperature", "°C", 170, 200]],
+  "d-melt": [["Pour temperature", "°C", 1400, 1440], ["Melt power", "kW", 900, 1200], ["Hold time", "min", 10, 30]],
+  "d-mould": [["Mould rate", "moulds/h", 45, 60]],
+  "d-spectro": [["Carbon equivalent", "%", 4.2, 4.4]],
+  "asset-vmc-2": [["Spindle load", "%", 35, 75], ["Cycle time", "s", 95, 125], ["Tool life count", "parts", 0, 400]],
+  "asset-hmc-1": [["Spindle load", "%", 35, 75], ["Cycle time", "s", 140, 170], ["Tool life count", "parts", 0, 400]],
+  "b-dryer": [["Dew point", "°C", -45, -35]], "b-press": [["Melt temperature", "°C", 225, 248], ["Hold pressure", "bar", 640, 820], ["Cycle time", "s", 30, 38]],
+  "b-tool": [["Tool temperature", "°C", 58, 66], ["Cavity pressure", "bar", 380, 520]], "b-robot": [["Take-out time", "s", 2.4, 3.2]],
+  "b-vision": [["Part weight", "g", 47.6, 48.8], ["Reject count", "parts", 0, 8]],
 };
-export const tags: T.Tag[] = assets.flatMap((a) => (tagDefs[a.id] ?? []).map(([name, unit], i) => ({ ...I, id: `tag-${a.id}-${i + 1}`, assetId: a.id, lineId: a.lineId, name, unit })));
+export const tags: T.Tag[] = assets.flatMap((a) => (tagDefs[a.id] ?? []).map(([name, unit, lo, hi], i) => ({ ...I, id: `tag-${a.id}-${i + 1}`, assetId: a.id, lineId: a.lineId, name, unit, range: [lo, hi] as [number, number] })));
 
 export const shifts: T.Shift[] = [
   { ...I, id: "shift-1", name: "Shift 1", start: "06:00", end: "14:00" },
@@ -122,6 +187,9 @@ export const people: T.Person[] = [
   { ...I, id: "p-op-b", display: "Operator B.", initials: "OB", roles: [{ role: "operator", scope: "line-b" }] },
   { ...I, id: "p-op-c", display: "Operator C.", initials: "OC", roles: [{ role: "operator", scope: "line-a" }] },
   { ...I, id: "p-op-d", display: "Operator D.", initials: "OD", roles: [{ role: "operator", scope: "line-b" }] },
+  { ...I, id: "p-op-e", display: "Operator E.", initials: "OE", roles: [{ role: "operator", scope: "line-c" }] },
+  { ...I, id: "p-op-f", display: "Operator F.", initials: "OF", roles: [{ role: "operator", scope: "line-d" }] },
+  { ...I, id: "p-op-g", display: "Operator G.", initials: "OG", roles: [{ role: "operator", scope: "line-e" }] },
   { ...I, id: "p-sl", display: "Shift lead A.", initials: "SA", roles: [{ role: "shift-lead", scope: "site-demo" }] },
   { ...I, id: "p-pe", display: "Process engineer A.", initials: "PE", roles: [{ role: "process-engineer", scope: "site-demo" }] },
   { ...I, id: "p-qh", display: "Quality head A.", initials: "QH", roles: [{ role: "quality-head", scope: "site-demo" }] },
@@ -137,63 +205,105 @@ export const actingAs: Record<T.RoleId, string> = {
 };
 
 /* ---------------- Runs, readings, writes ---------------- */
-function makeRuns(lineId: string, n: number, kind: "batch" | "discrete"): T.Run[] {
+/** Separate seeded stream for forge, heat treatment, foundry and machining run values, so records built on `rnd` keep their numbers. */
+let lineSeed = 7771;
+function lrnd(): number {
+  lineSeed = (lineSeed * 1664525 + 1013904223) % 4294967296;
+  return lineSeed / 4294967296;
+}
+
+function makeForgeRuns(lineId: string, n: number): T.Run[] {
   const out: T.Run[] = [];
   for (let i = 0; i < n; i++) {
-    const startH = -(n - i) * (kind === "batch" ? 9 : 8);
+    const startH = -(n - i) * 8;
     const trialArm = i >= n - 10;
-    if (kind === "batch") {
-      const temp = trialArm && i % 2 === 0 ? 86 : 84;
-      const visc = r1(2480 + (temp - 84) * -22 + (rnd() - 0.5) * 90);
-      out.push({ ...I, id: `run-a-${2380 + i}`, lineId, product: "Grade A-12", start: at(0, startH), end: at(0, startH + 7),
-        setpoints: { "hold-temp": temp, "hold-time": 55, agitator: 150 },
-        outcomes: [
-          { name: "Viscosity", value: visc, unit: "mPa·s", label: i % 5 === 0 ? "Measured" : "Estimated" },
-          { name: "Energy per batch", value: r1(405 + rnd() * 20), unit: "kWh", label: "Measured" },
-          { name: "Right first time", value: visc > 2380 && visc < 2600 ? 1 : 0, unit: "flag", label: "Measured" },
-        ] });
-    } else {
-      const ct = trialArm ? 33.2 : 34.1;
-      out.push({ ...I, id: `run-b-${640 + i}`, lineId, product: "Housing B-40", start: at(0, startH), end: at(0, startH + 8),
-        setpoints: { "melt-temp": 236, "hold-pressure": 720, "cycle-time": ct },
-        outcomes: [
-          { name: "Scrap rate", value: r2(3.0 + rnd() * 1.2), unit: "%", label: "Measured" },
-          { name: "Parts", value: Math.round((8 * 3600) / ct * 0.97), unit: "parts", label: "Measured" },
-          { name: "Part weight", value: r2(48.1 + (rnd() - 0.5) * 0.4), unit: "g", label: "Measured" },
-        ] });
-    }
+    const legacyHoldTemp = trialArm && i % 2 === 0 ? 86 : 84;
+    // TODO(row 12): legacy hold-temp, hold-time, agitator and Viscosity keep the pinned proposal, trial and lot records working until they are rewired to forge.
+    const legacyViscosity = r1(2480 + (legacyHoldTemp - 84) * -22 + (rnd() - 0.5) * 90);
+    const scrap = r2(0.6 + lrnd() * 0.9);
+    out.push({ ...I, id: `run-a-${2380 + i}`, lineId, product: "Axle shaft forging", start: at(0, startH), end: at(0, startH + 8),
+      setpoints: { "billet-temp": 1208 + (i % 5) * 2, "pusher-rate": 75, "coil-power": 470, "hold-temp": legacyHoldTemp, "hold-time": 55, agitator: 150 },
+      outcomes: [
+        { name: "Overheating scrap", value: scrap, unit: "%", label: i % 5 === 0 ? "Measured" : "Estimated" },
+        { name: "Heats per 100 parts", value: r1(102 + scrap * 2 + lrnd() * 3), unit: "heats", label: "Measured" },
+        { name: "Viscosity", value: legacyViscosity, unit: "mPa·s", label: i % 5 === 0 ? "Measured" : "Estimated" },
+      ] });
   }
   return out;
 }
-export const runs: T.Run[] = [...makeRuns("line-a", 40, "batch"), ...makeRuns("line-b", 40, "discrete")];
+
+function makeMouldingRuns(lineId: string, n: number): T.Run[] {
+  const out: T.Run[] = [];
+  for (let i = 0; i < n; i++) {
+    const startH = -(n - i) * 8;
+    const trialArm = i >= n - 10;
+    const ct = trialArm ? 33.2 : 34.1;
+    out.push({ ...I, id: `run-b-${640 + i}`, lineId, product: "Housing B-40", start: at(0, startH), end: at(0, startH + 8),
+      setpoints: { "melt-temp": 236, "hold-pressure": 720, "cycle-time": ct },
+      outcomes: [
+        { name: "Scrap rate", value: r2(3.0 + rnd() * 1.2), unit: "%", label: "Measured" },
+        { name: "Parts", value: Math.round((8 * 3600) / ct * 0.97), unit: "parts", label: "Measured" },
+        { name: "Part weight", value: r2(48.1 + (rnd() - 0.5) * 0.4), unit: "g", label: "Measured" },
+      ] });
+  }
+  return out;
+}
+
+/** Runs for the lines that carry no legacy records: `shape` gives each run's setpoints and outcomes from its index. */
+function makeLineRuns(lineId: string, letter: string, firstNo: number, n: number, hours: number, product: string, shape: (i: number) => Pick<T.Run, "setpoints" | "outcomes">): T.Run[] {
+  return Array.from({ length: n }, (_, i) => {
+    const startH = -(n - i) * hours;
+    return { ...I, id: `run-${letter}-${firstNo + i}`, lineId, product, start: at(0, startH), end: at(0, startH + hours), ...shape(i) };
+  });
+}
+
+const heatTreatmentRuns = makeLineRuns("line-c", "c", 5090, 30, 6, "Axle shaft, case hardened", (i) => ({
+  setpoints: { "zone-temp": 858 + (i % 4) * 3, "quench-oil-temp": 66 + (i % 4) * 2, "soak-time": 105 + (i % 3) * 5 },
+  outcomes: [
+    { name: "Hardness", value: i % 13 === 5 ? 57.4 : r1(60 + (lrnd() - 0.5) * 2.4), unit: "HRC", label: "Measured" },
+    { name: "Load mass", value: Math.round(980 + lrnd() * 160), unit: "kg", label: "Measured" },
+  ],
+}));
+const foundryRuns = makeLineRuns("line-d", "d", 8810, 30, 5, "Ductile iron housing", (i) => ({
+  setpoints: { "pour-temp": 1414 + (i % 5) * 5, "hold-time": 14 + (i % 4) * 3, "melt-power": 1000 + (i % 5) * 40 },
+  outcomes: [
+    { name: "Casting scrap", value: r2(2.2 + lrnd() * 1.6), unit: "%", label: "Measured" },
+    { name: "Carbon equivalent", value: r2(4.26 + lrnd() * 0.1), unit: "%", label: "Measured" },
+  ],
+}));
+const machiningRuns = makeLineRuns("line-e", "e", 3300, 30, 8, "Axle shaft, finish machined", (i) => {
+  const cycle = i >= 20 ? 106.5 : 108;
+  return {
+    setpoints: { "cycle-time": cycle, "spindle-speed": 3200, "tool-life-limit": 400 },
+    outcomes: [
+      { name: "Rework", value: r2(1.2 + lrnd() * 1.2), unit: "%", label: "Measured" },
+      { name: "Cycle time", value: r1(cycle + (lrnd() - 0.5) * 1.2), unit: "s", label: "Measured" },
+    ],
+  };
+});
+
+export const runs: T.Run[] = [...makeForgeRuns("line-a", 40), ...makeMouldingRuns("line-b", 40), ...heatTreatmentRuns, ...foundryRuns, ...machiningRuns];
 runs.find((r) => r.id === "run-a-2417")!.proofRecordId = "proof-1";
 runs.find((r) => r.id === "run-b-679")!.proofRecordId = "proof-3";
 
-const baseReadings: T.TagReading[] = runs.slice(-6).concat(runs.slice(34, 40)).flatMap((run) => {
-  const tag = run.lineId === "line-a" ? "tag-a-mixer-3" : "tag-b-press-1";
-  const base = run.lineId === "line-a" ? 84 : 236;
-  return Array.from({ length: 12 }, (_, k) => ({ ...I, tagId: tag, runId: run.id, at: at(0, 0, -k * 20), value: r1(base + Math.sin(k / 2) * 1.2 + (rnd() - 0.5)), qualityCode: (k === 7 ? "uncertain" : "good") as T.QualityCode, label: "Measured" as const }));
-});
+/** The six most recent runs of a line: these carry the historian readings. */
+const lastRunsOf = (lineId: string): T.Run[] => runs.filter((r) => r.lineId === lineId).slice(-6);
 
+const baseReadings: T.TagReading[] = lastRunsOf("line-b").flatMap((run) =>
+  Array.from({ length: 12 }, (_, k) => ({ ...I, tagId: "tag-b-press-1", runId: run.id, at: at(0, 0, -k * 20), value: r1(236 + Math.sin(k / 2) * 1.2 + (rnd() - 0.5)), qualityCode: (k === 7 ? "uncertain" : "good") as T.QualityCode, label: "Measured" as const })),
+);
 
 /**
  * Readings for every other tag: same shape as the base series (last 6 runs per line, 12 points per run),
- * values inside each tag's normal band and tied to the run's setpoints. Separate seed so the rest of the
- * dataset (which shares rnd) is unchanged.
+ * values inside each tag's normal range and, where the tag follows a setting, tied to the run's setpoint.
+ * Separate seed so the rest of the dataset (which shares rnd) is unchanged.
  */
 let tagSeed = 4242;
 function trnd(): number { tagSeed = (tagSeed * 1664525 + 1013904223) % 4294967296; return tagSeed / 4294967296; }
 type Profile = (run: T.Run, k: number) => number;
 const wave = (k: number, amp: number) => Math.sin(k / 2) * amp + (trnd() - 0.5) * amp * 0.8;
-const TAG_PROFILES: Record<string, Profile> = {
-  "tag-a-charge-1": (r, k) => r1(1200 + (k === 0 ? -40 : 0) + wave(k, 6)), // kg, charge mass settles after charging
-  "tag-a-mixer-1": (r, k) => r1(r.setpoints.agitator + wave(k, 1.5)), // rpm, follows setpoint
-  "tag-a-mixer-2": (r, k) => r1(380 + k * 3 + wave(k, 6)), // N·m, rises as viscosity builds in the hold
-  "tag-a-jacket-1": (r, k) => r1(r.setpoints["hold-temp"] + 4 + wave(k, 1)), // °C, jacket runs above batch
-  "tag-a-jacket-2": (_r, k) => r2(11 + wave(k, 0.4)), // m³/h
-  "tag-a-hold-1": (r, k) => r1(Math.min(r.setpoints["hold-time"], (k * r.setpoints["hold-time"]) / 11)), // min, elapsed hold
-  "tag-a-hold-2": (r, k) => Math.round(1900 + k * ((r.outcomes[0].value - 1900) / 11) + wave(k, 15)), // mPa·s, climbs to the run's outcome
-  "tag-a-pump-1": (_r, k) => r2(2.4 + wave(k, 0.12)), // bar
+/** Moulding tags tied to the run's settings or outcomes. */
+const MOULDING_PROFILES: Record<string, Profile> = {
   "tag-b-dryer-1": (_r, k) => r1(-40 + wave(k, 1.2)), // °C dew point
   "tag-b-press-2": (r, k) => Math.round(r.setpoints["hold-pressure"] + wave(k, 6)), // bar
   "tag-b-press-3": (r, k) => r2(r.setpoints["cycle-time"] + wave(k, 0.15)), // s
@@ -203,16 +313,40 @@ const TAG_PROFILES: Record<string, Profile> = {
   "tag-b-vision-1": (r, k) => r2(r.outcomes[2].value + wave(k, 0.08)), // g part weight around the run's mean
   "tag-b-vision-2": (r) => Math.max(0, Math.round(r.outcomes[0].value * 0.9 + (trnd() - 0.5) * 2)), // parts rejected per interval
 };
-const readingRuns = runs.slice(-6).concat(runs.slice(34, 40));
-const extraReadings: T.TagReading[] = tags.filter((t) => TAG_PROFILES[t.id]).flatMap((tag) =>
-  readingRuns.filter((r) => r.lineId === tag.lineId).flatMap((run) => {
-    const step = tag.lineId === "line-a" ? 35 : 40;
-    return Array.from({ length: 12 }, (_, k) => ({
-      ...I, tagId: tag.id, runId: run.id, at: at(0, 0, (Date.parse(run.start) - NOW_MS) / 60000 + k * step), value: TAG_PROFILES[tag.id](run, k),
+/** Tags that follow a run setpoint: [setpoint key, noise amplitude]. */
+const FOLLOWS_SETPOINT: Record<string, [string, number]> = {
+  "tag-a-heater-1": ["billet-temp", 4], "tag-a-heater-2": ["pusher-rate", 2], "tag-a-heater-3": ["coil-power", 8],
+  "tag-c-furnace-1": ["zone-temp", 2], "tag-c-furnace-2": ["soak-time", 3], "tag-c-quench-1": ["quench-oil-temp", 2],
+  "tag-d-melt-1": ["pour-temp", 3], "tag-d-melt-2": ["melt-power", 15], "tag-d-melt-3": ["hold-time", 1],
+  "tag-asset-vmc-2-2": ["cycle-time", 0.8],
+};
+const TOOL_LIFE_TAGS = new Set(["tag-asset-vmc-2-3", "tag-asset-hmc-1-3"]);
+/** Decimal places that suit a tag's range width. */
+const decimalsFor = (t: T.Tag) => ((t.range[1] - t.range[0]) >= 100 ? 0 : (t.range[1] - t.range[0]) >= 10 ? 1 : 2);
+const roundTo = (n: number, dp: number) => Math.round(n * 10 ** dp) / 10 ** dp;
+
+function profileFor(tag: T.Tag): Profile | undefined {
+  if (tag.id === "tag-b-press-1") return undefined; // carried by baseReadings
+  if (MOULDING_PROFILES[tag.id]) return MOULDING_PROFILES[tag.id];
+  const dp = decimalsFor(tag);
+  const follow = FOLLOWS_SETPOINT[tag.id];
+  if (follow) return (r, k) => roundTo(r.setpoints[follow[0]] + wave(k, follow[1]), dp);
+  if (TOOL_LIFE_TAGS.has(tag.id)) return (_r, k) => Math.round(60 + k * 26 + trnd() * 8); // parts since the last tool change, climbing
+  if (tag.id === "tag-d-spectro-1") return (r, k) => roundTo(r.outcomes[1].value + wave(k, 0.01), dp); // carbon equivalent around the heat's value
+  const mid = (tag.range[0] + tag.range[1]) / 2;
+  return (_r, k) => roundTo(mid + wave(k, (tag.range[1] - tag.range[0]) * 0.08), dp);
+}
+
+const readingRuns = lines.flatMap((l) => lastRunsOf(l.id));
+const extraReadings: T.TagReading[] = tags.filter((t) => profileFor(t)).flatMap((tag) => {
+  const profile = profileFor(tag)!;
+  return readingRuns.filter((r) => r.lineId === tag.lineId).flatMap((run) =>
+    Array.from({ length: 12 }, (_, k) => ({
+      ...I, tagId: tag.id, runId: run.id, at: at(0, 0, (Date.parse(run.start) - NOW_MS) / 60000 + k * 40), value: profile(run, k),
       qualityCode: (k === 7 && tag.id.endsWith("-1") ? "uncertain" : "good") as T.QualityCode, label: "Measured" as const,
-    }));
-  }),
-);
+    })),
+  );
+});
 export const tagReadings: T.TagReading[] = [...baseReadings, ...extraReadings];
 
 /** Every run on every line has its setpoint writes (one per line-pack setpoint). Trial-arm runs show the switches. */
@@ -221,7 +355,7 @@ export const setpointWrites: T.SetpointWrite[] = runs.flatMap((r, idx) => {
   const k = lineRuns.indexOf(r);
   const inTrialWindow = k >= lineRuns.length - 10;
   return Object.entries(r.setpoints).map(([param, value], j) => {
-    const changed = r.lineId === "line-a" ? param === "hold-temp" && inTrialWindow : param === "cycle-time" && inTrialWindow;
+    const changed = inTrialWindow && ((r.lineId === "line-a" && param === "hold-temp") || (r.lineId === "line-b" && param === "cycle-time"));
     const skipped = r.lineId === "line-a" && param === "hold-temp" && k === lineRuns.length - 7;
     const byRole: T.RoleId = r.lineId === "line-b" && changed ? "operator" : j === 0 && idx % 9 === 0 ? "shift-lead" : "operator";
     return {
@@ -240,6 +374,18 @@ export const signedWindows: T.SignedWindow[] = [
   { ...I, id: "win-b-1", lineId: "line-b", param: "melt-temp", name: "Melt temperature", unit: "°C", low: 225, high: 248, signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-30), expiresAt: at(61), version: 1, manifestRef: "manifest-demo-v7#B1" },
   { ...I, id: "win-b-2", lineId: "line-b", param: "hold-pressure", name: "Hold pressure", unit: "bar", low: 600, high: 860, narrowedLow: 640, narrowedHigh: 820, narrowedBy: "Process engineer A.", signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-30), expiresAt: at(61), version: 1, manifestRef: "manifest-demo-v7#B2" },
   { ...I, id: "win-b-3", lineId: "line-b", param: "cycle-time", name: "Cycle time", unit: "s", low: 30, high: 38, signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-30), expiresAt: at(61), version: 2, manifestRef: "manifest-demo-v7#B3" },
+  { ...I, id: "win-a-4", lineId: "line-a", param: "billet-temp", name: "Billet exit temperature", unit: "°C", low: 1170, high: 1250, narrowedLow: 1180, narrowedHigh: 1240, narrowedBy: "Process engineer A.", signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-41), expiresAt: at(50), version: 2, manifestRef: "manifest-demo-v7#A4" },
+  { ...I, id: "win-a-5", lineId: "line-a", param: "pusher-rate", name: "Pusher rate", unit: "billets/h", low: 55, high: 95, signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-41), expiresAt: at(50), version: 1, manifestRef: "manifest-demo-v7#A5" },
+  { ...I, id: "win-a-6", lineId: "line-a", param: "coil-power", name: "Coil power", unit: "kW", low: 400, high: 540, signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-41), expiresAt: at(50), version: 1, manifestRef: "manifest-demo-v7#A6" },
+  { ...I, id: "win-c-1", lineId: "line-c", param: "zone-temp", name: "Zone temperature", unit: "°C", low: 845, high: 875, narrowedLow: 850, narrowedHigh: 870, narrowedBy: "Process engineer A.", signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-41), expiresAt: at(50), version: 2, manifestRef: "manifest-demo-v7#C1" },
+  { ...I, id: "win-c-2", lineId: "line-c", param: "quench-oil-temp", name: "Quench oil temperature", unit: "°C", low: 55, high: 85, narrowedLow: 60, narrowedHigh: 80, narrowedBy: "Process engineer A.", signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-41), expiresAt: at(50), version: 1, manifestRef: "manifest-demo-v7#C2" },
+  { ...I, id: "win-c-3", lineId: "line-c", param: "soak-time", name: "Soak time", unit: "min", low: 85, high: 135, signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-41), expiresAt: at(50), version: 1, manifestRef: "manifest-demo-v7#C3" },
+  { ...I, id: "win-d-1", lineId: "line-d", param: "pour-temp", name: "Pour temperature", unit: "°C", low: 1395, high: 1445, narrowedLow: 1400, narrowedHigh: 1440, narrowedBy: "Process engineer A.", signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-41), expiresAt: at(50), version: 2, manifestRef: "manifest-demo-v7#D1" },
+  { ...I, id: "win-d-2", lineId: "line-d", param: "hold-time", name: "Hold time", unit: "min", low: 10, high: 30, signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-41), expiresAt: at(50), version: 1, manifestRef: "manifest-demo-v7#D2" },
+  { ...I, id: "win-d-3", lineId: "line-d", param: "melt-power", name: "Melt power", unit: "kW", low: 800, high: 1250, signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-41), expiresAt: at(50), version: 1, manifestRef: "manifest-demo-v7#D3" },
+  { ...I, id: "win-e-1", lineId: "line-e", param: "cycle-time", name: "Cycle time", unit: "s", low: 95, high: 125, signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-41), expiresAt: at(50), version: 1, manifestRef: "manifest-demo-v7#E1" },
+  { ...I, id: "win-e-2", lineId: "line-e", param: "spindle-speed", name: "Spindle speed", unit: "rpm", low: 2800, high: 3600, signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-41), expiresAt: at(50), version: 1, manifestRef: "manifest-demo-v7#E2" },
+  { ...I, id: "win-e-3", lineId: "line-e", param: "tool-life-limit", name: "Tool life limit", unit: "parts", low: 300, high: 450, signerRole: "plant-head", signedBy: "Plant head A.", signedAt: at(-41), expiresAt: at(50), version: 1, manifestRef: "manifest-demo-v7#E3" },
 ];
 
 export const standingApprovals: T.StandingApproval[] = [
@@ -251,12 +397,24 @@ export const standingApprovals: T.StandingApproval[] = [
 ];
 
 export const runningSettings: T.RunningSetting[] = [
-  { ...I, lineId: "line-a", param: "hold-temp", name: "Hold temperature", value: 86, unit: "°C", band: [80, 90], mode: "Trial", writtenAt: at(0, -3), signerRole: "plant-head", expiresAt: at(9), assetId: "a-hold" },
-  { ...I, lineId: "line-a", param: "hold-time", name: "Hold time", value: 55, unit: "min", band: [40, 70], mode: "Stay", writtenAt: at(-6), signerRole: "plant-head", expiresAt: at(50), assetId: "a-hold" },
-  { ...I, lineId: "line-a", param: "agitator", name: "Agitator speed", value: 150, unit: "rpm", band: [130, 170], mode: "Stay", writtenAt: at(-6), signerRole: "plant-head", expiresAt: at(50), assetId: "a-mixer" },
+  { ...I, lineId: "line-a", param: "hold-temp", name: "Hold temperature", value: 86, unit: "°C", band: [80, 90], mode: "Trial", writtenAt: at(0, -3), signerRole: "plant-head", expiresAt: at(9), assetId: "a-heater" },
+  { ...I, lineId: "line-a", param: "hold-time", name: "Hold time", value: 55, unit: "min", band: [40, 70], mode: "Stay", writtenAt: at(-6), signerRole: "plant-head", expiresAt: at(50), assetId: "a-heater" },
+  { ...I, lineId: "line-a", param: "agitator", name: "Agitator speed", value: 150, unit: "rpm", band: [130, 170], mode: "Stay", writtenAt: at(-6), signerRole: "plant-head", expiresAt: at(50), assetId: "a-press" },
   { ...I, lineId: "line-b", param: "melt-temp", name: "Melt temperature", value: 236, unit: "°C", band: [225, 248], mode: "Stay", writtenAt: at(-9), signerRole: "plant-head", expiresAt: at(61), assetId: "b-press" },
   { ...I, lineId: "line-b", param: "hold-pressure", name: "Hold pressure", value: 720, unit: "bar", band: [640, 820], mode: "Stay", writtenAt: at(-9), signerRole: "plant-head", expiresAt: at(61), assetId: "b-press" },
   { ...I, lineId: "line-b", param: "cycle-time", name: "Cycle time", value: 33.2, unit: "s", band: [30, 38], mode: "Stay", writtenAt: at(0, -5), signerRole: "plant-head", expiresAt: at(16), assetId: "b-tool" },
+  { ...I, lineId: "line-a", param: "billet-temp", name: "Billet exit temperature", value: 1210, unit: "°C", band: [1180, 1240], mode: "Stay", writtenAt: at(0, -7), signerRole: "plant-head", expiresAt: at(50), assetId: "a-heater" },
+  { ...I, lineId: "line-a", param: "pusher-rate", name: "Pusher rate", value: 75, unit: "billets/h", band: [55, 95], mode: "Stay", writtenAt: at(0, -7), signerRole: "plant-head", expiresAt: at(50), assetId: "a-heater" },
+  { ...I, lineId: "line-a", param: "coil-power", name: "Coil power", value: 470, unit: "kW", band: [400, 540], mode: "Stay", writtenAt: at(0, -7), signerRole: "plant-head", expiresAt: at(50), assetId: "a-heater" },
+  { ...I, lineId: "line-c", param: "zone-temp", name: "Zone temperature", value: 860, unit: "°C", band: [850, 870], mode: "Stay", writtenAt: at(0, -6), signerRole: "plant-head", expiresAt: at(50), assetId: "c-furnace" },
+  { ...I, lineId: "line-c", param: "quench-oil-temp", name: "Quench oil temperature", value: 70, unit: "°C", band: [60, 80], mode: "Stay", writtenAt: at(0, -6), signerRole: "plant-head", expiresAt: at(50), assetId: "c-quench" },
+  { ...I, lineId: "line-c", param: "soak-time", name: "Soak time", value: 110, unit: "min", band: [85, 135], mode: "Stay", writtenAt: at(0, -6), signerRole: "plant-head", expiresAt: at(50), assetId: "c-furnace" },
+  { ...I, lineId: "line-d", param: "pour-temp", name: "Pour temperature", value: 1420, unit: "°C", band: [1400, 1440], mode: "Stay", writtenAt: at(0, -5), signerRole: "plant-head", expiresAt: at(50), assetId: "d-melt" },
+  { ...I, lineId: "line-d", param: "hold-time", name: "Hold time", value: 18, unit: "min", band: [10, 30], mode: "Stay", writtenAt: at(0, -5), signerRole: "plant-head", expiresAt: at(50), assetId: "d-melt" },
+  { ...I, lineId: "line-d", param: "melt-power", name: "Melt power", value: 1050, unit: "kW", band: [800, 1250], mode: "Stay", writtenAt: at(0, -5), signerRole: "plant-head", expiresAt: at(50), assetId: "d-melt" },
+  { ...I, lineId: "line-e", param: "cycle-time", name: "Cycle time", value: 106.5, unit: "s", band: [95, 125], mode: "Stay", writtenAt: at(0, -8), signerRole: "plant-head", expiresAt: at(50), assetId: "asset-vmc-2" },
+  { ...I, lineId: "line-e", param: "spindle-speed", name: "Spindle speed", value: 3200, unit: "rpm", band: [2800, 3600], mode: "Stay", writtenAt: at(0, -8), signerRole: "plant-head", expiresAt: at(50), assetId: "asset-vmc-2" },
+  { ...I, lineId: "line-e", param: "tool-life-limit", name: "Tool life limit", value: 400, unit: "parts", band: [300, 450], mode: "Stay", writtenAt: at(0, -8), signerRole: "plant-head", expiresAt: at(50), assetId: "asset-vmc-2" },
 ];
 
 /* ---------------- Proposals ---------------- */
@@ -268,7 +426,7 @@ export const proposals: T.Proposal[] = [
     drivers: ["Cavity 2 pressure trend", "Part weight on cavity 2", "Tool temperature"], safetyFilter: { pass: true, rules: ["Inside narrowed band 640 to 820 bar", "Clamp force margin over 12%"] },
     fitState: "accepted", weakestLabel: "Estimated", mode: "Stay", state: "Waiting", createdAt: at(0, -1, -10), expiresAt: at(0, 2),
     stopEffect: "Stop keeps 760 bar and writes nothing new. The next value waits for a person." }),
-  P({ id: "prop-102", lineId: "line-a", assetId: "a-mixer", param: "agitator", current: 150, proposed: 158, optimiserVersion: "opt 2.4.1",
+  P({ id: "prop-102", lineId: "line-a", assetId: "a-press", param: "agitator", current: 150, proposed: 158, optimiserVersion: "opt 2.4.1",
     reason: "Torque at the end of the hold step is 6% above the grade's best batches, which tracks with high viscosity in the last four batches.",
     evidenceIds: ["EV-A-1188", "EV-A-1191"], predicted: { name: "Viscosity", low: 2430, point: 2490, high: 2560, unit: "mPa·s", spec: [2380, 2600] },
     drivers: ["End-of-hold torque", "Charge mass", "Jacket inlet temperature"], safetyFilter: { pass: true, rules: ["Inside narrowed band 130 to 170 rpm", "Seal temperature margin held"] },
@@ -280,7 +438,7 @@ export const proposals: T.Proposal[] = [
     drivers: ["Dew point", "Resin lot"], safetyFilter: { pass: true, rules: ["Inside signed band 225 to 248 °C"] },
     fitState: "accepted", weakestLabel: "Estimated", mode: "Stay", state: "Waiting", createdAt: at(0, -2), expiresAt: at(0, 1),
     stopEffect: "Stop keeps 239 °C and writes nothing new." }),
-  P({ id: "prop-104", lineId: "line-a", assetId: "a-jacket", param: "hold-temp", current: 84, proposed: 86, optimiserVersion: "opt 2.4.0",
+  P({ id: "prop-104", lineId: "line-a", assetId: "a-heater", param: "hold-temp", current: 84, proposed: 86, optimiserVersion: "opt 2.4.0",
     reason: "Batches held at 86 °C reached target viscosity 6 minutes sooner in the model of the mixer, inside the narrowed band.",
     evidenceIds: ["EV-A-1102", "EV-A-1120"], predicted: { name: "Viscosity", low: 2410, point: 2470, high: 2540, unit: "mPa·s", spec: [2380, 2600] },
     drivers: ["Hold temperature", "Hold time", "Charge mass"], safetyFilter: { pass: true, rules: ["Inside narrowed band 80 to 90 °C"] },
@@ -291,7 +449,7 @@ export const proposals: T.Proposal[] = [
     predicted: { name: "Scrap rate", low: 2.9, point: 3.2, high: 3.6, unit: "%", spec: [0, 4] }, drivers: ["Tool temperature", "Take-out time"],
     safetyFilter: { pass: true, rules: ["Inside standing approval 32.5 to 34.5 s"] }, fitState: "accepted", weakestLabel: "Measured", mode: "Stay", state: "Measuring",
     createdAt: at(-1), expiresAt: at(16), decidedBy: "Operator B.", decidedAt: at(0, -5), stopEffect: "Stop keeps 33.2 s and writes nothing new." }),
-  P({ id: "prop-106", lineId: "line-a", assetId: "a-mixer", param: "hold-time", current: 55, proposed: 50, optimiserVersion: "opt 2.4.0",
+  P({ id: "prop-106", lineId: "line-a", assetId: "a-press", param: "hold-time", current: 55, proposed: 50, optimiserVersion: "opt 2.4.0",
     reason: "Shorter hold looked possible on Grade A-12.", evidenceIds: ["EV-A-1060"], predicted: { name: "Viscosity", low: 2300, point: 2450, high: 2620, unit: "mPa·s", spec: [2380, 2600] },
     drivers: ["Hold time"], safetyFilter: { pass: false, rules: ["Predicted band crosses the upper spec"] }, fitState: "accepted", weakestLabel: "Modelled", mode: "Stay", state: "Withheld",
     createdAt: at(-2), expiresAt: at(-1), stopEffect: "Nothing was written." }),
@@ -299,7 +457,7 @@ export const proposals: T.Proposal[] = [
     reason: "Lower melt temperature to save heater energy.", evidenceIds: ["EV-B-1988"], predicted: { name: "Scrap rate", low: 3.0, point: 3.5, high: 4.1, unit: "%", spec: [0, 4] },
     drivers: ["Melt temperature", "Tool temperature"], safetyFilter: { pass: true, rules: ["Inside signed band"] }, fitState: "accepted", weakestLabel: "Estimated", mode: "Stay", state: "Declined",
     createdAt: at(-4), expiresAt: at(-3), decidedBy: "Shift lead A.", decidedAt: at(-4, 1), declineReason: "New resin lot on the line; not changing two things at once.", stopEffect: "Nothing was written." }),
-  P({ id: "prop-108", lineId: "line-a", assetId: "a-mixer", param: "agitator", current: 150, proposed: 144, optimiserVersion: "opt 2.3.9",
+  P({ id: "prop-108", lineId: "line-a", assetId: "a-press", param: "agitator", current: 150, proposed: 144, optimiserVersion: "opt 2.3.9",
     reason: "Lower speed on the low-viscosity grade.", evidenceIds: ["EV-A-1011"], predicted: { name: "Viscosity", low: 2390, point: 2440, high: 2500, unit: "mPa·s", spec: [2380, 2600] },
     drivers: ["Agitator speed"], safetyFilter: { pass: true, rules: ["Inside narrowed band"] }, fitState: "accepted", weakestLabel: "Modelled", mode: "Stay", state: "Expired",
     createdAt: at(-5), expiresAt: at(-5, 3), stopEffect: "Nothing was written." }),
@@ -307,7 +465,7 @@ export const proposals: T.Proposal[] = [
     reason: "Sink marks on rib side.", evidenceIds: ["EV-B-1902"], predicted: { name: "Scrap rate", low: 3.1, point: 3.4, high: 3.8, unit: "%", spec: [0, 4] },
     drivers: ["Hold pressure"], safetyFilter: { pass: true, rules: ["Inside narrowed band"] }, fitState: "accepted", weakestLabel: "Measured", mode: "Stay", state: "Holding",
     createdAt: at(-12), expiresAt: at(-11), decidedBy: "Operator D.", decidedAt: at(-12, 1), stopEffect: "Stop keeps the value and writes nothing new." }),
-  P({ id: "prop-110", lineId: "line-a", assetId: "a-jacket", param: "hold-temp", current: 84, proposed: 88, optimiserVersion: "opt 2.4.1",
+  P({ id: "prop-110", lineId: "line-a", assetId: "a-heater", param: "hold-temp", current: 84, proposed: 88, optimiserVersion: "opt 2.4.1",
     reason: "Model of the mixer is outside its accepted fit for the new grade A-14, so no number is offered.", evidenceIds: ["EV-A-1201"],
     predicted: { name: "Viscosity", low: 2200, point: 2500, high: 2800, unit: "mPa·s", spec: [2380, 2600] }, drivers: ["Grade change"], safetyFilter: { pass: true, rules: ["Inside narrowed band"] },
     fitState: "not accepted", weakestLabel: "Assumed", mode: "Recommend-only", state: "Withheld", createdAt: at(0, -6), expiresAt: at(1), stopEffect: "Nothing was written." }),
@@ -341,6 +499,12 @@ export const holdingChecks: T.HoldingCheck[] = [
 export const modelFits: T.ModelFit[] = [
   { ...I, modelId: "model-b", version: "b-1.6", lineId: "line-b", coverage: 0.91, heldOutN: 214, calibratedAt: at(-8), state: "accepted",
     checks: [{ name: "Held-out error", pass: true, value: "0.21 % scrap" }, { name: "90% interval coverage", pass: true, value: "91%" }, { name: "No drift in residuals", pass: true, value: "flat, 30 d" }, { name: "Physical limits respected", pass: true, value: "all" }] },
+  { ...I, modelId: "model-c", version: "c-1.1", lineId: "line-c", coverage: 0.9, heldOutN: 120, calibratedAt: at(-10), state: "accepted",
+    checks: [{ name: "Held-out error", pass: true, value: "0.8 HRC" }, { name: "90% interval coverage", pass: true, value: "90%" }, { name: "No drift in residuals", pass: true, value: "flat, 30 d" }, { name: "Physical limits respected", pass: true, value: "all" }] },
+  { ...I, modelId: "model-d", version: "d-1.0", lineId: "line-d", coverage: 0.89, heldOutN: 88, calibratedAt: at(-12), state: "accepted",
+    checks: [{ name: "Held-out error", pass: true, value: "0.4 pp scrap" }, { name: "90% interval coverage", pass: true, value: "89%" }, { name: "No drift in residuals", pass: true, value: "flat, 30 d" }, { name: "Physical limits respected", pass: true, value: "all" }] },
+  { ...I, modelId: "model-e", version: "e-1.3", lineId: "line-e", coverage: 0.92, heldOutN: 150, calibratedAt: at(-6), state: "accepted",
+    checks: [{ name: "Held-out error", pass: true, value: "0.3 pp rework" }, { name: "90% interval coverage", pass: true, value: "92%" }, { name: "No drift in residuals", pass: true, value: "flat, 30 d" }, { name: "Physical limits respected", pass: true, value: "all" }] },
   { ...I, modelId: "model-a", version: "a-2.2", lineId: "line-a", coverage: 0.81, heldOutN: 96, calibratedAt: at(-3), state: "not accepted",
     checks: [{ name: "Held-out error", pass: true, value: "41 mPa·s" }, { name: "90% interval coverage", pass: false, value: "81%, needs 85 to 95%" }, { name: "No drift in residuals", pass: true, value: "flat, 30 d" }, { name: "Physical limits respected", pass: true, value: "all" }] },
 ];
@@ -475,9 +639,15 @@ export const leases: T.Lease[] = [
 
 /* ---------------- Settings ---------------- */
 export const assignments: T.Assignment[] = [
-  { ...I, scope: "line-a", primary: "Operator A.", backup: "Operator C.", skills: ["Batch mixer", "Recipe changes"] },
+  { ...I, scope: "line-a", primary: "Operator A.", backup: "Operator C.", skills: ["Induction heating", "Die changes"] },
+  { ...I, scope: "line-c", primary: "Operator E.", backup: "Operator C.", skills: ["Furnace loading", "Quench control"] },
+  { ...I, scope: "line-d", primary: "Operator F.", backup: "Operator D.", skills: ["Melting", "Spectrometer checks"] },
+  { ...I, scope: "line-e", primary: "Operator G.", backup: "Operator B.", skills: ["Machining", "Tool changes"] },
   { ...I, scope: "line-b", primary: "Operator B.", backup: "Operator D.", skills: ["Moulding", "Tool change"] },
-  { ...I, scope: "area-mix", primary: "Process engineer A.", backup: "Shift lead A.", skills: ["Trials"] },
+  { ...I, scope: "area-forge", primary: "Process engineer A.", backup: "Shift lead A.", skills: ["Trials"] },
+  { ...I, scope: "area-heat", primary: "Process engineer A.", backup: "Shift lead A.", skills: ["Trials"] },
+  { ...I, scope: "area-foundry", primary: "Process engineer A.", backup: "Shift lead A.", skills: ["Trials"] },
+  { ...I, scope: "area-machining", primary: "Process engineer A.", backup: "Shift lead A.", skills: ["Trials"] },
   { ...I, scope: "area-mould", primary: "Process engineer A.", backup: "Shift lead A.", skills: ["Trials"] },
   { ...I, scope: "quality", primary: "Quality head A.", backup: "Shift lead A.", skills: ["Lot links", "Specs"] },
 ];
@@ -530,14 +700,14 @@ export const askThreads: T.AskThread[] = [
 const scoped = (id: string, title: string, scope: { assetId?: string; lineId: string }, q: string, claims: T.AskClaim[], confidence: { label: T.EvidenceLabel; band?: string }, refs: string[], ago: number): T.AskThread =>
   ({ ...I, id, title, scope, confidence, refs, updatedAt: at(0, -ago), messages: [{ from: "person", text: q }, { from: "stamped", claims }] });
 askThreads.push(
-  scoped("ask-m1", "Mixer M1 torque", { assetId: "a-mixer", lineId: "line-a" }, "Why is torque on Mixer M1 higher at the end of the hold?",
+  scoped("ask-m1", "Mixer M1 torque", { assetId: "a-press", lineId: "line-a" }, "Why is torque on Mixer M1 higher at the end of the hold?",
     [{ text: "End-of-hold torque is about 6% above the best batches of this grade.", evidenceIds: ["EV-A-1188"], label: "Measured" },
      { text: "It rises with viscosity on the same batches; a small increase in agitator speed is modelled to bring viscosity back inside the band.", evidenceIds: ["EV-A-1191"], label: "Modelled" }],
-    { label: "Modelled", band: "viscosity 2430 to 2560 mPa·s after the change" }, ["prop-102", "drift-1", "a-mixer"], 1),
-  scoped("ask-h1", "Hold tank H1 settings", { assetId: "a-hold", lineId: "line-a" }, "What is Hold tank H1 running at, and why?",
+    { label: "Modelled", band: "viscosity 2430 to 2560 mPa·s after the change" }, ["prop-102", "drift-1", "a-press"], 1),
+  scoped("ask-h1", "Hold tank H1 settings", { assetId: "a-heater", lineId: "line-a" }, "What is Hold tank H1 running at, and why?",
     [{ text: "Hold temperature is 86 °C as the trial arm of the current trial; hold time stays at 55 minutes.", evidenceIds: ["EV-A-1102"], label: "Measured" },
      { text: "Pressing Stop restores 84 °C from the next batch.", evidenceIds: ["EV-A-1131"], label: "Measured" }],
-    { label: "Measured", band: "signed 78 to 92 °C, narrowed to 80 to 90 °C" }, ["trial-1", "win-a-1", "a-hold"], 2),
+    { label: "Measured", band: "signed 78 to 92 °C, narrowed to 80 to 90 °C" }, ["trial-1", "win-a-1", "a-heater"], 2),
   scoped("ask-p3", "Press P3 hold pressure", { assetId: "b-press", lineId: "line-b" }, "Is it safe to raise hold pressure on Press P3?",
     [{ text: "The proposed value sits inside the narrowed band of 640 to 820 bar and passes the clamp force check.", evidenceIds: ["EV-B-2207"], label: "Measured" },
      { text: "Scrap is expected to fall slightly with the higher pressure.", evidenceIds: ["EV-B-2214"], label: "Estimated" }],

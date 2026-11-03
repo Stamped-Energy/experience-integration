@@ -41,7 +41,8 @@ export interface Asset extends Illustrative {
   id: string; lineId: string; name: string;
   section: { x: number; y: number; w: number; h: number }; keyReadingTagId: string;
 }
-export interface Tag extends Illustrative { id: string; assetId: string; lineId: string; name: string; unit: string }
+/** `range` is where the tag's readings sit in normal running (low, high), in `unit`. */
+export interface Tag extends Illustrative { id: string; assetId: string; lineId: string; name: string; unit: string; range: [number, number] }
 export interface TagReading extends Illustrative { tagId: string; runId: string; at: string; value: number; qualityCode: QualityCode; label: EvidenceLabel }
 export interface LinePack extends Illustrative {
   id: string; equipmentClass: string; runDefinition: string; series: string[]; setpoints: string[];

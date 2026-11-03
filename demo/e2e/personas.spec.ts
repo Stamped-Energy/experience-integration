@@ -30,7 +30,7 @@ test.describe("persona happy paths", () => {
     await expect(page.getByText("Process engineer view")).toBeVisible();
     await page.goto("/process/lines/line-b");
     await page.waitForLoadState("networkidle");
-    await expect(page.getByRole("heading", { name: /Line B/i }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Moulding/i }).first()).toBeVisible();
     await expect(page.getByRole("heading", { name: "Running settings", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: /Accept 760 bar/i }).first()).toBeVisible();
   });
