@@ -17,4 +17,11 @@ test.describe("quality action detail routes", () => {
       await expect(page.getByRole("link", { name: "← Back to actions" })).toBeVisible();
     });
   }
+
+  test("closed bore-scrap card shows measured-on-the-line status", async ({ page }) => {
+    await page.goto("/quality/actions/ex-q4");
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByText(/Measured on the line: bore scrap down to 1\.2%/)).toBeVisible();
+    await expect(page.locator(".action-loop-facts dt", { hasText: "Verified result" })).toBeVisible();
+  });
 });

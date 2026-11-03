@@ -41,156 +41,169 @@ export interface ActionDetailExtra {
   };
 }
 
-const lineAVisc = D.runs
+/** Overheating scrap on the most recent Forge line shift runs, from the demo run history. */
+const forgeScrap = D.runs
   .filter((r) => r.lineId === "line-a")
-  .slice(-15)
-  .map((r) => r.outcomes.find((o) => /viscosity/i.test(o.name))?.value ?? 2500);
-
-const lineBScrap = D.runs
-  .filter((r) => r.lineId === "line-b")
-  .slice(-20)
-  .map((r) => r.outcomes.find((o) => /scrap/i.test(o.name))?.value ?? 3.2);
+  .slice(-10)
+  .map((r) => r.outcomes.find((o) => o.name === "Overheating scrap")?.value ?? 1);
 
 export const ACTION_DETAIL: Record<string, ActionDetailExtra> = {
   "ex-p1": {
-    trend: { label: "Energy per good batch, Mixer 2", values: [182, 179, 175, 170, 166, 161, 158, 157], unit: "kWh" },
-    linkedRuns: ["run-a-2417", "run-a-2418"],
-    similarCases: [{ title: "Mixer 1 charge order", href: "/process/actions/ex-p4", band: "cycle 82 to 75 min" }],
-    steps: [
-      "Confirm viscosity is already inside the Grade A-12 band before cutting hold.",
-      "Apply the eight-minute hold cut inside the signed band.",
-      "Watch energy per good batch and rejection for the next forty batches.",
-    ],
-    risks: ["If viscosity drifts late, Stop restores the prior hold time from the next batch."],
-    loop: {
-      written: "Mixer 2 hold cut by eight minutes inside the signed hold-time band.",
-      measured: "Energy per good batch 157 kWh over the last forty batches; cycle 66 min; rejection 4.6%.",
-      verified: "In-band viscosity held; Stop unused; prior hold ready to restore.",
-      statusLine: "Measured on the line: energy per good batch down 13% over 40 batches",
+    trend: { label: "Overheating scrap, Forge line shift runs", values: forgeScrap, unit: "%" },
+    linkedRuns: ["run-a-2416", "run-a-2417"],
+    simulation: {
+      title: "Switchback trial on the Forge line",
+      href: "/process/trials/trial-1",
+      summary: "Alternate shift runs on the lower billet exit target; measurement plan locked before the first switch.",
     },
+    similarCases: [{ title: "Hold the coil warm through press stops", href: "/process/actions/ex-p2", band: "heats per 100 parts 109 to 104" }],
+    steps: [
+      "Run the 1205 °C billet exit target on alternate shift runs.",
+      "Compare overheating scrap and heats per 100 parts with the prior target.",
+      "Stop restores 1215 °C straight away.",
+    ],
+    risks: ["Billets that leave too cool can load the press; Stop restores the prior target."],
   },
   "ex-p2": {
-    trend: { label: "Cycle time, Press 7", values: [38.2, 38.0, 37.8, 37.1, 36.2, 35.4, 34.8, 34.5], unit: "s" },
-    linkedRuns: ["run-b-678", "run-b-679"],
-    similarCases: [{ title: "Barrel profile on Press 4", href: "/process/actions/ex-p3", band: "energy 0.51 to 0.45 kWh" }],
+    trend: { label: "Heats per 100 parts, Forge line", values: [109, 108, 108, 107, 106, 105, 105, 104], unit: "heats" },
+    linkedRuns: ["run-a-2417", "run-a-2418"],
+    similarCases: [{ title: "Pace the pusher to the press", href: "/process/actions/ex-p3", band: "billets waiting 13 to 5" }],
     steps: [
-      "Confirm cavity temperature and warp checks after early open.",
-      "Cut cool time so cycle moves from 38.0 s to 34.5 s.",
+      "Detect a press stop under ten minutes.",
+      "Drop heater H1 to the warm idle level inside the signed coil-power band.",
+      "Return to run power when the press restarts; watch heats per 100 parts for the next forty shift runs.",
+    ],
+    risks: ["If the idle level runs too cool, the first billets after a restart wait; Stop restores the prior coil power."],
+    loop: {
+      written: "Heater H1 held at a warm idle level during press stops under ten minutes, inside the signed coil-power band.",
+      measured: "Heats per 100 parts 104 over the last forty shift runs; overheating scrap 0.9%; coil energy 4% lower per 100 parts.",
+      verified: "Billet exit temperature stayed inside its band; Stop unused; prior coil power ready to restore.",
+      statusLine: "Measured on the line: heats per 100 parts down 5 over 40 shift runs",
+    },
+  },
+  "ex-p3": {
+    trend: { label: "Billets waiting in heater H1 at press stops", values: [13, 12, 12, 10, 9, 8, 6, 5], unit: "billets" },
+    linkedRuns: ["run-a-2416", "run-a-2417"],
+    similarCases: [{ title: "Trial a lower billet exit target", href: "/process/actions/ex-p1", band: "overheating scrap 1.2 to 0.8%" }],
+    steps: [
+      "Link the pusher rate to the press stroke rate.",
+      "Cap the billets held ahead of the press at six.",
+      "Watch overheating scrap and heats per 100 parts for the next eight shift runs.",
+    ],
+    risks: ["A press that restarts faster than the pusher can feed will starve; revert to the fixed rate if it does."],
+  },
+  "ex-p4": {
+    trend: { label: "Melt energy per tonne, furnace M1", values: [612, 606, 598, 592, 586, 580, 576, 574], unit: "kWh" },
+    linkedRuns: ["run-d-8826", "run-d-8827"],
+    similarCases: [{ title: "Pour temperature outside the good-heat window", href: "/quality/actions/ex-q3", band: "casting scrap 3.6 to 2.5%" }],
+    steps: [
+      "Detect a mould-line stop from the line signal.",
+      "Step melt power to the holding level inside the signed melt-power band.",
+      "Bring power back ahead of the next pour; watch pour temperature and casting scrap for the next ten heats.",
+    ],
+    risks: ["A short stop can leave the metal below the pour window; Stop restores the prior melt power."],
+  },
+  "ex-p5": {
+    trend: { label: "Cycle time, VMC-2", values: [108, 108, 107, 106, 105, 104, 103.5, 103], unit: "s" },
+    linkedRuns: ["run-e-3328", "run-e-3329"],
+    simulation: {
+      title: "Finish-pass feed on the twin",
+      href: "/process/simulate",
+      summary: "The higher feed is run on the twin first; tool life, spindle load and bore size are read before the machine is changed.",
+    },
+    similarCases: [{ title: "Tighten the cooling time on Tool T3", href: "/process/actions/ex-p6", band: "cycle 33.2 to 32.4 s" }],
+    steps: [
+      "Run the higher finish-pass feed on the twin.",
+      "Read tool life, spindle load and bore size from the twin run.",
+      "The Process engineer or Plant head decides whether to change the feed on the machine.",
+    ],
+    risks: ["A higher feed shortens tool life; the twin shows by how much before the machine takes the risk."],
+  },
+  "ex-p6": {
+    trend: { label: "Cycle time, Tool T3", values: [34.1, 34.0, 33.6, 33.4, 33.2, 33.0, 32.7, 32.4], unit: "s" },
+    linkedRuns: ["run-b-678", "run-b-679"],
+    similarCases: [{ title: "Feed change on VMC-2, tried on the twin", href: "/process/actions/ex-p5", band: "cycle 108 to 103 s" }],
+    steps: [
+      "Confirm part temperature and warp checks after early open.",
+      "Cut cool time so cycle moves from 33.2 s to 32.4 s.",
       "Watch scrap and energy per good part for two shift runs.",
     ],
     risks: ["Opening too early raises warp; Stop restores the prior cool time."],
   },
-  "ex-p3": {
-    trend: { label: "Rear-zone temperature, Press 4", values: [245, 242, 238, 235, 232, 230, 228], unit: "°C" },
-    linkedRuns: ["run-b-675", "run-b-676"],
-    simulation: {
-      title: "Switchback trial on Press 4",
-      href: "/process/trials/trial-2",
-      summary: "Alternate runs on the lower rear-zone profile; measurement plan locked before the first switch.",
-    },
-    steps: [
-      "Run the lower rear-zone profile on alternate Press 4 runs.",
-      "Compare burn-mark scrap and heater kWh to the prior profile.",
-      "Stop restores the prior profile straight away.",
-    ],
-    risks: ["Under-heating the melt can raise short shots; Stop restores the prior profile."],
-  },
-  "ex-p4": {
-    trend: { label: "Dispersion time, Mixer 1", values: [28, 27, 25, 24, 22, 21, 20], unit: "min" },
-    linkedRuns: ["run-a-2416", "run-a-2417"],
-    similarCases: [{ title: "Mixer 2 hold cut", href: "/process/actions/ex-p1", band: "energy 182 to 158 kWh" }],
-    steps: [
-      "Lock Mixer 1 charge order to liquids first, then fines.",
-      "Train the next shift on the recipe card sequence.",
-      "Watch give-away and rejection on the next eight batches.",
-    ],
-    risks: ["Wrong order on a new grade can raise lumps; revert to the prior card if torque spikes."],
-  },
-  "ex-p5": {
-    trend: { label: "Dryer energy through changeovers", values: [310, 302, 288, 275, 268, 260, 255], unit: "kWh" },
-    linkedRuns: ["run-b-675"],
-    similarCases: [{ title: "Hold moisture on nylon lots", href: "/quality/actions/ex-q4", band: "scrap 4.1 to 2.4%" }],
-    steps: [
-      "Drop dryer set point once the hopper is full at changeover.",
-      "Restore set point before the next lot starts.",
-      "Watch dew point and energy per good part for two changeovers.",
-    ],
-    risks: ["Leaving the dryer cool too long can wet the resin; restore before the next lot."],
-  },
   "ex-q1": {
-    trend: { label: "Torque curve, Batch 2417", values: lineAVisc.slice(-8).map((v, i) => 140 + i * 2 + (v % 7)), unit: "kN·m" },
-    linkedLots: ["lot-a-3307"],
-    linkedRuns: ["run-a-2417"],
-    similarCases: [{ title: "High viscosity investigation", href: "/quality/investigations/inv-1", band: "same torque path on prior rejects" }],
+    trend: { label: "Quench oil temperature by basket, tank Q1", values: [66, 67, 68, 70, 71, 73], unit: "°C" },
+    linkedLots: ["lot-c-5212"],
+    linkedRuns: ["run-c-5118", "run-c-5119"],
+    similarCases: [{ title: "Quench oil proposal on tank Q1", href: "/process/proposals/prop-111", band: "hardness 59.2 to 60.8 HRC" }],
     steps: [
-      "Confirm the three-minute correction window is still open.",
-      "Apply the signed agitator correction on Batch 2417.",
-      "Sample at the end of hold; do not release from Stamped.",
+      "Confirm the next basket has not been charged to the furnace.",
+      "Hold it at the quench door until the oil is back under 72 °C.",
+      "Sample hardness on that basket; do not release from Stamped.",
     ],
-    risks: ["Skipping the correction risks scrapping the batch at the lab."],
+    risks: ["Quenching in warm oil risks a basket below the hardness spec."],
   },
   "ex-q2": {
-    trend: { label: "Peak injection pressure, Press 7", values: [1180, 1175, 1160, 1140, 1110, 1085, 1060, 1040], unit: "bar" },
+    trend: { label: "Press force, screw press P1", values: [4620, 4650, 4710, 4790, 4880, 4960, 5040, 5100], unit: "kN" },
     spc: {
-      title: "Peak injection pressure, last shots",
-      subtitle: "Drop leads short shots by about 40 shots",
+      title: "Press force by stroke, screw press P1",
+      subtitle: "Force outliers cluster with cold billets",
       chartKind: "i_mr",
-      primary: { label: "Peak pressure", values: [1180, 1175, 1160, 1140, 1110, 1085, 1060, 1040], hits: [6, 7] },
-      cl: 1140,
-      ucl: 1220,
-      lcl: 1060,
-      unit: "bar",
-      cpk: 1.08,
+      primary: { label: "Press force", values: [4620, 4650, 4710, 4790, 4880, 4960, 5040, 5100], hits: [6, 7] },
+      cl: 4800,
+      ucl: 5000,
+      lcl: 4600,
+      unit: "kN",
+      cpk: 1.1,
     },
-    linkedRuns: ["run-b-678", "run-b-679"],
-    similarCases: [{ title: "Tighten cooling on Press 7", href: "/process/actions/ex-p2", band: "cycle 38.0 to 34.5 s" }],
+    linkedRuns: ["run-a-2416", "run-a-2417"],
+    similarCases: [{ title: "Trial a lower billet exit target", href: "/process/actions/ex-p1", band: "overheating scrap 1.2 to 0.8%" }],
     steps: [
-      "Arm the floor flag when peak injection pressure drops.",
-      "Hold the next tray for a weigh check before packing.",
+      "Arm the floor flag when cold billets and force outliers coincide.",
+      "Hold the next tray for a lap check before it moves on.",
       "Record the decision; Stamped does not scrap parts on its own.",
     ],
-    risks: ["Ignoring the pressure drop packs short shots for about forty more shots."],
+    risks: ["Ignoring the flag lets laps reach inspection, about twenty strokes later."],
   },
   "ex-q3": {
-    trend: { label: "Rejection rate on Tool 12", values: [2.8, 2.6, 2.4, 2.1, 1.9, 1.7, 1.6], unit: "%" },
+    trend: { label: "Pour temperature by ladle, heat 8836", values: [1421, 1418, 1412, 1406, 1401, 1397], unit: "°C" },
     spc: {
-      title: "Circuit 3 outlet temperature, Tool 12",
-      subtitle: "Warm circuit linked to sink marks",
+      title: "Pour temperature by ladle, heat 8836",
+      subtitle: "Cold pour leads misruns",
       chartKind: "i_mr",
-      primary: { label: "Outlet °C", values: [58, 59, 61, 62, 60, 56, 55, 55], hits: [2, 3] },
-      cl: 56,
-      ucl: 60,
-      lcl: 52,
+      primary: { label: "Pour temperature", values: [1421, 1418, 1412, 1406, 1401, 1397, 1396], hits: [5, 6] },
+      cl: 1420,
+      ucl: 1435,
+      lcl: 1405,
       unit: "°C",
-      cpk: 1.15,
+      cpk: 0.98,
     },
-    linkedLots: ["lot-b-7711"],
-    linkedRuns: ["run-b-678", "run-b-679"],
-    similarCases: [{ title: "Investigation inv-2", href: "/quality/investigations/inv-2", band: "mould temperature cause held" }],
+    linkedLots: ["lot-d-8913"],
+    linkedRuns: ["run-d-8826", "run-d-8827"],
+    similarCases: [{ title: "Low tensile on ductile iron housing", href: "/quality/investigations/inv-3", band: "carbon equivalent low on the same heats" }],
     steps: [
-      "Keep the inspection plan unchanged.",
-      "Record the circuit clear against the sink-mark map.",
-      "Watch rejection on Tool 12 for the next fortnight.",
+      "Confirm the pour temperature is under the good-heat window.",
+      "Hold the next moulds from the ladle in your quality system.",
+      "Check the first castings for misruns; the Quality head releases the hold.",
+    ],
+    risks: ["Pouring on risks misruns that only show after shakeout."],
+  },
+  "ex-q4": {
+    trend: { label: "Bore scrap at HMC-1 by heat", values: [2.6, 2.7, 2.5, 2.4, 1.8, 1.4, 1.2], unit: "%" },
+    linkedLots: ["lot-d-8913"],
+    linkedRuns: ["run-d-8826", "run-d-8827"],
+    similarCases: [{ title: "Low tensile on ductile iron housing", href: "/quality/investigations/inv-3", band: "carbon equivalent low on the same heats" }],
+    steps: [
+      "Keep the machining plan unchanged.",
+      "Record the carbon equivalent correction against the heat and the scrapped bores.",
+      "Watch bore scrap on the next six heats.",
     ],
     risks: ["None open; record only for the quality head."],
     loop: {
-      written: "Tool 12 cooling circuit 3 cleared; inspection plan left unchanged.",
-      measured: "Rejection rate 1.6% on Tool 12 since the clear; sink marks no longer follow circuit 3.",
-      verified: "Cause linked to mould temperature; Verified on the investigation record.",
-      statusLine: "Measured on the line: rejection rate down to 1.6% on Tool 12 since the clear",
+      written: "Carbon equivalent target on furnace M1 raised to the middle of its range; machining plan left unchanged.",
+      measured: "Bore scrap 1.2% on the six heats since the change; porosity no longer follows one heat.",
+      verified: "Cause linked to heat 8826; Verified on the investigation record.",
+      statusLine: "Measured on the line: bore scrap down to 1.2% on the six heats since the change",
     },
-  },
-  "ex-q4": {
-    trend: { label: "Splay scrap on nylon lots", values: lineBScrap.slice(-8), unit: "%" },
-    linkedLots: ["lot-b-7713", "lot-b-7719"],
-    linkedRuns: ["run-b-679"],
-    similarCases: [{ title: "Stop hot dryer idle", href: "/process/actions/ex-p5", band: "dryer 310 to 255 kWh" }],
-    steps: [
-      "Hold any nylon lot whose dryer log is short of the set time.",
-      "Release only when the dryer log clears.",
-      "Set the hold in your quality system; Stamped only recommends it.",
-    ],
-    risks: ["Releasing wet nylon raises splay scrap on the next press run."],
   },
 };
 

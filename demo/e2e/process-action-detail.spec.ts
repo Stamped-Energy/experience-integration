@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const PROCESS_ACTION_IDS = ["ex-p1", "ex-p2", "ex-p3", "ex-p4", "ex-p5"] as const;
+const PROCESS_ACTION_IDS = ["ex-p1", "ex-p2", "ex-p3", "ex-p4", "ex-p5", "ex-p6"] as const;
 
 test.describe("process action detail routes", () => {
   for (const id of PROCESS_ACTION_IDS) {
@@ -22,10 +22,10 @@ test.describe("process action detail routes", () => {
     });
   }
 
-  test("running Mixer 2 action shows measured-on-the-line status", async ({ page }) => {
-    await page.goto("/process/actions/ex-p1");
+  test("running coil-warm action shows measured-on-the-line status", async ({ page }) => {
+    await page.goto("/process/actions/ex-p2");
     await page.waitForLoadState("networkidle");
-    await expect(page.getByText(/Measured on the line: energy per good batch down 13%/)).toBeVisible();
+    await expect(page.getByText(/Measured on the line: heats per 100 parts down 5/)).toBeVisible();
     await expect(page.locator(".action-loop-facts dt", { hasText: "Written" })).toBeVisible();
     await expect(page.locator(".action-loop-facts dt", { hasText: "Measured after" })).toBeVisible();
     await expect(page.locator(".action-loop-facts dt", { hasText: "Verified result" })).toBeVisible();
