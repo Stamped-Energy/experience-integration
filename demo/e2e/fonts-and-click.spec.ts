@@ -80,6 +80,27 @@ test.describe("font tokens and whole-row click", () => {
     expect(actions[0].family, JSON.stringify(actions[0])).not.toMatch(/Space Grotesk/i);
   });
 
+  test("status tags use Geist sans at ops-tag size", async ({ page }) => {
+    await page.goto("/process/actions");
+    await page.waitForLoadState("networkidle");
+    const tag = page.locator(".tag").first();
+    await expect(tag).toBeVisible();
+    const metrics = await tag.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return {
+        family: s.fontFamily,
+        size: s.fontSize,
+        height: s.height,
+        transform: s.textTransform,
+      };
+    });
+    expect(metrics.family, JSON.stringify(metrics)).toMatch(/Geist/i);
+    expect(metrics.family, JSON.stringify(metrics)).not.toMatch(/Mono/i);
+    expect(metrics.size).toBe("12px");
+    expect(metrics.height).toBe("22px");
+    expect(metrics.transform).toBe("none");
+  });
+
   test("clicking lot row body (not the name) opens the lot", async ({ page }) => {
     await page.goto("/quality");
     await page.waitForLoadState("networkidle");
