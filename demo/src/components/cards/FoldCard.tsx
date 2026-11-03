@@ -42,12 +42,14 @@ export function FoldCard({
   labelledBy,
   anchor,
   detailHref,
+  className,
 }: {
   summary: ReactNode;
   children: ReactNode;
   labelledBy: string;
   anchor?: string;
   detailHref?: string;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const id = useId();
@@ -55,7 +57,7 @@ export function FoldCard({
   const api: FoldApi = { open, toggle: () => setOpen((o) => !o), controlsId: id };
   return (
     <FoldCtx.Provider value={api}>
-      <article id={anchor} className={["card ex-card", surface].filter(Boolean).join(" ")} aria-labelledby={labelledBy} data-open={open}>
+      <article id={anchor} className={["card ex-card", surface, className].filter(Boolean).join(" ")} aria-labelledby={labelledBy} data-open={open}>
         <div className="ex-fold-row">
           {detailHref ? (
             <Link href={detailHref} className="ex-fold ex-fold-link" scroll={false} aria-labelledby={labelledBy}>

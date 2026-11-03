@@ -26,7 +26,7 @@ export const PROCESS_HUBS: HubDef[] = [
   {
     id: "actions",
     sidebarLabel: "Actions",
-    sidebarHref: "/process/proposals",
+    sidebarHref: "/process/actions",
     audience: "client",
     tabs: [
       { href: "/process/proposals", label: "Proposals", match: exactOrPrefix("/process/proposals") },

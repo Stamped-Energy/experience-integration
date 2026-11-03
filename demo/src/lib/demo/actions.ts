@@ -98,7 +98,7 @@ export const exampleActions: T.ExampleAction[] = [
     why: "Knowing the likely lab result 40 min early leaves time to fix the lot instead of reworking it.",
     href: "/quality/lots/lot-a-3307", hrefLabel: "Open lot 3307" },
   { ...I, id: "ex-q3", area: "Quality", lineId: "line-a", steps: ["Explain", "Propose"], mechanism: "Tracing a lot to its cause",
-    outcome: { metric: "Viscosity, next batches", before: "2610 to 2680 mPa·s", after: "2520 to 2590 mPa·s", label: "Modelled" },
+    outcome: { metric: "Viscosity (next batches)", before: "2610–2680", after: "2520–2590 mPa·s", label: "Modelled" },
     title: "Lots 3307 and 3296 share one cause: high torque at the end of hold",
     seen: "Both lots link to batches 2416 and 2417. Charge mass was in recipe on both, but end-of-hold torque ran 6% above the grade's best batches.",
     evidence: [{ text: "Lot to batch links, with their confidence", label: "Estimated", id: "EV-A-1185" }, { text: "End-of-hold torque, both batches", label: "Measured", id: "EV-A-1188" }, { text: "Charge mass inside recipe", label: "Measured" }],

@@ -173,8 +173,21 @@
 .ex-outcome--hero { font-size: 22px; margin: 0; }
 .ex-outcome-metric { color: var(--text-primary); font-weight: 600; }
 .ex-outcome-now { color: var(--text-primary); font-weight: 600; }
-.ex-outcome-after { color: #e85d4c; font-weight: 600; }
+.ex-outcome-after { color: var(--accent-500); font-weight: 600; }
 .ex-outcome-arrow-target { white-space: nowrap; }
+.ex-card.is-closed .ex-outcome-after { color: var(--text-secondary); font-weight: 600; }
+@media (max-width: 380px) {
+  .ex-outcome { flex-direction: column; align-items: flex-start; }
+}
+.filter-empty { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); padding: var(--space-4) 0; }
+.filter-empty-hint { margin: 0; font-size: 13px; }
+.chip.chip-zero:not(.on) { color: var(--text-muted); border-color: var(--border); background: transparent; }
+[data-density="compact"] .ex-outcome--card { font-size: 13px; }
+[data-density="compact"] .action-detail-bar .btn-lg { height: 36px; padding: 0 var(--space-4); font-size: 14px; }
+[data-density="compact"] .action-detail-hero { padding: var(--space-3); }
+.open-actions-compact { display: flex; flex-direction: column; gap: 6px; margin-bottom: var(--space-2); }
+.open-actions-compact a { font-size: 13px; font-weight: 500; text-decoration: none; color: var(--accent-700); }
+.open-actions-compact a:hover { text-decoration: underline; }
 .ex-outcome-tag { flex: none; font-size: 10px; letter-spacing: 0.04em; transform: translateY(-1px); }
 .ex-outcome-tag .tag { font-size: 10px; padding: 1px 6px; }
 .ex-card[data-open="true"] .ex-fold-row { display: none; }
@@ -196,6 +209,8 @@
 .action-detail-charts { display: flex; flex-direction: column; gap: var(--space-4); margin-top: var(--space-4); }
 .open-actions-row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); text-decoration: none; color: inherit; font-size: 14px; font-weight: 600; }
 .act-group[data-act-group="decision"] .ex-body-simple { min-height: 148px; }
+.act-group[data-act-group="decision"] .ex-card > .card-foot,
+.act-pack-row .ex-card > .card-foot { min-height: 52px; align-items: center; }
 .ex-why { padding: 0 !important; border: 0 !important; background: none !important; display: block !important; font-size: 13px !important; color: var(--text-secondary); margin-top: 2px !important; }
 .ex-why b { color: var(--text-primary); font-weight: 500; }
 .show-more { align-self: flex-start; }

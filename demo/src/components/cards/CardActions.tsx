@@ -41,11 +41,12 @@ export function CardActions({
     <div className="card-foot">
       {actions.map((a) => {
         const deniedPrimary = a.primary && !a.allowed;
+        const deniedSecondary = !a.primary && !a.allowed;
         return (
           <button
             key={a.id}
             type="button"
-            className={`btn${a.primary ? (deniedPrimary ? " btn-primary-denied" : " btn-primary") : ""}${size}`}
+            className={`btn${a.primary ? (deniedPrimary ? " btn-primary-denied" : " btn-primary") : deniedSecondary ? " btn-secondary-denied" : ""}${size}`}
             disabled={!a.allowed}
             title={!a.allowed ? a.reason : undefined}
             onClick={() => (a.id === "adjust" && adjust ? setAdjusting(true) : setDone(a.done))}

@@ -7,6 +7,7 @@ import { demoRole } from "@/lib/role";
 import { rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { EmptyState, PageHeader, Section, Tabs, Tag } from "@/components/ui/primitives";
+import { FilterEmpty } from "@/components/ui/FilterEmpty";
 import { InboxCard } from "@/components/inbox/InboxCard";
 import { DeskDayList } from "@/components/desk/desk-day";
 import { deskToday } from "@/lib/demo/desk";
@@ -37,10 +38,12 @@ export default function Inbox() {
     <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Inbox" }, { label: heading.label }]} askContext="Inbox">
       <PageHeader eyebrow="Inbox" title={heading.label} meta={`${mine.length} of ${items.length} ${mine.length === 1 ? "is" : "are"} for the ${D.byId.role(role).name.toLowerCase()}. Each one names an owner, a due time and the proof.`} />
       {tabs}
-      {me ? <div className="chips filter-row" role="group" aria-label="Filter"><Link className={`chip${sp.mine ? "" : " on"}`} href={`/inbox?tab=${tab}`} scroll={false}>Everything</Link><Link className={`chip${sp.mine ? " on" : ""}`} href={`/inbox?tab=${tab}&mine=1`} scroll={false}>Assigned to me <span className="cnt">{all.filter((i) => A.assigned[i.id]?.to === me).length}</span></Link></div> : null}
+      {me ? <div className="chips filter-row" role="group" aria-label="Filter"><Link className={`chip${sp.mine ? "" : " on"}`} href={`/inbox?tab=${tab}`} scroll={false}>Everything</Link><Link className={`chip${sp.mine ? " on" : ""}${all.filter((i) => A.assigned[i.id]?.to === me).length === 0 ? " chip-zero" : ""}`} href={`/inbox?tab=${tab}&mine=1`} scroll={false}>Assigned to me <span className="cnt">{all.filter((i) => A.assigned[i.id]?.to === me).length}</span></Link></div> : null}
       <div className="grid">
         <div className="span-8 stack-sm">
-          {first ? <div className="stack-sm"><InboxCard item={first} role={role} /><div className="assign-bar"><span className="label">Assignee</span><Assign initial={A.assigned[first.id]} people={A.PEOPLE} canAssign={canAssign} by={me ?? "Plant head A."} />{canAssign ? null : <span className="muted" style={{ fontSize: 12 }}>Shift lead, process engineer, quality head or plant head can assign</span>}</div></div> : <EmptyState title="Nothing here" body="Items arrive here when an agent needs a person." />}
+          {sp.mine && items.length === 0 && all.length > 0 ? (
+            <FilterEmpty clearHref={`/inbox?tab=${tab}`} hint="None of these items are assigned to you." />
+          ) : first ? <div className="stack-sm"><InboxCard item={first} role={role} /><div className="assign-bar"><span className="label">Assignee</span><Assign initial={A.assigned[first.id]} people={A.PEOPLE} canAssign={canAssign} by={me ?? "Plant head A."} />{canAssign ? null : <span className="muted" style={{ fontSize: 12 }}>Shift lead, process engineer, quality head or plant head can assign</span>}</div></div> : <EmptyState title="Nothing here" body="Items arrive here when an agent needs a person." />}
           {rest.length ? (
             <Section title="Also in this list" meta={`${rest.length} items`} flush>
               <div className="rows">

@@ -24,6 +24,7 @@ import * as A from "@/lib/demo/agent";
 import { Assign } from "@/components/agent/Assign";
 import { CardActions } from "./CardActions";
 import { deniedReason } from "./DecisionCard";
+import { FilterEmpty } from "@/components/ui/FilterEmpty";
 import { stretchOver } from "@/components/ui/StretchLink";
 
 const STEP_WORD: Record<ActionStep, string> = { Detect: "See", Explain: "Explain", Propose: "Change", Trial: "Try", Verify: "Check", Learn: "Learn", Decide: "Decide" };
@@ -106,8 +107,10 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
     ? `${c.changed} · ${c.by} · ${c.state}`
     : `${a.action} · ${whoDecidesShort(a.who.how)} · ${names(a.who.roles)}`;
 
+  const linkCta = !c && !decisionActions.length && a.href;
+
   return (
-    <FoldCard summary={summary} labelledBy={`${a.id}-t`} anchor={a.id} detailHref={href}>
+    <FoldCard summary={summary} labelledBy={`${a.id}-t`} anchor={a.id} detailHref={href} className={c ? "is-closed" : undefined}>
       <div className="card-head">
         <span className="card-head-meta">
           <span className="src">{a.area} agent</span>
@@ -133,7 +136,15 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
           <Assign initial={A.assigned[a.id]} people={A.PEOPLE} canAssign={A.ASSIGNERS.includes(role)} by={A.ME[role] ?? "Plant head A."} />
         </div>
       </div>
-      {!c && (decisionActions.length || stop) ? <CardActions actions={decisionActions} stop={stop} /> : null}
+      {!c && linkCta && !decisionActions.length && !stop ? (
+        <div className="card-foot">
+          <Link href={a.href!} className="btn btn-primary" scroll={false} onClick={(e) => e.stopPropagation()}>
+            {a.hrefLabel ?? "Open"}
+          </Link>
+        </div>
+      ) : !c && (decisionActions.length || stop) ? (
+        <CardActions actions={decisionActions} stop={stop} />
+      ) : null}
     </FoldCard>
   );
 }
@@ -293,7 +304,9 @@ export function ActionsBoard({
 }) {
   const me = A.ME[role];
   const all = listActions(area, lineId ?? line);
-  const list = all.filter((a) => (!status || groupOf(a) === status) && (!mine || (me && A.assigned[a.id]?.to === me)));
+  const filtered = all.filter((a) => (!status || groupOf(a) === status) && (!mine || (me && A.assigned[a.id]?.to === me)));
+  const list = filtered;
+  const hasFilters = !!(status || line || mine);
   const q = (p: Record<string, string | undefined>) => {
     const u = new URLSearchParams({ tab: "actions" });
     const v = { status, line, mine, ...p };
@@ -301,7 +314,7 @@ export function ActionsBoard({
     return `${base}?${u}`;
   };
   const chip = (on: boolean, href: string, label: string, n?: number) => (
-    <Link className={`chip${on ? " on" : ""}`} href={href} scroll={false}>
+    <Link className={`chip${on ? " on" : ""}${n === 0 ? " chip-zero" : ""}`} href={href} scroll={false}>
       {label}
       {n !== undefined ? <span className="cnt">{n}</span> : null}
     </Link>
@@ -328,8 +341,14 @@ export function ActionsBoard({
           </span>
         ) : null}
       </div>
-      {list.length === 0 ? <p className="secondary" style={{ margin: 0 }}>No actions match these filters.</p> : null}
-      <ActionGrid list={list} role={role} />
+      {list.length === 0 ? (
+        <FilterEmpty
+          clearHref={hasFilters ? q({ status: undefined, line: undefined, mine: undefined }) : undefined}
+          hint={mine && all.length > 0 ? "None of these actions are assigned to you." : undefined}
+        />
+      ) : (
+        <ActionGrid list={list} role={role} />
+      )}
     </div>
   );
 }

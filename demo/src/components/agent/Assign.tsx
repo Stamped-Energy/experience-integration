@@ -39,7 +39,7 @@ export function Assign({
       ) : null}
       {canAssign ? (
         <span className="assign-pop">
-          <button type="button" className="btn btn-sm btn-quiet" aria-expanded={open} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen((o) => !o); }}>{a ? "Reassign" : "Assign"}</button>
+          <button type="button" className="btn btn-sm btn-outline" aria-expanded={open} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen((o) => !o); }}>{a ? "Reassign" : "Assign"}</button>
           {open ? (
             <span className="assign-menu" role="menu">
               {people.map((p) => <button key={p} type="button" role="menuitem" className={a?.to === p ? "on" : undefined} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setA({ to: p, by }); setOpen(false); }}>{p}</button>)}

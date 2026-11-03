@@ -1,12 +1,20 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts/core";
 import { LineChart } from "echarts/charts";
-import { GridComponent, MarkLineComponent, TooltipComponent } from "echarts/components";
+import { GridComponent, MarkAreaComponent, MarkLineComponent, TooltipComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
+import { cssVar } from "@/lib/css-vars";
 
-echarts.use([LineChart, GridComponent, MarkLineComponent, TooltipComponent, CanvasRenderer]);
+echarts.use([LineChart, GridComponent, MarkAreaComponent, MarkLineComponent, TooltipComponent, CanvasRenderer]);
+
+function specBandFill(): string {
+  if (typeof document === "undefined") return "rgba(47, 158, 106, 0.2)";
+  const dark = document.documentElement.dataset.theme === "dark";
+  const success = cssVar("--success", "#2F9E6A");
+  return `color-mix(in srgb, ${success} ${dark ? "28%" : "20%"}, transparent)`;
+}
 
 export type SpcControlChartProps = {
   title: string;
@@ -52,24 +60,32 @@ export function SpcControlChart({
   specLinesOnly = false,
 }: SpcControlChartProps) {
   const host = useRef<HTMLDivElement>(null);
+  const [themeTick, setThemeTick] = useState(0);
+  useEffect(() => {
+    const obs = new MutationObserver(() => setThemeTick((n) => n + 1));
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => obs.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!host.current) return undefined;
     const chart = echarts.init(host.current, undefined, { renderer: "canvas" });
+    const labelColor = cssVar("--text-secondary", "#64748b");
+    const accent = cssVar("--accent-500", "#F75440");
+    const seriesBlue = cssVar("--cat-2", "#2563eb");
     const hitSet = new Set(primary.hits ?? []);
     const lastIdx = primary.values.length - 1;
     const x = primary.values.map((_, i) => String(i + 1));
     const yName = unit ? `${primary.label} (${unit})` : primary.label;
     const markArea =
       lsl != null && usl != null
-        ? [
-            {
-              itemStyle: { color: "rgba(34, 197, 94, 0.14)" },
-              data: [[{ yAxis: lsl }, { yAxis: usl }]],
-            },
-          ]
+        ? {
+            silent: true,
+            itemStyle: { color: specBandFill() },
+            data: [[{ yAxis: lsl }, { yAxis: usl }]],
+          }
         : undefined;
-    const lineEnd = { position: "end" as const, formatter: "{b}", color: "#475569", fontSize: 11 };
+    const lineEnd = { position: "end" as const, formatter: "{b}", color: labelColor, fontSize: 11 };
     const markLine = {
       symbol: "none",
       label: lineEnd,
@@ -100,11 +116,11 @@ export function SpcControlChart({
         type: "line",
         data: primary.values.map((v, i) => ({
           value: v,
-          itemStyle: hitSet.has(i) || i === lastIdx ? { color: "#E85D4C", borderColor: "#E85D4C" } : undefined,
+          itemStyle: hitSet.has(i) || i === lastIdx ? { color: accent, borderColor: accent } : undefined,
           symbolSize: hitSet.has(i) || i === lastIdx ? 10 : 6,
         })),
         showSymbol: true,
-        lineStyle: { color: "#2563eb", width: 2 },
+        lineStyle: { color: seriesBlue, width: 2 },
         markLine,
         markArea,
         markPoint:
@@ -113,7 +129,7 @@ export function SpcControlChart({
                 symbol: "pin",
                 symbolSize: 42,
                 data: [{ name: "Now", coord: [lastIdx, primary.values[lastIdx]], value: primary.values[lastIdx] }],
-                label: { formatter: "{c}", fontSize: 11 },
+                label: { formatter: "{c}", fontSize: 11, color: cssVar("--text-primary", "#0f172a") },
               }
             : undefined,
       },
@@ -147,7 +163,7 @@ export function SpcControlChart({
       ro.disconnect();
       chart.dispose();
     };
-  }, [primary, secondary, cl, ucl, lcl, usl, lsl, targetY, unit, chartKind, yMin, yMax, specLinesOnly]);
+  }, [primary, secondary, cl, ucl, lcl, usl, lsl, targetY, unit, chartKind, yMin, yMax, specLinesOnly, themeTick]);
 
   return (
     <div className="spc-chart-card">

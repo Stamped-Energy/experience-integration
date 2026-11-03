@@ -8,7 +8,8 @@ import * as D from "@/lib/demo/data";
 import { dayMonth, hhmm, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { openActionCount } from "@/components/cards/ExampleActions";
+import { openActionCount, listActions, groupOf } from "@/components/cards/ExampleActions";
+import { actionHref, actionShortTitle } from "@/lib/demo/actions";
 import { Sparkline } from "@/components/ui/charts";
 import { LimitsBand } from "@/components/ui/LimitsBand";
 import { DataTable, EvidenceTag, LineModeTag, ModeTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
@@ -24,6 +25,9 @@ export default function ProcessLines() {
   const recent = D.runs.slice().sort((a, b) => b.end.localeCompare(a.end)).slice(0, 10);
   const fits = Object.fromEntries(D.modelFits.map((f) => [f.lineId, f]));
   const openActions = openActionCount("Process");
+  const openActionLinks = listActions("Process")
+    .filter((a) => groupOf(a) !== "closed")
+    .slice(0, 4);
   return (
     <Workspace crumbs={crumbs({ label: "Lines" })} askContext="Process lines">
       <PageHeader eyebrow={processEyebrow("/process")} title="Lines" meta="Line status, recent runs and running settings."
@@ -64,6 +68,13 @@ export default function ProcessLines() {
                 { key: "x", label: "Expires", render: (r) => rel(r.expiresAt) },
               ]} />
             </Section>
+          </div>
+          <div className="open-actions-compact" aria-label="Open actions">
+            {openActionLinks.map((a) => (
+              <Link key={a.id} href={actionHref(a)} scroll={false}>
+                {actionShortTitle(a)}
+              </Link>
+            ))}
           </div>
           <Link className="open-actions-row" href="/process/actions">
             <span>Open actions ({openActions})</span>
