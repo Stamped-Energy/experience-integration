@@ -10,7 +10,7 @@ const TAG: Record<ActionOutcome["label"], string> = {
   Unknown: "UNKNOWN",
 };
 
-/** Compact outcome for a wide action card row. */
+/** Compact outcome for a wide action card row. Shows measured-after next to modelled when present. */
 export function ActionOutcomeChip({ outcome }: { outcome: ActionOutcome }) {
   const { metric, now, after } = outcomePhrase(outcome);
   return (
@@ -24,6 +24,12 @@ export function ActionOutcomeChip({ outcome }: { outcome: ActionOutcome }) {
             →{" "}
           </span>
           <span className="ex-outcome-after">{after}</span>
+          {outcome.measuredAfter ? (
+            <span className="ex-outcome-measured" title="Measured on the line after the change">
+              {" "}
+              · line {outcome.measuredAfter}
+            </span>
+          ) : null}
         </span>
         <Tag tone="neutral">{TAG[outcome.label]}</Tag>
       </span>

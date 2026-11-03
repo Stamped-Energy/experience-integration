@@ -1,119 +1,214 @@
-/** Extra measurable outcomes and calculation steps per action card (illustrative demo). */
+/** Extra measurable outcomes and calculation steps per action card (illustrative demo). All displayed values are MODELLED. */
 import type { ActionOutcome, ExampleAction, OutcomeCalculation } from "./types";
 import { actionOutcomeForDisplay } from "./actions";
 
+const M = "Modelled" as const;
+
 const METRICS: Record<string, ActionOutcome[]> = {
   "ex-p1": [
-    { metric: "Energy per good part", before: "0.41 kWh/t", after: "0.38 to 0.40 kWh/t", label: "Estimated" },
-    { metric: "Hold time", before: "55 min", after: "57 min", label: "Measured" },
+    { metric: "Cycle time", before: "74 min", after: "66 min", label: M, measuredAfter: "66 min" },
+    { metric: "Rejection rate", before: "4.8%", after: "4.6%", label: M, measuredAfter: "4.6%" },
   ],
   "ex-p2": [
-    { metric: "Scrap on first batch", before: "8 to 12%", after: "2 to 5%", label: "Estimated" },
-    { metric: "Cycle to discharge", before: "142 min", after: "136 to 140 min", label: "Modelled" },
+    { metric: "Energy per good part", before: "0.42 kWh", after: "0.38 kWh", label: M },
+    { metric: "Scrap", before: "3.1%", after: "2.9%", label: M },
   ],
   "ex-p3": [
-    { metric: "Energy per good part", before: "0.39 kWh/t", after: "0.37 to 0.38 kWh/t", label: "Estimated" },
-    { metric: "Scrap", before: "2.8%", after: "2.4 to 2.7%", label: "Measured" },
+    { metric: "Scrap", before: "2.6%", after: "2.2%", label: M },
+    { metric: "Cycle time", before: "41 s", after: "40 s", label: M },
   ],
   "ex-p4": [
-    { metric: "Scrap", before: "3.0%", after: "2.7 to 2.9%", label: "Estimated" },
-    { metric: "Resin moisture", before: "0.18%", after: "0.12 to 0.15%", label: "Measured" },
-    { metric: "Dryer cycle", before: "4.0 h", after: "3.5 h", label: "Measured" },
+    { metric: "Material give-away", before: "1.9%", after: "1.2%", label: M },
+    { metric: "Rejection rate", before: "5.2%", after: "4.1%", label: M },
   ],
   "ex-p5": [
-    { metric: "Energy per good part", before: "0.42 kWh/t", after: "0.40 to 0.41 kWh/t", label: "Measured" },
-  ],
-  "ex-p6": [
-    { metric: "Reject rate", before: "420 ppm", after: "0 ppm", label: "Measured" },
-    { metric: "Flash and short shots", before: "14 per shift", after: "0 per shift", label: "Measured" },
+    { metric: "Dryer energy per shift", before: "310 kWh", after: "255 kWh", label: M },
   ],
   "ex-q1": [
-    { metric: "Scrap", before: "2.4%", after: "2.0 to 2.3%", label: "Estimated" },
-    { metric: "Reject rate", before: "180 ppm", after: "90 to 120 ppm", label: "Estimated" },
+    { metric: "Material per good batch", before: "1,020 kg", after: "1,000 kg", label: M },
+    { metric: "Energy per good batch", before: "190 kWh", after: "172 kWh", label: M },
   ],
   "ex-q2": [
-    { metric: "Lab lead time", before: "40 min after discharge", after: "0 min at end of hold", label: "Measured" },
-    { metric: "Scrap if over spec", before: "12 t lot", after: "3 to 5 t at risk", label: "Modelled" },
+    { metric: "Energy per good part", before: "0.44 kWh", after: "0.41 kWh", label: M },
   ],
-  "ex-q3": [
-    { metric: "Material at risk", before: "24 t", after: "8 to 12 t", label: "Modelled" },
-    { metric: "Energy per good part", before: "0.40 kWh/t", after: "0.37 to 0.39 kWh/t", label: "Estimated" },
-  ],
+  "ex-q3": [],
   "ex-q4": [
-    { metric: "Inspection time, cavity 1", before: "60 min per shift", after: "30 min per shift", label: "Measured" },
-    { metric: "Reject rate", before: "210 ppm", after: "160 to 190 ppm", label: "Estimated" },
-  ],
-  "ex-q5": [
-    { metric: "Part weight, cavity 2", before: "47.7 g", after: "48.0 to 48.2 g", label: "Measured" },
-    { metric: "Reject rate", before: "380 ppm", after: "240 to 290 ppm", label: "Measured" },
-  ],
-  "ex-q6": [
-    { metric: "Trace time on complaint", before: "45 min", after: "5 min", label: "Estimated" },
-    { metric: "Lots at risk from gap", before: "3 lots", after: "0 lots", label: "Measured" },
+    { metric: "Material per good part", before: "52 g", after: "51 g", label: M },
   ],
 };
 
 const CALC: Record<string, OutcomeCalculation[]> = {
   "ex-p1": [
-    { metric: "Viscosity at discharge", inputs: ["Batch 2418 path vs best 20 batches", "Jacket inlet 1.5 °C cool", "Hold extension 2 min"], formula: "Twin path + jacket offset → viscosity band", result: "2460 to 2540 mPa·s", label: "Modelled" },
-    { metric: "Energy per good part", inputs: ["Extra hold 2 min", "Jacket duty cycle"], formula: "Δt_hold × jacket kW ÷ good tonnes", result: "≈0.01 kWh/t (demo)", label: "Estimated" },
-    { metric: "Hold time", inputs: ["Standing approval 52 to 58 min", "Slow heat-up detected"], formula: "55 min → 57 min inside approval", result: "57 min for batch 2418", label: "Measured" },
+    {
+      metric: "Energy per good batch",
+      inputs: ["Mixer 2 kWh meter", "Good batches after viscosity in band", "Scrap and rework batches included in the divisor"],
+      formula: "kWh ÷ good batches (scrap and rework count in the energy per good figure)",
+      result: "182 → 158 kWh (line 157 kWh)",
+      label: M,
+    },
+    {
+      metric: "Cycle time",
+      inputs: ["Charge to discharge clock", "Viscosity in band eight minutes early"],
+      formula: "Prior hold end minus early-in-band window",
+      result: "74 → 66 min",
+      label: M,
+    },
+    {
+      metric: "Rejection rate",
+      inputs: ["Lab rejects on Mixer 2", "Good batches in the same window"],
+      formula: "Rejected ÷ discharged batches",
+      result: "4.8 → 4.6%",
+      label: M,
+    },
   ],
   "ex-p2": [
-    { metric: "Viscosity, first batch", inputs: ["5 best A-14 batches", "Two reworked changeovers"], formula: "Best-batch settings → first-batch band", result: "2650 to 2790 mPa·s", label: "Estimated" },
-    { metric: "Scrap on first batch", inputs: ["Historical rework rate on A-14"], formula: "Rework batches ÷ first batches (demo)", result: "2 to 5%", label: "Estimated" },
-    { metric: "Cycle to discharge", inputs: ["Hold 58 min", "Agitator 146 rpm"], formula: "Recipe time model (demo)", result: "136 to 140 min", label: "Modelled" },
+    {
+      metric: "Cycle time",
+      inputs: ["Press 7 cycle timer", "Cavity temperature at ejection"],
+      formula: "Cool cut while part is already stable at open",
+      result: "38.0 → 34.5 s",
+      label: M,
+    },
+    {
+      metric: "Energy per good part",
+      inputs: ["Press kWh", "Good parts", "Scrap and rework parts in the divisor"],
+      formula: "kWh ÷ good parts (scrap and rework count in energy per good)",
+      result: "0.42 → 0.38 kWh",
+      label: M,
+    },
+    {
+      metric: "Scrap",
+      inputs: ["Vision scrap codes", "Parts produced"],
+      formula: "Scrap ÷ parts",
+      result: "3.1 → 2.9%",
+      label: M,
+    },
   ],
   "ex-p3": [
-    { metric: "Time to target viscosity", inputs: ["Alternating 84 vs 86 °C arms", "10 of 16 batches done"], formula: "Matched-batch median Δt to target", result: "8.0 to 11.0 min", label: "Measured" },
-    { metric: "Energy per good part", inputs: ["Arm B jacket duty", "Good parts count"], formula: "kWh ÷ good tonnes per arm", result: "0.37 to 0.38 kWh/t", label: "Estimated" },
-    { metric: "Scrap", inputs: ["Shift scrap logs during trial"], formula: "Scrap parts ÷ good parts", result: "2.4 to 2.7%", label: "Measured" },
+    {
+      metric: "Energy per good part",
+      inputs: ["Barrel heater kWh", "Good parts", "Scrap and rework in the divisor"],
+      formula: "Heater kWh ÷ good parts (scrap and rework count in energy per good)",
+      result: "0.51 → 0.45 kWh",
+      label: M,
+    },
+    {
+      metric: "Scrap",
+      inputs: ["Burn-mark defect codes", "Parts produced"],
+      formula: "Burn scrap ÷ parts",
+      result: "2.6 → 2.2%",
+      label: M,
+    },
+    {
+      metric: "Cycle time",
+      inputs: ["Press 4 cycle timer"],
+      formula: "Mean cycle after lower rear zones",
+      result: "41 → 40 s",
+      label: M,
+    },
   ],
   "ex-p4": [
-    { metric: "Energy per good part", inputs: ["Output-adjusted kWh", "Resin lot change date"], formula: "kWh ÷ good tonnes, mix-adjusted", result: "0.36 to 0.39 kWh/t", label: "Estimated" },
-    { metric: "Scrap", inputs: ["Moisture proxy from dew point"], formula: "Moisture → scrap elasticity (demo)", result: "2.7 to 2.9%", label: "Estimated" },
-    { metric: "Resin moisture", inputs: ["Dew point at minus 40 °C", "Cycle length"], formula: "Dryer model equilibrium moisture", result: "0.12 to 0.15%", label: "Measured" },
-    { metric: "Dryer cycle", inputs: ["Current 4.0 h cycle", "Dew point stable 30 min before end"], formula: "Shorten while dew point holds", result: "3.5 h planned", label: "Measured" },
+    {
+      metric: "Cycle time",
+      inputs: ["Mixer 1 charge to discharge", "Dispersion time after liquids-first order"],
+      formula: "Recipe time with fines after liquids",
+      result: "82 → 75 min",
+      label: M,
+    },
+    {
+      metric: "Material give-away",
+      inputs: ["Corrective top-up mass", "Batch charge mass"],
+      formula: "Top-up ÷ charge mass",
+      result: "1.9 → 1.2%",
+      label: M,
+    },
+    {
+      metric: "Rejection rate",
+      inputs: ["Lab rejects for lumps and under-dispersion", "Batches discharged"],
+      formula: "Rejected ÷ discharged",
+      result: "5.2 → 4.1%",
+      label: M,
+    },
   ],
   "ex-p5": [
-    { metric: "Parts per shift", inputs: ["33.2 s cycle matched runs", "Production system counts"], formula: "Parts shift_after ÷ parts shift_before", result: "836 to 847 parts", label: "Measured" },
-    { metric: "Energy per good part", inputs: ["Same matched runs"], formula: "kWh ÷ good parts", result: "0.41 to 0.42 kWh/t", label: "Measured" },
-    { metric: "Scrap", inputs: ["Vision and scrap logs"], formula: "Scrap ÷ good parts", result: "2.8 to 3.0%", label: "Measured" },
-  ],
-  "ex-p6": [
-    { metric: "Scrap from hold pressure", inputs: ["40 shift runs", "Defect map vs pressure"], formula: "Defects inside 640 to 820 bar only", result: "0% in 34 runs since narrow", label: "Measured" },
-    { metric: "Reject rate", inputs: ["Customer reject records", "Hold pressure excursions"], formula: "Rejects ÷ parts × 10⁶", result: "0 ppm since narrow", label: "Measured" },
-    { metric: "Flash and short shots", inputs: ["Vision defect codes"], formula: "Count per shift", result: "0 per shift", label: "Measured" },
+    {
+      metric: "Energy per good part",
+      inputs: ["Dryer and press kWh", "Good parts", "Scrap and rework in the divisor"],
+      formula: "kWh ÷ good parts (scrap and rework count in energy per good)",
+      result: "0.47 → 0.43 kWh",
+      label: M,
+    },
+    {
+      metric: "Dryer energy per shift",
+      inputs: ["Dryer meter through changeovers", "Hopper-full windows"],
+      formula: "Shift dryer kWh with idle cut when hopper is full",
+      result: "310 → 255 kWh",
+      label: M,
+    },
   ],
   "ex-q1": [
-    { metric: "Part weight, cavity 2", inputs: ["Vision weight last 3 shifts", "Lot 7713 estimated band"], formula: "Trend + band vs spec 47.6 g", result: "47.5 to 48.0 g → hold at 48.0 g", label: "Estimated" },
-    { metric: "Scrap", inputs: ["Segregation plan", "Historical light parts"], formula: "Expected scrap if band crosses LSL (demo)", result: "2.0 to 2.3%", label: "Estimated" },
-    { metric: "Reject rate", inputs: ["ppm if shipped at band edge"], formula: "Out-of-spec probability × volume", result: "90 to 120 ppm", label: "Estimated" },
+    {
+      metric: "Rejection rate",
+      inputs: ["Torque path vs last three rejected batches", "Batch 2417 still in hold"],
+      formula: "Saved batch vs scrap-at-lab baseline",
+      result: "5.0 → 3.2%",
+      label: M,
+    },
+    {
+      metric: "Material per good batch",
+      inputs: ["Charge mass", "Good batches after correction"],
+      formula: "Material used ÷ good batches",
+      result: "1,020 → 1,000 kg",
+      label: M,
+    },
+    {
+      metric: "Energy per good batch",
+      inputs: ["Mixer kWh", "Good batches", "Scrap and rework in the divisor"],
+      formula: "kWh ÷ good batches (scrap and rework count in energy per good)",
+      result: "190 → 172 kWh",
+      label: M,
+    },
   ],
   "ex-q2": [
-    { metric: "Viscosity", inputs: ["Linked batches 2416–2417", "Torque and temperature"], formula: "Lot join model → viscosity band", result: "2540 to 2630 mPa·s", label: "Modelled" },
-    { metric: "Lab lead time", inputs: ["Normal sample after discharge", "Early sample at end of hold"], formula: "Δt sampling point", result: "40 min earlier", label: "Measured" },
-    { metric: "Scrap if over spec", inputs: ["Lot size 12 t", "Band vs USL 2600"], formula: "Fraction above USL × lot mass (demo)", result: "3 to 5 t at risk", label: "Modelled" },
+    {
+      metric: "Scrap",
+      inputs: ["Peak injection pressure drop", "Vision short-shot codes"],
+      formula: "Short-shot scrap ÷ parts after early flag",
+      result: "3.4 → 1.9%",
+      label: M,
+    },
+    {
+      metric: "Energy per good part",
+      inputs: ["Press kWh", "Good parts", "Scrap and rework in the divisor"],
+      formula: "kWh ÷ good parts (scrap and rework count in energy per good)",
+      result: "0.44 → 0.41 kWh",
+      label: M,
+    },
   ],
   "ex-q3": [
-    { metric: "Viscosity (next batches)", inputs: ["Torque 6% high", "Agitator correction band"], formula: "Process model Δrpm → Δviscosity", result: "2520 to 2590 mPa·s", label: "Modelled" },
-    { metric: "Material at risk", inputs: ["Lots 3307 and 3296 mass"], formula: "Share of lot mass above spec if uncorrected (demo)", result: "8 to 12 t", label: "Modelled" },
-    { metric: "Energy per good part", inputs: ["Higher agitator duty"], formula: "ΔkWh ÷ good tonnes (demo)", result: "0.37 to 0.39 kWh/t", label: "Estimated" },
+    {
+      metric: "Rejection rate",
+      inputs: ["Sink-mark map on Tool 12", "Circuit 3 outlet temperature", "Parts after circuit clear"],
+      formula: "Sink rejects ÷ parts after warm circuit cleared",
+      result: "2.8 → 1.6% (line 1.6%)",
+      label: M,
+    },
   ],
   "ex-q4": [
-    { metric: "Inspection time, cavity 1", inputs: ["Hourly vs 2-hourly plan", "Shift length"], formula: "Weigh events × minutes", result: "30 min per shift saved on cavity 1", label: "Measured" },
-    { metric: "Inspection time, cavity 2", inputs: ["Freed time reallocated"], formula: "Shift minutes moved to cavity 2", result: "45 min per shift on cavity 2", label: "Measured" },
-    { metric: "Reject rate", inputs: ["Cavity 2 drift history"], formula: "ppm with reallocated checks (demo)", result: "160 to 190 ppm", label: "Estimated" },
-  ],
-  "ex-q5": [
-    { metric: "Scrap", inputs: ["Lots after hold pressure change", "Before 3.2% baseline"], formula: "Scrap ÷ good parts", result: "2.9%", label: "Measured" },
-    { metric: "Part weight, cavity 2", inputs: ["Vision after correction"], formula: "Mean weight vs prior 47.7 g", result: "48.0 to 48.2 g", label: "Measured" },
-    { metric: "Reject rate", inputs: ["Customer rejects", "Volume shipped"], formula: "Rejects ÷ parts × 10⁶", result: "240 to 290 ppm", label: "Measured" },
-  ],
-  "ex-q6": [
-    { metric: "Link confidence, lot 7721", inputs: ["Time proximity", "Recipe match", "Sequence", "Missing scan"], formula: "Weighted join score (demo)", result: "0.71 → 0.94 confirmed", label: "Measured" },
-    { metric: "Trace time on complaint", inputs: ["Manual trace without link", "Linked lot record"], formula: "Median trace minutes (demo)", result: "45 min → 5 min", label: "Estimated" },
-    { metric: "Lots at risk from gap", inputs: ["Scanner gap window", "Unlinked lots"], formula: "Lots in gap hour", result: "0 after confirm", label: "Measured" },
+    {
+      metric: "Scrap",
+      inputs: ["Dryer log vs splay scrap", "Nylon lots under set dry time"],
+      formula: "Splay scrap ÷ parts after hold-until-clear",
+      result: "4.1 → 2.4%",
+      label: M,
+    },
+    {
+      metric: "Material per good part",
+      inputs: ["Shot weight", "Good parts after hold"],
+      formula: "Material used ÷ good parts",
+      result: "52 → 51 g",
+      label: M,
+    },
   ],
 };
 
@@ -128,7 +223,7 @@ export function actionOutcomesForDisplay(a: ExampleAction): ActionOutcome[] {
     seen.add(key);
     out.push(o);
   }
-  return out;
+  return out.slice(0, 3);
 }
 
 export function calculationsForAction(a: ExampleAction): OutcomeCalculation[] {

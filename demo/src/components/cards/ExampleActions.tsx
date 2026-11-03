@@ -1,5 +1,5 @@
 /**
-Action cards for Process and Quality: each card shows what Stamped saw, the evidence,
+ * Action cards for Process and Quality: each card shows what Stamped saw, the evidence,
  * the change it makes or asks for, who decides, and the expected result as a label and band.
  */
 import Link from "next/link";
@@ -19,6 +19,7 @@ import { dayMonth, hhmm } from "@/lib/format";
 import { FoldCard, FoldCardChevron } from "./FoldCard";
 import { ActionOutcomeStrip } from "./ActionOutcomeStrip";
 import { actionOutcomesForDisplay } from "@/lib/demo/actionOutcomes";
+import { actionIsApplied, detailFor } from "@/lib/demo/actionDetail";
 import { ShowMore } from "./ShowMore";
 import * as A from "@/lib/demo/agent";
 import { Assign } from "@/components/agent/Assign";
@@ -88,6 +89,7 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
   const statusTone = c ? "success" : status === "Needs a decision" ? "info" : status === "Trial running" ? "accent" : "neutral";
   const href = actionHref(a);
   const outcomes = actionOutcomesForDisplay(a);
+  const appliedLoop = actionIsApplied(a) ? detailFor(a).loop : undefined;
   const decisionActions = cardDecisionActions(a, role);
   const summary = (
     <span className="ex-sum">
@@ -125,6 +127,12 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
           {a.title}
         </h3>
         <ActionOutcomeStrip outcomes={outcomes} />
+        {appliedLoop?.statusLine ? (
+          <p className="ex-loop-status">
+            <span className="ex-loop-status-text">{appliedLoop.statusLine}</span>
+            <Tag tone="neutral">MODELLED</Tag>
+          </p>
+        ) : null}
         <p className="ex-why-line ex-why-clamp">{a.seen}</p>
         <p className="ex-why-line ex-why-clamp">{a.why}</p>
         <p className="ex-foot-meta muted">{footerMeta}</p>
