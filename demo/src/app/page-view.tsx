@@ -60,7 +60,7 @@ export default function Home() {
       {view === "overview" ? <Overview role={role} /> : null}
       {view === "plant" ? <PlantView role={role} /> : null}
       {view === "shift" ? <ShiftView role={role} /> : null}
-      {view === "line" ? <LineView role={role} lineId={sp.line === "line-b" ? "line-b" : "line-a"} /> : null}
+      {view === "line" ? <LineView role={role} lineId={D.byId.line(sp.line ?? "") ? sp.line! : "line-a"} /> : null}
       {view === "owner" ? <OwnerView role={role} /> : null}
     </Workspace>
   );
@@ -242,6 +242,8 @@ function LineView({ role, lineId }: { role: RoleId; lineId: string }) {
   const pack = D.byId.linePack(line.linePackId)!;
   const writes = D.setpointWrites.filter((w) => w.param === pack.keySetpoint && D.runs.find((r) => r.id === w.runId)?.lineId === lineId).slice(-6).reverse();
   const writeUnit = settings.find((s) => s.param === pack.keySetpoint)?.unit ?? "";
+  const restoreParam = trial ? Object.keys(trial.restoreTarget)[0] : "";
+  const restoreText = trial ? `${Object.values(trial.restoreTarget)[0]} ${D.byId.window(lineId, restoreParam)?.unit ?? ""}`.trim() : "";
   return (
     <div className="stack">
       <div className="line-pick">
@@ -272,10 +274,10 @@ function LineView({ role, lineId }: { role: RoleId; lineId: string }) {
           <section className="section">
             <div className="section-head"><h2>{trial ? "Trial running" : "Stop"}</h2>{trial ? <span className="section-meta">{nameOf(trial.id)}</span> : null}</div>
             <div className="section-body stack-sm" style={{ fontSize: 14 }}>
-              {trial ? <><div style={{ fontWeight: 500 }}>{trial.change}</div><div className="secondary">{trial.switches.filter((s) => s.done).length} of 16 {pack.labels.runs.toLowerCase()} done · restore target {Object.values(trial.restoreTarget)[0]} °C</div></> : null}
+              {trial ? <><div style={{ fontWeight: 500 }}>{trial.change}</div><div className="secondary">{trial.switches.filter((s) => s.done).length} of 16 {pack.labels.runs.toLowerCase()} done · restore target {restoreText}</div></> : null}
               <div className="secondary">{trial ? `Stop restores the checked prior value from the next ${pack.labels.run.toLowerCase()}. If restore fails the line goes recommend-only.` : "Stop keeps the current values and writes nothing new until a person decides."}</div>
             </div>
-            <CardActions actions={[]} large stop={{ effect: trial ? `Prior value 84 °C restores from the next ${pack.labels.run.toLowerCase()}.` : "Values kept; nothing new is written.", allowed: can(role, "press-stop", lineId), reason: deniedReason("press-stop", "press Stop") }} />
+            <CardActions actions={[]} large stop={{ effect: trial ? `Prior value ${restoreText} restores from the next ${pack.labels.run.toLowerCase()}.` : "Values kept; nothing new is written.", allowed: can(role, "press-stop", lineId), reason: deniedReason("press-stop", "press Stop") }} />
           </section>
           <Section title="This shift" meta={line.short} flush>
             <div className="fit-cols" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))" }}>

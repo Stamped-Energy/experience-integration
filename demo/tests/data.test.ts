@@ -155,3 +155,18 @@ test("operators are scoped to all five lines and can decide on each", () => {
   for (const l of D.lines) assert.ok(can("operator", "decide-proposal", l.id), l.id);
   for (const l of D.lines) assert.ok(D.people.some((p) => p.roles.some((r) => r.role === "operator" && r.scope === l.id)), `operator for ${l.id}`);
 });
+test("pinned ids sit on metal-works records and no mixing vocabulary is left in the plant records", () => {
+  assert.equal(D.byId.lot("lot-a-3307")?.lineIds[0], "line-a");
+  assert.equal(D.lotProperties.find((p) => p.lotId === "lot-a-3307")?.name, "Decarb depth");
+  assert.equal(D.runs.find((r) => r.id === "run-a-2417")?.lineId, "line-a");
+  assert.ok("billet-temp" in D.runs.find((r) => r.id === "run-a-2417")!.setpoints);
+  assert.equal(D.investigations.find((i) => i.id === "inv-1")?.title, "Deep decarburisation on axle shaft 4140");
+  assert.equal(D.byId.trial("trial-2")?.lineId, "line-b");
+  for (const l of ["line-c", "line-d", "line-e"]) {
+    assert.ok(D.proposals.some((p) => p.lineId === l), `${l} proposal`);
+    assert.ok(D.lots.some((x) => x.lineIds[0] === l), `${l} lot`);
+  }
+  assert.ok(D.trials.some((t) => t.lineId === "line-c") && D.stopEvents.some((s) => s.lineId === "line-d") && D.investigations.some((i) => i.id === "inv-3"));
+  const records = JSON.stringify([D.runs, D.lots, D.lotProperties, D.proposals, D.trials, D.stopEvents, D.measurementPlans, D.investigations, D.inboxItems, D.shiftEvents, D.corrections, D.signedWindows, D.runningSettings, D.driftSignals, D.askThreads, D.savedAnswers, D.notes]);
+  assert.ok(!/viscosity|mixer|agitator|jacket|hold temperature|hold-temp|hold tank|torque|mPa\u00b7s/i.test(records), "mixing vocabulary in plant records");
+});

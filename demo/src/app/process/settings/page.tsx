@@ -12,7 +12,11 @@ import { crumbs, processEyebrow } from "@/components/process/common";
 export const metadata = { title: "Running settings" };
 
 export default async function RunningSettings() {
-  const writes = D.setpointWrites.slice().reverse();
+  const trial = D.trials.find((t) => t.status === "running");
+  const trialParam = trial ? Object.keys(trial.restoreTarget)[0] : "";
+  const trialLine = trial ? D.byId.line(trial.lineId) : undefined;
+  const trialWindow = trial ? D.byId.window(trial.lineId, trialParam) : undefined;
+  const writes = D.setpointWrites.filter((w) => w.param === trialParam && D.runs.find((r) => r.id === w.runId)?.lineId === trial?.lineId).reverse();
   return (
     <Workspace crumbs={crumbs({ label: "Running settings" })} askContext="Running settings">
       <PageHeader eyebrow={processEyebrow("/process/settings")} title="Running settings" meta="Every value written, its mode, who signed the window, and when it expires."
@@ -35,9 +39,9 @@ export default async function RunningSettings() {
           ))}
         </div>
         <div className="span-4 xl-span-3 stack ctx">
-          <Section title="Last writes" meta="Line A trial batches" flush>
+          <Section title="Last writes" meta={`${trialLine?.short ?? "Line"} trial runs`} flush>
             <ul className="tl">{writes.map((w) => (
-              <li key={w.runId}><span className="t">{dayMonth(w.at)} {hhmm(w.at)}</span><span className={`k ${w.status === "skipped" ? "s" : "w"}`} /><span>Hold temperature {w.value} °C<span className="cell-sub">{w.reason ?? `${w.source} · ${nameOf(w.runId)}`}</span></span><Tag tone={w.status === "skipped" ? "warning" : "neutral"}>{w.status}</Tag></li>
+              <li key={w.runId}><span className="t">{dayMonth(w.at)} {hhmm(w.at)}</span><span className={`k ${w.status === "skipped" ? "s" : "w"}`} /><span>{trialWindow?.name ?? trialParam} {w.value} {trialWindow?.unit}<span className="cell-sub">{w.reason ?? `${w.source} · ${nameOf(w.runId)}`}</span></span><Tag tone={w.status === "skipped" ? "warning" : "neutral"}>{w.status}</Tag></li>
             ))}</ul>
           </Section>
           <Section title="Standing approvals" flush>
