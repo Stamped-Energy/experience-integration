@@ -199,6 +199,8 @@ export interface ActionOutcome {
   before: string;
   after: string;
   label: EvidenceLabel;
+  /** On applied cards: what the line measured after the change (still demo MODELLED). */
+  measuredAfter?: string;
 }
 
 /** How a displayed outcome was derived (detail page). */

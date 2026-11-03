@@ -44,17 +44,11 @@ export function CardActions({
   return (
     <div className={footClass}>
       {actions.map((a) => {
-        const deniedPrimary = a.primary && !a.allowed;
-        const deniedSecondary = !a.primary && !a.allowed;
         const className = a.allowed
           ? a.primary
             ? " btn-primary"
             : ""
-          : deniedPrimary
-            ? " btn-quiet"
-            : deniedSecondary
-              ? " btn-secondary-denied"
-              : " btn-quiet";
+          : " btn-quiet";
         return (
           <button
             key={a.id}
@@ -68,7 +62,7 @@ export function CardActions({
               else setDone(a.done);
             }}
           >
-            {!a.allowed && a.primary ? <Icon.lock width={14} height={14} aria-hidden /> : null}
+            {!a.allowed ? <Icon.lock width={14} height={14} aria-hidden /> : null}
             {a.label}
           </button>
         );

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-/** Empty state when list filters hide every row. */
+/** Empty state when list filters hide every row. Matches EmptyState chrome. */
 export function FilterEmpty({
   clearHref,
   hint,
@@ -10,8 +10,8 @@ export function FilterEmpty({
   hint?: ReactNode;
 }) {
   return (
-    <div className="filter-empty" role="status">
-      <p className="filter-empty-title">No actions match these filters.</p>
+    <div className="empty filter-empty" role="status">
+      <h3 className="filter-empty-title">No actions match these filters.</h3>
       {hint ? <p className="muted filter-empty-hint">{hint}</p> : null}
       {clearHref ? (
         <Link className="btn btn-sm btn-outline" href={clearHref} scroll={false}>

@@ -11,7 +11,7 @@ import {
   optionShortLabel,
   whoDecidesShort,
 } from "@/lib/demo/actions";
-import { detailFor } from "@/lib/demo/actionDetail";
+import { actionIsApplied, detailFor } from "@/lib/demo/actionDetail";
 import { actionOutcomesForDisplay, calculationsForAction } from "@/lib/demo/actionOutcomes";
 import { byId, roles, runs } from "@/lib/demo/data";
 import { demoRole } from "@/lib/role";
@@ -24,9 +24,12 @@ import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { SpcControlChart } from "@/components/view/spc-control-chart";
+import { RunChart } from "@/components/ui/charts";
 import * as A from "@/lib/demo/agent";
 import { crumbs as processCrumbs, processEyebrow, runLabel } from "@/components/process/common";
 import { crumbs as qualityCrumbs, lotNo, qualityEyebrow } from "@/components/quality/common";
+
+const LOOP_STEPS = ["Recommend", "Apply", "Measure", "Learn"] as const;
 
 function roleNames(ids: RoleId[]) {
   const n = ids.map((r) => roles.find((x) => x.id === r)!.name);
@@ -69,6 +72,51 @@ function detailBarActions(a: ExampleAction, role: RoleId) {
   return acts;
 }
 
+function ClosedLoopBlock({
+  loop,
+}: {
+  loop?: {
+    written: string;
+    measured: string;
+    verified: string;
+    statusLine: string;
+  };
+}) {
+  return (
+    <div className="action-closed-loop">
+      <p>Every action is tried on the model first, applied on the line, then measured, and the result feeds the next one.</p>
+      <ol className="action-loop-diagram" aria-label="Closed loop steps">
+        {LOOP_STEPS.map((step, i) => (
+          <li key={step}>
+            <span className="action-loop-step">{step}</span>
+            {i < LOOP_STEPS.length - 1 ? (
+              <span className="action-loop-arrow" aria-hidden>
+                →
+              </span>
+            ) : null}
+          </li>
+        ))}
+      </ol>
+      {loop ? (
+        <dl className="action-loop-facts">
+          <div>
+            <dt>Written</dt>
+            <dd>{loop.written}</dd>
+          </div>
+          <div>
+            <dt>Measured after</dt>
+            <dd>{loop.measured}</dd>
+          </div>
+          <div>
+            <dt>Verified result</dt>
+            <dd>{loop.verified}</dd>
+          </div>
+        </dl>
+      ) : null}
+    </div>
+  );
+}
+
 export function ActionDetailView({ id }: { id: string }) {
   const a = getAction(id);
   if (!a) notFound();
@@ -82,6 +130,7 @@ export function ActionDetailView({ id }: { id: string }) {
       : qualityCrumbs({ label: "Actions", href: listHref }, { label: actionShortTitle(a) });
   const eyebrow = a.area === "Process" ? processEyebrow(actionHref(a)) : qualityEyebrow(actionHref(a));
   const c = a.closed;
+  const applied = actionIsApplied(a);
   const stop =
     a.who.how === "On its own, inside the signed band"
       ? { effect: "Stopped. The previous setting comes back and nothing new is written.", allowed: can(role, "press-stop", a.lineId), reason: deniedReason("press-stop", "press Stop") }
@@ -89,6 +138,7 @@ export function ActionDetailView({ id }: { id: string }) {
   const outcomes = actionOutcomesForDisplay(a);
   const calcs = calculationsForAction(a);
   const spcChart = detail.spc;
+  const trend = detail.trend;
   const barActions = !c && a.options?.length ? detailBarActions(a, role) : [];
 
   return (
@@ -111,6 +161,12 @@ export function ActionDetailView({ id }: { id: string }) {
       />
       <div className="action-detail-hero">
         <ActionOutcomeStrip outcomes={outcomes} />
+        {applied && detail.loop?.statusLine ? (
+          <p className="ex-loop-status">
+            <span className="ex-loop-status-text">{detail.loop.statusLine}</span>
+            <Tag tone="neutral">MODELLED</Tag>
+          </p>
+        ) : null}
         <p className="action-detail-hero-cap muted">
           Illustrative outcomes on the demonstration plant model
           {c?.result ? (
@@ -139,13 +195,9 @@ export function ActionDetailView({ id }: { id: string }) {
       <div className="grid action-detail-grid">
         <div className="span-8 stack">
           <Section title="What changes">
-            <p style={{ margin: "0 0 8px", lineHeight: 1.5, fontWeight: 500 }}>{c ? c.changed : a.action}</p>
-            <p style={{ margin: 0, lineHeight: 1.5 }}>{a.seen}</p>
-          </Section>
-          <Section title="Summary">
-            <p className="ex-why" style={{ margin: 0 }}>
-              <b>Why it matters:</b> {a.why}
-            </p>
+            <p className="detail-lede">{c ? c.changed : a.action}</p>
+            <p className="detail-body">{a.seen}</p>
+            <p className="detail-why muted">{a.why}</p>
           </Section>
           <Section title="How we calculated this" meta="Inputs, formula and result for each outcome on this card" flush>
             <DataTable
@@ -153,11 +205,11 @@ export function ActionDetailView({ id }: { id: string }) {
               rowKey={(r) => r.metric}
               rows={calcs}
               columns={[
-                { key: "m", label: "Metric", render: (r) => <span style={{ fontWeight: 600 }}>{r.metric}</span> },
-                { key: "i", label: "Inputs", render: (r) => <ul className="calc-inputs">{r.inputs.map((x) => <li key={x}>{x}</li>)}</ul> },
-                { key: "f", label: "Formula", render: (r) => r.formula },
-                { key: "r", label: "Result", mono: true, render: (r) => r.result },
-                { key: "l", label: "Basis", render: (r) => <EvidenceTag label={r.label} /> },
+                { key: "m", label: "Metric", width: "16%", render: (r) => <span style={{ fontWeight: 600 }}>{r.metric}</span> },
+                { key: "i", label: "Inputs", width: "26%", render: (r) => <ul className="calc-inputs">{r.inputs.map((x) => <li key={x}>{x}</li>)}</ul> },
+                { key: "f", label: "Formula", width: "26%", render: (r) => <span className="calc-formula">{r.formula}</span> },
+                { key: "r", label: "Result", width: "22%", mono: true, render: (r) => <span className="calc-result">{r.result}</span> },
+                { key: "l", label: "Basis", width: "10%", render: (r) => <EvidenceTag label={r.label} /> },
               ]}
             />
           </Section>
@@ -167,23 +219,38 @@ export function ActionDetailView({ id }: { id: string }) {
               rowKey={(e) => e.id ?? e.text}
               rows={a.evidence}
               columns={[
-                { key: "id", label: "Source", mono: true, render: (e) => e.id ?? "—" },
+                { key: "id", label: "Source", mono: true, render: (e) => e.id ?? "-" },
                 { key: "l", label: "Label", render: (e) => <EvidenceTag label={e.label} /> },
                 { key: "t", label: "Record", render: (e) => e.text },
               ]}
             />
-            {spcChart ? (
+            {(spcChart || trend) ? (
               <div className="action-detail-charts">
-                <SpcControlChart {...spcChart} height={240} />
+                {spcChart ? <SpcControlChart {...spcChart} height={240} /> : null}
+                {trend ? (
+                  <figure className="action-detail-trend">
+                    <figcaption className="muted" style={{ marginBottom: 8, fontSize: 13 }}>
+                      {trend.label}
+                      {trend.unit ? ` · ${trend.unit}` : ""}
+                    </figcaption>
+                    <RunChart
+                      values={trend.values}
+                      spec={trend.spec}
+                      unit={trend.unit}
+                      height={160}
+                      width={640}
+                      label={trend.label}
+                    />
+                  </figure>
+                ) : null}
               </div>
             ) : null}
+            <ClosedLoopBlock loop={applied ? detail.loop : undefined} />
           </Section>
           <Section title="Recommended steps">
-            <ol style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.5 }}>
+            <ol className="detail-steps">
               {detail.steps.map((s) => (
-                <li key={s} style={{ marginBottom: 6 }}>
-                  {s}
-                </li>
+                <li key={s}>{s}</li>
               ))}
             </ol>
           </Section>

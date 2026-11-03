@@ -101,7 +101,7 @@ export default function LotDetail() {
               { key: "r", label: "Run", render: (l) => <Link className="link" href={`/process/runs/${l.runId}`}>{runLabel(D.runs.find((r) => r.id === l.runId)!)}</Link> },
               { key: "e", label: "Ended", mono: true, render: (l) => { const r = D.runs.find((x) => x.id === l.runId)!; return `${dayMonth(r.end)} ${hhmm(r.end)}`; } },
               ...D.runs.find((r) => r.id === links[0]?.runId)!.outcomes.filter((o) => o.unit !== "flag").map((o) => ({ key: o.name, label: o.name, align: "right" as const, render: (l: typeof links[number]) => { const x = D.runs.find((r) => r.id === l.runId)!.outcomes.find((y) => y.name === o.name)!; return <>{x.value} {x.unit} <EvidenceTag label={x.label} /></>; } })),
-              { key: "s", label: "Link", render: (l) => <>{l.link_confidence.toFixed(2)} <Tag>{l.status}</Tag></> },
+              { key: "s", label: "Link", align: "right", render: (l) => <span className="num tabular">{l.link_confidence.toFixed(2)} <Tag>{l.status}</Tag></span> },
             ]} />
           </Section>
           <Section title={`Other ${gradeOf(lot).name} lots`} meta="Newest first" flush>

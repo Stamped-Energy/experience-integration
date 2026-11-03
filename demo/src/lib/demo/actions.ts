@@ -1,141 +1,224 @@
 /**
  * Worked example actions for the Process and Quality overviews. Fictional and illustrative, on the demonstration plant.
- * Together they walk the chain: see a drift or loss in plant data, explain it with evidence, change a setting inside
- * the signed limits, try it properly, check it against the plant's own records, and keep what works.
- * Figures agree with data.ts (lots, proofs, trials, standing approvals). None is a customer result.
+ * Figures are MODELLED demo values. Line A is batch mixing; Line B is moulding. None is a customer result.
  */
 import type * as T from "./types";
 import { at } from "./data";
 
 const I = { illustrative: true } as const;
+const M = "Modelled" as const;
 
 export const exampleActions: T.ExampleAction[] = [
   /* ---------------- Process ---------------- */
-  { ...I, id: "ex-p1", area: "Process", lineId: "line-a", steps: ["Detect", "Propose"], mechanism: "Keeping a batch on its best path",
-    outcome: { metric: "Viscosity at discharge", before: "2480 to 2560 mPa·s", after: "2460 to 2540 mPa·s", label: "Modelled" },
-    title: "Batch 2418 is heating up slowly, so the hold step runs 2 min longer",
-    seen: "Batch 2418 reached hold temperature 4 min later than the best 20 batches of Grade A-12. The jacket inlet ran 1.5 °C cool after the cooling water changeover.",
-    evidence: [{ text: "Batch temperature against the best-batch path", label: "Measured", id: "EV-A-1194" }, { text: "Jacket inlet temperature, last 6 h", label: "Measured", id: "EV-A-1195" }],
-    action: "Hold time 55 to 57 min for this batch only. It sits inside the standing approval of 52 to 58 min.",
-    who: { how: "On its own, inside the signed band", roles: ["plant-head"], note: "Written under the standing approval the Plant head signed. Any operator can press Stop and 55 min comes back." },
-    expected: { label: "Modelled", band: "viscosity 2460 to 2540 mPa·s at discharge" },
-    why: "Catching a slow batch while it runs saves the batch, instead of finding it at the lab." },
-  { ...I, id: "ex-p2", area: "Process", lineId: "line-a", steps: ["Propose"], mechanism: "Settings that follow the product",
-    outcome: { metric: "Viscosity, first batch", before: "2720 to 2880 mPa·s", after: "2650 to 2790 mPa·s", label: "Estimated" },
-    title: "Grade A-14 is next: start it from its own best batches",
-    seen: "After batch 2420 the line changes from Grade A-12 to A-14. The last two A-14 changeovers each needed one batch reworked.",
-    evidence: [{ text: "5 best A-14 batches, hold time and agitator speed", label: "Measured", id: "EV-A-1061" }, { text: "Two reworked first batches after changeover", label: "Measured", id: "EV-A-1064" }],
-    action: "Load hold time 58 min and agitator speed 146 rpm for the first A-14 batch, both inside the A-14 band.",
-    who: { how: "A person decides", roles: ["process-engineer", "shift-lead", "plant-head"], note: "The Process engineer, Shift lead or Plant head accepts the changeover settings before batch 2421 is charged." },
-    options: [{ id: "accept", label: "Use these settings", primary: true, done: "Changeover settings accepted for batch 2421." }, { id: "keep", label: "Keep current recipe", done: "Kept the current recipe. The reason is recorded." }],
-    expected: { label: "Estimated", band: "first batch viscosity 2650 to 2790 mPa·s, spec 2600 to 2840" },
-    why: "Starting each product from its own best runs cuts the reworked batch after every changeover." },
-  { ...I, id: "ex-p3", area: "Process", lineId: "line-a", steps: ["Trial"], mechanism: "Trying a setting properly",
-    outcome: { metric: "Time to target viscosity", before: "11.5 to 12.4 min", after: "8.0 to 11.0 min", label: "Measured" },
-    title: "Hold temperature 86 °C is being tried on alternate batches",
-    seen: "The model expects 86 °C to reach target viscosity sooner, but the history alone cannot separate that from charge mass.",
-    evidence: [{ text: "Measurement plan locked before the first switch", label: "Measured" }, { text: "10 of 16 batches done, 1 skipped and recorded", label: "Measured", id: "EV-A-1102" }],
-    action: "Alternate 84 and 86 °C on matched batches until batch 2426. Stop returns 84 °C straight away.",
-    who: { how: "A person decides", roles: ["plant-head"], note: "The Plant head signed the trial. Operators can stop it at any time." },
-    expected: { label: "Measured", band: "time to target 8.0 min sooner to 0.4 min later so far" },
-    why: "An alternating trial tells a real gain apart from luck, so the plant only keeps changes that work.",
-    href: "/process/trials/trial-1", hrefLabel: "Open the trial" },
-  { ...I, id: "ex-p4", area: "Process", lineId: "line-b", steps: ["Detect", "Explain", "Propose"], mechanism: "Energy per good part",
-    outcome: { metric: "Energy per good part", before: "0.42 kWh/t", after: "0.36 to 0.39 kWh/t", label: "Estimated" },
-    title: "Energy per good part on Press P3 rose after the resin change",
-    seen: "Energy per good part is up on Line B, even after adjusting for output and the product mix. It started when the resin dryer moved to a longer cycle for the new resin lot.",
-    evidence: [{ text: "Energy per good part, adjusted for output and mix", label: "Estimated", id: "EV-B-2230" }, { text: "Resin dew point steady at minus 40 °C for 30 min before the end of each cycle", label: "Measured", id: "EV-B-2231" }],
-    action: "Shorten the dryer cycle from 4.0 to 3.5 h while the dew point stays at or below minus 40 °C.",
-    who: { how: "Recommend only", roles: ["process-engineer", "plant-head"], note: "The dryer is outside the signed limits for this line, so the Process engineer or Plant head decides and changes it." },
-    options: [{ id: "accept", label: "Plan the change", primary: true, done: "Dryer change planned for the next resin lot." }, { id: "decline", label: "Decline with reason", done: "Declined. The reason is recorded and the agent learns from it." }],
-    expected: { label: "Estimated", band: "0.03 to 0.06 kWh less per good part" },
-    why: "Counting energy against good parts, not hours run, shows waste that a meter reading hides." },
-  { ...I, id: "ex-p5", area: "Process", lineId: "line-b", steps: ["Verify", "Learn"], mechanism: "Checking a past change",
-    outcome: { metric: "Parts per shift", before: "820 parts", after: "836 to 847 parts", label: "Measured" },
-    title: "Cycle time 33.2 s is still paying off two weeks later",
-    seen: "Stamped compared shift runs at 33.2 s with matched runs before the change: same tool, same resin lot.",
-    evidence: [{ text: "Parts per shift from the production system", label: "Measured", id: "EV-B-2101" }, { text: "Holding at 6 and 14 days", label: "Measured" }],
-    action: "Keep 33.2 s under the standing approval, and use this result when weighing the next cycle time proposal.",
-    who: { how: "Record only", roles: ["plant-head"], note: "Nothing to decide. The Plant head sees it in the monthly report." },
-    expected: { label: "Measured", band: "parts per shift 1.9 to 3.3% higher" },
-    why: "Each gain is checked against the plant's own records before anyone counts it, and the agent learns from what held.",
-    href: "/process?evidence=proof-3", hrefLabel: "See the proof" },
-  { ...I, id: "ex-p6", area: "Process", lineId: "line-b", steps: ["Propose", "Learn"], mechanism: "Tightening a limit, never widening it",
-    outcome: { metric: "Scrap from hold pressure", before: "2.1% from band excursions", after: "0% in 34 shift runs", label: "Measured" },
-    title: "Hold pressure band on Tool T3 narrowed to 640 to 820 bar",
-    seen: "Every short shot and every flash defect in 40 shift runs came from hold pressure below 640 or above 820 bar, inside the signed band of 600 to 850 bar.",
-    evidence: [{ text: "Defects by hold pressure, 40 shift runs", label: "Measured", id: "EV-B-2120" }, { text: "Signed band 600 to 850 bar", label: "Measured" }],
-    action: "Narrow the band Stamped may use to 640 to 820 bar. Stamped can tighten a signed limit; it can never widen one.",
-    who: { how: "A person decides", roles: ["plant-head"], note: "The Plant head accepted the narrower band. Only the Plant head can widen it again." },
-    closed: { state: "Accepted", changed: "Hold pressure band 600 to 850 bar narrowed to 640 to 820 bar", by: "Plant head A.", at: at(-12, -3), result: { status: "Verified", label: "Measured", band: "no hold pressure defects in 34 shift runs since" } },
-    why: "Learning which part of a signed range causes defects keeps every later change away from it." },
+  {
+    ...I, id: "ex-p1", area: "Process", lineId: "line-a", steps: ["Detect", "Propose"],
+    mechanism: "Cut wasted mixing time",
+    outcome: { metric: "Energy per good batch", before: "182 kWh", after: "158 kWh", label: M, measuredAfter: "157 kWh" },
+    title: "Cut the hold time on Mixer 2 batches",
+    seen: "Batches on Mixer 2 already reach spec viscosity about eight minutes early. The extra mixing spends energy and time for nothing.",
+    evidence: [
+      { text: "Torque and viscosity path vs best Mixer 2 batches", label: "Measured", id: "EV-A-1301" },
+      { text: "Hold time still at recipe end while viscosity is already in band", label: "Measured", id: "EV-A-1302" },
+    ],
+    action: "Shorten Mixer 2 hold by eight minutes when viscosity is already inside the Grade A-12 band. Stays inside the signed hold-time approval.",
+    who: {
+      how: "On its own, inside the signed band",
+      roles: ["plant-head"],
+      note: "Written under the standing approval the Plant head signed. Any operator can press Stop and the prior hold time comes back.",
+    },
+    expected: { label: M, band: "energy per good batch 158 kWh; cycle 66 min; rejection 4.6%" },
+    why: "Stopping the mix when the batch is already in band saves energy and frees the mixer without risking the lab result.",
+  },
+  {
+    ...I, id: "ex-p2", area: "Process", lineId: "line-b", steps: ["Detect", "Propose"],
+    mechanism: "More shots from less cool time",
+    outcome: { metric: "Cycle time", before: "38.0 s", after: "34.5 s", label: M },
+    title: "Tighten the cooling time on Press 7",
+    seen: "Parts on Press 7 are stable at ejection well before the timer ends. Cutting the cool time gives about 10% more shots per shift.",
+    evidence: [
+      { text: "Cavity temperature at ejection, last 12 shift runs", label: "Measured", id: "EV-B-2401" },
+      { text: "Ejection force and warp checks after early open trials", label: "Measured", id: "EV-B-2402" },
+    ],
+    action: "Reduce Press 7 cooling time so cycle time moves from 38.0 s to 34.5 s inside the signed cycle-time band.",
+    who: {
+      how: "A person decides",
+      roles: ["process-engineer", "shift-lead", "plant-head"],
+      note: "The Process engineer, Shift lead or Plant head accepts the cooler cut before the next tool run.",
+    },
+    options: [
+      { id: "accept", label: "Tighten cooling time", primary: true, done: "Cooling time cut accepted for Press 7." },
+      { id: "keep", label: "Keep current cool time", done: "Kept the current cool time. The reason is recorded." },
+    ],
+    expected: { label: M, band: "cycle 34.5 s; energy per good part 0.38 kWh; scrap 2.9%" },
+    why: "Cooling only as long as the part needs frees press time and cuts energy per good part.",
+  },
+  {
+    ...I, id: "ex-p3", area: "Process", lineId: "line-b", steps: ["Trial"],
+    mechanism: "Lower heat where the melt does not need it",
+    outcome: { metric: "Energy per good part", before: "0.51 kWh", after: "0.45 kWh", label: M },
+    title: "Lower the barrel temperature profile on Press 4",
+    seen: "The rear zones on Press 4 run hotter than the material needs. That costs heater power and leaves burn marks on the parts.",
+    evidence: [
+      { text: "Zone temperatures vs material data sheet", label: "Measured", id: "EV-B-2410" },
+      { text: "Burn-mark scrap coded to rear-zone over-temp", label: "Measured", id: "EV-B-2411" },
+      { text: "Measurement plan locked before the first switch", label: "Measured" },
+    ],
+    action: "Trial a lower rear-zone profile on alternate Press 4 runs. Stop restores the prior profile straight away.",
+    who: {
+      how: "A person decides",
+      roles: ["plant-head"],
+      note: "The Plant head signed the trial. Operators can stop it at any time.",
+    },
+    expected: { label: M, band: "energy per good part 0.45 kWh; scrap 2.2%; cycle 40 s" },
+    why: "Matching barrel heat to what the resin needs cuts heater load and burn scrap together.",
+    href: "/process/trials/trial-2",
+    hrefLabel: "Open the trial",
+  },
+  {
+    ...I, id: "ex-p4", area: "Process", lineId: "line-a", steps: ["Detect", "Explain", "Propose"],
+    mechanism: "Charge order that disperses faster",
+    outcome: { metric: "Cycle time", before: "82 min", after: "75 min", label: M },
+    title: "Order the charge additions on Mixer 1 by recipe",
+    seen: "On Mixer 1, adding fines after the liquids cuts dispersion time and stops over-dosing to correct for lumps.",
+    evidence: [
+      { text: "Charge sequence logs vs dispersion time", label: "Measured", id: "EV-A-1310" },
+      { text: "Material give-away on corrective top-ups", label: "Measured", id: "EV-A-1311" },
+    ],
+    action: "Lock Mixer 1 charge order to liquids first, then fines, per the Grade A-12 recipe card.",
+    who: {
+      how: "A person decides",
+      roles: ["process-engineer", "shift-lead", "plant-head"],
+      note: "The Process engineer, Shift lead or Plant head accepts the charge-order change before the next batch is charged.",
+    },
+    options: [
+      { id: "accept", label: "Use recipe charge order", primary: true, done: "Recipe charge order accepted for Mixer 1." },
+      { id: "keep", label: "Keep current order", done: "Kept the current charge order. The reason is recorded." },
+    ],
+    expected: { label: M, band: "cycle 75 min; material give-away 1.2%; rejection 4.1%" },
+    why: "The right charge order cuts mix time and the material spent fixing lumps.",
+  },
+  {
+    ...I, id: "ex-p5", area: "Process", lineId: "line-b", steps: ["Detect", "Propose"],
+    mechanism: "Stop hot dryer idle between lots",
+    outcome: { metric: "Energy per good part", before: "0.47 kWh", after: "0.43 kWh", label: M },
+    title: "Keep the dryer from idling hot between lots",
+    seen: "The resin dryer on Line B runs at full temperature through changeovers when the hopper is already full.",
+    evidence: [
+      { text: "Dryer power through the last eight changeovers", label: "Measured", id: "EV-B-2420" },
+      { text: "Hopper level full while dryer stayed at set point", label: "Measured", id: "EV-B-2421" },
+    ],
+    action: "Drop dryer set point during changeovers once the hopper is full, and restore it before the next lot starts.",
+    who: {
+      how: "Recommend only",
+      roles: ["process-engineer", "plant-head"],
+      note: "The dryer is outside the signed limits for this line, so the Process engineer or Plant head decides and changes it.",
+    },
+    options: [
+      { id: "accept", label: "Plan the dryer change", primary: true, done: "Dryer idle-cut planned for the next changeovers." },
+      { id: "decline", label: "Decline with reason", done: "Declined. The reason is recorded and the agent learns from it." },
+    ],
+    expected: { label: M, band: "energy per good part 0.43 kWh; dryer energy per shift 255 kWh" },
+    why: "A full hopper does not need a hot dryer; idling cool saves shift energy without wetting the resin.",
+  },
 
   /* ---------------- Quality ---------------- */
-  { ...I, id: "ex-q1", area: "Quality", lineId: "line-b", steps: ["Detect", "Decide"], mechanism: "A decision on the floor",
-    outcome: { metric: "Part weight, cavity 2", before: "47.9 g", after: "48.0 g", label: "Estimated" },
-    title: "Lot 7713 parts are running light on cavity 2. Hold and check them?",
-    seen: "Part weight on cavity 2 has fallen 0.12 g over three shift runs. Every part is still in spec, but the estimated band for lot 7713 now touches the lower limit of 47.6 g.",
-    evidence: [{ text: "Vision check part weight, cavity 2", label: "Measured", id: "EV-B-2214" }, { text: "Lot 7713 estimated band 47.5 to 48.0 g", label: "Estimated" }, { text: "Lowering melt temperature was declined: flash on the parting line", label: "Measured" }],
-    action: "Set aside the last 2 hours of cavity 2 parts and weigh 32 of them before the lot is packed.",
-    who: { how: "A person decides", roles: ["operator", "shift-lead", "quality-head"], note: "The operator, shift lead or quality inspector chooses. Stamped asks; it never sets or releases a hold. A hold is set in your quality system." },
-    options: [
-      { id: "segregate", label: "Set aside and weigh 32 parts", primary: true, done: "Recorded: last 2 hours of cavity 2 set aside, 32 parts to weigh." },
-      { id: "sample", label: "Weigh every 30 min this shift", done: "Recorded: cavity 2 weighed every 30 min until the end of the shift." },
-      { id: "continue", label: "Carry on, with a reason", done: "Recorded with your reason. Stamped keeps watching cavity 2." },
+  {
+    ...I, id: "ex-q1", area: "Quality", lineId: "line-a", steps: ["Detect", "Decide"],
+    mechanism: "Save the batch before the lab rejects it",
+    outcome: { metric: "Rejection rate", before: "5.0%", after: "3.2%", label: M },
+    title: "Save Batch 2417 before it goes out of spec",
+    seen: "The torque curve on Batch 2417 is drifting the way the last three rejected batches did. A three-minute correction now saves the batch instead of scrapping it at the lab.",
+    evidence: [
+      { text: "Torque curve vs last three rejected Grade A-12 batches", label: "Measured", id: "EV-A-1320" },
+      { text: "End-of-hold window still open for three minutes", label: "Measured", id: "EV-A-1321" },
     ],
-    expected: { label: "Estimated", band: "part weight 47.5 to 48.0 g, spec 47.6 to 48.8 g" },
-    why: "A light part found before packing is a few minutes of weighing. Found by the customer, it is a returned lot.",
-    href: "/quality/lots/lot-b-7713", hrefLabel: "Open lot 7713" },
-  { ...I, id: "ex-q2", area: "Quality", lineId: "line-a", steps: ["Detect"], mechanism: "The lab result, before the lab",
-    outcome: { metric: "Viscosity", before: "2580 to 2660 mPa·s", after: "2540 to 2630 mPa·s", label: "Modelled" },
-    title: "Lot 3307 viscosity is heading for the upper limit: sample it early",
-    seen: "Stamped estimates lot 3307 from its linked batches, torque and temperature. The band sits across the upper spec limit of 2600 mPa·s.",
-    evidence: [{ text: "Viscosity band 2540 to 2630 mPa·s", label: "Modelled" }, { text: "End-of-hold torque on linked batches 2416 and 2417", label: "Measured", id: "EV-A-1188" }],
-    action: "Take the lab sample at the end of hold, 40 min before discharge, instead of after discharge.",
-    who: { how: "A person decides", roles: ["quality-head", "shift-lead", "plant-head"], note: "The Quality head, Shift lead or Plant head moves the sample. The estimate cannot support a release on its own." },
-    options: [{ id: "early", label: "Sample at end of hold", primary: true, done: "Early sample requested for lot 3307." }, { id: "normal", label: "Keep the normal sample", done: "Normal sampling kept. The reason is recorded." }],
-    expected: { label: "Modelled", band: "viscosity 2540 to 2630 mPa·s, not yet anchored by a lab result" },
-    why: "Knowing the likely lab result 40 min early leaves time to fix the lot instead of reworking it.",
-    href: "/quality/lots/lot-a-3307", hrefLabel: "Open lot 3307" },
-  { ...I, id: "ex-q3", area: "Quality", lineId: "line-a", steps: ["Explain", "Propose"], mechanism: "Tracing a lot to its cause",
-    outcome: { metric: "Viscosity (next batches)", before: "2610 to 2680 mPa·s", after: "2520 to 2590 mPa·s", label: "Modelled" },
-    title: "Lots 3307 and 3296 share one cause: high torque at the end of hold",
-    seen: "Both lots link to batches 2416 and 2417. Charge mass was in recipe on both, but end-of-hold torque ran 6% above the grade's best batches.",
-    evidence: [{ text: "Lot to batch links, with their confidence", label: "Estimated", id: "EV-A-1185" }, { text: "End-of-hold torque, both batches", label: "Measured", id: "EV-A-1188" }, { text: "Charge mass inside recipe", label: "Measured" }],
-    action: "Send Process a correction: raise agitator speed 150 to 158 rpm. Process turns it into a card that a person accepts.",
-    who: { how: "A person decides", roles: ["quality-head"], note: "The Quality head sends the correction. Quality never writes a setting itself." },
-    expected: { label: "Modelled", band: "viscosity 30 to 90 mPa·s lower on the next batches" },
-    why: "Tying each bad lot to the exact batches and readings behind it turns a complaint into a specific fix.",
-    href: "/quality/investigations/inv-1", hrefLabel: "Open the investigation" },
-  { ...I, id: "ex-q4", area: "Quality", lineId: "line-b", steps: ["Learn", "Decide"], mechanism: "Inspection where it matters",
-    outcome: { metric: "Inspection time, cavity 1", before: "60 min per shift", after: "30 min per shift", label: "Measured" },
-    title: "Cavity 1 has been steady for 30 shift runs: weigh it every 2 hours",
-    seen: "Cavity 1 part weight has stayed in the middle of its spec for 30 shift runs, across two resin lots. Cavity 2 has not.",
-    evidence: [{ text: "Cavity 1 part weight, 30 shift runs", label: "Measured", id: "EV-B-2190" }, { text: "Vision check still sees every part", label: "Measured" }],
-    action: "Weigh cavity 1 by hand every 2 hours instead of every hour, and put the freed time on cavity 2.",
-    who: { how: "A person decides", roles: ["quality-head", "plant-head"], note: "The Quality head or Plant head changes the inspection plan. It goes back to hourly if cavity 1 starts to drift." },
-    options: [{ id: "accept", label: "Change the inspection plan", primary: true, done: "Inspection plan change recorded." }, { id: "keep", label: "Keep hourly checks", done: "Hourly checks kept. The reason is recorded." }],
-    expected: { label: "Measured", band: "part weight 48.0 to 48.4 g on cavity 1, spec 47.6 to 48.8 g" },
-    why: "Inspection time goes where the risk is, so drifting parts are caught sooner without adding staff." },
-  { ...I, id: "ex-q5", area: "Quality", lineId: "line-b", steps: ["Verify"], mechanism: "Checking a correction held",
-    outcome: { metric: "Scrap", before: "3.2%", after: "2.9%", label: "Measured" },
-    title: "The hold pressure correction for light parts is holding",
-    seen: "Quality asked Process to raise hold pressure after light parts on lot 7711. Stamped checked the lots made since against the vision and lab records.",
-    evidence: [{ text: "Part weight on lots made after the change", label: "Measured", id: "EV-B-1911" }, { text: "Investigation closed with this result", label: "Measured" }],
-    action: "Close the investigation and keep the correction in the record for the next time cavity 2 runs light.",
-    who: { how: "Record only", roles: ["quality-head"], note: "Nothing to decide. The result is in the investigation record." },
-    expected: { label: "Measured", band: "part weight 0.1 to 0.3 g heavier, scrap 0.3 to 0.9 points lower" },
-    why: "A fix only counts once the quality records show it held, and the next drift starts from what worked.",
-    href: "/quality/investigations/inv-2", hrefLabel: "Open the investigation" },
-  { ...I, id: "ex-q6", area: "Quality", lineId: "line-b", steps: ["Explain"], mechanism: "Joining a lot to the runs that made it",
-    outcome: { metric: "Link confidence, lot 7721", before: "0.71", after: "0.94", label: "Measured" },
-    title: "Lot 7721 linked to shift run 681 after a scanner gap",
-    seen: "The lot label scan was missing for one hour, so Stamped matched lot 7721 to its run from timing, recipe and sequence. The link was below the confidence threshold, so it went to a person.",
-    evidence: [{ text: "Time, recipe and sequence agree; scanned id missing", label: "Estimated", id: "EV-B-2150" }, { text: "Packing record for lot 7721", label: "Measured" }],
-    action: "Confirm the link so lot 7721 carries the readings of shift run 681.",
-    who: { how: "A person decides", roles: ["quality-head"], note: "The Quality head confirmed the link after checking the packing record." },
-    closed: { state: "Accepted", changed: "Lot 7721 linked to shift run 681", by: "Quality head A.", at: at(-4, -2), result: { status: "Verified", label: "Measured", band: "link confirmed against the packing record" } },
-    why: "A lot that carries the readings of the run that made it can be traced in minutes when a complaint comes in." },
+    action: "Apply the signed agitator correction for three minutes on Batch 2417 before discharge, and sample at the end of hold.",
+    who: {
+      how: "A person decides",
+      roles: ["operator", "shift-lead", "quality-head"],
+      note: "The operator, Shift lead or Quality head chooses. Stamped asks; it never sets or releases a hold. A hold is set in your quality system.",
+    },
+    options: [
+      { id: "correct", label: "Apply the three-minute correction", primary: true, done: "Recorded: three-minute correction on Batch 2417." },
+      { id: "sample", label: "Sample now, no change", done: "Recorded: early sample only on Batch 2417." },
+      { id: "continue", label: "Carry on, with a reason", done: "Recorded with your reason. Stamped keeps watching Batch 2417." },
+    ],
+    expected: { label: M, band: "rejection 3.2%; material per good batch 1,000 kg; energy per good batch 172 kWh" },
+    why: "Catching the same torque path that sank the last rejects turns a scrap batch into a good one.",
+    href: "/process/runs/run-a-2417",
+    hrefLabel: "Open batch 2417",
+  },
+  {
+    ...I, id: "ex-q2", area: "Quality", lineId: "line-b", steps: ["Detect", "Propose"],
+    mechanism: "Catch short shots from the pressure trace",
+    outcome: { metric: "Scrap", before: "3.4%", after: "1.9%", label: M },
+    title: "Flag short shots on Press 7 from the pressure trace",
+    seen: "Peak injection pressure on Press 7 drops about 40 shots before short shots show at inspection.",
+    evidence: [
+      { text: "Peak injection pressure, last 200 shots", label: "Measured", id: "EV-B-2430" },
+      { text: "Vision short-shot codes lagged the pressure drop", label: "Measured", id: "EV-B-2431" },
+    ],
+    action: "Raise a floor flag when peak injection pressure drops, and hold the next tray for a weigh check before packing.",
+    who: {
+      how: "A person decides",
+      roles: ["operator", "shift-lead", "quality-head"],
+      note: "The operator, Shift lead or Quality head confirms the flag response. Stamped does not scrap parts on its own.",
+    },
+    options: [
+      { id: "flag", label: "Flag and hold the next tray", primary: true, done: "Recorded: Press 7 short-shot flag armed." },
+      { id: "watch", label: "Watch only this shift", done: "Recorded: watch-only on Press 7 pressure." },
+    ],
+    expected: { label: M, band: "scrap 1.9%; energy per good part 0.41 kWh" },
+    why: "A pressure drop forty shots early is enough time to stop packing short shots.",
+  },
+  {
+    ...I, id: "ex-q3", area: "Quality", lineId: "line-b", steps: ["Explain", "Verify"],
+    mechanism: "Fix the circuit, not the inspection",
+    outcome: { metric: "Rejection rate", before: "2.8%", after: "1.6%", label: M, measuredAfter: "1.6%" },
+    title: "Link sink marks to the mould temperature on Tool 12",
+    seen: "The sink mark on Tool 12 follows one cooling circuit running warm. The fix is the circuit, not more inspection.",
+    evidence: [
+      { text: "Sink-mark map vs circuit temperature on Tool 12", label: "Measured", id: "EV-B-2440" },
+      { text: "Circuit 3 outlet 4 °C warmer than the other circuits", label: "Measured", id: "EV-B-2441" },
+    ],
+    action: "Clear the warm circuit on Tool 12 and keep the inspection plan unchanged.",
+    who: {
+      how: "Record only",
+      roles: ["quality-head"],
+      note: "Nothing to decide. Process cleared the circuit; the result is in the investigation record.",
+    },
+    closed: {
+      state: "Accepted",
+      changed: "Tool 12 cooling circuit 3 cleared; sink-mark cause linked to mould temperature",
+      by: "Quality head A.",
+      at: at(-6, -2),
+      result: { status: "Verified", label: M, band: "rejection rate 1.6% on Tool 12 since the clear" },
+    },
+    why: "Knowing which circuit ran warm stops the plant from adding checks that would not fix the mark.",
+  },
+  {
+    ...I, id: "ex-q4", area: "Quality", lineId: "line-b", steps: ["Detect", "Decide"],
+    mechanism: "Hold wet nylon before it moulds",
+    outcome: { metric: "Scrap", before: "4.1%", after: "2.4%", label: M },
+    title: "Hold moisture before moulding the nylon lots",
+    seen: "Lots dried for less than the set time account for most of the splay on Line B. They should be held until the dryer log clears them.",
+    evidence: [
+      { text: "Dryer log vs splay scrap on nylon lots", label: "Measured", id: "EV-B-2450" },
+      { text: "Lots released under the set dry time in the last fortnight", label: "Measured", id: "EV-B-2451" },
+    ],
+    action: "Hold any nylon lot whose dryer log is short of the set time until the log clears, then release to Press 7.",
+    who: {
+      how: "A person decides",
+      roles: ["quality-head", "shift-lead", "plant-head"],
+      note: "The Quality head, Shift lead or Plant head sets the hold in your quality system. Stamped only recommends it.",
+    },
+    options: [
+      { id: "hold", label: "Hold until dryer log clears", primary: true, done: "Recorded: nylon lots held for dryer clearance." },
+      { id: "release", label: "Release with a reason", done: "Recorded with your reason. Stamped keeps watching splay." },
+    ],
+    expected: { label: M, band: "scrap 2.4%; material per good part 51 g" },
+    why: "Wet nylon that never reaches the press does not become splay scrap.",
+  },
 ];
 
 export const byActionId = Object.fromEntries(exampleActions.map((a) => [a.id, a])) as Record<string, T.ExampleAction>;
@@ -154,11 +237,15 @@ export function actionOutcomeLine(o: T.ExampleAction["outcome"]) {
 }
 
 const SHORT_TITLE: Record<string, string> = {
-  "ex-q1": "Hold and check lot 7713 (cavity 2 running light)",
-  "ex-p3": "Hold temperature 86 °C trial on alternate batches",
-  "ex-p2": "Grade A-14 changeover settings for batch 2421",
-  "ex-p4": "Dryer cycle after resin change on Line B",
-  "ex-p6": "Hold pressure band narrowed on Tool T3",
+  "ex-p1": "Cut hold time on Mixer 2",
+  "ex-p2": "Tighten cooling on Press 7",
+  "ex-p3": "Lower barrel profile on Press 4",
+  "ex-p4": "Recipe charge order on Mixer 1",
+  "ex-p5": "Stop hot dryer idle between lots",
+  "ex-q1": "Save Batch 2417 before it goes out of spec",
+  "ex-q2": "Flag short shots on Press 7 from pressure",
+  "ex-q3": "Sink marks linked to Tool 12 mould temperature",
+  "ex-q4": "Hold moisture before moulding nylon lots",
 };
 
 export function actionShortTitle(a: T.ExampleAction) {
@@ -168,7 +255,7 @@ export function actionShortTitle(a: T.ExampleAction) {
 /** Closed cards show a measured result line; open cards use the modelled or estimated outcome. */
 export function actionOutcomeForDisplay(a: T.ExampleAction): T.ActionOutcome {
   if (a.closed) {
-    return { ...a.outcome, label: "Measured", after: a.outcome.after };
+    return { ...a.outcome, label: a.closed.result.label, after: a.outcome.after };
   }
   return a.outcome;
 }
@@ -184,19 +271,20 @@ export function whoDecidesShort(how: T.ExampleAction["who"]["how"]) {
   return WHO_SHORT[how];
 }
 
-/** Display parts for the outcome line: metric, "47.9 g now", "48.0 g". */
+/** Display parts for the outcome line: metric, "47.9 g", "48.0 g". Before has no trailing "now". */
 export function outcomePhrase(o: T.ActionOutcome) {
-  const now = /\bnow\b/i.test(o.before) ? o.before.trim() : `${o.before.trim()} now`;
+  const now = o.before.trim().replace(/\s+now\s*$/i, "");
   const after = o.after.trim().replace(/\s*target\s+band\b/i, "").replace(/\s*,?\s*band\s+.*/i, "").replace(/\btarget\b/gi, "").trim();
   return { metric: o.metric, now, after };
 }
 
 const OPTION_SHORT: Record<string, Record<string, string>> = {
-  "ex-q1": { segregate: "Hold and check", continue: "Keep running", sample: "Weigh every 30 min" },
-  "ex-q2": { early: "Sample at end of hold", normal: "Keep normal sample" },
-  "ex-p2": { accept: "Use these settings", keep: "Keep current recipe" },
-  "ex-p4": { accept: "Plan the change", decline: "Decline with reason" },
-  "ex-q4": { accept: "Change inspection plan", keep: "Keep hourly checks" },
+  "ex-p2": { accept: "Tighten cooling", keep: "Keep cool time" },
+  "ex-p4": { accept: "Use recipe order", keep: "Keep current order" },
+  "ex-p5": { accept: "Plan dryer change", decline: "Decline with reason" },
+  "ex-q1": { correct: "Apply correction", sample: "Sample only", continue: "Keep running" },
+  "ex-q2": { flag: "Flag and hold tray", watch: "Watch only" },
+  "ex-q4": { hold: "Hold for dryer", release: "Release with reason" },
 };
 
 export function optionShortLabel(actionId: string, optionId: string, fallback: string) {
@@ -208,7 +296,7 @@ export function decisionOptionPair(a: T.ExampleAction) {
   if (!a.options?.length) return { primary: undefined, secondary: undefined };
   const primary = a.options.find((o) => o.primary) ?? a.options[0];
   const secondary =
-    a.options.find((o) => o.id !== primary.id && /continue|keep|decline|normal|reject/i.test(o.id)) ??
+    a.options.find((o) => o.id !== primary.id && /continue|keep|decline|normal|reject|watch|release|sample/i.test(o.id)) ??
     a.options.find((o) => o.id !== primary.id);
   return { primary, secondary };
 }
