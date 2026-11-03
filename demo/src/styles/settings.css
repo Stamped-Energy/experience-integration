@@ -67,7 +67,7 @@
 .rbac th:first-child, .rbac td:first-child { text-align: left; }
 .rbac thead th { font-weight: 500; color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; vertical-align: bottom; }
 .rbac td button { border: 1px solid transparent; background: none; padding: 2px 6px; border-radius: var(--radius-sm); font: inherit; font-size: 11px; cursor: pointer; min-width: 52px; }
-.rbac td button.allow { background: var(--success-tint, #E7F5EC); color: var(--success-text, #1F6B3B); }
+.rbac td button.allow { background: var(--success-tint); color: var(--success-text); }
 .rbac td button.view { border-color: var(--border); color: var(--text-secondary); }
 .rbac td button.hidden { color: var(--text-tertiary, var(--text-secondary)); opacity: .55; }
 .rbac td button:disabled { cursor: default; }

@@ -60,7 +60,7 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 .rail-item[aria-current="page"] { background: var(--accent-50); color: var(--accent-700); }
 .rail-item[aria-current="page"]::before { content: ""; position: absolute; left: -8px; top: 10px; bottom: 10px; width: 2px; background: var(--accent-500); border-radius: 2px; }
 .rail-item .rail-soon { position: absolute; right: 3px; top: 3px; width: 6px; height: 6px; border-radius: 999px; background: var(--border-strong); }
-.rail-item .rail-count { position: absolute; right: 0; top: 0; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--accent-500); color: #FFFFFF; font-size: var(--type-label); line-height: 16px; font-weight: 600; text-align: center; }
+.rail-item .rail-count { position: absolute; right: 0; top: 0; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--accent-500); color: var(--text-inverse); font-size: var(--type-label); line-height: 16px; font-weight: 600; text-align: center; }
 .rail-sep { width: 24px; height: 1px; background: var(--border); margin: var(--space-2) 0; }
 .rail-spacer { flex: 1; }
 .rail-tip {
@@ -129,7 +129,7 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 .side-item:hover .side-tip, .side-item:focus-visible .side-tip { opacity: 1; }
 .side-badge {
   position: absolute; right: 0; top: 0; min-width: 16px; height: 16px; padding: 0 4px;
-  border-radius: 999px; background: var(--accent-500); color: #FFFFFF;
+  border-radius: 999px; background: var(--accent-500); color: var(--text-inverse);
   font-size: var(--type-label); line-height: 16px; font-weight: 600; text-align: center; font-family: var(--font-mono);
 }
 .side-badge-muted {
@@ -319,8 +319,8 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 .btn svg { width: 16px; height: 16px; }
 .btn.ask-launch { padding-left: 4px; }
 .btn.ask-launch .mascot, .ask-launch-mark { width: 18px; height: 18px; flex: none; }
-.ask-launch-mark { background: var(--mascot-body, #F75440); clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); }
-.btn-primary { background: var(--accent-fill); border-color: var(--accent-fill); color: #FFFFFF; }
+.ask-launch-mark { background: var(--mascot-body, var(--accent-500)); clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); }
+.btn-primary { background: var(--accent-fill); border-color: var(--accent-fill); color: var(--text-inverse); }
 .btn-primary:hover { background: var(--accent-600); border-color: var(--accent-600); }
 .btn-primary-denied {
   background: transparent;
