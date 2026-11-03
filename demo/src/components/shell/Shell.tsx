@@ -1,7 +1,7 @@
 /** Server parts of the shell. AppShell wraps every page; Workspace adds the crumb bar. */
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { inboxItems, suggestedQuestions } from "@/lib/demo/data";
+import { suggestedQuestions } from "@/lib/demo/data";
 import { DEFAULT_ROLE } from "@/lib/role";
 import { AskPanelFrame, AskProvider, BottomBar } from "./ShellClient";
 import { SideNav } from "./SideNav";
@@ -11,12 +11,11 @@ import { CrumbTools } from "./CrumbTools";
 export interface Crumb { label: string; href?: string }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const waiting = inboxItems.filter((i) => i.bucket === "waiting").length;
   return (
     <AskProvider>
       <a className="skip" href="#main">Skip to content</a>
       <div className="app">
-        <SideNav inboxCount={waiting} />
+        <SideNav />
         <div className="main" data-role={DEFAULT_ROLE}>
           {children}
         </div>

@@ -13,6 +13,8 @@ import { hubsVisibleTo, PROCESS_HUBS, QUALITY_HUBS } from "@/lib/module/hubs";
 import { screenActive } from "@/lib/module/definitions";
 import { countForScreen } from "@/lib/module/counts";
 import { lastScreenHref, moduleFromPath, saveLastScreen } from "@/lib/module/last-screen";
+import { inboxItems } from "@/lib/demo/data";
+import { questionsFor } from "@/lib/demo/agent";
 import { defaultSiteId, effectiveFlags } from "@/lib/demo/screenFlags";
 import type { ModuleId } from "@/lib/module/types";
 import { useRole } from "@/lib/role.client";
@@ -88,10 +90,14 @@ function setRailExpanded(expanded: boolean, persist = true) {
   }
 }
 
-export function SideNav({ inboxCount }: { inboxCount: number }) {
+export function SideNav() {
   const path = usePathname();
   const router = useRouter();
   const role = useRole();
+  const qForRole = questionsFor(role);
+  const inboxCount =
+    inboxItems.filter((i) => i.bucket === "waiting" && i.owner === role).length +
+    [...qForRole.mine, ...qForRole.wide].filter((q) => !q.answered).length;
   const area = areaFor(path);
   const pathModule = moduleFromPath(path);
 
