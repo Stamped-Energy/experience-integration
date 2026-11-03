@@ -45,20 +45,21 @@ The left rail has the areas below in the same order for every role.
 
 The "View as" switcher in the top bar changes the role the app is seen as: Operator, Shift lead, Process engineer, Quality head, Plant head, Owner, Stamped engineer or Viewer. The choice is kept in a cookie, so pages still render on the server. Each role opens Home on its own default view. In the showcase every area stays reachable in every role; what changes is which actions are allowed. Permissions come from the spec's role, action and scope matrix in `src/lib/rbac.ts`, and a disabled action always says which roles can do it. Operators can accept proposals. No role can release a hold, and Stamped staff can never sign limits.
 
-## Data model and illustrative data rules
+## Data model and demo-data rules
 
 The data lives in `src/lib/demo/`: `types.ts` holds one type per plant object (site, areas, lines, assets, tags and readings, runs, setpoint writes, signed limits, standing approvals, proposals, trials, stops, measurement plans, holding checks, model fits, proof records, grades and specs, lots, lot links, drift, investigations, corrections, data sources and gaps, Plant Box and lease, people and roles, routing, integrations, Ask threads, saved answers, notes, audit events, reports and value items). `data.ts` builds a deterministic dataset from a fixed demo time (20 Oct 2026, 14:00 IST) with seeded generators, so every load looks the same.
 
-The plant is fictional and generic: Line A is a batch mixing line and Line B a discrete moulding line. People are named by role, such as "Plant head A.". There are no client names and no real results. The rules the data follows:
+The plant is a fictional auto-component metal works: Forge, Heat treatment, Foundry, Machining, and a small Moulding line. People are named by role, such as "Plant head A.". There are no client names and no real client results. Full line table and banned figures: `docs/UI_CONTRACT.md`. The rules the data follows:
 
-- Rupee figures appear only on the owner's Home, always tagged Illustrative. Verified and Indicative are separate fields with no total.
+- The breadcrumb "Demonstration plant" is the only page-level demo marker. No Illustrative tags on pages.
+- Rupee figures appear only on the owner's Home. Verified and Indicative are separate fields with no total.
 - Confidence follows the method behind each item. Proposals and Ask answers show a word label and a band only, never a score. Lot links show their documented 0 to 1 link score. Proof verdicts show the verdict, rung and interval.
-- No pricing of Stamped itself appears anywhere.
+- No pricing of Stamped itself appears anywhere. No Faridabad proof figures and no incumbent product names in the demo source.
 - Copy: no em dashes, British and Indian spelling, none of the banned pitch words listed in spec section 14, no WhatsApp. `pnpm lint` and `pnpm test` check part of this.
 
 ## Design system
 
-The look follows the technical architecture site's operations design system. Geist is used for everything and Geist Mono for ids, tags and timers. Space Grotesk appears in one brand place only. All colours, spacing and type sizes are tokens in `src/styles/tokens.css`, which is the only place hex values live. Lines are 1px, there are no gradients or glows, and the coral accent appears at full strength only where a decision is needed. There is a dark theme and a compact density for panel PCs, both toggled from the bottom of the rail. The official Stamped logo (`public/stamped-logo.png`) is the rail mark, the favicon and the app icon.
+The look follows the technical architecture site's operations design system. Geist is used for body, UI and page titles; Geist Mono for ids, codes, readings and timers; Space Grotesk only on the owner brand heading and the report cover. Status tags are Geist sans, 12px, sentence case. Body default is 14px for the dense console. All colours, spacing and type sizes are tokens in `src/styles/tokens.css`, which is the only place hex values live. Lines are 1px, there are no gradients or glows, shadows only on floating surfaces, and the coral accent appears at full strength only where a decision is needed. There is a dark theme and a compact density for panel PCs, both toggled from the bottom of the rail. The official Stamped logo (`public/stamped-logo.png`) is the rail mark, the favicon and the app icon.
 
 ## Known gaps and limits
 
