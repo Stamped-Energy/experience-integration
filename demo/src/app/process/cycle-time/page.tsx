@@ -76,7 +76,7 @@ export default function CycleTimePage() {
             <DataTable
               caption="Cycle-time stations"
               rows={cards}
-              rowKey={(row) => row.asset_id}
+              rowKey={(row) => `${row.asset_id}-${row.window_label}`}
               columns={[
                 { key: "station", label: "Station", render: (row) => row.station },
                 { key: "window", label: "Window", render: (row) => row.window_label },
@@ -107,7 +107,7 @@ export default function CycleTimePage() {
           <Section title="Dwell by state" meta={`${ok.length} of ${cards.length} stations with a breakdown`}>
             <div className="stack" style={{ gap: 16 }}>
               {cards.map((card) => (
-                <div key={card.asset_id} className="card section-pad">
+                <div key={`${card.asset_id}-${card.window_label}`} className="card section-pad">
                   <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
                     <strong>{card.station}</strong>
                     <span className="cell-sub">{card.window_label}</span>

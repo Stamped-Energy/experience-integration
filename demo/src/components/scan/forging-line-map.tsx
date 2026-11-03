@@ -95,9 +95,9 @@ export function ForgingLineMap() {
         </div>
       </Section>
 
-      <Section title="Batch line A (compact)" meta="Mixer and hold · demo" flush>
+      <Section title="Forge line A (compact)" meta="Heater and press · demo" flush>
         <Link className="row" href="/process/lines/line-a">
-          <span><span className="row-title">Batch line A</span><span className="row-sub">Mixer M1 hold torque on watch</span></span>
+          <span><span className="row-title">Forge line A</span><span className="row-sub">Billet exit temperature on watch</span></span>
           <Tag tone="warning">Watch</Tag>
         </Link>
       </Section>

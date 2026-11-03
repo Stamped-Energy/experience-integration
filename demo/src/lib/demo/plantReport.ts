@@ -107,43 +107,43 @@ export const FORGING_SHIFT_REPORT: DemoReport = {
   ],
 };
 
-export const MIXING_SHIFT_REPORT: DemoReport = {
-  id: "rep-mix-shift",
+export const FORGE_SHIFT_REPORT: DemoReport = {
+  id: "rep-forge-shift",
   kind: "Shift handover",
-  name: "Line A · shift handover note",
+  name: "Forge line · shift handover note",
   periodLabel: "Shift ending 14:00",
-  covers: "Batch mixing · Grade A-12",
-  lineLabel: "Line A",
-  industry: "Batch mixing",
+  covers: "Forging · Axle shaft 4140",
+  lineLabel: "Forge line",
+  industry: "Forging and heat treatment",
   status: "ready",
   formats: ["PDF", "Word", "CSV"],
   updatedLabel: "Today 14:05",
-  summary: "Viscosity held inside the signed band. One mixer speed proposal accepted; no stops.",
+  summary: "Billet exit temperature held inside the signed band. One coil power proposal accepted; no stops.",
   sections: [
     {
       id: "intro",
       kind: "text",
       title: "Handover summary",
       body:
-        "Line A finished six Grade A-12 batches this shift. Viscosity stayed inside the signed window. Mixer speed was nudged once under standing approval. No Stop events.",
+        "The forge line ran 552 axle shafts this shift. Billet exit temperature stayed inside the signed window. Coil power on heater H1 was nudged once under standing approval. No Stop events.",
     },
     {
       id: "outcome",
       kind: "stats",
-      title: "Viscosity this shift",
+      title: "Billet exit temperature this shift",
       stats: [
-        { label: "Median", value: "2460", note: "cP · measured at discharge", accent: false },
-        { label: "Inside band", value: "6 of 6", note: "Signed window 2380 to 2600 cP", accent: true },
+        { label: "Median", value: "1212", note: "°C · measured at heater exit", accent: false },
+        { label: "Inside band", value: "6 of 6", note: "Signed window 1170 to 1250 °C", accent: true },
       ],
     },
     {
       id: "trend",
       kind: "trend",
-      title: "Discharge viscosity by batch",
+      title: "Billet exit temperature by hour",
       trend: {
-        title: "Batches stayed near the middle of the band",
-        values: [2440, 2455, 2470, 2462, 2450, 2468],
-        unit: "cP",
+        title: "Heats stayed near the middle of the band",
+        values: [1208, 1212, 1215, 1211, 1209, 1213],
+        unit: "°C",
       },
     },
     {
@@ -153,16 +153,16 @@ export const MIXING_SHIFT_REPORT: DemoReport = {
       events: [
         {
           at: "10:18",
-          title: "Mixer speed +2 rpm",
-          about: "Batch 4",
+          title: "Coil power -8 kW",
+          about: "Heater H1",
           summary: "Accepted under standing approval · demonstration",
           severity: "info",
         },
         {
           at: "12:40",
-          title: "Feed temperature watch",
-          about: "Pre-mix tank",
-          summary: "Cleared after jacket trim",
+          title: "Die temperature watch",
+          about: "Screw press P1",
+          summary: "Cleared after die spray trim",
           severity: "warning",
         },
       ],
@@ -171,7 +171,7 @@ export const MIXING_SHIFT_REPORT: DemoReport = {
       id: "close",
       kind: "text",
       title: "For the next shift",
-      body: "Keep the same Grade A-12 pack. Confirm jacket trim held after the first batch. No open trials on Line A.",
+      body: "Keep the same axle shaft 4140 pack. Confirm die spray trim held after the first hour. No open trials on the forge line.",
     },
   ],
 };
@@ -326,7 +326,7 @@ export const OEE_WEEK_REPORT: DemoReport = {
   kind: "MIS summary",
   name: "Plant · OEE and downtime week",
   periodLabel: "Last 7 days",
-  covers: "Line A, Line B, shared utilities",
+  covers: "Forge line, Line B, shared utilities",
   lineLabel: "Plant",
   industry: "Plant MIS",
   status: "ready",
@@ -396,27 +396,27 @@ export const HOLDING_CHECK_REPORT: DemoReport = {
   kind: "Holding check",
   name: "Measurement · holding checks week",
   periodLabel: "Last 7 days",
-  covers: "Line A viscosity · Line B cavity weight",
+  covers: "Forge billet temperature · Line B cavity weight",
   lineLabel: "Measurement",
   industry: "Process measurement",
   status: "draft",
   formats: ["PDF", "CSV", "Word"],
   updatedLabel: "Today 11:15",
-  summary: "Viscosity holding. Cavity weight faded once then recovered. Draft until the process engineer signs.",
+  summary: "Billet temperature holding. Cavity weight faded once then recovered. Draft until the process engineer signs.",
   sections: [
     {
       id: "intro",
       kind: "text",
       title: "Holding status",
       body:
-        "Weekly holding checks for the two live measurement plans. Line A viscosity is holding. Line B cavity weight faded mid-week and recovered after the watch. This draft is demonstration data and is not ready to export until signed.",
+        "Weekly holding checks for the two live measurement plans. Forge billet temperature is holding. Line B cavity weight faded mid-week and recovered after the watch. This draft is demonstration data and is not ready to export until signed.",
     },
     {
       id: "checks",
       kind: "stats",
       title: "Checks this week",
       stats: [
-        { label: "Holding", value: "5", note: "Viscosity and recovered weight", accent: true },
+        { label: "Holding", value: "5", note: "Billet temperature and recovered weight", accent: true },
         { label: "Faded", value: "1", note: "Cavity weight Wed", accent: false },
         { label: "Inconclusive", value: "0", note: "No sparse windows", accent: false },
       ],
@@ -456,7 +456,7 @@ export const HOLDING_CHECK_REPORT: DemoReport = {
 
 export const PLANT_REPORTS: DemoReport[] = [
   FORGING_SHIFT_REPORT,
-  MIXING_SHIFT_REPORT,
+  FORGE_SHIFT_REPORT,
   MOULDING_SCRAP_REPORT,
   TRIAL_VERDICT_REPORT,
   OEE_WEEK_REPORT,

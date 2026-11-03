@@ -14,7 +14,7 @@ export const FORGING_EQUIPMENT: Record<string, EquipmentDetail> = {
   "eq-induction": {
     id: "eq-induction",
     title: "Induction billet heater (P3 line)",
-    assetHref: "/plant/assets/b-induction",
+    assetHref: "/plant/assets/a-heater",
     summary: "Billet heat before press. Agent sim running on power and line speed (demo).",
     loops: [
       { id: "loop-forge-induction", label: "Power / line speed", href: "/process/simulations?campaign=camp-p-sim-induction" },
@@ -29,7 +29,7 @@ export const FORGING_EQUIPMENT: Record<string, EquipmentDetail> = {
   "eq-induction-a": {
     id: "eq-induction-a",
     title: "Induction heater · P2 line",
-    assetHref: "/plant/assets/b-induction",
+    assetHref: "/plant/assets/a-heater",
     summary: "Upper press line billet heat (demo).",
     loops: [{ id: "loop-induction-zone1", label: "Zone 1 temperature", href: "/process/optimisation?loop=loop-induction-zone1" }],
     tags: [
@@ -51,7 +51,7 @@ export const FORGING_EQUIPMENT: Record<string, EquipmentDetail> = {
   "eq-induction-b": {
     id: "eq-induction-b",
     title: "Induction heater · P3 line",
-    assetHref: "/plant/assets/b-induction",
+    assetHref: "/plant/assets/a-heater",
     summary: "Lower press line billet heat before Press P3 (demo).",
     loops: [
       { id: "loop-forge-induction", label: "Power / line speed", href: "/process/simulations?campaign=camp-p-sim-induction" },
@@ -81,7 +81,7 @@ export const FORGING_EQUIPMENT: Record<string, EquipmentDetail> = {
   "eq-quench": {
     id: "eq-quench",
     title: "Oil quench tank",
-    assetHref: "/process/line",
+    assetHref: "/plant/assets/c-quench",
     summary: "Quench and oil temperature loop tied to cooling water header (demo).",
     loops: [{ id: "loop-ht-quench", label: "Quench oil temp", href: "/process/optimisation?loop=loop-ht-quench" }],
     tags: [
@@ -92,7 +92,7 @@ export const FORGING_EQUIPMENT: Record<string, EquipmentDetail> = {
   "eq-furnace": {
     id: "eq-furnace",
     title: "Batch furnace",
-    assetHref: "/process/line",
+    assetHref: "/plant/assets/c-furnace",
     summary: "Three zones plus soak timer. Zone 2 soak short on last batch (demo).",
     loops: [
       { id: "loop-ht-zone1", label: "Zone 1", href: "/process/optimisation?loop=loop-ht-zone1" },
@@ -108,7 +108,7 @@ export const FORGING_EQUIPMENT: Record<string, EquipmentDetail> = {
   "eq-ht": {
     id: "eq-ht",
     title: "Heat treatment line",
-    assetHref: "/process/line",
+    assetHref: "/plant/assets/c-temper",
     summary: "Quench and temper sequence with oil temperature loop.",
     loops: [
       { id: "loop-ht-quench", label: "Quench oil temp", href: "/process/optimisation?loop=loop-ht-quench" },
@@ -122,7 +122,7 @@ export const FORGING_EQUIPMENT: Record<string, EquipmentDetail> = {
   "eq-machine": {
     id: "eq-machine",
     title: "Machining cell M4",
-    assetHref: "/plant/assets/b-cnc",
+    assetHref: "/plant/assets/asset-vmc-2",
     summary: "Cycle stable; spindle load loop in normal band (demo).",
     loops: [{ id: "loop-cnc-spindle", label: "Spindle load", href: "/process/optimisation?loop=loop-cnc-spindle" }],
     tags: [

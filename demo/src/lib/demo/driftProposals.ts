@@ -36,16 +36,16 @@ export const driftProposals: DriftProposalView[] = [
   {
     proposal_id: "drift-ex-001",
     plant_id: "plant_demo",
-    asset_id: "a-mixer",
+    asset_id: "a-heater",
     kind: "reidentification",
     state: "pending",
     created_at: "2026-10-27T08:14:00+05:30",
     summary:
-      "Prediction error on discharge temperature rose past the plant-supplied MAE limit. Propose a fresh identification run. No pack or twin change is applied.",
+      "Prediction error on billet exit temperature rose past the plant-supplied MAE limit. Propose a fresh identification run. No pack or twin change is applied.",
     findings: [
       {
         kind: "reidentification",
-        outcome_id: "discharge_temp_c",
+        outcome_id: "billet_exit_temp_c",
         metric: "model_mae",
         value: null,
         limit: null,
@@ -53,7 +53,7 @@ export const driftProposals: DriftProposalView[] = [
       },
     ],
     twin_version: null,
-    pack_id: "pack-batch-mixer",
+    pack_id: "pack-forge",
     pack_version: null,
     live_available: false,
     illustrative: true,

@@ -58,7 +58,7 @@ export interface CycleBreakdownCard {
 }
 
 export const CYCLE_TIME_PAGE_META =
-  "Cycle-time dwell and share · Shares sum to 1.0 · Live get_cycle_time_breakdown when session connected (caller-supplied samples until store)";
+  "Cycle-time dwell and share · Shares sum to 1.0 · Live get_cycle_time_breakdown reads once the read-api is attached (caller-supplied samples until store)";
 
 function shares(dwell: Record<CycleState, number>): CycleBreakdown {
   const window_s = Object.values(dwell).reduce((a, b) => a + b, 0);
@@ -75,8 +75,8 @@ const zero = (): Record<CycleState, number> =>
 
 export const cycleBreakdownCards: CycleBreakdownCard[] = [
   {
-    asset_id: "asset-cnc-1",
-    station: "CNC 1",
+    asset_id: "asset-hmc-1",
+    station: "HMC 1",
     window_label: "Last 4 h (illustrative)",
     depends_on: "cycle-time read tool · #125 library on main",
     result: shares({
@@ -107,8 +107,8 @@ export const cycleBreakdownCards: CycleBreakdownCard[] = [
     }),
   },
   {
-    asset_id: "asset-cnc-3",
-    station: "CNC 3",
+    asset_id: "asset-vmc-2",
+    station: "VMC 2 · after restart",
     window_label: "Insufficient samples",
     depends_on: "cycle-time read tool · #125 library on main",
     result: {
