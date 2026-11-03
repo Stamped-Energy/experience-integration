@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Illustrative, KpiRow, Section, Tag } from "@/components/ui/primitives";
+import { KpiRow, Section, Tag } from "@/components/ui/primitives";
 import { UnitCostsForm } from "@/components/plant/UnitCostsForm";
 import {
   EMPTY_UNIT_COSTS,
@@ -64,7 +64,7 @@ export function ValueRoiPanel({
       meta={
         <span style={{ display: "inline-flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           {meta ?? "Rates lead; money only when the plant has set unit costs (D157)"}
-          {illustrative ? <Illustrative /> : null}
+          
           <Tag tone={ratesOk ? "success" : "warning"}>
             {ratesOk ? ratesSourceLabel(display.rates_source) : "Rates abstain"}
           </Tag>

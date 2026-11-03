@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import { ScreenTogglePanel } from "@/components/settings/ScreenToggleAdmin";
 import { SettingsPage } from "@/components/settings/common";
 

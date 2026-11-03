@@ -11,7 +11,7 @@ import { can } from "@/lib/rbac";
 import { dayMonth, hhmm } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { deniedReason } from "@/components/cards/DecisionCard";
-import { DataTable, EvidenceTag, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, EvidenceTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { ConfirmAction } from "@/components/settings/Confirm";
 import { ActivityTabs, crumbs, objHref, personName, roleName } from "@/components/activity/common";
 
@@ -81,7 +81,7 @@ export default function Reports() {
           </Section>
         </div>
         <div className="span-4 xl-span-3 stack">
-          <Section title="Approval queue" meta={`${queue.length} waiting`} actions={<Illustrative />} flush>
+          <Section title="Approval queue" meta={`${queue.length} waiting`} flush>
             <div className="rows">{queue.map((r) => (
               <div key={r.id} className="row" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
                 <span><span className="row-title" style={{ display: "block" }}><Link className="link" scroll={false} prefetch={false} href={`/activity/reports?r=${r.id}`}>{r.kind}, {r.period}</Link></span><span className="row-sub">{r.status === "draft" ? "Draft; send for approval when ready" : "Waiting for the plant head"}</span>

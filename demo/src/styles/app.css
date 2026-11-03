@@ -42,50 +42,7 @@ button { font: inherit; color: inherit; }
 /* ---------- Shell ---------- */
 .app { display: grid; grid-template-columns: var(--rail-w) minmax(0, 1fr); min-height: 100vh; transition: grid-template-columns var(--duration) var(--ease-out); }
 [data-rail="expanded"] .app { grid-template-columns: var(--rail-w-expanded) minmax(0, 1fr); }
-.rail {
-  position: sticky; top: 0; height: 100vh; z-index: var(--z-rail);
-  display: flex; flex-direction: column; align-items: center; gap: var(--space-1);
-  padding: var(--space-3) 0; border-right: 1px solid var(--border); background: var(--canvas);
-}
-.rail-mark { width: 32px; height: 32px; display: grid; place-items: center; margin-bottom: var(--space-3); }
-.rail-mark svg { display: block; }
-.rail-item {
-  position: relative; width: 40px; height: 40px; display: grid; place-items: center;
-  border-radius: var(--radius-md); color: var(--text-secondary);
-  transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast);
-}
-button.rail-item { border: 0; background: transparent; cursor: pointer; padding: 0; }
-.rail-item svg { width: 20px; height: 20px; }
-.rail-item:hover { background: var(--surface-sunken); color: var(--text-primary); }
-.rail-item[aria-current="page"] { background: var(--accent-50); color: var(--accent-700); }
-.rail-item[aria-current="page"]::before { content: ""; position: absolute; left: -8px; top: 10px; bottom: 10px; width: 2px; background: var(--accent-500); border-radius: 2px; }
-.rail-item .rail-soon { position: absolute; right: 3px; top: 3px; width: 6px; height: 6px; border-radius: 999px; background: var(--border-strong); }
-.rail-item .rail-count { position: absolute; right: 0; top: 0; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--accent-500); color: var(--text-inverse); font-size: var(--type-label); line-height: 16px; font-weight: 600; text-align: center; }
-.rail-sep { width: 24px; height: 1px; background: var(--border); margin: var(--space-2) 0; }
-.rail-spacer { flex: 1; }
-.rail-tip {
-  position: absolute; left: 48px; top: 50%; transform: translateY(-50%); white-space: nowrap; pointer-events: none;
-  background: var(--text-primary); color: var(--text-inverse); font-size: 12px; padding: 2px 8px; border-radius: var(--radius-sm);
-  opacity: 0; transition: opacity var(--duration-fast);
-}
-.rail-item:hover .rail-tip, .rail-item:focus-visible .rail-tip { opacity: 1; }
-.rail { overflow-x: hidden; }
-.rail-label { display: none; }
-.rail-toggle-chev { transition: transform var(--duration) var(--ease-out); transform-origin: 14px 12px; }
-.rail-item:focus-visible { outline: 2px solid var(--accent-500); outline-offset: 2px; }
 
-/* Expanded rail: icons plus labels */
-[data-rail="expanded"] .rail { align-items: stretch; padding-left: var(--space-2); padding-right: var(--space-2); }
-[data-rail="expanded"] .rail-mark { margin-left: 4px; }
-[data-rail="expanded"] .rail-sep { width: auto; margin-left: 8px; margin-right: 8px; }
-[data-rail="expanded"] .rail-item { width: auto; display: flex; align-items: center; justify-content: flex-start; gap: var(--space-3); padding: 0 10px; }
-[data-rail="expanded"] .rail-item[aria-current="page"]::before { left: -8px; }
-[data-rail="expanded"] .rail-item svg { flex: none; }
-[data-rail="expanded"] .rail-label { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-[data-rail="expanded"] .rail-tip { display: none; }
-[data-rail="expanded"] .rail-item .rail-count { position: static; margin-left: auto; order: 1; }
-[data-rail="expanded"] .rail-item .rail-soon { position: static; margin-left: auto; }
-[data-rail="expanded"] .rail-toggle-chev { transform: scaleX(-1); }
 
 
 /* ---------- Nested sidebar (SideNav) ---------- */
@@ -584,8 +541,7 @@ a.row:hover { background: var(--surface-subtle); }
 /* Bottom bar (mobile) */
 .bottombar { display: none; }
 @media (max-width: 767px) {
-  .app, [data-rail="expanded"] .app { grid-template-columns: minmax(0, 1fr); }
-  .rail { display: none; }
+  .app, [data-rail="expanded"] .app { grid-template-columns: minmax(0, 1fr); }
   .bottombar { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; height: var(--bottom-bar-h); z-index: var(--z-rail); background: var(--surface); border-top: 1px solid var(--border); }
   .bottombar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 11px; color: var(--text-secondary); }
   .bottombar a svg { width: 20px; height: 20px; }

@@ -1,7 +1,7 @@
 import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { DataTable, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { crumbs, qualityEyebrow } from "@/components/quality/common";
 import { gaugeRrCards } from "@/lib/demo/capabilityScreens";
 import { gaugeRrVerdict } from "@/lib/demo/verdicts";
@@ -17,7 +17,7 @@ export default function GaugeRrPage() {
         meta="Fit under 10% GRR, fit with care from 10 to 30%, not fit above 30%. ndc at least 5."
         actions={
           <>
-            <Illustrative />
+            
             <AskButton context="Gauge R&R" label="Ask about gauge R&R" />
           </>
         }

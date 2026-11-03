@@ -10,7 +10,7 @@ import { grant } from "@/lib/rbac";
 import { dayMonth, hhmm, rel } from "@/lib/format";
 import { Workspace } from "@/components/shell/Shell";
 import { AskButton } from "@/components/shell/ShellClient";
-import { DataTable, EmptyState, EvidenceTag, Illustrative, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, EmptyState, EvidenceTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { ActivityTabs, Chips, KINDS, auditHref, crumbs, dayKey, kindOf, lineOf, objHref, personName, roleName, type AuditFilter } from "@/components/activity/common";
 
 
@@ -52,7 +52,7 @@ export default function Audit() {
 
   const detail = sel && (
     <>
-      <Section title={sel.action} meta={`${dayMonth(sel.at)} ${hhmm(sel.at)}`} actions={<Illustrative />}>
+      <Section title={sel.action} meta={`${dayMonth(sel.at)} ${hhmm(sel.at)}`}>
         <dl className="facts-grid">
           <dt>When</dt><dd>{dayMonth(sel.at)} {hhmm(sel.at)} IST · {rel(sel.at)}</dd>
           <dt>Person</dt><dd>{personName(sel.personId)}, {roleName(sel.role)}</dd>

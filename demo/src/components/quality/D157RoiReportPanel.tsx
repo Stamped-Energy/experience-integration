@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { DataTable, Illustrative, KpiRow, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, KpiRow, Section, Tag } from "@/components/ui/primitives";
 import { UnitCostsForm } from "@/components/plant/UnitCostsForm";
 import {
   d157MoneyFromUnitCosts,
@@ -52,7 +52,7 @@ export function D157RoiReportPanel({
         meta={
           <span style={{ display: "inline-flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             Order: rejection rate delta, scrap rate delta, then money (money only when unit costs are set)
-            {illustrative ? <Illustrative /> : null}
+            
             <Tag>{report.plant_id}</Tag>
             <Tag tone={moneyPresent ? "success" : "warning"}>
               {moneyPresent ? "Unit costs set" : "Set unit costs"}

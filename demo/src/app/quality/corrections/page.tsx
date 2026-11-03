@@ -11,7 +11,7 @@ import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { Confidence } from "@/components/ui/Confidence";
 import { RunChart } from "@/components/ui/charts";
-import { DataTable, EvidenceIds, EvidenceTag, Illustrative, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
+import { DataTable, EvidenceIds, EvidenceTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { runLabel } from "@/components/process/common";
 import { JoinTag, RiskTag, crumbs, gradeOf, lotNo, propOf, qualityEyebrow, specOf, weakestJoin } from "@/components/quality/common";

@@ -11,7 +11,7 @@ import { AskButton } from "@/components/shell/ShellClient";
 import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { RunChart, Sparkline } from "@/components/ui/charts";
-import { DataTable, EvidenceTag, Illustrative, KpiRow, LineModeTag, ModeTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
+import { DataTable, EvidenceTag, KpiRow, LineModeTag, ModeTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
 import { PlantSectionMap, PlantTabs, crumbs, fmt, latest, openCards, readingsOf, tagsOf } from "@/components/plant/common";
 import type { DataGap } from "@/lib/demo/types";
 
@@ -40,7 +40,7 @@ export default function DataHealth() {
       ]} />
       <div className="grid" style={{ marginTop: 16 }}>
         <div className="span-8 stack">
-          <Section title="Sources" meta="Select a source to see its gaps" flush actions={<Illustrative />}>
+          <Section title="Sources" meta="Select a source to see its gaps" flush>
             <DataTable caption="Sources" rowKey={(s) => s.id} rows={D.dataSources} columns={[
               { key: "n", label: "Source", render: (s) => <><Link className="link" href={`/plant/data?source=${s.id}`} scroll={false} style={s.id === sel.id ? { fontWeight: 600 } : undefined}>{s.name}</Link><span className="cell-sub">{s.kind}</span></> },
               { key: "t", label: "Tags", align: "right", render: (s) => s.tags },
