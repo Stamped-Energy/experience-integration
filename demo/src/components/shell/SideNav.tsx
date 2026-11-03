@@ -1,12 +1,13 @@
 "use client";
 
 /**
- * Single product sidebar: global items + accordion Process / Quality groups.
+ * Single product sidebar: global items + independent Process / Quality groups.
  * Expanded ~232px; collapsible to icons with hover flyout for nested pages.
+ * Groups toggle independently; open state persists in localStorage.
  */
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { NAV, areaFor } from "@/lib/nav";
 import { hubsVisibleTo, PROCESS_HUBS, QUALITY_HUBS } from "@/lib/module/hubs";
 import { screenActive } from "@/lib/module/definitions";
@@ -21,7 +22,12 @@ import { StampedMark } from "./StampedMark";
 const ICON: Record<string, (p: object) => ReactNode> = Icon as never;
 
 const MODULE_KEY = "stamped-last-module";
+const GROUPS_KEY = "stamped-side-groups";
 const RAIL_KEY = "stamped-rail";
+
+type OpenGroups = Record<ModuleId, boolean>;
+
+const DEFAULT_GROUPS: OpenGroups = { process: true, quality: false };
 
 type HubScreen = { id: string; label: string; href: string };
 
@@ -37,19 +43,31 @@ function pendingActions(module: ModuleId): number {
   return countForScreen(module, "actions") ?? 0;
 }
 
-function readStoredModule(): ModuleId | null {
-  try {
-    const v = localStorage.getItem(MODULE_KEY);
-    if (v === "process" || v === "quality") return v;
-  } catch {
-    /* ignore */
-  }
-  return null;
-}
-
 function writeStoredModule(m: ModuleId) {
   try {
     localStorage.setItem(MODULE_KEY, m);
+  } catch {
+    /* ignore */
+  }
+}
+
+function readStoredGroups(): OpenGroups {
+  try {
+    const raw = localStorage.getItem(GROUPS_KEY);
+    if (!raw) return { ...DEFAULT_GROUPS };
+    const parsed = JSON.parse(raw) as Partial<OpenGroups>;
+    return {
+      process: Boolean(parsed.process),
+      quality: Boolean(parsed.quality),
+    };
+  } catch {
+    return { ...DEFAULT_GROUPS };
+  }
+}
+
+function writeStoredGroups(g: OpenGroups) {
+  try {
+    localStorage.setItem(GROUPS_KEY, JSON.stringify({ process: g.process, quality: g.quality }));
   } catch {
     /* ignore */
   }
@@ -77,7 +95,7 @@ export function SideNav({ inboxCount }: { inboxCount: number }) {
   const area = areaFor(path);
   const pathModule = moduleFromPath(path);
 
-  const [openModule, setOpenModule] = useState<ModuleId | null>(pathModule ?? "process");
+  const [openGroups, setOpenGroups] = useState<OpenGroups>(DEFAULT_GROUPS);
   const [expanded, setExpanded] = useState(true);
   const [flyout, setFlyout] = useState<ModuleId | null>(null);
   const [flyoutPos, setFlyoutPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
@@ -85,18 +103,49 @@ export function SideNav({ inboxCount }: { inboxCount: number }) {
   const flyoutTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const plantForced = useRef(false);
   const prefBeforePlant = useRef<boolean | null>(null);
+  const prevPath = useRef<string | null>(null);
+  const groupsHydrated = useRef(false);
 
-  // Sync open module from path; remember last module. On Home, Quality head opens Quality.
+  // Hydrate group open state once, then auto-open the active module only on load or navigation.
   useEffect(() => {
+    const navigated = prevPath.current !== null && prevPath.current !== path;
+    const first = prevPath.current === null;
+    prevPath.current = path;
+
+    if (!groupsHydrated.current) {
+      groupsHydrated.current = true;
+      const stored = readStoredGroups();
+      let next = stored;
+      if (pathModule) {
+        next = { ...stored, [pathModule]: true };
+        writeStoredModule(pathModule);
+        saveLastScreen(pathModule, path);
+      } else if (role === "quality-head" && (path === "/" || path.startsWith("/?"))) {
+        next = { ...stored, quality: true };
+      }
+      setOpenGroups(next);
+      writeStoredGroups(next);
+      return;
+    }
+
     if (pathModule) {
-      setOpenModule(pathModule);
       writeStoredModule(pathModule);
       saveLastScreen(pathModule, path);
-    } else if (role === "quality-head" && (path === "/" || path.startsWith("/?"))) {
-      setOpenModule("quality");
-    } else {
-      const stored = readStoredModule();
-      if (stored) setOpenModule(stored);
+      if (first || navigated) {
+        setOpenGroups((g) => {
+          if (g[pathModule]) return g;
+          const next = { ...g, [pathModule]: true };
+          writeStoredGroups(next);
+          return next;
+        });
+      }
+    } else if (role === "quality-head" && (path === "/" || path.startsWith("/?")) && (first || navigated)) {
+      setOpenGroups((g) => {
+        if (g.quality) return g;
+        const next = { ...g, quality: true };
+        writeStoredGroups(next);
+        return next;
+      });
     }
   }, [path, pathModule, role]);
 
@@ -147,31 +196,27 @@ export function SideNav({ inboxCount }: { inboxCount: number }) {
     setExpanded(next);
   };
 
-  const openGroup = useCallback(
-    (m: ModuleId, navigate: boolean) => {
-      setOpenModule(m);
-      writeStoredModule(m);
-      if (navigate) {
-        const fallback = m === "process" ? "/process/actions" : "/quality/actions";
-        router.push(lastScreenHref(m, fallback));
-      }
-    },
-    [router],
-  );
-
   const onGroupHeaderClick = (m: ModuleId) => {
     if (!expanded) {
-      // collapsed: navigate into module / toggle flyout
-      openGroup(m, true);
+      // collapsed: navigate into module / toggle flyout (unchanged)
+      writeStoredModule(m);
+      setOpenGroups((g) => {
+        const next = { ...g, [m]: true };
+        writeStoredGroups(next);
+        return next;
+      });
+      const fallback = m === "process" ? "/process/actions" : "/quality/actions";
+      router.push(lastScreenHref(m, fallback));
       setFlyout((f) => (f === m ? null : m));
       return;
     }
-    if (openModule === m) {
-      // accordion: clicking open header navigates to last screen; keep open
-      openGroup(m, true);
-      return;
-    }
-    openGroup(m, true);
+    // expanded: toggle only this group; active route group may close
+    setOpenGroups((g) => {
+      const next = { ...g, [m]: !g[m] };
+      writeStoredGroups(next);
+      return next;
+    });
+    writeStoredModule(m);
   };
 
   const showFlyout = (m: ModuleId, el?: HTMLElement | null) => {
@@ -237,7 +282,7 @@ export function SideNav({ inboxCount }: { inboxCount: number }) {
   );
 
   const moduleGroup = (m: ModuleId, label: string, screens: HubScreen[]) => {
-    const open = openModule === m;
+    const open = openGroups[m];
     const count = pendingActions(m);
     const inModule = pathModule === m;
     return (
