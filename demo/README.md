@@ -4,6 +4,8 @@ This folder is the Stamped product as a working web app, running on a fictional 
 
 The source of truth for what the product should be is stamped-external `design/product-ui/PRODUCT_UI_SPEC.md`. How the code is organised (tokens, components, data module, route conventions) is in [FOUNDATION.md](FOUNDATION.md); read it before building on this app. When docs and the live demo disagree, see [docs/SOURCE_ALIGNMENT.md](docs/SOURCE_ALIGNMENT.md) and [docs/UI_CONTRACT.md](docs/UI_CONTRACT.md).
 
+**Showcase walkthrough:** [docs/PERSONA_WALKTHROUGH.md](docs/PERSONA_WALKTHROUGH.md) (~8 minutes, forge → heat treatment → foundry, with `?as=` start links and per-account entry points).
+
 ## Run it
 
 You need Node 22 (22.14 or later) and pnpm 11.
@@ -21,7 +23,7 @@ pnpm start      # alias of preview
 
 After changing UI code, run `pnpm build` again before `pnpm preview`. If static chunks 404 or return 500, restart preview so `/_next/static/*` matches the latest build.
 
-Viewport screenshots for QA (server must be running on 3010):
+Viewport screenshots for QA (server must be running on 3010; set `OUT_DIR` to choose the output folder):
 
 ```bash
 node scripts/capture-pr59-screens.mjs
@@ -31,7 +33,7 @@ node scripts/capture-pr59-screens.mjs
 
 The left rail has the areas below in the same order for every role.
 
-- **Home** has four views. Plant shows each line's mode, what needs a decision, what Stamped did this shift, lots at risk and proof updates. Shift shows the shift timeline, the handover and open items. My line now is the operator view: current settings inside the signed band, the next proposal with large controls, and Stop with its stated effect. Owner shows value at the plant's prices, with Verified (proof rungs R3 and R4) and Indicative shown side by side and never added, plus recent activity and plant-wide context. Every value figure opens its proof record.
+- **Home** has five views (Overview plus four role homes). Plant shows the metal-works line strip (Forge, Heat treatment, Foundry, Machining, Moulding), what needs a decision across those lines, shift proof updates and lots at risk. Shift shows the shift timeline, the handover and open items. My line now is the operator view: current settings inside the signed band, the next proposal with large controls, and Stop with its stated effect. Owner shows value at the plant's prices, with Verified (proof rungs R3 and R4) and Indicative shown side by side and never added, plus recent activity and plant-wide context. Every value figure opens its proof record. Worked examples for the walkthrough: Process actions `ex-p1` (forge hot-spell trial), `ex-p2` (warm idle through stops); Quality `ex-q1` (quench oil basket to basket), `ex-q3` (foundry pour window).
 - **Inbox** has Waiting for me, Tasks and Decided, plus a detail page for each card. Proposals, trial signatures, lot links, corrections from Quality and data gaps all use the same shared card.
 - **Process** has lines, line and run detail, proposals with the model's predicted band and the signed limits, Adjust in band, trials and stops, measurement plans and the holding check, running settings and model fit. Proof is not a separate area: the evidence sheet with the four questions, verdict and rung opens on demand from runs, trials and lines.
 - **Quality** has lots at risk, lot detail with link scores, drift with the alarm budget, investigations, link confirmations, specs and grades, and corrections sent to Process. There is no release button; release happens in the plant's own quality system.
@@ -49,12 +51,13 @@ The "View as" switcher in the top bar changes the role the app is seen as: Opera
 
 The data lives in `src/lib/demo/`: `types.ts` holds one type per plant object (site, areas, lines, assets, tags and readings, runs, setpoint writes, signed limits, standing approvals, proposals, trials, stops, measurement plans, holding checks, model fits, proof records, grades and specs, lots, lot links, drift, investigations, corrections, data sources and gaps, Plant Box and lease, people and roles, routing, integrations, Ask threads, saved answers, notes, audit events, reports and value items). `data.ts` builds a deterministic dataset from a fixed demo time (20 Oct 2026, 14:00 IST) with seeded generators, so every load looks the same.
 
-The plant is a fictional auto-component metal works: Forge, Heat treatment, Foundry, Machining, and a small Moulding line. People are named by role, such as "Plant head A.". There are no client names and no real client results. Full line table and banned figures: `docs/UI_CONTRACT.md`. The rules the data follows:
+The plant is a fictional auto-component metal works: Forge, Heat treatment, Foundry, Machining, and a small Moulding line. People are named by role, such as "Plant head A.". There are no client names and no real client results. Full line table and banned figures: `docs/UI_CONTRACT.md`. Presenters set role once with `?as=` (see walkthrough). The rules the data follows:
 
 - The breadcrumb "Demonstration plant" is the only page-level demo marker. No Illustrative tags on pages.
 - Rupee figures appear only on the owner's Home. Verified and Indicative are separate fields with no total.
 - Confidence follows the method behind each item. Proposals and Ask answers show a word label and a band only, never a score. Lot links show their documented 0 to 1 link score. Proof verdicts show the verdict, rung and interval.
 - No pricing of Stamped itself appears anywhere. No Faridabad proof figures and no incumbent product names in the demo source.
+- Worked example actions and Ask chips stay on the forge, heat-treatment and foundry spine; machining twin trials and moulding proofs support cable/component starts. No welding or stress-relief line yet (fabricator limit in the walkthrough).
 - Copy: no em dashes, British and Indian spelling, none of the banned pitch words listed in spec section 14, no WhatsApp. `pnpm lint` and `pnpm test` check part of this.
 
 ## Design system

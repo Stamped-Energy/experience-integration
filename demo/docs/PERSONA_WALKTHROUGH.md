@@ -1,139 +1,69 @@
-# Persona walkthroughs
+# Showcase walkthrough (metal works)
 
-Minimal-context walks against the local production build (`pnpm build` · `pnpm start` on `127.0.0.1:3010`). Shared brief: *You work at this plant. This screen is Stamped. Find what needs you today and act on it. Think aloud. Do not read docs or URLs.* Cap: 15 clicks. Wrong turns count as at least P1.
+Presenter script for the fictional auto-component metal works in `demo/`. Run a production build locally (`pnpm build` · `pnpm start` on `http://127.0.0.1:3010`) or use showcase.stamped.work after merge.
 
-## Baseline (before Home layout fixes)
+Use **`?as=<role>`** once on any URL to set View as and drop the param (cookie: `stamped-role`). Roles: `operator`, `shift-lead`, `process-engineer`, `quality-head`, `plant-head`, `owner`, `stamped-engineer`, `viewer`. Pair with **`?view=plant|shift|line|owner|overview`** on Home when you need a specific tab.
 
-### Plant head
+## Demo limits (say these early)
 
-| | |
-|---|---|
-| Role set | Plant head (default) |
-| Start | `/` |
-| Goal | Decide on the proposal that needs you most, or say who should |
-| First impression | "This page is a plant dashboard: Overview, value, and a decision card." |
-| Click path | Land Overview → scroll to Next decision → Accept 760 bar (Undo appears) |
-| Clicks to goal | 1 (Accept on Home) |
-| Success | Yes for Accept. Band and Expected result were **not** on the card (`variant="compact"`). Stop effect was visible. |
+- One demonstration plant serves every account story. Lines are Forge (`line-a`), Heat treatment (`line-c`), Foundry (`line-d`), Machining (`line-e`), and a small Moulding line (`line-b`).
+- **Fabricators** with welding, stress relief or dedicated fab cells still have **no own line** in this dataset; say that plainly if the visitor expects it.
+- Actions (Accept, Adjust, Sign, Stop, holds) **show outcomes on screen but do not persist**; nothing is written to a real plant.
+- Ask answers from saved threads and four suggested chips; anything else abstains and names the missing input.
+- Rupee value appears only on the owner Home. Verified (proof rungs R3 and R4) and Indicative stay **separate** and are never added.
+- The breadcrumb **Demonstration plant** is the only page-level demo marker. Figures use Measured, Estimated or Modelled vocabulary, not client names or deck proof numbers (see `docs/UI_CONTRACT.md`).
 
-**Stuck log**
+## Main path (~8 minutes)
 
-| Sev | Issue | Expected | Found |
-|---|---|---|---|
-| P1 | Compact DecisionCard on Overview | Limits band and expected result next to Accept | Only reason, evidence ids, If stopped, state strip |
-| P1 | Lands on Overview, not Plant | Role home `plant` | `/?` → Overview for every role |
-| P2 | Three stories compete (Working on, Next decision, Waiting, My day, value KPIs) | One primary act | Equal visual weight |
+Default role unless noted: **Plant head** (`/?as=plant-head`).
 
-### Process engineer
+| Step | Start link | What to show |
+|------|------------|--------------|
+| 1 | [`/?as=plant-head&view=plant`](http://127.0.0.1:3010/?as=plant-head&view=plant) | **Plant today**: line strip across forge, heat treatment and foundry (mode, waiting proposals, outcome sparkline). **Needs a decision** and Inbox queue span forge proposals, HT soak signature, foundry pour temperature, moulding hold pressure. Point at decisions that sit on different lines, not one hero KPI. |
+| 2 | [`/quality/actions/ex-q1`](http://127.0.0.1:3010/quality/actions/ex-q1) | **Quality · Hold the next basket while quench oil rises basket to basket** on heat treatment. Chart of oil temperature by basket, **Hold the next basket** vs sample vs continue. Open **load 5119** (`/process/runs/run-c-5119`) from the linked load control. Name that Stamped asks; the hold is set in the plant quality system. |
+| 3 | [`/process/actions/ex-p1`](http://127.0.0.1:3010/process/actions/ex-p1) then [`/process/trials/trial-1`](http://127.0.0.1:3010/process/trials/trial-1) | **Process · Trial a lower billet exit target when heater H1 runs hot** (forge hot spell). On the trial page: **Limits** band for billet exit temperature, **switchback schedule** with A/B arms and run outcomes, **Stop** restores 1215 °C from the next shift run. For **Sign trial**, switch to Plant head and open [`/process/trials/trial-4`](http://127.0.0.1:3010/process/trials/trial-4) or Inbox [`/inbox/in-17`](http://127.0.0.1:3010/inbox/in-17) (soak time on furnace F1, awaiting signature). Machining **twin-first** feed trials live on [`/process/actions/ex-p5`](http://127.0.0.1:3010/process/actions/ex-p5) if you need a twin story in the same visit. |
+| 4 | [`/process/trials/trial-2?evidence=proof-2`](http://127.0.0.1:3010/process/trials/trial-2?evidence=proof-2) | **Evidence sheet** for a **closed** change: hold pressure on Moulding. Four questions, **verdict Improved**, **rung R3**, effect interval on scrap (low, point, high). Closed warm-idle on forge is also documented on [`/process/actions/ex-p2`](http://127.0.0.1:3010/process/actions/ex-p2) with proof [`/process?evidence=proof-5`](http://127.0.0.1:3010/process?evidence=proof-5). |
+| 5 | Stay on [`/quality/actions/ex-q1`](http://127.0.0.1:3010/quality/actions/ex-q1) | **View as Operator**, then **Viewer**, on the same card. Operator can choose Hold; Viewer sees the card but actions name who can decide. |
+| 6 | [`/?as=owner&view=owner`](http://127.0.0.1:3010/?as=owner&view=owner) | **Owner Home**: Verified and Indicative **side by side** (paired bars, no total). Open a value row to its proof record. |
+| 7 | [`/plant/assets/a-heater`](http://127.0.0.1:3010/plant/assets/a-heater) | **Ask** (panel or bar): *Why are cold billets rising after stops?* Answer is Estimated with band, evidence ids, and a link to [`/process/actions/ex-p2`](http://127.0.0.1:3010/process/actions/ex-p2). |
 
-| | |
-|---|---|
-| Role set | Process engineer via switcher |
-| Start | `/` then Line B |
-| Goal | Hold-pressure proposal on Line B; find Line B settings |
-| First impression | "Same Overview as Plant head; switcher does not change the page." |
-| Click path | Switch to Process engineer → still Overview → open `/process/lines/line-b` (sidebar Lines click from Home did not navigate in this run) → see Running settings and full DecisionCard |
-| Clicks to goal | 3+ (role switch wasted; direct URL to Line B) |
-| Success | Partial. Line B settings found. Home still used plant-head RBAC via `demoRole()`. |
+Authority line on Agent at work pages: *Stamped works inside limits set beforehand. Nothing is written until a named role accepts.*
 
-**Stuck log**
+## Per-account start points
 
-| Sev | Issue | Expected | Found |
-|---|---|---|---|
-| P0 | Home ignores role switcher | Process engineer view and grants | `demoRole()` always `plant-head`; header has no role tag on Overview |
-| P1 | Default view is Overview | Land on Plant (`roles[].home`) | Overview collage |
-| P1 | Compact card on Home | Full band for Adjust in band | Compact; full card only on Line B |
-| P2 | Sidebar Lines from Home did not change URL in this session | `/process` or lines list | Stayed on `/` |
+Same plant, different door. Use `?as=plant-head&view=plant` unless the visitor is an owner (use `owner` view).
 
-### Quality head
+| Visitor plant type | Start here | Story on this line |
+|--------------------|------------|--------------------|
+| Forge / press shop | [`/process/lines/line-a`](http://127.0.0.1:3010/process/lines/line-a) or [`/process/actions/ex-p1`](http://127.0.0.1:3010/process/actions/ex-p1) | Induction heater H1, screw press P1, overheating scrap and press-stop behaviour. |
+| Foundry | [`/inbox/in-16`](http://127.0.0.1:3010/inbox/in-16) or [`/quality/actions/ex-q3`](http://127.0.0.1:3010/quality/actions/ex-q3) | **Pour temperature** on melt furnace M1 and heat 8836 mould holds. |
+| Cable / component (moulding + machining) | [`/process/lines/line-b`](http://127.0.0.1:3010/process/lines/line-b) then [`/process/lines/line-e`](http://127.0.0.1:3010/process/lines/line-e) | Moulding hold pressure and cycle proof, then machining feed trial on the twin. |
+| Fabricator (welding, stress relief) | [`/?view=plant`](http://127.0.0.1:3010/?view=plant) | **Limit:** no dedicated welding or stress-relief line yet; use forge + HT for analogous decisions or say the next dataset pass will add a fab cell. |
 
-| | |
-|---|---|
-| Role set | Quality head via switcher |
-| Start | `/` |
-| Goal | Most at-risk lot and its investigation |
-| First impression | "Home is about process decisions, not lots." |
-| Click path | Land Overview (no Lots at risk) → Quality group collapsed in rail → click Working on Investigating (no navigation) → open `/quality` → lot 3307 At risk → Open the investigation |
-| Clicks to goal | 4+ with a dead Working-on click |
-| Success | Yes once on `/quality`. Hard to discover from Home. |
+Shorter plant-visitor path (quality-heavy): `docs/DEMO_SCRIPT_CLIENT.md`.
 
-**Stuck log**
+---
 
-| Sev | Issue | Expected | Found |
-|---|---|---|---|
-| P0 | Home ignores role switcher | Quality-shaped Home | Same Overview; plant-head grants on cards |
-| P1 | No lots on default Home | Plant view with Lots at risk | Overview only; Quality rail collapsed |
-| P1 | Working on → Investigating did not navigate | `/quality/investigations` | Click focused the link; URL stayed `/` |
-| P2 | Investigation href is list, not case | Open inv for lot 3307 | `/quality/investigations` |
+## Appendix: Persona QA history
 
-### Ranked fixes for this pass
+Minimal-context walks against the local production build. Shared brief: *You work at this plant. This screen is Stamped. Find what needs you today and act on it. Think aloud. Do not read docs or URLs.* Cap: 15 clicks.
 
-1. **P0** Live `useRole()` on Home; DecisionCard and grants follow the switcher.
-2. **P0/P1** Default `/?` to `roles[].home` when `?view` is absent.
-3. **P1** Full DecisionCard on Home; Overview = card + queue (max 5) + My day only.
-4. **P1** Plant side feed = Lots at risk only; Shift so far link under queue.
-5. **P1** Working-on Investigating → `/quality/investigations/inv-1`.
+### After layout and role fixes (current build)
 
-## After results
+Persona e2e: plant head, process engineer and quality head happy paths pass (`e2e/personas.spec.ts`). Presenter link `/?as=quality-head&view=plant` sets the cookie and keeps `view=plant`.
 
-Re-run on the rebuilt build. Persona e2e: 3/3 passed.
+| Role | Land | Success criterion |
+|------|------|-------------------|
+| Plant head | Plant today | Full decision card with Limits and Accept enabled |
+| Process engineer | Plant today | Reach Line B running settings and Accept on hold pressure |
+| Quality head | Plant today with lots at risk | Open investigation for lot 3307 |
 
-### Plant head
+### Printable one-pagers (for real plant people)
 
-| | Before | After |
-|---|---|---|
-| Land | Overview | Plant today (`roles[].home`) |
-| Card | Compact (no band) | Full: Expected result + Limits + Accept enabled |
-| Clicks to goal | 1 | 1 |
-| Success | Partial | Yes |
+**Shared brief.** You work at this plant. This screen is Stamped. Find what needs you today and act on it. Think aloud. Do not read docs or URLs. Stop after 15 clicks or when you succeed.
 
-### Process engineer
+**Plant head.** Decide on the one proposal that needs you most, or say who should decide it. Success: you read the band and Stop effect, and either Accept is allowed or the card names who can decide.
 
-| | Before | After |
-|---|---|---|
-| Land | Overview (as plant-head grants) | Plant today · Process engineer view |
-| Role on Home | Ignored | Live `useRole()` |
-| Line B | Direct URL after wrong turn | `/process/lines/line-b` · Running settings + Accept |
-| Clicks to goal | 3+ | 2 (Home → Line B) |
-| Success | Partial | Yes |
+**Process engineer.** Line B hold-pressure proposal: adjust inside the band or explain why not, then find Line B running settings. Success: reach the card and settings without an Engineering-only dead end.
 
-### Quality head
-
-| | Before | After |
-|---|---|---|
-| Land | Overview, no lots | Plant today with Lots at risk |
-| Quality rail | Collapsed | Opens Quality on Home |
-| Accept on process card | Looked allowed (wrong role) | Disabled; names who can decide |
-| Investigation path | `/quality` hunt | Lots on Home → Quality → Open the investigation |
-| Clicks to goal | 4+ with dead end | 2–3 |
-| Success | Painful | Yes |
-
-### Remaining P2
-
-- Sidebar “Lines” soft-nav from Home was flaky once in baseline automation; direct `/process/lines/line-b` is fine.
-- Working-on strip removed from Overview (composition). Investigation deep link fixed if Working on appears on other views: `/quality/investigations/inv-1`.
-- My day desk rows render as time · title · kind (verified in a11y tree).
-
-## Printable one-pagers (for real plant people)
-
-### Shared brief
-
-You work at this plant. This screen is Stamped. Find what needs you today and act on it. Think aloud. Do not read docs or URLs. Stop after 15 clicks or when you succeed.
-
-### Plant head
-
-**Goal.** Decide on the one proposal that needs you most, or say who should decide it.
-
-**Success.** You open the card, read the band and the Stop effect, and either Accept is allowed or the card names who can decide.
-
-### Process engineer
-
-**Goal.** The Line B hold-pressure proposal: adjust it inside the band or explain why not, then find Line B’s current settings.
-
-**Success.** You reach the card and Line B’s running settings without an Engineering-only dead end.
-
-### Quality head
-
-**Goal.** Find which lot is most at risk and open its investigation (or start one).
-
-**Success.** You reach the lot on Quality, open the investigation or correction, and can say why that lot is at risk.
+**Quality head.** Find the most at-risk lot and open its investigation. Success: reach the lot on Quality, open the investigation, and say why that lot is at risk.
