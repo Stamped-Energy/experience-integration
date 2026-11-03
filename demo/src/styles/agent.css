@@ -180,6 +180,28 @@
 .action-detail-hero .ex-outcome-chip { background: var(--canvas); }
 .calc-inputs { margin: 0; padding-left: 16px; font-size: 13px; line-height: 1.45; color: var(--text-secondary); }
 .calc-inputs li { margin-bottom: 2px; }
+.calc-result {
+  display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+.calc-formula { display: block; white-space: normal; overflow-wrap: anywhere; line-height: 1.45; }
+.section-body.flush .table td:has(.calc-result),
+.section-body.flush .table td:has(.calc-inputs),
+.section-body.flush .table td:has(.calc-formula) {
+  height: auto;
+  min-height: var(--row-h);
+  padding-block: var(--space-2);
+  vertical-align: top;
+  white-space: normal;
+}
+.ex-outcome-chip-before { color: var(--text-primary); font-weight: 600; }
+.ex-outcome-chip-val .ex-outcome-after { color: var(--accent-500); font-weight: 600; }
 .act-slot { display: grid; grid-template-rows: subgrid; grid-row: span 2; min-width: 0; }
 .act-pack h3 { margin: 0; font-size: 14px; font-weight: 600; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
 .act-pack-row > .ex-card, .act-slot > .ex-card { display: flex; flex-direction: column; min-width: 0; }

@@ -10,7 +10,7 @@ const TAG: Record<ActionOutcome["label"], string> = {
   Unknown: "UNKNOWN",
 };
 
-/** One-line metric, current now → after (coral) plus basis tag on the same baseline. */
+/** One-line metric, before → after (coral) plus basis tag on the same baseline. */
 export function ActionOutcomeLine({ outcome, size = "card" }: { outcome: ActionOutcome; size?: "card" | "hero" }) {
   const { metric, now, after } = outcomePhrase(outcome);
   return (

@@ -18,7 +18,7 @@ export function ActionOutcomeChip({ outcome }: { outcome: ActionOutcome }) {
       <span className="ex-outcome-chip-metric">{metric}</span>
       <span className="ex-outcome-chip-row">
         <span className="ex-outcome-chip-val num tabular">
-          {now}
+          <span className="ex-outcome-chip-before">{now}</span>
           <span className="ex-outcome-arrow" aria-hidden>
             {" "}
             →{" "}

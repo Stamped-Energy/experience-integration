@@ -140,12 +140,8 @@ export function ActionDetailView({ id }: { id: string }) {
         <div className="span-8 stack">
           <Section title="What changes">
             <p style={{ margin: "0 0 8px", lineHeight: 1.5, fontWeight: 500 }}>{c ? c.changed : a.action}</p>
-            <p style={{ margin: 0, lineHeight: 1.5 }}>{a.seen}</p>
-          </Section>
-          <Section title="Summary">
-            <p className="ex-why" style={{ margin: 0 }}>
-              <b>Why it matters:</b> {a.why}
-            </p>
+            <p style={{ margin: "0 0 8px", lineHeight: 1.5 }}>{a.seen}</p>
+            <p className="muted" style={{ margin: 0, lineHeight: 1.45, fontSize: 13 }}>{a.why}</p>
           </Section>
           <Section title="How we calculated this" meta="Inputs, formula and result for each outcome on this card" flush>
             <DataTable
@@ -153,11 +149,11 @@ export function ActionDetailView({ id }: { id: string }) {
               rowKey={(r) => r.metric}
               rows={calcs}
               columns={[
-                { key: "m", label: "Metric", render: (r) => <span style={{ fontWeight: 600 }}>{r.metric}</span> },
-                { key: "i", label: "Inputs", render: (r) => <ul className="calc-inputs">{r.inputs.map((x) => <li key={x}>{x}</li>)}</ul> },
-                { key: "f", label: "Formula", render: (r) => r.formula },
-                { key: "r", label: "Result", mono: true, render: (r) => r.result },
-                { key: "l", label: "Basis", render: (r) => <EvidenceTag label={r.label} /> },
+                { key: "m", label: "Metric", width: "16%", render: (r) => <span style={{ fontWeight: 600 }}>{r.metric}</span> },
+                { key: "i", label: "Inputs", width: "26%", render: (r) => <ul className="calc-inputs">{r.inputs.map((x) => <li key={x}>{x}</li>)}</ul> },
+                { key: "f", label: "Formula", width: "26%", render: (r) => <span className="calc-formula">{r.formula}</span> },
+                { key: "r", label: "Result", width: "22%", mono: true, render: (r) => <span className="calc-result">{r.result}</span> },
+                { key: "l", label: "Basis", width: "10%", render: (r) => <EvidenceTag label={r.label} /> },
               ]}
             />
           </Section>

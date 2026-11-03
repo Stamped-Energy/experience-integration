@@ -184,9 +184,9 @@ export function whoDecidesShort(how: T.ExampleAction["who"]["how"]) {
   return WHO_SHORT[how];
 }
 
-/** Display parts for the outcome line: metric, "47.9 g now", "48.0 g". */
+/** Display parts for the outcome line: metric, "47.9 g", "48.0 g". Before has no trailing "now". */
 export function outcomePhrase(o: T.ActionOutcome) {
-  const now = /\bnow\b/i.test(o.before) ? o.before.trim() : `${o.before.trim()} now`;
+  const now = o.before.trim().replace(/\s+now\s*$/i, "");
   const after = o.after.trim().replace(/\s*target\s+band\b/i, "").replace(/\s*,?\s*band\s+.*/i, "").replace(/\btarget\b/gi, "").trim();
   return { metric: o.metric, now, after };
 }
