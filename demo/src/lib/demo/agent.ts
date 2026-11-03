@@ -139,6 +139,24 @@ export const controlStacks: Record<string, ControlLayer[]> = {
     { id: "b-l1", name: "Moulding sequence", kind: "Rule-based", scope: "Inject, hold, cool, eject", state: "Active", tuned: "Line pack rules, 3 parameters tuned" },
     { id: "b-l0", name: "Barrel and tool loops", kind: "PID", scope: "5 barrel zones, 2 tool circuits", state: "Active", tuned: "Gains tuned to Press P3" },
   ],
+  "line-c": [
+    { id: "c-l3", name: "Run-to-run optimiser", kind: "Run-to-run", scope: "Zone temperature, soak time, quench oil", state: "Active", tuned: "Proposals per load, inside the signed band" },
+    { id: "c-l2", name: "Furnace path", kind: "MPC", scope: "Zone setpoints as each basket moves through F1", state: "Active", tuned: "Horizon and weights tuned at integration" },
+    { id: "c-l1", name: "Heat-treat sequence", kind: "Rule-based", scope: "Load, harden, quench, temper", state: "Active", tuned: "Line pack rules, 2 parameters tuned" },
+    { id: "c-l0", name: "Zone and quench loops", kind: "PID", scope: "3 furnace zones, 1 quench oil loop", state: "Active", tuned: "Gains tuned to furnace F1" },
+  ],
+  "line-d": [
+    { id: "d-l3", name: "Run-to-run optimiser", kind: "Run-to-run", scope: "Pour temperature, hold time, melt power", state: "Active", tuned: "Proposals per heat, inside the signed band" },
+    { id: "d-l2", name: "Melt power during mould stops", kind: "RL", scope: "Coil power while the mould line is stopped", state: "In shadow", tuned: "Learning from 180 heats, writes nothing" },
+    { id: "d-l1", name: "Foundry sequence", kind: "Rule-based", scope: "Melt, hold, pour, spectro", state: "Active", tuned: "Line pack rules, 3 parameters tuned" },
+    { id: "d-l0", name: "Melt and pour loops", kind: "PID", scope: "Melt power and pour temperature", state: "Active", tuned: "Gains tuned to melt furnace M1" },
+  ],
+  "line-e": [
+    { id: "e-l3", name: "Run-to-run optimiser", kind: "Run-to-run", scope: "Spindle speed, feed, tool life limit", state: "Active", tuned: "Proposals per lot, inside the signed band" },
+    { id: "e-l2", name: "Twin check before promote", kind: "MPC", scope: "Feed and speed on the twin before VMC-2", state: "Prebuilt, not on", tuned: "Needs Housing B-52 twin runs" },
+    { id: "e-l1", name: "Machining sequence", kind: "Rule-based", scope: "Rough, finish, gauge", state: "Active", tuned: "Line pack rules, 2 parameters tuned" },
+    { id: "e-l0", name: "Spindle and axis loops", kind: "PID", scope: "Spindle load and feed axes on VMC-2", state: "Active", tuned: "Gains tuned to VMC-2" },
+  ],
 };
 /** The new-layer proposal, tried on the twin first. Bands only; no confidence score. */
 export const layerProposal = {

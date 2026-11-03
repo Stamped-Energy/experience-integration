@@ -58,7 +58,7 @@ export function Onboarding() {
 
 const K_TONE: Record<A.ControlLayer["state"], Tone> = { Active: "success", "In shadow": "neutral", "Prebuilt, not on": "neutral", Simulating: "info" };
 export function ControlStack({ lineId }: { lineId: string }) {
-  const layers = A.controlStacks[lineId];
+  const layers = A.controlStacks[lineId] ?? [];
   return (
     <Section title="Control stack" meta="Prebuilt for this equipment, tuned at integration" id="control" flush>
       <ol className="cstack">

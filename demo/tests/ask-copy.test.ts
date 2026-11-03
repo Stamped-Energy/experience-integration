@@ -65,6 +65,7 @@ test("Ask cross-links resolve to real actions, inbox cards, lots, runs and trial
 test("agent, desk and dashboard copy has no mixing wording and links resolve", () => {
   const copy = JSON.stringify([A.questions, A.workingOn, A.controlStacks, A.learned, A.qualityLearned, A.qualityWork, A.idleProposals, A.summaries, deskToday, DEMO_LOOP_HEALTH, DEMO_PV_TRENDS.map((x) => [x.title, x.caption])]);
   assert.doesNotMatch(copy, LEGACY);
+  for (const line of D.lines) assert.ok((A.controlStacks[line.id] ?? []).length > 0, `control stack for ${line.id}`);
   for (const d of deskToday) assert.ok(resolves(d.href), d.href);
   for (const w of [...A.workingOn, ...A.qualityWork]) assert.ok(resolves(w.href), w.href);
   for (const k of Object.keys(A.assigned)) {
