@@ -26,6 +26,8 @@ import { DataTable, EvidenceTag, PageHeader, Section, Tag } from "@/components/u
 import { SpcControlChart } from "@/components/view/spc-control-chart";
 import { RunChart } from "@/components/ui/charts";
 import * as A from "@/lib/demo/agent";
+import { ProcessHubTabs } from "@/components/process/ProcessHubTabs";
+import { QualityHubTabs } from "@/components/quality/QualityHubTabs";
 import { crumbs as processCrumbs, processEyebrow, runLabel } from "@/components/process/common";
 import { crumbs as qualityCrumbs, lotNo, qualityEyebrow } from "@/components/quality/common";
 
@@ -159,6 +161,7 @@ export function ActionDetailView({ id }: { id: string }) {
         }
         actions={<AskButton context={actionShortTitle(a)} label="Ask about this action" />}
       />
+      {a.area === "Process" ? <ProcessHubTabs /> : <QualityHubTabs />}
       <div className="action-detail-hero">
         <ActionOutcomeStrip outcomes={outcomes} />
         {applied && detail.loop?.statusLine ? (

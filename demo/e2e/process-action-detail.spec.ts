@@ -8,6 +8,9 @@ test.describe("process action detail routes", () => {
       await page.goto(`/process/actions/${id}`);
       await page.waitForLoadState("networkidle");
       await expect(page.locator("main h1, .page-head h1").first()).toBeVisible();
+      const tabs = page.getByRole("navigation", { name: "Process · Actions" });
+      await expect(tabs).toBeVisible();
+      await expect(tabs.getByRole("link", { name: "Action cards" })).toHaveAttribute("aria-current", "page");
       await expect(page.locator(".ex-outcome-strip")).toBeVisible();
       await expect(page.getByRole("heading", { name: "How we calculated this" })).toBeVisible();
       await expect(page.getByRole("heading", { name: "Evidence" })).toBeVisible();
