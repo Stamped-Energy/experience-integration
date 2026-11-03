@@ -16,15 +16,17 @@ export function ActionOutcomeChip({ outcome }: { outcome: ActionOutcome }) {
   return (
     <div className="ex-outcome-chip">
       <span className="ex-outcome-chip-metric">{metric}</span>
-      <span className="ex-outcome-chip-val num tabular">
-        {now}
-        <span className="ex-outcome-arrow" aria-hidden>
-          {" "}
-          →{" "}
+      <span className="ex-outcome-chip-row">
+        <span className="ex-outcome-chip-val num tabular">
+          {now}
+          <span className="ex-outcome-arrow" aria-hidden>
+            {" "}
+            →{" "}
+          </span>
+          <span className="ex-outcome-after">{after}</span>
         </span>
-        <span className="ex-outcome-after">{after}</span>
+        <Tag tone="neutral">{TAG[outcome.label]}</Tag>
       </span>
-      <Tag tone="neutral">{TAG[outcome.label]}</Tag>
     </div>
   );
 }

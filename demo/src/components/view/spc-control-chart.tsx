@@ -13,7 +13,7 @@ function specBandFill(): string {
   if (typeof document === "undefined") return "rgba(47, 158, 106, 0.2)";
   const dark = document.documentElement.dataset.theme === "dark";
   const success = cssVar("--success", "#2F9E6A");
-  return `color-mix(in srgb, ${success} ${dark ? "28%" : "20%"}, transparent)`;
+  return `color-mix(in srgb, ${success} ${dark ? "38%" : "20%"}, transparent)`;
 }
 
 export type SpcControlChartProps = {

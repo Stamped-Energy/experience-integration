@@ -132,10 +132,7 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
           <Assign initial={A.assigned[a.id]} people={A.PEOPLE} canAssign={A.ASSIGNERS.includes(role)} by={A.ME[role] ?? "Plant head A."} />
         </div>
       </div>
-      <div className="card-foot card-foot-actions">
-        <Link href={href} className="btn btn-sm btn-primary" scroll={false} data-no-nav onClick={(e) => e.stopPropagation()}>
-          Open action
-        </Link>
+      <div className="card-foot card-foot-actions" data-no-nav onClick={(e) => e.stopPropagation()}>
         {!c && linkCta && !decisionActions.length && !stop && a.href ? (
           <Link href={a.href!} className="btn btn-sm btn-quiet" scroll={false} data-no-nav onClick={(e) => e.stopPropagation()}>
             {a.hrefLabel ?? "Related record"}
@@ -144,6 +141,10 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
         {!c && (decisionActions.length || stop) ? (
           <CardActions bare actions={decisionActions} stop={stop} />
         ) : null}
+        <span className="spacer" />
+        <Link href={href} className="btn btn-sm btn-outline" scroll={false} data-no-nav onClick={(e) => e.stopPropagation()}>
+          Open action
+        </Link>
       </div>
     </FoldCard>
   );
@@ -165,7 +166,9 @@ export function groupOf(a: ExampleAction): ActionGroup {
 function GroupHead({ g, n, className }: { g: (typeof GROUPS)[number]; n: number; className?: string }) {
   return (
     <h3 className={className}>
-      {g.label} <span className="cnt">{n}</span>
+      <span className="act-list-head-main">
+        {g.label} <span className="cnt">{n}</span>
+      </span>
       <span className="act-sub">{g.sub}</span>
     </h3>
   );

@@ -4,7 +4,7 @@ import { actionOutcomeForDisplay } from "./actions";
 
 const METRICS: Record<string, ActionOutcome[]> = {
   "ex-p1": [
-    { metric: "Energy per good part", before: "0.41 kWh/t", after: "0.40 to 0.41 kWh/t", label: "Estimated" },
+    { metric: "Energy per good part", before: "0.41 kWh/t", after: "0.38 to 0.40 kWh/t", label: "Estimated" },
     { metric: "Hold time", before: "55 min", after: "57 min", label: "Measured" },
   ],
   "ex-p2": [
@@ -13,7 +13,7 @@ const METRICS: Record<string, ActionOutcome[]> = {
   ],
   "ex-p3": [
     { metric: "Energy per good part", before: "0.39 kWh/t", after: "0.37 to 0.38 kWh/t", label: "Estimated" },
-    { metric: "Scrap", before: "2.8%", after: "2.6 to 2.9%", label: "Measured" },
+    { metric: "Scrap", before: "2.8%", after: "2.4 to 2.7%", label: "Measured" },
   ],
   "ex-p4": [
     { metric: "Scrap", before: "3.0%", after: "2.7 to 2.9%", label: "Estimated" },
@@ -21,15 +21,14 @@ const METRICS: Record<string, ActionOutcome[]> = {
     { metric: "Dryer cycle", before: "4.0 h", after: "3.5 h", label: "Measured" },
   ],
   "ex-p5": [
-    { metric: "Energy per good part", before: "0.42 kWh/t", after: "0.41 to 0.42 kWh/t", label: "Measured" },
-    { metric: "Scrap", before: "2.9%", after: "2.8 to 3.0%", label: "Measured" },
+    { metric: "Energy per good part", before: "0.42 kWh/t", after: "0.40 to 0.41 kWh/t", label: "Measured" },
   ],
   "ex-p6": [
     { metric: "Reject rate", before: "420 ppm", after: "0 ppm", label: "Measured" },
     { metric: "Flash and short shots", before: "14 per shift", after: "0 per shift", label: "Measured" },
   ],
   "ex-q1": [
-    { metric: "Scrap", before: "2.4%", after: "2.2 to 2.5%", label: "Estimated" },
+    { metric: "Scrap", before: "2.4%", after: "2.0 to 2.3%", label: "Estimated" },
     { metric: "Reject rate", before: "180 ppm", after: "90 to 120 ppm", label: "Estimated" },
   ],
   "ex-q2": [
@@ -38,11 +37,11 @@ const METRICS: Record<string, ActionOutcome[]> = {
   ],
   "ex-q3": [
     { metric: "Material at risk", before: "24 t", after: "8 to 12 t", label: "Modelled" },
-    { metric: "Energy per good part", before: "0.40 kWh/t", after: "0.39 to 0.40 kWh/t", label: "Estimated" },
+    { metric: "Energy per good part", before: "0.40 kWh/t", after: "0.37 to 0.39 kWh/t", label: "Estimated" },
   ],
   "ex-q4": [
-    { metric: "Inspection time, cavity 2", before: "30 min per shift", after: "45 min per shift", label: "Measured" },
-    { metric: "Reject rate", before: "210 ppm", after: "180 to 200 ppm", label: "Estimated" },
+    { metric: "Inspection time, cavity 1", before: "60 min per shift", after: "30 min per shift", label: "Measured" },
+    { metric: "Reject rate", before: "210 ppm", after: "160 to 190 ppm", label: "Estimated" },
   ],
   "ex-q5": [
     { metric: "Part weight, cavity 2", before: "47.7 g", after: "48.0 to 48.2 g", label: "Measured" },
@@ -68,7 +67,7 @@ const CALC: Record<string, OutcomeCalculation[]> = {
   "ex-p3": [
     { metric: "Time to target viscosity", inputs: ["Alternating 84 vs 86 °C arms", "10 of 16 batches done"], formula: "Matched-batch median Δt to target", result: "8.0 to 11.0 min", label: "Measured" },
     { metric: "Energy per good part", inputs: ["Arm B jacket duty", "Good parts count"], formula: "kWh ÷ good tonnes per arm", result: "0.37 to 0.38 kWh/t", label: "Estimated" },
-    { metric: "Scrap", inputs: ["Shift scrap logs during trial"], formula: "Scrap parts ÷ good parts", result: "2.6 to 2.9%", label: "Measured" },
+    { metric: "Scrap", inputs: ["Shift scrap logs during trial"], formula: "Scrap parts ÷ good parts", result: "2.4 to 2.7%", label: "Measured" },
   ],
   "ex-p4": [
     { metric: "Energy per good part", inputs: ["Output-adjusted kWh", "Resin lot change date"], formula: "kWh ÷ good tonnes, mix-adjusted", result: "0.36 to 0.39 kWh/t", label: "Estimated" },
@@ -88,7 +87,7 @@ const CALC: Record<string, OutcomeCalculation[]> = {
   ],
   "ex-q1": [
     { metric: "Part weight, cavity 2", inputs: ["Vision weight last 3 shifts", "Lot 7713 estimated band"], formula: "Trend + band vs spec 47.6 g", result: "47.5 to 48.0 g → hold at 48.0 g", label: "Estimated" },
-    { metric: "Scrap", inputs: ["Segregation plan", "Historical light parts"], formula: "Expected scrap if band crosses LSL (demo)", result: "2.2 to 2.5%", label: "Estimated" },
+    { metric: "Scrap", inputs: ["Segregation plan", "Historical light parts"], formula: "Expected scrap if band crosses LSL (demo)", result: "2.0 to 2.3%", label: "Estimated" },
     { metric: "Reject rate", inputs: ["ppm if shipped at band edge"], formula: "Out-of-spec probability × volume", result: "90 to 120 ppm", label: "Estimated" },
   ],
   "ex-q2": [
@@ -99,12 +98,12 @@ const CALC: Record<string, OutcomeCalculation[]> = {
   "ex-q3": [
     { metric: "Viscosity (next batches)", inputs: ["Torque 6% high", "Agitator correction band"], formula: "Process model Δrpm → Δviscosity", result: "2520 to 2590 mPa·s", label: "Modelled" },
     { metric: "Material at risk", inputs: ["Lots 3307 and 3296 mass"], formula: "Share of lot mass above spec if uncorrected (demo)", result: "8 to 12 t", label: "Modelled" },
-    { metric: "Energy per good part", inputs: ["Higher agitator duty"], formula: "ΔkWh ÷ good tonnes (demo)", result: "0.39 to 0.40 kWh/t", label: "Estimated" },
+    { metric: "Energy per good part", inputs: ["Higher agitator duty"], formula: "ΔkWh ÷ good tonnes (demo)", result: "0.37 to 0.39 kWh/t", label: "Estimated" },
   ],
   "ex-q4": [
     { metric: "Inspection time, cavity 1", inputs: ["Hourly vs 2-hourly plan", "Shift length"], formula: "Weigh events × minutes", result: "30 min per shift saved on cavity 1", label: "Measured" },
     { metric: "Inspection time, cavity 2", inputs: ["Freed time reallocated"], formula: "Shift minutes moved to cavity 2", result: "45 min per shift on cavity 2", label: "Measured" },
-    { metric: "Reject rate", inputs: ["Cavity 2 drift history"], formula: "ppm with reallocated checks (demo)", result: "180 to 200 ppm", label: "Estimated" },
+    { metric: "Reject rate", inputs: ["Cavity 2 drift history"], formula: "ppm with reallocated checks (demo)", result: "160 to 190 ppm", label: "Estimated" },
   ],
   "ex-q5": [
     { metric: "Scrap", inputs: ["Lots after hold pressure change", "Before 3.2% baseline"], formula: "Scrap ÷ good parts", result: "2.9%", label: "Measured" },

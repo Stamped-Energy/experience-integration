@@ -150,7 +150,9 @@
 .act-cards { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; align-items: stretch !important; gap: var(--space-3) !important; }
 .act-cards > .ex-card { display: flex; flex-direction: column; }
 .act-list { display: flex; flex-direction: column; gap: var(--space-4); }
-.act-list-head { margin: 0; font-size: 14px; font-weight: 600; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.act-list-head { margin: 0; font-size: 14px; font-weight: 600; display: flex; gap: var(--space-2); align-items: baseline; flex-wrap: wrap; }
+.act-list-head-main { display: inline-flex; align-items: baseline; gap: var(--space-2); }
+.act-list-head .act-sub::before { content: none; }
 .act-list-row { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
 .act-list-row > .ex-card { width: 100%; }
 .act-cards-single { grid-template-columns: minmax(0, 1fr) !important; }
@@ -158,18 +160,22 @@
   display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3);
   padding: var(--space-3) var(--space-4); border-top: 1px solid var(--border); background: var(--surface-subtle);
 }
+.card-foot-actions .spacer { flex: 1 1 auto; min-width: 0; }
 .card-foot-actions .card-foot-inline { flex: 1 1 auto; min-width: 0; padding: 0; border: 0; background: transparent; gap: var(--space-2); }
 .ex-outcome-strip {
   display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-2) 0 var(--space-3); width: 100%;
 }
 .ex-outcome-chip {
   flex: 1 1 200px; min-width: min(100%, 220px); max-width: 100%;
-  display: flex; flex-direction: column; gap: 4px; align-items: flex-start;
-  padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface);
+  display: flex; flex-direction: column; gap: var(--space-1); align-items: stretch;
+  padding: var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface);
+}
+.ex-outcome-chip-row {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); min-width: 0;
 }
 .ex-outcome-chip-metric { font-size: var(--type-meta); font-weight: 600; letter-spacing: 0.02em; color: var(--text-secondary); text-transform: none; }
-.ex-outcome-chip-val { font-size: 14px; font-weight: 600; line-height: 1.35; color: var(--text-primary); }
-.ex-outcome-chip .tag { margin-top: 2px; font-size: 10px; }
+.ex-outcome-chip-val { font-size: 14px; font-weight: 600; line-height: 1.35; color: var(--text-primary); flex: 1 1 auto; min-width: 0; }
+.ex-outcome-chip-row .tag { flex: none; font-size: 10px; padding: 1px 6px; }
 .action-detail-hero .ex-outcome-strip { margin: 0 0 var(--space-2); }
 .action-detail-hero .ex-outcome-chip { background: var(--canvas); }
 .calc-inputs { margin: 0; padding-left: 16px; font-size: 13px; line-height: 1.45; color: var(--text-secondary); }
@@ -232,7 +238,7 @@
   .grid.action-detail-grid > .span-8 { grid-column: 1 !important; }
   .grid.action-detail-grid > .span-4 { grid-column: 2 !important; }
 }
-.action-detail-bar { position: sticky; top: 56px; z-index: 3; margin: 0 0 var(--space-4); padding: var(--space-3) var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-sm); }
+.action-detail-bar { position: sticky; top: var(--crumb-h); z-index: var(--z-sticky); margin: 0 0 var(--space-4); padding: var(--space-3) var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-sm); }
 .action-detail-bar .card-foot { margin: 0; padding: 0; border: 0; }
 .action-detail-charts { display: flex; flex-direction: column; gap: var(--space-4); margin-top: var(--space-4); }
 .open-actions-row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); text-decoration: none; color: inherit; font-size: 14px; font-weight: 600; }
