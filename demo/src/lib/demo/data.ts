@@ -37,13 +37,15 @@ export const linePacks: T.LinePack[] = [
     ...I, id: "pack-batch-mixer", equipmentClass: "Jacketed batch mixer",
     runDefinition: "One batch, charge to discharge", series: ["Jacket temperature", "Agitator speed", "Torque", "Batch viscosity"],
     setpoints: ["hold-temp", "hold-time", "agitator"], modelId: "model-a", constraints: ["Jacket temperature under 95 °C", "Hold time at least 40 min"],
-    windowTemplate: "Per grade, signed per quarter", labels: { run: "Batch", runs: "Batches", unit: "batch", outcome: "Viscosity" }, linkThreshold: 0.8,
+    windowTemplate: "Per grade, signed per quarter", labels: { run: "Batch", runs: "Batches", runShort: "Batch", unit: "batch", outcome: "Viscosity" }, linkThreshold: 0.8,
+    outcomeUnit: "mPa·s", spec: [2380, 2600], chartSpec: true, keySetpoint: "hold-temp",
   },
   {
     ...I, id: "pack-moulding", equipmentClass: "Injection moulding cell",
     runDefinition: "One shift run per tool", series: ["Melt temperature", "Hold pressure", "Cycle time", "Part weight"],
     setpoints: ["melt-temp", "hold-pressure", "cycle-time"], modelId: "model-b", constraints: ["Melt temperature under 255 °C", "Cycle time at least 28 s"],
-    windowTemplate: "Per tool, signed per quarter", labels: { run: "Shift run", runs: "Shift runs", unit: "part", outcome: "Scrap rate" }, linkThreshold: 0.8,
+    windowTemplate: "Per tool, signed per quarter", labels: { run: "Shift run", runs: "Shift runs", runShort: "Run", unit: "part", outcome: "Scrap rate" }, linkThreshold: 0.8,
+    outcomeUnit: "%", spec: [0, 4], chartSpec: false, keySetpoint: "cycle-time",
   },
 ];
 
@@ -643,6 +645,7 @@ export const shiftEvents: T.ShiftEvent[] = [
 /* ---------------- Lookups ---------------- */
 export const byId = {
   line: (id: string) => lines.find((l) => l.id === id),
+  linePack: (id: string) => linePacks.find((p) => p.id === id),
   asset: (id: string) => assets.find((a) => a.id === id),
   proposal: (id: string) => proposals.find((p) => p.id === id),
   trial: (id: string) => trials.find((t) => t.id === id),

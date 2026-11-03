@@ -46,7 +46,13 @@ export interface TagReading extends Illustrative { tagId: string; runId: string;
 export interface LinePack extends Illustrative {
   id: string; equipmentClass: string; runDefinition: string; series: string[]; setpoints: string[];
   modelId: string; constraints: string[]; windowTemplate: string;
-  labels: { run: string; runs: string; unit: string; outcome: string }; linkThreshold: number;
+  /** `runShort` is the compact run noun for narrow rows; `outcome` is the outcome measure's name on a run. */
+  labels: { run: string; runs: string; runShort: string; unit: string; outcome: string }; linkThreshold: number;
+  outcomeUnit: string; spec: [number, number];
+  /** Whether the spec band is drawn on small trend charts (the spec is always stated in text). */
+  chartSpec: boolean;
+  /** The setpoint the Line view's recent writes follow. */
+  keySetpoint: string;
 }
 export interface Outcome { name: string; value: number; unit: string; label: EvidenceLabel }
 export interface Run extends Illustrative {

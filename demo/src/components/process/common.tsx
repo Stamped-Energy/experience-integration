@@ -24,10 +24,10 @@ export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Demonstration pl
 
 export const runsOf = (lineId: string) => D.runs.filter((r) => r.lineId === lineId);
 export const packOf = (line: Line) => D.linePacks.find((p) => p.id === line.linePackId)!;
-export const outcomeName = (line: Line) => (line.type === "batch" ? "Viscosity" : "Scrap rate");
+export const outcomeName = (line: Line) => packOf(line).labels.outcome;
 export const outcome = (run: Run, name: string) => run.outcomes.find((o) => o.name === name);
-export const specOf = (line: Line): [number, number] => (line.type === "batch" ? [2380, 2600] : [0, 4]);
-export const runLabel = (run: Run) => (run.lineId === "line-a" ? `Batch ${run.id.split("-").pop()}` : `Shift run ${run.id.split("-").pop()}`);
+export const specOf = (line: Line): [number, number] => packOf(line).spec;
+export const runLabel = (run: Run) => `${packOf(D.byId.line(run.lineId)!).labels.run} ${run.id.split("-").pop()}`;
 
 /** Trial that ran on this run, with its arm. */
 export function trialArm(runId: string) {

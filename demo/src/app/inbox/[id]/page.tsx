@@ -47,7 +47,7 @@ export default async function CardDetail({ params }: { params: Promise<{ id: str
         <div className="span-4 stack">
           <Section title={line.name} actions={<LineModeTag mode={line.mode} />}>
             <div className="label">{s.name}, last 24 runs</div>
-            <RunChart values={s.values} spec={line.type === "batch" ? s.spec : undefined} width={360} height={96} label={`${s.name} on ${line.short}`} />
+            <RunChart values={s.values} spec={s.chartSpec ? s.spec : undefined} width={360} height={96} label={`${s.name} on ${line.short}`} />
             <div className="secondary" style={{ fontSize: 12, marginTop: 4 }}>{line.product} · {line.status}</div>
           </Section>
           {p ? (
