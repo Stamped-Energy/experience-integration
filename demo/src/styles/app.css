@@ -428,7 +428,7 @@ button.rail-item { border: 0; background: transparent; cursor: pointer; padding:
 .limits { display: flex; flex-direction: column; gap: 6px; }
 .limits-scale { position: relative; height: 28px; }
 .limits-scale .axis { position: absolute; left: 0; right: 0; top: 13px; height: 1px; background: var(--border-strong); }
-.limits-scale .signed { position: absolute; top: 6px; height: 15px; background: color-mix(in srgb, var(--text-muted) 15%, transparent); border: 1px solid var(--border-strong); border-radius: 2px; }
+.limits-scale .signed { position: absolute; top: 6px; height: 15px; background: color-mix(in srgb, var(--success) 16%, transparent); border: 1px solid color-mix(in srgb, var(--success) 45%, var(--border-strong)); border-radius: 2px; }
 .limits-scale .narrowed { position: absolute; top: 6px; height: 15px; border: 1px solid var(--text-secondary);
   background: color-mix(in srgb, var(--text-secondary) 22%, transparent); border-radius: 2px; }
 .limits-scale .current { position: absolute; top: 9px; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 999px; background: var(--text-primary); border: 2px solid var(--surface); }

@@ -11,8 +11,15 @@ export function RunChart({ values, spec, height = 120, width = 560, label, highl
     <svg className="chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label} preserveAspectRatio="xMidYMid meet">
       {spec ? (
         <>
-          <line x1={32} x2={width - 8} y1={y(spec[1])} y2={y(spec[1])} stroke="var(--border-strong)" strokeDasharray="3 3" />
-          <line x1={32} x2={width - 8} y1={y(spec[0])} y2={y(spec[0])} stroke="var(--border-strong)" strokeDasharray="3 3" />
+          <rect
+            x={32}
+            y={y(spec[1])}
+            width={width - 40}
+            height={Math.max(0, y(spec[0]) - y(spec[1]))}
+            fill="color-mix(in srgb, var(--success) 18%, transparent)"
+          />
+          <line x1={32} x2={width - 8} y1={y(spec[1])} y2={y(spec[1])} stroke="var(--success)" strokeWidth={1.25} />
+          <line x1={32} x2={width - 8} y1={y(spec[0])} y2={y(spec[0])} stroke="var(--success)" strokeWidth={1.25} />
           <text x={0} y={y(spec[1]) + 3}>{spec[1]}{unitSuffix}</text>
           <text x={0} y={y(spec[0]) + 3}>{spec[0]}{unitSuffix}</text>
         </>

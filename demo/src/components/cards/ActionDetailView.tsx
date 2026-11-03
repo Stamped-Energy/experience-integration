@@ -139,9 +139,9 @@ export function ActionDetailView({ id }: { id: string }) {
       <div className="grid action-detail-grid">
         <div className="span-8 stack">
           <Section title="What changes">
-            <p style={{ margin: "0 0 8px", lineHeight: 1.5, fontWeight: 500 }}>{c ? c.changed : a.action}</p>
-            <p style={{ margin: "0 0 8px", lineHeight: 1.5 }}>{a.seen}</p>
-            <p className="muted" style={{ margin: 0, lineHeight: 1.45, fontSize: 13 }}>{a.why}</p>
+            <p className="detail-lede">{c ? c.changed : a.action}</p>
+            <p className="detail-body">{a.seen}</p>
+            <p className="detail-why muted">{a.why}</p>
           </Section>
           <Section title="How we calculated this" meta="Inputs, formula and result for each outcome on this card" flush>
             <DataTable
@@ -175,11 +175,9 @@ export function ActionDetailView({ id }: { id: string }) {
             ) : null}
           </Section>
           <Section title="Recommended steps">
-            <ol style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.5 }}>
+            <ol className="detail-steps">
               {detail.steps.map((s) => (
-                <li key={s} style={{ marginBottom: 6 }}>
-                  {s}
-                </li>
+                <li key={s}>{s}</li>
               ))}
             </ol>
           </Section>
