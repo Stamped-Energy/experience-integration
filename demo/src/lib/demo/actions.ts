@@ -183,3 +183,33 @@ const WHO_SHORT: Record<T.ExampleAction["who"]["how"], string> = {
 export function whoDecidesShort(how: T.ExampleAction["who"]["how"]) {
   return WHO_SHORT[how];
 }
+
+/** Display parts for the outcome line: metric, "47.9 g now", "48.0 g target". */
+export function outcomePhrase(o: T.ActionOutcome) {
+  const now = /\bnow\b/i.test(o.before) ? o.before.trim() : `${o.before.trim()} now`;
+  let target = o.after.trim().replace(/\s*target\s+band\b/i, " target").replace(/\s*,?\s*band\s+.*/i, "").trim();
+  if (!/\btarget\b/i.test(target)) target = `${target} target`;
+  return { metric: o.metric, now, target };
+}
+
+const OPTION_SHORT: Record<string, Record<string, string>> = {
+  "ex-q1": { segregate: "Hold and check", continue: "Keep running", sample: "Weigh every 30 min" },
+  "ex-q2": { early: "Sample at end of hold", normal: "Keep normal sample" },
+  "ex-p2": { accept: "Use these settings", keep: "Keep current recipe" },
+  "ex-p4": { accept: "Plan the change", decline: "Decline with reason" },
+  "ex-q4": { accept: "Change inspection plan", keep: "Keep hourly checks" },
+};
+
+export function optionShortLabel(actionId: string, optionId: string, fallback: string) {
+  return OPTION_SHORT[actionId]?.[optionId] ?? fallback;
+}
+
+/** Primary and secondary options for card and detail bars (consistent order). */
+export function decisionOptionPair(a: T.ExampleAction) {
+  if (!a.options?.length) return { primary: undefined, secondary: undefined };
+  const primary = a.options.find((o) => o.primary) ?? a.options[0];
+  const secondary =
+    a.options.find((o) => o.id !== primary.id && /continue|keep|decline|normal|reject/i.test(o.id)) ??
+    a.options.find((o) => o.id !== primary.id);
+  return { primary, secondary };
+}

@@ -19,6 +19,7 @@ export type SpcControlChartProps = {
   lcl: number;
   usl?: number;
   lsl?: number;
+  targetY?: number;
   unit?: string;
   cp?: number;
   cpk?: number;
@@ -36,6 +37,7 @@ export function SpcControlChart({
   lcl,
   usl,
   lsl,
+  targetY,
   unit,
   cp,
   cpk,
@@ -65,8 +67,9 @@ export function SpcControlChart({
         { yAxis: cl, name: "CL", lineStyle: { color: "#64748b", type: "solid" } },
         { yAxis: ucl, name: "UCL", lineStyle: { color: "#C27803", type: "dashed" } },
         { yAxis: lcl, name: "LCL", lineStyle: { color: "#C27803", type: "dashed" } },
-        ...(usl != null ? [{ yAxis: usl, name: "USL", lineStyle: { color: "#DC2626", type: "dotted" } }] : []),
-        ...(lsl != null ? [{ yAxis: lsl, name: "LSL", lineStyle: { color: "#DC2626", type: "dotted" } }] : []),
+        ...(usl != null ? [{ yAxis: usl, name: "USL", lineStyle: { color: "#DC2626", type: "solid", width: 1.5 } }] : []),
+        ...(lsl != null ? [{ yAxis: lsl, name: "LSL", lineStyle: { color: "#DC2626", type: "solid", width: 1.5 } }] : []),
+        ...(targetY != null ? [{ yAxis: targetY, name: "Target", lineStyle: { color: "#64748b", type: "dashed" } }] : []),
       ],
     };
     const series: Array<Record<string, unknown>> = [
@@ -122,7 +125,7 @@ export function SpcControlChart({
       ro.disconnect();
       chart.dispose();
     };
-  }, [primary, secondary, cl, ucl, lcl, usl, lsl, unit, chartKind]);
+  }, [primary, secondary, cl, ucl, lcl, usl, lsl, targetY, unit, chartKind]);
 
   return (
     <div className="spc-chart-card">

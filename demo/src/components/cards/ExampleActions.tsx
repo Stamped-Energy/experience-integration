@@ -10,12 +10,14 @@ import {
   exampleActions,
   actionHref,
   actionOutcomeForDisplay,
+  decisionOptionPair,
+  optionShortLabel,
   whoDecidesShort,
 } from "@/lib/demo/actions";
 import { can } from "@/lib/rbac";
 import { Tag } from "@/components/ui/primitives";
 import { dayMonth, hhmm } from "@/lib/format";
-import { FoldCard } from "./FoldCard";
+import { FoldCard, FoldCardChevron } from "./FoldCard";
 import { ActionOutcomeLine } from "./ActionOutcomeLine";
 import { ShowMore } from "./ShowMore";
 import * as A from "@/lib/demo/agent";
@@ -31,14 +33,24 @@ const names = (ids: RoleId[]) => {
   return n.length > 1 ? `${n.slice(0, -1).join(", ")} or ${n[n.length - 1]}` : n[0];
 };
 
-function whyLines(why: string, seen: string): [string, string] {
-  const w = why.trim();
-  const s = seen.trim();
-  if (w.length <= 120) return [s.length > 100 ? `${s.slice(0, 97)}…` : s, w];
-  const cut = w.lastIndexOf(". ", 110);
-  const first = cut > 40 ? w.slice(0, cut + 1) : w.slice(0, 110);
-  const second = cut > 40 ? w.slice(cut + 2) : "";
-  return [first, second || s.slice(0, 100)];
+function cardDecisionActions(a: ExampleAction, role: RoleId) {
+  const { primary, secondary } = decisionOptionPair(a);
+  const allowed = a.who.roles.includes(role);
+  const reason = `${names(a.who.roles)} can decide`;
+  return [primary, secondary]
+    .filter((o): o is NonNullable<typeof primary> => !!o)
+    .map((o) => ({
+      ...o,
+      label: optionShortLabel(a.id, o.id, o.label),
+      primary: o === primary,
+      allowed,
+      reason,
+      done: (
+        <span>
+          {o.done} <Link href="/activity">Recorded in Activity.</Link>
+        </span>
+      ),
+    }));
 }
 
 function StepMenu({ steps }: { steps: ActionStep[] }) {
@@ -66,7 +78,6 @@ function StepMenu({ steps }: { steps: ActionStep[] }) {
 
 export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId }) {
   const line = byId.line(a.lineId)!;
-  const allowed = a.who.roles.includes(role);
   const stop = a.who.how === "On its own, inside the signed band"
     ? { effect: "Stopped. The previous setting comes back and nothing new is written.", allowed: can(role, "press-stop", a.lineId), reason: deniedReason("press-stop", "press Stop") }
     : undefined;
@@ -74,10 +85,9 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
   const trialing = !c && a.steps.includes("Trial");
   const status = c ? c.state : trialing ? "Trial running" : a.who.how === "On its own, inside the signed band" ? "Running on its own" : a.who.how === "Record only" ? "Checked" : a.who.how === "Recommend only" ? "Recommend only" : "Needs a decision";
   const statusTone = c ? "success" : status === "Needs a decision" ? "info" : status === "Trial running" ? "accent" : "neutral";
-  const canAct = allowed || !!stop?.allowed;
   const href = actionHref(a);
   const outcome = actionOutcomeForDisplay(a);
-  const [why1, why2] = whyLines(a.why, a.seen);
+  const decisionActions = cardDecisionActions(a, role);
   const summary = (
     <span className="ex-sum">
       <span className="ex-sum-t">{a.title}</span>
@@ -105,6 +115,7 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
         </span>
         <span className="right">
           <StepMenu steps={a.steps} />
+          <FoldCardChevron />
           {c ? <Tag tone="success">{c.state}</Tag> : null}
         </span>
       </div>
@@ -114,30 +125,14 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
           {a.title}
         </h3>
         <ActionOutcomeLine outcome={outcome} />
-        <p className="ex-why-line">{why1}</p>
-        {why2 ? <p className="ex-why-line">{why2}</p> : null}
+        <p className="ex-why-line ex-why-clamp">{a.seen}</p>
+        <p className="ex-why-line ex-why-clamp">{a.why}</p>
         <p className="ex-foot-meta muted">{footerMeta}</p>
         <div className={`ex-meta ex-meta-foot ${stretchOver}`}>
           <Assign initial={A.assigned[a.id]} people={A.PEOPLE} canAssign={A.ASSIGNERS.includes(role)} by={A.ME[role] ?? "Plant head A."} />
         </div>
       </div>
-      {!c && (a.options || stop) ? (
-        canAct ? (
-          <CardActions
-            actions={(a.options ?? []).map((o) => ({
-              ...o,
-              allowed,
-              reason: `${names(a.who.roles)} can decide`,
-              done: (
-                <span>
-                  {o.done} <Link href="/activity">Recorded in Activity.</Link>
-                </span>
-              ),
-            }))}
-            stop={stop}
-          />
-        ) : null
-      ) : null}
+      {!c && (decisionActions.length || stop) ? <CardActions actions={decisionActions} stop={stop} /> : null}
     </FoldCard>
   );
 }

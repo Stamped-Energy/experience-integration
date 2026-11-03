@@ -3,8 +3,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ExampleAction, RoleId } from "@/lib/demo/types";
-import { actionHref, actionOutcomeForDisplay, actionShortTitle, getAction, whoDecidesShort } from "@/lib/demo/actions";
-import { detailFor, type ActionDetailExtra } from "@/lib/demo/actionDetail";
+import {
+  actionHref,
+  actionOutcomeForDisplay,
+  actionShortTitle,
+  decisionOptionPair,
+  getAction,
+  optionShortLabel,
+  whoDecidesShort,
+} from "@/lib/demo/actions";
+import { detailFor } from "@/lib/demo/actionDetail";
 import { byId, roles, runs } from "@/lib/demo/data";
 import { demoRole } from "@/lib/role";
 import { can } from "@/lib/rbac";
@@ -15,7 +23,7 @@ import { ActionOutcomeLine } from "@/components/cards/ActionOutcomeLine";
 import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag } from "@/components/ui/primitives";
-import { SpcControlChart, type SpcControlChartProps } from "@/components/view/spc-control-chart";
+import { SpcControlChart } from "@/components/view/spc-control-chart";
 import { Assign } from "@/components/agent/Assign";
 import * as A from "@/lib/demo/agent";
 import { crumbs as processCrumbs, processEyebrow, runLabel } from "@/components/process/common";
@@ -26,39 +34,48 @@ function roleNames(ids: RoleId[]) {
   return n.length > 1 ? `${n.slice(0, -1).join(", ")} or ${n[n.length - 1]}` : n[0];
 }
 
-function trendAsSpc(trend: NonNullable<ActionDetailExtra["trend"]>): SpcControlChartProps {
-  const values = trend.values;
-  const mean = values.reduce((a, b) => a + b, 0) / values.length;
-  const sd = Math.sqrt(values.reduce((s, v) => s + (v - mean) ** 2, 0) / values.length) || Math.abs(mean) * 0.02 || 1;
-  const unit = trend.unit ?? "";
-  return {
-    title: trend.label,
-    subtitle: unit ? `Unit: ${unit}` : undefined,
-    chartKind: "i_mr",
-    primary: {
-      label: unit || trend.label,
-      values,
-      hits: [values.length - 1],
-    },
-    cl: +mean.toFixed(3),
-    ucl: +(mean + 3 * sd).toFixed(3),
-    lcl: +(mean - 3 * sd).toFixed(3),
-    lsl: trend.spec?.[0],
-    usl: trend.spec?.[1],
-  };
-}
-
-function detailBarOptions(a: ExampleAction) {
-  if (!a.options?.length) return [];
-  const primary = a.options.find((o) => o.primary) ?? a.options[0];
-  const decline =
-    a.options.find((o) => /decline|keep|continue|normal|reject|sample/i.test(o.id) && o.id !== primary.id) ??
-    a.options.find((o) => o !== primary);
-  return [
-    { ...primary, label: "Decide", primary: true },
-    ...(decline ? [{ ...decline, label: "Decline", primary: false as const }] : []),
-    { id: "reassign", label: "Reassign", primary: false as const, done: "Use Approval to assign or reassign this action." },
-  ];
+function detailBarActions(a: ExampleAction, role: RoleId) {
+  const { primary, secondary } = decisionOptionPair(a);
+  const allowed = a.who.roles.includes(role);
+  const reason = `${roleNames(a.who.roles)} can decide`;
+  const acts = [];
+  if (primary) {
+    acts.push({
+      ...primary,
+      label: optionShortLabel(a.id, primary.id, primary.label),
+      primary: true as const,
+      allowed,
+      reason,
+      done: (
+        <span>
+          {primary.done} <Link href="/activity">Recorded in Activity.</Link>
+        </span>
+      ),
+    });
+  }
+  if (secondary) {
+    acts.push({
+      ...secondary,
+      label: optionShortLabel(a.id, secondary.id, secondary.label),
+      primary: false as const,
+      allowed,
+      reason,
+      done: (
+        <span>
+          {secondary.done} <Link href="/activity">Recorded in Activity.</Link>
+        </span>
+      ),
+    });
+  }
+  acts.push({
+    id: "reassign",
+    label: "Reassign",
+    primary: false as const,
+    allowed: A.ASSIGNERS.includes(role),
+    reason: "Shift lead, process engineer, quality head or plant head can assign.",
+    done: "Use Approval to assign or reassign this action.",
+  });
+  return acts;
 }
 
 export function ActionDetailView({ id }: { id: string }) {
@@ -78,13 +95,9 @@ export function ActionDetailView({ id }: { id: string }) {
     a.who.how === "On its own, inside the signed band"
       ? { effect: "Stopped. The previous setting comes back and nothing new is written.", allowed: can(role, "press-stop", a.lineId), reason: deniedReason("press-stop", "press Stop") }
       : undefined;
-  const allowed = a.who.roles.includes(role);
-  const canAct = allowed || !!stop?.allowed;
   const outcome = actionOutcomeForDisplay(a);
-  const charts: SpcControlChartProps[] = [];
-  if (detail.spc) charts.push(detail.spc);
-  if (detail.trend) charts.push(trendAsSpc(detail.trend));
-  const barOpts = detailBarOptions(a);
+  const spcChart = detail.spc;
+  const barActions = !c && a.options?.length ? detailBarActions(a, role) : [];
 
   return (
     <Workspace crumbs={crumbs} askContext={actionShortTitle(a)}>
@@ -106,42 +119,28 @@ export function ActionDetailView({ id }: { id: string }) {
       />
       <div className="action-detail-hero">
         <ActionOutcomeLine outcome={outcome} size="hero" />
+        <p className="action-detail-hero-cap muted">
+          {outcome.label} on the demonstration plant model
+          {c?.result ? (
+            <>
+              {" "}
+              · <Tag tone={c.result.status === "Verified" ? "success" : "neutral"}>{c.result.status}</Tag> {c.result.band}
+            </>
+          ) : null}
+        </p>
       </div>
-      {!c && (barOpts.length || stop) && canAct ? (
+      {!c && (barActions.length || stop) ? (
         <div className="action-detail-bar">
-          <CardActions
-            large
-            actions={barOpts.map((o) => ({
-              id: o.id,
-              label: o.label,
-              primary: o.primary,
-              allowed: o.id === "reassign" ? A.ASSIGNERS.includes(role) : allowed,
-              reason: o.id === "reassign" ? "Shift lead, process engineer, quality head or plant head can assign." : `${roleNames(a.who.roles)} can decide`,
-              done: (
-                <span>
-                  {o.done} <Link href="/activity">Recorded in Activity.</Link>
-                </span>
-              ),
-            }))}
-            stop={stop}
-          />
+          <CardActions large actions={barActions} stop={stop} />
         </div>
       ) : null}
-      <div className="grid">
+      <div className="grid action-detail-grid">
         <div className="span-8 stack">
           <Section title="Summary">
             <p style={{ margin: "0 0 8px", lineHeight: 1.5 }}>{a.seen}</p>
             <p className="ex-why" style={{ margin: 0 }}>
               <b>Why it matters:</b> {a.why}
             </p>
-          </Section>
-          <Section title="Outcome" meta={`${outcome.label} on the demonstration plant model`}>
-            <ActionOutcomeLine outcome={outcome} />
-            {c?.result ? (
-              <p style={{ margin: "12px 0 0", fontSize: 13 }}>
-                <Tag tone={c.result.status === "Verified" ? "success" : "neutral"}>{c.result.status}</Tag> {c.result.band}
-              </p>
-            ) : null}
           </Section>
           <Section title="Evidence" meta="Trends, control charts and sensor-backed records" flush>
             <DataTable
@@ -154,11 +153,9 @@ export function ActionDetailView({ id }: { id: string }) {
                 { key: "t", label: "Record", render: (e) => e.text },
               ]}
             />
-            {charts.length ? (
+            {spcChart ? (
               <div className="action-detail-charts">
-                {charts.map((ch) => (
-                  <SpcControlChart key={ch.title} {...ch} height={220} />
-                ))}
+                <SpcControlChart {...spcChart} height={240} />
               </div>
             ) : null}
           </Section>
@@ -210,11 +207,15 @@ export function ActionDetailView({ id }: { id: string }) {
                 ]}
                 columns={[
                   { key: "k", label: "Type", render: (r) => r.kind },
-                  { key: "l", label: "Record", render: (r) => (
-                    <Link className="link" href={r.href}>
-                      {r.label}
-                    </Link>
-                  ) },
+                  {
+                    key: "l",
+                    label: "Record",
+                    render: (r) => (
+                      <Link className="link" href={r.href}>
+                        {r.label}
+                      </Link>
+                    ),
+                  },
                 ]}
               />
             </Section>

@@ -17,6 +17,7 @@ export interface ActionDetailExtra {
     lcl: number;
     usl?: number;
     lsl?: number;
+    targetY?: number;
     unit?: string;
     cpk?: number;
   };
@@ -95,17 +96,19 @@ export const ACTION_DETAIL: Record<string, ActionDetailExtra> = {
     risks: ["Flash and short shots outside the narrowed band are still possible if tooling wears."],
   },
   "ex-q1": {
-    trend: { label: "Part weight, cavity 2", values: cavity2Weight, spec: [47.6, 48.8], unit: "g" },
     linkedLots: ["lot-b-7713"],
     spc: {
-      title: "Cavity 2 weight, last shift runs",
-      chartKind: "xbar_r",
-      primary: { label: "X-bar", values: [48.2, 48.1, 48.0, 47.9, 47.8, 47.7] },
+      title: "Part weight, cavity 2",
+      subtitle: "Spec band and target",
+      chartKind: "i_mr",
+      primary: { label: "Weight", values: cavity2Weight, hits: [cavity2Weight.length - 1] },
       cl: 48.0,
       ucl: 48.6,
       lcl: 47.4,
-      lsl: 47.6,
+      lsl: 47.5,
       usl: 48.8,
+      targetY: 48.0,
+      unit: "g",
       cpk: 1.05,
     },
     similarCases: [{ title: "Lot 7711 light parts investigation", href: "/quality/investigations/inv-2", band: "hold pressure correction held" }],
