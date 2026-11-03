@@ -46,4 +46,17 @@ test.describe("persona happy paths", () => {
     await page.waitForLoadState("load");
     await expect(page.getByRole("heading").first()).toBeVisible();
   });
+
+  test("presenter start link ?as=role sets cookie and keeps view", async ({ page }) => {
+    await page.context().clearCookies();
+    await page.goto("/?as=quality-head&view=plant");
+    await page.waitForLoadState("networkidle");
+    await expect(page).toHaveURL(/view=plant/);
+    await expect(page).not.toHaveURL(/[?&]as=/);
+    await expect(page.getByRole("heading", { name: "Plant today", exact: true })).toBeVisible();
+    await expect(page.getByText("Quality head view")).toBeVisible();
+    await expect(page.locator(".role-switch select")).toHaveValue("quality-head");
+    const cookies = await page.context().cookies();
+    expect(cookies.find((c) => c.name === ROLE_COOKIE)?.value).toBe("quality-head");
+  });
 });

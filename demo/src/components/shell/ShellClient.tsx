@@ -46,7 +46,7 @@ export function BottomBar() {
 }
 
 /** Inline script for <head>: applies saved theme, density and sidebar state before paint. */
-export const DISPLAY_SCRIPT = `try{var d=document.documentElement,t=localStorage.getItem('stamped-theme'),n=localStorage.getItem('stamped-density'),r=localStorage.getItem('stamped-rail'),c=document.cookie.match(/stamped-role=([^;]+)/),role=c&&c[1]?c[1]:'plant-head';if(t)d.dataset.theme=t;if(n)d.dataset.density=n;d.dataset.rail=r||'expanded';d.dataset.role=role;var m=document.querySelector('.main');if(m)m.dataset.role=role;}catch(e){}`;
+export const DISPLAY_SCRIPT = `try{var d=document.documentElement,t=localStorage.getItem('stamped-theme'),n=localStorage.getItem('stamped-density'),r=localStorage.getItem('stamped-rail'),ROLES=['operator','shift-lead','process-engineer','quality-head','plant-head','owner','stamped-engineer','viewer'],u=new URL(location.href),as=u.searchParams.get('as'),role;if(as&&ROLES.indexOf(as)>=0){document.cookie='stamped-role='+as+'; path=/; max-age=31536000; samesite=lax';role=as;u.searchParams.delete('as');history.replaceState(null,'',u.pathname+(u.searchParams.toString()?'?'+u.searchParams.toString():'')+u.hash)}else{var c=document.cookie.match(/stamped-role=([^;]+)/);role=c&&c[1]&&ROLES.indexOf(c[1])>=0?c[1]:'plant-head'}if(t)d.dataset.theme=t;if(n)d.dataset.density=n;d.dataset.rail=r||'expanded';d.dataset.role=role;var m=document.querySelector('.main');if(m)m.dataset.role=role;}catch(e){}`;
 
 export function RoleSwitcher({ role, roles }: { role: RoleId; roles: { id: RoleId; name: string }[] }) {
   const setRole = useSetRole();

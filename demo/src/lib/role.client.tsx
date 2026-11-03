@@ -16,16 +16,20 @@ function readRoleCookie(): RoleId {
   return parseRoleId(m?.[1] ?? null);
 }
 
+/** Consume a valid `?as=<role>` once: set the role cookie and drop the param from the URL. */
+function consumeAsParam(setRole: (role: RoleId) => void) {
+  if (typeof window === "undefined") return;
+  const url = new URL(window.location.href);
+  const raw = url.searchParams.get("as");
+  if (!raw || !roles.some((r) => r.id === raw)) return;
+  setRole(parseRoleId(raw));
+  url.searchParams.delete("as");
+  const qs = url.searchParams.toString();
+  window.history.replaceState(null, "", `${url.pathname}${qs ? `?${qs}` : ""}${url.hash}`);
+}
+
 export function RoleProvider({ children }: { children: ReactNode }) {
   const [role, setRoleState] = useState<RoleId>(DEFAULT_ROLE);
-  useEffect(() => {
-    const r = readRoleCookie();
-    setRoleState(r);
-    document.documentElement.dataset.role = r;
-    const main = document.querySelector<HTMLElement>(".main");
-    if (main) main.dataset.role = r;
-  }, []);
-
   const setRole = useCallback((next: RoleId) => {
     document.cookie = `${ROLE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
     document.documentElement.dataset.role = next;
@@ -33,6 +37,15 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     if (main) main.dataset.role = next;
     setRoleState(next);
   }, []);
+
+  useEffect(() => {
+    consumeAsParam(setRole);
+    const r = readRoleCookie();
+    setRoleState(r);
+    document.documentElement.dataset.role = r;
+    const main = document.querySelector<HTMLElement>(".main");
+    if (main) main.dataset.role = r;
+  }, [setRole]);
 
   const value = useMemo(() => ({ role, setRole }), [role, setRole]);
   return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;
