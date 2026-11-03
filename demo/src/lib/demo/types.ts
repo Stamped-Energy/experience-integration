@@ -201,6 +201,15 @@ export interface ActionOutcome {
   label: EvidenceLabel;
 }
 
+/** How a displayed outcome was derived (detail page). */
+export interface OutcomeCalculation {
+  metric: string;
+  inputs: string[];
+  formula: string;
+  result: string;
+  label: EvidenceLabel;
+}
+
 export interface ExampleAction extends Illustrative {
   id: string; area: "Process" | "Quality"; lineId: string; steps: ActionStep[]; mechanism: string;
   title: string; seen: string; evidence: { text: string; label: EvidenceLabel; id?: string }[];

@@ -13,7 +13,7 @@ import { AskButton } from "@/components/shell/ShellClient";
 import { CardActions } from "@/components/cards/CardActions";
 import { deniedReason } from "@/components/cards/DecisionCard";
 import { Confidence } from "@/components/ui/Confidence";
-import { RunChart } from "@/components/ui/charts";
+import { SpcControlChart } from "@/components/view/spc-control-chart";
 import { DataTable, EvidenceTag, PageHeader, Section, Tag, VerdictTag } from "@/components/ui/primitives";
 import { EvidenceSheet } from "@/components/evidence/EvidenceSheet";
 import { runLabel } from "@/components/process/common";
@@ -33,6 +33,8 @@ export default function LotDetail() {
   const inv = D.investigations.filter((i) => i.lotIds.includes(lot.id));
   const same = D.lots.filter((l) => l.gradeId === lot.gradeId).sort((a, b) => a.startedAt.localeCompare(b.startedAt));
   const series = same.map((l) => propOf(l).predicted.point);
+  const yPad = Math.max(0.5, (spec.usl - spec.lsl) * 0.08);
+  const lotIdx = same.findIndex((l) => l.id === lot.id);
   const base = `/quality/lots/${lot.id}`;
   return (
     <Workspace crumbs={crumbs({ label: "Lots", href: "/quality" }, { label: `Lot ${lotNo(lot.id)}` })} askContext={`Lot ${lotNo(lot.id)}`}>
@@ -73,8 +75,25 @@ export default function LotDetail() {
                 drivers={["Linked run outcomes", prop.anchored ? "Lab result" : "No lab result yet"]} fit="accepted" method={prop.anchored ? `Anchored to the lab result${lab ? ` of ${dayMonth(lab.at)}` : ""}` : "Unanchored, cannot support a decision"} />
               <div style={{ marginTop: 8, display: "flex", gap: 8, alignItems: "center", fontSize: 13 }}>{prop.anchored ? <Tag tone="success">Anchored</Tag> : <Tag tone="warning">Unanchored, cannot support a decision</Tag>}{lab ? <span className="muted">Lab {lab.value} {prop.unit} · {dayMonth(lab.at)}</span> : <span className="muted">Waiting for the lab system</span>}</div>
             </Section>
-            <Section title={`${gradeOf(lot).name}, last ${same.length} lots`} meta="Predicted point per lot · spec dashed" flush>
-              <div className="chart-pad"><RunChart values={series} spec={[spec.lsl, spec.usl]} width={460} height={130} label={`${prop.name} per lot`} highlightFrom={same.findIndex((l) => l.id === lot.id)} /></div>
+            <Section title={`${gradeOf(lot).name}, last ${same.length} lots`} meta="Predicted point per lot · spec band" flush>
+              <div className="chart-pad">
+                <SpcControlChart
+                  title={`${prop.name} per lot`}
+                  chartKind="i_mr"
+                  primary={{ label: prop.name, values: series, hits: lotIdx >= 0 ? [lotIdx] : undefined }}
+                  cl={series.reduce((a, b) => a + b, 0) / series.length}
+                  ucl={spec.usl}
+                  lcl={spec.lsl}
+                  usl={spec.usl}
+                  lsl={spec.lsl}
+                  targetY={spec.target}
+                  unit={prop.unit}
+                  specLinesOnly
+                  yMin={Math.min(...series, spec.lsl) - yPad}
+                  yMax={Math.max(...series, spec.usl) + yPad}
+                  height={160}
+                />
+              </div>
             </Section>
           </div>
           <Section title="Runs in this lot" flush>

@@ -27,6 +27,8 @@ export default function RunDetail() {
   const lineRuns = runsOf(line.id);
   const idx = lineRuns.findIndex((r) => r.id === run.id);
   const prev = lineRuns[idx - 1], next = lineRuns[idx + 1];
+  const mainOutcome = outcome(run, name)!;
+  const spec = specOf(line);
   const around = lineRuns.slice(Math.max(0, idx - 12), idx + 1).map((r) => outcome(r, name)!.value);
   const readings = D.tagReadings.filter((t) => t.runId === run.id);
   const tag = readings.length ? D.tags.find((t) => t.id === readings[0].tagId) : undefined;
@@ -63,11 +65,11 @@ export default function RunDetail() {
             <div className="split" style={{ padding: "12px 16px 8px" }}>
               <div>
                 <div className="label">{name}, this and the 12 before</div>
-                <RunChart values={around} spec={specOf(line)} width={480} height={130} label={`${name} around ${runLabel(run)}`} highlightFrom={around.length - 1} />
+                <RunChart values={around} spec={spec} unit={mainOutcome.unit} width={480} height={130} label={`${name} around ${runLabel(run)}`} highlightFrom={around.length - 1} />
               </div>
               <div>
                 <div className="label">{tag ? `${tag.name} during the ${pack.labels.unit}` : "Readings"}</div>
-                {readings.length ? <RunChart values={readings.map((r) => r.value).reverse()} width={480} height={130} label={tag?.name ?? "Readings"} /> : <p className="muted" style={{ fontSize: 13, marginTop: 8 }}>No sampled readings kept for this run on record.</p>}
+                {readings.length ? <RunChart values={readings.map((r) => r.value).reverse()} unit={tag?.unit} width={480} height={130} label={tag?.name ?? "Readings"} /> : <p className="muted" style={{ fontSize: 13, marginTop: 8 }}>No sampled readings kept for this run on record.</p>}
               </div>
             </div>
           </Section>
@@ -105,7 +107,7 @@ export default function RunDetail() {
                 <Confidence kind="link" label={l.label} score={l.link_confidence} threshold={pack.linkThreshold} status={l.status}
                   drivers={["time proximity", "recipe match", "sequence", "scanned id"]} method="Weights fitted on a verification sample" />
               </div>
-            ))}</div> : <p className="muted" style={{ fontSize: 13, padding: "12px 16px", margin: 0 }}>No lot is linked to this run yet.</p>}
+            ))}</div> : <p className="muted" style={{ fontSize: 13, padding: "12px 16px", margin: 0, lineHeight: 1.5 }}>Quality has not linked a lot to this run yet. When a join is confirmed, the lot id, link confidence, and a path to the lot record appear here.</p>}
           </Section>
           <Section title="Line pack words" >
             <dl className="facts-grid"><dt>Run</dt><dd>{pack.runDefinition}</dd><dt>Series</dt><dd>{pack.series.join(", ")}</dd><dt>Outcome</dt><dd>{pack.labels.outcome}</dd></dl>

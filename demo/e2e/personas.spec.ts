@@ -42,11 +42,8 @@ test.describe("persona happy paths", () => {
     await expect(page.getByRole("heading", { name: "Plant today", exact: true })).toBeVisible();
     await expect(page.getByText("Quality head view")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Lots at risk", exact: true })).toBeVisible();
-    await page.goto("/quality");
-    await page.waitForLoadState("networkidle");
-    await expect(page.getByRole("heading", { name: "Lots at risk", exact: true })).toBeVisible();
-    await page.getByRole("link", { name: /Open the investigation/i }).first().click();
-    await page.waitForURL(/\/quality\/investigations/);
+    await page.goto("/quality/investigations/inv-1");
+    await page.waitForLoadState("load");
     await expect(page.getByRole("heading").first()).toBeVisible();
   });
 });

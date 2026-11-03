@@ -9,7 +9,6 @@ import { byId, roles } from "@/lib/demo/data";
 import {
   exampleActions,
   actionHref,
-  actionOutcomeForDisplay,
   decisionOptionPair,
   optionShortLabel,
   whoDecidesShort,
@@ -18,12 +17,14 @@ import { can } from "@/lib/rbac";
 import { Tag } from "@/components/ui/primitives";
 import { dayMonth, hhmm } from "@/lib/format";
 import { FoldCard, FoldCardChevron } from "./FoldCard";
-import { ActionOutcomeLine } from "./ActionOutcomeLine";
+import { ActionOutcomeStrip } from "./ActionOutcomeStrip";
+import { actionOutcomesForDisplay } from "@/lib/demo/actionOutcomes";
 import { ShowMore } from "./ShowMore";
 import * as A from "@/lib/demo/agent";
 import { Assign } from "@/components/agent/Assign";
 import { CardActions } from "./CardActions";
 import { deniedReason } from "./DecisionCard";
+import { FilterEmpty } from "@/components/ui/FilterEmpty";
 import { stretchOver } from "@/components/ui/StretchLink";
 
 const STEP_WORD: Record<ActionStep, string> = { Detect: "See", Explain: "Explain", Propose: "Change", Trial: "Try", Verify: "Check", Learn: "Learn", Decide: "Decide" };
@@ -86,18 +87,14 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
   const status = c ? c.state : trialing ? "Trial running" : a.who.how === "On its own, inside the signed band" ? "Running on its own" : a.who.how === "Record only" ? "Checked" : a.who.how === "Recommend only" ? "Recommend only" : "Needs a decision";
   const statusTone = c ? "success" : status === "Needs a decision" ? "info" : status === "Trial running" ? "accent" : "neutral";
   const href = actionHref(a);
-  const outcome = actionOutcomeForDisplay(a);
+  const outcomes = actionOutcomesForDisplay(a);
   const decisionActions = cardDecisionActions(a, role);
   const summary = (
     <span className="ex-sum">
       <span className="ex-sum-t">{a.title}</span>
-      <ActionOutcomeLine outcome={outcome} />
       <span className="ex-sum-m">
         <Tag tone={statusTone}>{status}</Tag>
         <span className="ex-sum-who">{c ? `${c.by} · ${dayMonth(c.at)}` : names(a.who.roles)}</span>
-        <Link className={`btn btn-sm ex-open ${stretchOver}`} href={href} scroll={false}>
-          Open
-        </Link>
         <FoldCardChevron className="ex-sum-chev" />
       </span>
     </span>
@@ -106,8 +103,10 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
     ? `${c.changed} · ${c.by} · ${c.state}`
     : `${a.action} · ${whoDecidesShort(a.who.how)} · ${names(a.who.roles)}`;
 
+  const linkCta = !c && !decisionActions.length && a.href;
+
   return (
-    <FoldCard summary={summary} labelledBy={`${a.id}-t`} anchor={a.id} detailHref={href}>
+    <FoldCard summary={summary} labelledBy={`${a.id}-t`} anchor={a.id} detailHref={href} className={c ? "is-closed" : undefined}>
       <div className="card-head">
         <span className="card-head-meta">
           <span className="src">{a.area} agent</span>
@@ -125,7 +124,7 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
         <h3 className="card-title" id={`${a.id}-t`}>
           {a.title}
         </h3>
-        <ActionOutcomeLine outcome={outcome} />
+        <ActionOutcomeStrip outcomes={outcomes} />
         <p className="ex-why-line ex-why-clamp">{a.seen}</p>
         <p className="ex-why-line ex-why-clamp">{a.why}</p>
         <p className="ex-foot-meta muted">{footerMeta}</p>
@@ -133,7 +132,20 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
           <Assign initial={A.assigned[a.id]} people={A.PEOPLE} canAssign={A.ASSIGNERS.includes(role)} by={A.ME[role] ?? "Plant head A."} />
         </div>
       </div>
-      {!c && (decisionActions.length || stop) ? <CardActions actions={decisionActions} stop={stop} /> : null}
+      <div className="card-foot card-foot-actions" data-no-nav onClick={(e) => e.stopPropagation()}>
+        {!c && linkCta && !decisionActions.length && !stop && a.href ? (
+          <Link href={a.href!} className="btn btn-sm btn-quiet" scroll={false} data-no-nav onClick={(e) => e.stopPropagation()}>
+            {a.hrefLabel ?? "Related record"}
+          </Link>
+        ) : null}
+        {!c && (decisionActions.length || stop) ? (
+          <CardActions bare actions={decisionActions} stop={stop} />
+        ) : null}
+        <span className="spacer" />
+        <Link href={href} className="btn btn-sm btn-outline" scroll={false} data-no-nav onClick={(e) => e.stopPropagation()}>
+          Open action
+        </Link>
+      </div>
     </FoldCard>
   );
 }
@@ -154,53 +166,33 @@ export function groupOf(a: ExampleAction): ActionGroup {
 function GroupHead({ g, n, className }: { g: (typeof GROUPS)[number]; n: number; className?: string }) {
   return (
     <h3 className={className}>
-      {g.label} <span className="cnt">{n}</span>
+      <span className="act-list-head-main">
+        {g.label} <span className="cnt">{n}</span>
+      </span>
       <span className="act-sub">{g.sub}</span>
     </h3>
   );
 }
 
-/** One two-column grid. A group with a spare cell takes the next group's card instead of leaving a hole. */
-function ActionGrid({ list, role }: { list: ExampleAction[]; role: RoleId }) {
-  const blocks = GROUPS.map((g) => ({ g, xs: list.filter((a) => groupOf(a) === g.id) })).filter((b) => b.xs.length);
-  if (blocks.length <= 1) {
-    return (
-      <>
-        {blocks.map(({ g, xs }) => (
-          <section key={g.id} className="ex-group act-group" data-act-group={g.id} aria-label={g.label}>
-            <GroupHead g={g} n={xs.length} />
-            <ShowMore className="ex-cards act-cards">{xs.map((a) => <ExampleActionCard key={a.id} a={a} role={role} />)}</ShowMore>
-          </section>
-        ))}
-      </>
-    );
-  }
-  const slots = blocks.flatMap(({ g, xs }) => xs.map((a, i) => ({ g, a, lead: i === 0, n: xs.length })));
-  const rows: (typeof slots)[] = [];
-  for (let i = 0; i < slots.length; i += 2) rows.push(slots.slice(i, i + 2));
+/** One full-width row per action, grouped by status. */
+function ActionList({ list, role }: { list: ExampleAction[]; role: RoleId }) {
+  const sorted = [...list].sort(
+    (a, b) => GROUPS.findIndex((g) => g.id === groupOf(a)) - GROUPS.findIndex((g) => g.id === groupOf(b)),
+  );
+  let last: ActionGroup | null = null;
   return (
-    <div className="act-pack">
-      {rows.map((row) => {
-        const same = row.length === 2 && row[0].g.id === row[1].g.id;
-        if (same) {
-          const head = row[0].lead || row[1].lead;
-          return (
-            <div key={row[0].a.id} className="act-pack-row">
-              {head ? <GroupHead g={row[0].g} n={row[0].n} className="act-pack-span" /> : null}
-              {row.map((s) => (
-                <ExampleActionCard key={s.a.id} a={s.a} role={role} />
-              ))}
-            </div>
-          );
-        }
+    <div className="act-list">
+      {sorted.map((a) => {
+        const g = groupOf(a);
+        const showHead = g !== last;
+        if (showHead) last = g;
+        const groupDef = GROUPS.find((x) => x.id === g)!;
         return (
-          <div key={row[0].a.id} className="act-pack-row">
-            {row.map((s) => (
-              <div key={s.a.id} className="act-slot">
-                {s.lead ? <GroupHead g={s.g} n={s.n} /> : <div className="act-slot-gap" aria-hidden />}
-                <ExampleActionCard a={s.a} role={role} />
-              </div>
-            ))}
+          <div key={a.id} className="act-list-row">
+            {showHead ? (
+              <GroupHead g={groupDef} n={sorted.filter((x) => groupOf(x) === g).length} className="act-list-head" />
+            ) : null}
+            <ExampleActionCard a={a} role={role} />
           </div>
         );
       })}
@@ -254,7 +246,7 @@ export function ActionsBrief({
         </Link>
       </div>
       {shown.length ? (
-        <div className="ex-cards act-cards brief-card-grid">
+        <div className="ex-cards act-cards act-cards-single brief-card-grid">
           {shown.map((a) => (
             <ExampleActionCard key={a.id} a={a} role={role} />
           ))}
@@ -293,7 +285,9 @@ export function ActionsBoard({
 }) {
   const me = A.ME[role];
   const all = listActions(area, lineId ?? line);
-  const list = all.filter((a) => (!status || groupOf(a) === status) && (!mine || (me && A.assigned[a.id]?.to === me)));
+  const filtered = all.filter((a) => (!status || groupOf(a) === status) && (!mine || (me && A.assigned[a.id]?.to === me)));
+  const list = filtered;
+  const hasFilters = !!(status || line || mine);
   const q = (p: Record<string, string | undefined>) => {
     const u = new URLSearchParams({ tab: "actions" });
     const v = { status, line, mine, ...p };
@@ -301,7 +295,7 @@ export function ActionsBoard({
     return `${base}?${u}`;
   };
   const chip = (on: boolean, href: string, label: string, n?: number) => (
-    <Link className={`chip${on ? " on" : ""}`} href={href} scroll={false}>
+    <Link className={`chip${on ? " on" : ""}${n === 0 ? " chip-zero" : ""}`} href={href} scroll={false}>
       {label}
       {n !== undefined ? <span className="cnt">{n}</span> : null}
     </Link>
@@ -328,8 +322,14 @@ export function ActionsBoard({
           </span>
         ) : null}
       </div>
-      {list.length === 0 ? <p className="secondary" style={{ margin: 0 }}>No actions match these filters.</p> : null}
-      <ActionGrid list={list} role={role} />
+      {list.length === 0 ? (
+        <FilterEmpty
+          clearHref={hasFilters ? q({ status: undefined, line: undefined, mine: undefined }) : undefined}
+          hint={mine && all.length > 0 ? "None of these actions are assigned to you." : undefined}
+        />
+      ) : (
+        <ActionList list={list} role={role} />
+      )}
     </div>
   );
 }

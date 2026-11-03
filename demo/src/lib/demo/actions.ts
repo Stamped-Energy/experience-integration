@@ -72,7 +72,7 @@ export const exampleActions: T.ExampleAction[] = [
 
   /* ---------------- Quality ---------------- */
   { ...I, id: "ex-q1", area: "Quality", lineId: "line-b", steps: ["Detect", "Decide"], mechanism: "A decision on the floor",
-    outcome: { metric: "Part weight, cavity 2", before: "47.9 g", after: "48.0 g target band", label: "Estimated" },
+    outcome: { metric: "Part weight, cavity 2", before: "47.9 g", after: "48.0 g", label: "Estimated" },
     title: "Lot 7713 parts are running light on cavity 2. Hold and check them?",
     seen: "Part weight on cavity 2 has fallen 0.12 g over three shift runs. Every part is still in spec, but the estimated band for lot 7713 now touches the lower limit of 47.6 g.",
     evidence: [{ text: "Vision check part weight, cavity 2", label: "Measured", id: "EV-B-2214" }, { text: "Lot 7713 estimated band 47.5 to 48.0 g", label: "Estimated" }, { text: "Lowering melt temperature was declined: flash on the parting line", label: "Measured" }],
@@ -87,7 +87,7 @@ export const exampleActions: T.ExampleAction[] = [
     why: "A light part found before packing is a few minutes of weighing. Found by the customer, it is a returned lot.",
     href: "/quality/lots/lot-b-7713", hrefLabel: "Open lot 7713" },
   { ...I, id: "ex-q2", area: "Quality", lineId: "line-a", steps: ["Detect"], mechanism: "The lab result, before the lab",
-    outcome: { metric: "Viscosity", before: "2580–2660", after: "2540–2630 mPa·s", label: "Modelled" },
+    outcome: { metric: "Viscosity", before: "2580 to 2660 mPa·s", after: "2540 to 2630 mPa·s", label: "Modelled" },
     title: "Lot 3307 viscosity is heading for the upper limit: sample it early",
     seen: "Stamped estimates lot 3307 from its linked batches, torque and temperature. The band sits across the upper spec limit of 2600 mPa·s.",
     evidence: [{ text: "Viscosity band 2540 to 2630 mPa·s", label: "Modelled" }, { text: "End-of-hold torque on linked batches 2416 and 2417", label: "Measured", id: "EV-A-1188" }],
@@ -98,7 +98,7 @@ export const exampleActions: T.ExampleAction[] = [
     why: "Knowing the likely lab result 40 min early leaves time to fix the lot instead of reworking it.",
     href: "/quality/lots/lot-a-3307", hrefLabel: "Open lot 3307" },
   { ...I, id: "ex-q3", area: "Quality", lineId: "line-a", steps: ["Explain", "Propose"], mechanism: "Tracing a lot to its cause",
-    outcome: { metric: "Viscosity, next batches", before: "2610 to 2680 mPa·s", after: "2520 to 2590 mPa·s", label: "Modelled" },
+    outcome: { metric: "Viscosity (next batches)", before: "2610 to 2680 mPa·s", after: "2520 to 2590 mPa·s", label: "Modelled" },
     title: "Lots 3307 and 3296 share one cause: high torque at the end of hold",
     seen: "Both lots link to batches 2416 and 2417. Charge mass was in recipe on both, but end-of-hold torque ran 6% above the grade's best batches.",
     evidence: [{ text: "Lot to batch links, with their confidence", label: "Estimated", id: "EV-A-1185" }, { text: "End-of-hold torque, both batches", label: "Measured", id: "EV-A-1188" }, { text: "Charge mass inside recipe", label: "Measured" }],
@@ -184,12 +184,11 @@ export function whoDecidesShort(how: T.ExampleAction["who"]["how"]) {
   return WHO_SHORT[how];
 }
 
-/** Display parts for the outcome line: metric, "47.9 g now", "48.0 g target". */
+/** Display parts for the outcome line: metric, "47.9 g now", "48.0 g". */
 export function outcomePhrase(o: T.ActionOutcome) {
   const now = /\bnow\b/i.test(o.before) ? o.before.trim() : `${o.before.trim()} now`;
-  let target = o.after.trim().replace(/\s*target\s+band\b/i, " target").replace(/\s*,?\s*band\s+.*/i, "").trim();
-  if (!/\btarget\b/i.test(target) && !/mPa·s$/i.test(target)) target = `${target} target`;
-  return { metric: o.metric, now, target };
+  const after = o.after.trim().replace(/\s*target\s+band\b/i, "").replace(/\s*,?\s*band\s+.*/i, "").replace(/\btarget\b/gi, "").trim();
+  return { metric: o.metric, now, after };
 }
 
 const OPTION_SHORT: Record<string, Record<string, string>> = {

@@ -152,7 +152,7 @@ export function SideNav({ inboxCount }: { inboxCount: number }) {
       setOpenModule(m);
       writeStoredModule(m);
       if (navigate) {
-        const fallback = m === "process" ? "/process/proposals" : "/quality/actions";
+        const fallback = m === "process" ? "/process/actions" : "/quality/actions";
         router.push(lastScreenHref(m, fallback));
       }
     },
@@ -228,7 +228,7 @@ export function SideNav({ inboxCount }: { inboxCount: number }) {
             >
               {SubIcon?.({}) ?? null}
               <span className="side-sub-label">{s.label}</span>
-              {n ? <span className="side-badge side-badge-muted">{n}</span> : null}
+              {n ? <span className="side-badge">{n}</span> : null}
             </Link>
           </li>
         );
@@ -304,28 +304,28 @@ export function SideNav({ inboxCount }: { inboxCount: number }) {
         {moduleGroup("quality", "Quality", qualityScreens)}
       </div>
 
-      <div className="side-sep" role="separator" />
-
-      <div className="side-section">{globalBottom.map(globalLink)}</div>
-
-      <div className="side-spacer" />
-
-      <DisplayToggles />
-      <button
-        type="button"
-        className="side-item side-collapse"
-        aria-expanded={expanded}
-        aria-controls="app-rail"
-        aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
-        onClick={toggleRail}
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <rect x="4" y="5" width="16" height="14" rx="1.5" />
-          <path d="M9 5v14" />
-          <path className={`side-collapse-chev${expanded ? " is-expanded" : ""}`} d="m13 10 2 2-2 2" />
-        </svg>
-        <span className="side-label">{expanded ? "Collapse" : "Expand"}</span>
-      </button>
+      <div className="side-foot-cluster">
+        <div className="side-sep" role="separator" />
+        <div className="side-section">{globalBottom.map(globalLink)}</div>
+        <div className="side-foot">
+          <DisplayToggles />
+          <button
+            type="button"
+            className="side-item side-collapse"
+            aria-expanded={expanded}
+            aria-controls="app-rail"
+            aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
+            onClick={toggleRail}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <rect x="4" y="5" width="16" height="14" rx="1.5" />
+              <path d="M9 5v14" />
+              <path className={`side-collapse-chev${expanded ? " is-expanded" : ""}`} d="m13 10 2 2-2 2" />
+            </svg>
+            <span className="side-label">{expanded ? "Collapse" : "Expand"}</span>
+          </button>
+        </div>
+      </div>
     </nav>
   );
 }

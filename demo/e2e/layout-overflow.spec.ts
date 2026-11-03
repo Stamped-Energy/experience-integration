@@ -45,7 +45,7 @@ for (const viewport of VIEWPORTS) {
 
       for (const route of ALL_LAYOUT_ROUTES) {
         test(`${route} — no horizontal overflow, single-line pills`, async ({ page }) => {
-          await page.goto(route, { waitUntil: "networkidle", timeout: 60_000 });
+          await page.goto(route, { waitUntil: "load", timeout: 60_000 });
           await expect(page.locator("#main")).toBeVisible({ timeout: 15_000 });
           await setRail(page, rail);
           await page.waitForTimeout(150);

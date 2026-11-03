@@ -26,12 +26,12 @@ export const PROCESS_HUBS: HubDef[] = [
   {
     id: "actions",
     sidebarLabel: "Actions",
-    sidebarHref: "/process/proposals",
+    sidebarHref: "/process/actions",
     audience: "client",
     tabs: [
+      { href: "/process/actions", label: "Action cards", match: (p) => p === "/process/actions" || p.startsWith("/process/actions/") },
       { href: "/process/proposals", label: "Proposals", match: exactOrPrefix("/process/proposals") },
       { href: "/process/trials", label: "Trials and stops", match: exactOrPrefix("/process/trials") },
-      { href: "/process/actions", label: "Action queue", match: (p) => p === "/process/actions" || p.startsWith("/process/actions/") },
       { href: "/process/agent", label: "Agent at work", match: (p) => p === "/process/agent" },
     ],
   },

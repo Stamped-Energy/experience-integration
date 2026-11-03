@@ -10,9 +10,9 @@ const TAG: Record<ActionOutcome["label"], string> = {
   Unknown: "UNKNOWN",
 };
 
-/** One-line metric, current now → target (after in coral) plus basis tag on the same baseline. */
+/** One-line metric, current now → after (coral) plus basis tag on the same baseline. */
 export function ActionOutcomeLine({ outcome, size = "card" }: { outcome: ActionOutcome; size?: "card" | "hero" }) {
-  const { metric, now, target } = outcomePhrase(outcome);
+  const { metric, now, after } = outcomePhrase(outcome);
   return (
     <p className={`ex-outcome ex-outcome--${size}`}>
       <span className="ex-outcome-metric">{metric}</span>{" "}
@@ -22,7 +22,7 @@ export function ActionOutcomeLine({ outcome, size = "card" }: { outcome: ActionO
           {" "}
           →{" "}
         </span>
-        <span className="ex-outcome-after num tabular">{target}</span>
+        <span className="ex-outcome-after num tabular">{after}</span>
       </span>
       <span className="ex-outcome-tag">
         <Tag tone="neutral">{TAG[outcome.label]}</Tag>

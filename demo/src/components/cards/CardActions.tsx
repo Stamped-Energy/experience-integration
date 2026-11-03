@@ -14,20 +14,24 @@ export function CardActions({
   large,
   adjust,
   assignBar,
+  bare,
 }: {
   actions: ActionSpec[];
   stop?: StopSpec;
   large?: boolean;
   adjust?: AdjustSpec;
   assignBar?: { initial?: { to: string; by: string }; people: string[]; canAssign: boolean; by: string };
+  bare?: boolean;
 }) {
   const [done, setDone] = useState<ReactNode>(null);
   const [adjusting, setAdjusting] = useState(false);
   const denied = actions.find((a) => !a.allowed);
+  const denyReason = denied?.reason;
   const size = large ? " btn-lg" : "";
+  const footClass = bare ? "card-foot-inline" : "card-foot";
   if (done) {
     return (
-      <div className="card-foot">
+      <div className={footClass}>
         <span className="feedback" role="status"><Icon.check width={16} height={16} />{done}</span>
         <span className="spacer" />
         <button type="button" className={`btn btn-quiet${size}`} onClick={() => setDone(null)}>Undo</button>
@@ -38,23 +42,38 @@ export function CardActions({
     return <AdjustInBand spec={adjust} onCancel={() => setAdjusting(false)} onSend={(v) => { setAdjusting(false); setDone(`Sent ${v} ${adjust.unit} as your adjustment.`); }} />;
   }
   return (
-    <div className="card-foot">
+    <div className={footClass}>
       {actions.map((a) => {
         const deniedPrimary = a.primary && !a.allowed;
+        const deniedSecondary = !a.primary && !a.allowed;
+        const className = a.allowed
+          ? a.primary
+            ? " btn-primary"
+            : ""
+          : deniedPrimary
+            ? " btn-quiet"
+            : deniedSecondary
+              ? " btn-secondary-denied"
+              : " btn-quiet";
         return (
           <button
             key={a.id}
             type="button"
-            className={`btn${a.primary ? (deniedPrimary ? " btn-primary-denied" : " btn-primary") : ""}${size}`}
+            className={`btn${className}${size}`}
             disabled={!a.allowed}
             title={!a.allowed ? a.reason : undefined}
-            onClick={() => (a.id === "adjust" && adjust ? setAdjusting(true) : setDone(a.done))}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (a.id === "adjust" && adjust) setAdjusting(true);
+              else setDone(a.done);
+            }}
           >
+            {!a.allowed && a.primary ? <Icon.lock width={14} height={14} aria-hidden /> : null}
             {a.label}
           </button>
         );
       })}
-      {denied ? <span className="why-not"><Icon.lock width={12} height={12} style={{ verticalAlign: -1, marginRight: 4 }} />{denied.reason}</span> : null}
+      {denyReason ? <span className="why-not">{denyReason}</span> : null}
       {assignBar?.canAssign ? (
         <Assign initial={assignBar.initial} people={assignBar.people} canAssign by={assignBar.by} buttonOnly />
       ) : null}

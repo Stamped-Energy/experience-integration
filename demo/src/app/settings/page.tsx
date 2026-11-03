@@ -59,7 +59,7 @@ export default function SettingsHome() {
         </div>
       ) : null}
       <Section title="All settings" meta={`${SECTIONS.length} sections`} actions={<Illustrative />}>
-        <nav className="set-hub" aria-label="Settings sections">
+        <nav className="set-hub set-hub-click" aria-label="Settings sections">
           {SECTIONS.map((s) => (
             <Link key={s.key} href={s.href} className="set-hub-card">
               <span className="set-hub-title">{s.label}</span>
