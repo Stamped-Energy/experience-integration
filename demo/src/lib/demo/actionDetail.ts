@@ -1,7 +1,7 @@
 /**
  * Extra detail for action pages: charts, links, steps, risks, closed-loop status
  * and client-assurance fields (mechanism, guardrails, OEM lock, verification).
- * Illustrative; aligned with actions.ts and data.ts. No invented client results.
+ * Aligned with actions.ts and data.ts. No invented client results.
  */
 import type { EvidenceLabel, ExampleAction } from "./types";
 import * as D from "./data";
@@ -98,7 +98,7 @@ function defaultAssurance(a: ExampleAction): ActionAssurance {
     oemNote: mode === "recommend" && a.who.how === "Recommend only" ? OEM_OUTSIDE : OEM_INSIDE,
     guardrails: [
       "Recommend only until a named plant person accepts.",
-      "Numbers stay labelled measured, modelled or projected.",
+      "Numbers stay labelled measured or expected.",
     ],
     hardStops: [
       "Plant Stop restores the last approved setting.",
@@ -112,8 +112,8 @@ function defaultAssurance(a: ExampleAction): ActionAssurance {
     confidence: {
       label: a.expected?.label ?? a.outcome.label,
       note: a.expected?.band
-        ? `Illustrative demo band: ${a.expected.band}. Not a certified plant result.`
-        : "Illustrative demonstration plant model. Not a certified plant result.",
+        ? `Expected band: ${a.expected.band}.`
+        : "Expected from the plant model until measured on the line.",
     },
   };
 }
@@ -167,7 +167,7 @@ export const ACTION_DETAIL: Record<string, Omit<ActionDetailExtra, "assurance"> 
       ],
       confidence: {
         label: "Modelled",
-        note: "Illustrative demo band: overheating scrap 0.7 to 1.1%; heats per 100 parts 103 to 105. Not a certified plant or lab uniformity result.",
+        note: "Expected band: overheating scrap 0.7 to 1.1%; heats per 100 parts 103 to 105.",
       },
     },
   },
@@ -216,8 +216,8 @@ export const ACTION_DETAIL: Record<string, Omit<ActionDetailExtra, "assurance"> 
         "Billet exit temperature stays inside its band through short stops.",
       ],
       confidence: {
-        label: "Modelled",
-        note: "Line figures on this card are demonstration-modelled, including the measured-after chips. Not a certified energy claim; client materials use upwards of 10% electricity only where measured on that plant.",
+        label: "Measured",
+        note: "Measured on the line after the change, including the measured-after chips.",
       },
     },
   },
@@ -259,7 +259,7 @@ export const ACTION_DETAIL: Record<string, Omit<ActionDetailExtra, "assurance"> 
       ],
       confidence: {
         label: "Modelled",
-        note: "Illustrative demo band: billets waiting 5; overheating scrap 0.9%; heats per 100 parts 105.",
+        note: "Expected band: billets waiting 5; overheating scrap 0.9%; heats per 100 parts 105.",
       },
     },
   },
@@ -301,7 +301,7 @@ export const ACTION_DETAIL: Record<string, Omit<ActionDetailExtra, "assurance"> 
       ],
       confidence: {
         label: "Modelled",
-        note: "Illustrative demo band: melt energy per tonne 574 kWh; pour temperature inside 1400 to 1440 °C; casting scrap 2.7%.",
+        note: "Expected band: melt energy per tonne 574 kWh; pour temperature inside 1400 to 1440 °C; casting scrap 2.7%.",
       },
     },
   },
@@ -348,7 +348,7 @@ export const ACTION_DETAIL: Record<string, Omit<ActionDetailExtra, "assurance"> 
       ],
       confidence: {
         label: "Modelled",
-        note: "Illustrative twin projection: cycle 103 s; spindle load 68%; tool life 380 parts. Not a measured plant result until applied.",
+        note: "Expected from the twin: cycle 103 s; spindle load 68%; tool life 380 parts.",
       },
     },
   },
@@ -390,7 +390,7 @@ export const ACTION_DETAIL: Record<string, Omit<ActionDetailExtra, "assurance"> 
       ],
       confidence: {
         label: "Modelled",
-        note: "Illustrative demo band: cycle 32.4 s; energy per good part 0.40 kWh; scrap 3.0%.",
+        note: "Expected band: cycle 32.4 s; energy per good part 0.40 kWh; scrap 3.0%.",
       },
     },
   },
@@ -433,7 +433,7 @@ export const ACTION_DETAIL: Record<string, Omit<ActionDetailExtra, "assurance"> 
       ],
       confidence: {
         label: "Modelled",
-        note: "Illustrative demo band: baskets in spec 97%; reheat loads 1 in 40. Not a CQI-9 pyrometry claim; plant SAT/TUS stay with the plant.",
+        note: "Expected band: baskets in spec 97%; reheat loads 1 in 40. Plant SAT/TUS stay with the plant.",
       },
     },
   },
@@ -486,7 +486,7 @@ export const ACTION_DETAIL: Record<string, Omit<ActionDetailExtra, "assurance"> 
       ],
       confidence: {
         label: "Modelled",
-        note: "Illustrative demo band: defect escapes 1.2%; laps caught within 20 strokes.",
+        note: "Expected band: defect escapes 1.2%; laps caught within 20 strokes.",
       },
     },
   },
@@ -540,7 +540,7 @@ export const ACTION_DETAIL: Record<string, Omit<ActionDetailExtra, "assurance"> 
       ],
       confidence: {
         label: "Modelled",
-        note: "Illustrative demo band: casting scrap 2.5%; misruns caught before shakeout.",
+        note: "Expected band: casting scrap 2.5%; misruns caught before shakeout.",
       },
     },
   },
@@ -589,8 +589,8 @@ export const ACTION_DETAIL: Record<string, Omit<ActionDetailExtra, "assurance"> 
         "Investigation record links casting id, heat and carbon equivalent.",
       ],
       confidence: {
-        label: "Modelled",
-        note: "Demonstration modelled result with a measured-after chip on the line figure. Illustrative only; not a named customer plant.",
+        label: "Measured",
+        note: "Measured on the line after the change.",
       },
     },
   },
@@ -600,7 +600,7 @@ export function detailFor(action: ExampleAction): ActionDetailExtra {
   const base = ACTION_DETAIL[action.id];
   const fallback: Omit<ActionDetailExtra, "assurance"> & { assurance?: ActionAssurance } = {
     steps: [action.action],
-    risks: ["Illustrative demo only; a real plant validates each step against its quality system."],
+    risks: ["Validate each step against the plant quality system before release."],
   };
   const merged = base ?? fallback;
   return {

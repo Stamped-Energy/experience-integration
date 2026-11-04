@@ -15,7 +15,7 @@ export const FORGING_EQUIPMENT: Record<string, EquipmentDetail> = {
     id: "eq-induction",
     title: "Induction billet heater (P3 line)",
     assetHref: "/plant/assets/a-heater",
-    summary: "Billet heat before press. Agent sim running on power and line speed (demo).",
+    summary: "Billet heat before press. Agent sim running on power and line speed.",
     loops: [
       { id: "loop-forge-induction", label: "Power / line speed", href: "/process/simulations?campaign=camp-p-sim-induction" },
       { id: "loop-induction-zone1", label: "Zone 1 temperature", href: "/process/optimisation?loop=loop-induction-zone1" },
@@ -30,7 +30,7 @@ export const FORGING_EQUIPMENT: Record<string, EquipmentDetail> = {
     id: "eq-induction-a",
     title: "Induction heater · P2 line",
     assetHref: "/plant/assets/a-heater",
-    summary: "Upper press line billet heat (demo).",
+    summary: "Upper press line billet heat.",
     loops: [{ id: "loop-induction-zone1", label: "Zone 1 temperature", href: "/process/optimisation?loop=loop-induction-zone1" }],
     tags: [
       { label: "Billet temp", value: "1176", unit: "°C", state: "ok" },
@@ -41,7 +41,7 @@ export const FORGING_EQUIPMENT: Record<string, EquipmentDetail> = {
     id: "eq-press-a",
     title: "Press P2",
     assetHref: "/plant/assets/b-press",
-    summary: "Parallel press line feeding shared HT furnace (demo).",
+    summary: "Parallel press line feeding shared HT furnace.",
     loops: [{ id: "loop-press-tonnage", label: "Press tonnage", href: "/process/optimisation?loop=loop-press-tonnage" }],
     tags: [
       { label: "Tonnage", value: "3800", unit: "kN", state: "ok" },
@@ -52,7 +52,7 @@ export const FORGING_EQUIPMENT: Record<string, EquipmentDetail> = {
     id: "eq-induction-b",
     title: "Induction heater · P3 line",
     assetHref: "/plant/assets/a-heater",
-    summary: "Lower press line billet heat before Press P3 (demo).",
+    summary: "Lower press line billet heat before Press P3.",
     loops: [
       { id: "loop-forge-induction", label: "Power / line speed", href: "/process/simulations?campaign=camp-p-sim-induction" },
       { id: "loop-induction-zone1", label: "Zone 1 temperature", href: "/process/optimisation?loop=loop-induction-zone1" },
@@ -82,7 +82,7 @@ export const FORGING_EQUIPMENT: Record<string, EquipmentDetail> = {
     id: "eq-quench",
     title: "Oil quench tank",
     assetHref: "/plant/assets/c-quench",
-    summary: "Quench and oil temperature loop tied to cooling water header (demo).",
+    summary: "Quench and oil temperature loop tied to cooling water header.",
     loops: [{ id: "loop-ht-quench", label: "Quench oil temp", href: "/process/optimisation?loop=loop-ht-quench" }],
     tags: [
       { label: "Oil", value: "61", unit: "°C", state: "ok" },
@@ -93,7 +93,7 @@ export const FORGING_EQUIPMENT: Record<string, EquipmentDetail> = {
     id: "eq-furnace",
     title: "Batch furnace",
     assetHref: "/plant/assets/c-furnace",
-    summary: "Three zones plus soak timer. Zone 2 soak short on last batch (demo).",
+    summary: "Three zones plus soak timer. Zone 2 soak short on last batch.",
     loops: [
       { id: "loop-ht-zone1", label: "Zone 1", href: "/process/optimisation?loop=loop-ht-zone1" },
       { id: "loop-ht-zone2", label: "Zone 2 soak", href: "/process/simulations?campaign=camp-p-sim-2" },
@@ -123,7 +123,7 @@ export const FORGING_EQUIPMENT: Record<string, EquipmentDetail> = {
     id: "eq-machine",
     title: "Machining cell M4",
     assetHref: "/plant/assets/asset-vmc-2",
-    summary: "Cycle stable; spindle load loop in normal band (demo).",
+    summary: "Cycle stable; spindle load loop in normal band.",
     loops: [{ id: "loop-cnc-spindle", label: "Spindle load", href: "/process/optimisation?loop=loop-cnc-spindle" }],
     tags: [
       { label: "Cycle", value: "4.2", unit: "min", state: "ok" },
@@ -208,7 +208,7 @@ const utilLine = (
 
 export const forgingLineDiagram: DiagramDraft = {
   name: "Press line B · dual press · shared HT",
-  description: "Demonstration PFD · parallel presses to shared furnace",
+  description: "Parallel presses to shared furnace",
   folder_id: "",
   tags: ["demo"],
   width: 1184,

@@ -71,7 +71,7 @@ function SectionBody({ section }: { section: ReportSection }) {
           <RunChart values={section.trend.values} height={110} width={560} label={section.title} />
         </div>
         <p className="muted">
-          Last value <strong className="num">{section.trend.values.at(-1)}</strong> {section.trend.unit} · demonstration trend
+          Last value <strong className="num">{section.trend.values.at(-1)}</strong> {section.trend.unit}
         </p>
       </div>
     );

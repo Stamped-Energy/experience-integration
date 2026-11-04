@@ -22,7 +22,7 @@ export default function QualityAnalyticsPage() {
       />
       <QualityHubTabs />
       <KpiRow
-        label="This week (demo)"
+        label="This week"
         items={[
           { label: "Lots at risk", value: String(atRisk), href: "/quality" },
           { label: "Open investigations", value: String(D.investigations.filter((i) => i.status === "open").length), href: "/quality/investigations" },

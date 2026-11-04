@@ -44,7 +44,7 @@ export function SettingsPage({ section, title, meta, actions, children, help, ch
     ...D.signedWindows.filter((w) => (Date.parse(w.expiresAt) - now) / 864e5 <= 14).map((w) => ({ k: w.lineId + w.param, t: `${w.name} window expires ${dayMonth(w.expiresAt)}`, href: "/settings/limits" })),
   ];
   return (
-    <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Settings", href: "/settings" }, { label: s.label }]} askContext={s.label}>
+    <Workspace crumbs={[{ label: "Metal works", href: "/" }, { label: "Settings", href: "/settings" }, { label: s.label }]} askContext={s.label}>
       <div className="set-layout">
         <nav className="set-side" aria-label="Settings sections">
           <div className="set-side-h">Settings</div>

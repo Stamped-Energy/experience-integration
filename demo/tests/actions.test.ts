@@ -202,7 +202,7 @@ test("every action detail carries assurance with mode, OEM note and verification
     assert.ok(d.assurance.verification.length >= 1, a.id);
     assert.ok(d.assurance.confidence.label, a.id);
     assert.ok(!/\bis certified\b|CQI-9 certified/i.test(d.assurance.confidence.note), a.id);
-    assert.ok(/illustrative|demonstration|not a certified/i.test(d.assurance.confidence.note), a.id);
+    assert.ok(!/illustrative|demonstration|demo\b/i.test(d.assurance.confidence.note), a.id);
   }
   assert.equal(detailFor(exampleActions.find((a) => a.id === "ex-p2")!).assurance.mode, "plant-applied");
   assert.equal(detailFor(exampleActions.find((a) => a.id === "ex-p5")!).assurance.mode, "recommend");

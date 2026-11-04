@@ -12,7 +12,7 @@ export function ActivityTabs({ active }: { active: "audit" | "reports" | "summar
     { href: "/activity/reports", label: "Reports and exports", count: D.reports.filter((r) => r.status === "awaiting approval").length, active: active === "reports" },
   ]} />;
 }
-export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Demonstration plant", href: "/" }, { label: "Activity", href: "/activity" }, ...rest];
+export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Metal works", href: "/" }, { label: "Activity", href: "/activity" }, ...rest];
 export const roleName = (r: string) => D.roles.find((x) => x.id === r)?.name ?? r;
 export const personName = (id: string) => D.byId.person(id)?.display ?? id;
 

@@ -13,7 +13,7 @@ export default function RoiPageView() {
   const sp = useSearchParams();
   const withCostsDemo = sp.get("costs") === "1";
   const report = withCostsDemo ? { ...DEMO_D157_NO_COSTS, money: DEMO_D157_WITH_COSTS.money } : DEMO_D157_NO_COSTS;
-  const title = withCostsDemo ? "Report with illustrative unit costs" : "Value this period";
+  const title = withCostsDemo ? "Report with unit costs" : "Value this period";
 
   return (
     <Workspace crumbs={crumbs({ label: "Value" })} askContext="Value report">

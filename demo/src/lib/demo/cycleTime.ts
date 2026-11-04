@@ -77,7 +77,7 @@ export const cycleBreakdownCards: CycleBreakdownCard[] = [
   {
     asset_id: "asset-hmc-1",
     station: "HMC 1",
-    window_label: "Last 4 h (illustrative)",
+    window_label: "Last 4 h",
     depends_on: "cycle-time read tool · #125 library on main",
     result: shares({
       ...zero(),
@@ -93,7 +93,7 @@ export const cycleBreakdownCards: CycleBreakdownCard[] = [
   {
     asset_id: "asset-vmc-2",
     station: "VMC 2",
-    window_label: "Last shift (illustrative)",
+    window_label: "Last shift",
     depends_on: "cycle-time read tool · #125 library on main",
     result: shares({
       ...zero(),

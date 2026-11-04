@@ -22,7 +22,14 @@ export function LineModeTag({ mode }: { mode: LineMode }) {
 
 const EV_TONE: Record<EvidenceLabel, Tone> = { Measured: "neutral", Estimated: "neutral", Modelled: "neutral", Assumed: "warning", Unknown: "warning" };
 export function EvidenceTag({ label }: { label: EvidenceLabel }) {
-  return <Tag tone={EV_TONE[label]} title={`Evidence label: ${label}`}>{label}</Tag>;
+  const DISPLAY: Record<EvidenceLabel, string> = {
+    Measured: "Measured",
+    Estimated: "Estimated",
+    Modelled: "Expected",
+    Assumed: "Assumed",
+    Unknown: "Unknown",
+  };
+  return <Tag tone={EV_TONE[label]} title={DISPLAY[label]}>{DISPLAY[label]}</Tag>;
 }
 
 const VERDICT_TONE: Record<Verdict, Tone> = { Improved: "success", "No change": "neutral", Worse: "critical", Inconclusive: "warning", Withheld: "neutral" };

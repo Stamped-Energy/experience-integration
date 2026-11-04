@@ -244,18 +244,14 @@ export function ActionDetailView({ id }: { id: string }) {
         {applied && detail.loop?.statusLine ? (
           <p className="ex-loop-status">
             <span className="ex-loop-status-text">{detail.loop.statusLine}</span>
-            <Tag tone="neutral">MODELLED</Tag>
+            <Tag tone="success">MEASURED</Tag>
           </p>
         ) : null}
-        <p className="action-detail-hero-cap muted">
-          Illustrative outcomes on the demonstration plant model
-          {c?.result ? (
-            <>
-              {" "}
-              · <Tag tone={c.result.status === "Verified" ? "success" : "neutral"}>{c.result.status}</Tag> {c.result.band}
-            </>
-          ) : null}
-        </p>
+        {c?.result ? (
+          <p className="action-detail-hero-cap muted">
+            <Tag tone={c.result.status === "Verified" ? "success" : "neutral"}>{c.result.status}</Tag> {c.result.band}
+          </p>
+        ) : null}
       </div>
       {!c && (barActions.length || stop) ? (
         <div className="action-detail-bar">

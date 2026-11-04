@@ -49,7 +49,7 @@ export const FORGING_SHIFT_REPORT: DemoReport = {
       kind: "text",
       title: "Summary",
       body:
-        "Press line B ran with one hold-pressure watch and a cavity weight alarm on Press P3. Heat treatment stayed inside signed bands except zone 2 soak, where the agent opened a simulation campaign. Everything below is demonstration data.",
+        "Press line B ran with one hold-pressure watch and a cavity weight alarm on Press P3. Heat treatment stayed inside signed bands except zone 2 soak, where the agent opened a simulation campaign.",
     },
     {
       id: "scrap",
@@ -79,7 +79,7 @@ export const FORGING_SHIFT_REPORT: DemoReport = {
           at: "Tue 14:22",
           title: "Cavity weight high",
           about: "Press P3",
-          summary: "Hold loop on watch · demonstration alarm",
+          summary: "Hold loop on watch",
           severity: "critical",
         },
         {
@@ -155,7 +155,7 @@ export const FORGE_SHIFT_REPORT: DemoReport = {
           at: "10:18",
           title: "Coil power -8 kW",
           about: "Heater H1",
-          summary: "Accepted under standing approval · demonstration",
+          summary: "Accepted under standing approval",
           severity: "info",
         },
         {
@@ -231,7 +231,7 @@ export const MOULDING_SCRAP_REPORT: DemoReport = {
           at: "Wed 15:30",
           title: "Hold pressure accepted",
           about: "Press P3",
-          summary: "Bounded change · demonstration",
+          summary: "Bounded change",
           severity: "info",
         },
       ],
@@ -293,7 +293,7 @@ export const TRIAL_VERDICT_REPORT: DemoReport = {
           at: "12 Oct",
           title: "Trial signed",
           about: "Plant head",
-          summary: "Order signed · demonstration",
+          summary: "Order signed",
           severity: "info",
         },
         {
@@ -409,7 +409,7 @@ export const HOLDING_CHECK_REPORT: DemoReport = {
       kind: "text",
       title: "Holding status",
       body:
-        "Weekly holding checks for the two live measurement plans. Forge billet temperature is holding. Line B cavity weight faded mid-week and recovered after the watch. This draft is demonstration data and is not ready to export until signed.",
+        "Weekly holding checks for the two live measurement plans. Forge billet temperature is holding. Line B cavity weight faded mid-week and recovered after the watch. This draft is not ready to export until signed.",
     },
     {
       id: "checks",

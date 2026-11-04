@@ -642,3 +642,10 @@ a.stretch-link::after {
   position: relative;
   z-index: 1;
 }
+
+/* Line strip: grid-aware dividers; row rules between tile rows, no doubled left rule */
+@container page (min-width: 1041px) {
+  .linestrip > .linecell + .linecell { border-left: 0; }
+  .linestrip > .linecell:nth-child(even) { border-left: 1px solid var(--border); }
+  .linestrip > .linecell:nth-child(n + 3) { border-top: 1px solid var(--border); }
+}

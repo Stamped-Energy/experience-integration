@@ -131,7 +131,7 @@ export const qualityHealthAreas: HealthArea[] = [
   },
   {
     id: "quality-loops",
-    label: "Quality loops (demo)",
+    label: "Quality loops",
     cells: [
       cell({ id: "ql-sample", area: "quality-loops", lineId: "line-a", label: "Sampling plan", state: "watch", href: "/quality/simulations?campaign=camp-q-sim-1", grain: "loop" }),
       cell({ id: "ql-spc-loop", area: "quality-loops", lineId: "line-b", label: "SPC agent loop", state: "ok", href: "/quality/simulations?campaign=camp-q-sim-spc", grain: "loop" }),

@@ -17,7 +17,7 @@ export function AskTabs({ active }: { active: AskTab }) {
     { href: "/ask/notes", label: "Handover and weekly note", count: D.notes.length, active: active === "notes" },
   ]} />;
 }
-export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Demonstration plant", href: "/" }, { label: "Ask", href: "/ask" }, ...rest];
+export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Metal works", href: "/" }, { label: "Ask", href: "/ask" }, ...rest];
 
 const ORDER: EvidenceLabel[] = ["Unknown", "Assumed", "Modelled", "Estimated", "Measured"];
 /** An answer carries the weakest label among its claims; never an overall percentage. */

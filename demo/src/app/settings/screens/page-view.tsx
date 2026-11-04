@@ -8,7 +8,7 @@ export default function SettingsScreensClient() {
     <SettingsPage
       section="screens"
       title="Screen toggles"
-      meta="Per-site Process and Quality screen flags for the demonstration UI."
+      meta="Per-site Process and Quality screen flags."
       changes={[]}
       audit={/never-match-screens-demo/}
       help={
