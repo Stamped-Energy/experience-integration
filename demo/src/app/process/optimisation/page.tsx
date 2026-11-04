@@ -18,7 +18,7 @@ export default function ProcessOptimisationPage() {
       <PageHeader
         eyebrow={processEyebrow("/process/optimisation")}
         title="Optimisation runs"
-        meta="PID and regulatory loop runs on demonstration data. MPC and RL marked coming soon."
+        meta="PID and regulatory loop runs. MPC and RL coming soon."
         actions={<AskButton context="Process optimisation" label="Ask about optimisation" />}
       />
       <ProcessHubTabs />

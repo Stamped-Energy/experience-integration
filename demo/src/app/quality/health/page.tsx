@@ -14,12 +14,12 @@ export default function QualityHealthPage() {
   const qSims = loopCampaigns.filter((c) => c.area === "quality" && c.kind === "simulation").length;
   return (
     <Workspace crumbs={crumbs({ label: "Health map" })} askContext="Quality health map">
-      <PageHeader eyebrow={qualityEyebrow("/quality/health")} title="Health map" meta="Join coverage and line risk by area; demonstration data." actions={<AskButton context="Quality health map" label="Ask about this map" />}
+      <PageHeader eyebrow={qualityEyebrow("/quality/health")} title="Health map" meta="Join coverage and line risk by area." actions={<AskButton context="Quality health map" label="Ask about this map" />}
       />
       <QualityHubTabs />
       <HealthStatusStrip {...strip} />
       <KpiRow
-        label="Quality scan (demo)"
+        label="Quality scan"
         items={[
           { label: "Cells", value: String(qualityHealthAreas.flatMap((a) => a.cells).length) },
           { label: "In alarm", value: String(strip.alarm) },

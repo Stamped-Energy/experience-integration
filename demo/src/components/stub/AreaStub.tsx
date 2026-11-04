@@ -6,7 +6,7 @@ import { PageHeader, Section } from "@/components/ui/primitives";
 export interface StubScreen { name: string; what: string; template: string }
 export function AreaStub({ area, title, intro, screens, related }: { area: string; title: string; intro: string; screens: StubScreen[]; related?: { label: string; href: string }[] }) {
   return (
-    <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: area }]} askContext={area}>
+    <Workspace crumbs={[{ label: "Metal works", href: "/" }, { label: area }]} askContext={area}>
       <PageHeader eyebrow={area} title={title} meta={intro} />
       <div className="grid">
         <div className="span-8">

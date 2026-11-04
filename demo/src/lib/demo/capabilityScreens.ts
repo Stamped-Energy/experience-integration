@@ -364,7 +364,7 @@ export const d153MsaReportCards: D153MsaReportCard[] = [
       coverage: 0.92,
       ambiguity_penalty: 0.08,
       supports_quality_claim: true,
-      detail: "Illustrative D153 coverage band on cavity-weight study",
+      detail: "D153 coverage band on cavity-weight study",
     },
   },
 ];
@@ -391,7 +391,7 @@ export const scarGeneratorCards: ScarGeneratorCard[] = [
       {
         supplier_id: "sup-resin-b",
         subject: "Draft SCAR: contamination on lots 7713 to 7719",
-        body: "Illustrative draft only. Never sent. Contamination linked to heat 882 / Resin supplier B.",
+        body: "Draft. Not sent. Contamination linked to heat 882 / Resin supplier B.",
       },
     ],
     notes: ["never_sent", "illustrative_scar_generator"],
@@ -463,7 +463,7 @@ export const spcToCapaDraftCards: SpcToCapaDraftCard[] = [
         rule_id: "WE1",
         point_index: 11,
         chart: "i_mr",
-        detail: "Point beyond UCL on illustrative billet temperature series",
+        detail: "Point beyond UCL on billet temperature series",
       },
     ],
     notes: ["spc_to_capa_draft", "recommend_only", "never_writes_mes"],

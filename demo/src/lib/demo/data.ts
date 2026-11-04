@@ -24,7 +24,7 @@ function rnd(): number {
 const r1 = (n: number) => Math.round(n * 10) / 10;
 const r2 = (n: number) => Math.round(n * 100) / 100;
 
-export const site: T.Site = { ...I, id: "site-demo", name: "Demonstration plant", timezone: "Asia/Kolkata", currency: "INR", units: "metric" };
+export const site: T.Site = { ...I, id: "site-demo", name: "Metal works", timezone: "Asia/Kolkata", currency: "INR", units: "metric" };
 
 export const areas: T.Area[] = [
   { ...I, id: "area-forge", siteId: site.id, name: "Forge shop" },

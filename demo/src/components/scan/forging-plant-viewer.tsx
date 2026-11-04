@@ -404,7 +404,7 @@ export function PlantDiagramViewer() {
       <details className="pfd-detail-drawer section">
         <summary className="pfd-detail-drawer-head">
           <span className="pfd-detail-drawer-title">{selected ? selected.title : "Equipment detail"}</span>
-          <span className="pfd-detail-drawer-hint">{selected ? "Loops and live tags · demonstration" : "Select equipment on the diagram"}</span>
+          <span className="pfd-detail-drawer-hint">{selected ? "Loops and live tags" : "Select equipment on the diagram"}</span>
         </summary>
         <div className="pfd-detail section-body flush">
           {selected ? (

@@ -41,7 +41,7 @@ function attentionItems() {
 export default function SettingsHome() {
   const attention = attentionItems();
   return (
-    <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Settings" }]} askContext="Settings">
+    <Workspace crumbs={[{ label: "Metal works", href: "/" }, { label: "Settings" }]} askContext="Settings">
       <PageHeader
         eyebrow="Settings"
         title="Settings"

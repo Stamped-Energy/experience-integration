@@ -50,7 +50,7 @@ export default function Inbox() {
   const ordered = [...mine, ...items.filter((i) => i.owner !== role)];
   const [first, ...rest] = ordered;
   return (
-    <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Inbox" }, { label: heading.label }]} askContext="Inbox">
+    <Workspace crumbs={[{ label: "Metal works", href: "/" }, { label: "Inbox" }, { label: heading.label }]} askContext="Inbox">
       <PageHeader
         eyebrow="Inbox"
         title={heading.label}
@@ -131,7 +131,7 @@ function Questions({ role, tabs, filter }: { role: RoleId; tabs: React.ReactNode
   const card = (q: A.Question) => <QuestionCard key={q.id} v={view(q)} canAnswer={q.routedTo === role || (q.plantWide && role !== "operator" && role !== "stamped-engineer")} canAssign={canAssign} me={me} people={A.PEOPLE} assignee={A.assigned[q.id]} />;
   const chip = (id: string | undefined, label: string, n: number) => <Link className={`chip${filter === id ? " on" : ""}`} href={`/inbox?tab=questions${id ? `&q=${id}` : ""}`} scroll={false}>{label} <span className="cnt">{n}</span></Link>;
   return (
-    <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Inbox" }, { label: "Questions" }]} askContext="Inbox questions">
+    <Workspace crumbs={[{ label: "Metal works", href: "/" }, { label: "Inbox" }, { label: "Questions" }]} askContext="Inbox questions">
       <PageHeader eyebrow="Inbox" title="Questions from the agent" meta="When the agent is unsure, it asks the person who knows. Each answer changes something, and you can see what." />
       {tabs}
       {!worker ? <EmptyState title="Questions go to people on the plant floor" body={`${A.questions.filter((q) => !q.answered).length} questions are open with operators, shift leads, engineers and the quality head. Answers show up in Activity, Summary.`} /> : (

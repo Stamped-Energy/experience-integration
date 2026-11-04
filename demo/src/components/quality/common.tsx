@@ -42,7 +42,7 @@ export function qualityEyebrow(path: string): string {
   return hub ? `Quality · ${hub.sidebarLabel}` : "Quality";
 }
 
-export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Demonstration plant", href: "/" }, { label: "Quality", href: "/quality/actions" }, ...rest];
+export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Metal works", href: "/" }, { label: "Quality", href: "/quality/actions" }, ...rest];
 
 export const gradeOf = (lot: Lot) => D.grades.find((g) => g.id === lot.gradeId)!;
 export const specOf = (lot: Lot) => D.specs.find((s) => s.gradeId === lot.gradeId)!;

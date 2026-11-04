@@ -88,7 +88,7 @@ export function HealthCellDetail({ cell }: { cell: HealthCell | undefined }) {
         <BandSpark values={cell.sparkline} band={band} label={`${cell.label} trend`} width={240} height={48} />
       ) : null}
       {band && tag ? (
-        <LimitsBand name={tag.name} unit={tag.unit} signed={band} current={cell.sparkline?.at(-1) ?? band[0]} signedBy="Plant head" signedAt="Demonstration" legend />
+        <LimitsBand name={tag.name} unit={tag.unit} signed={band} current={cell.sparkline?.at(-1) ?? band[0]} signedBy="Plant head" signedAt="Commissioning" legend />
       ) : null}
       <Link className="link" href={cell.href}>Open linked screen</Link>
     </div>

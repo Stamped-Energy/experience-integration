@@ -30,7 +30,7 @@ export default function InboxDetailView({ id }: { id: string }) {
   return (
     <Workspace
       crumbs={[
-        { label: "Demonstration plant", href: "/" },
+        { label: "Metal works", href: "/" },
         { label: "Inbox", href: "/inbox" },
         { label: line.short, href: `/process?line=${line.id}` },
         { label: p ? D.byId.asset(p.assetId)!.name : item.title },

@@ -49,7 +49,7 @@ export const driftProposals: DriftProposalView[] = [
         metric: "model_mae",
         value: null,
         limit: null,
-        detail: "MAE and its limit are not shown here: both come from plant-fitted DriftConfig and are unset in the example dataset.",
+        detail: "MAE and its limit are not shown here: both come from plant-fitted DriftConfig and are not yet set for this plant.",
       },
     ],
     twin_version: null,

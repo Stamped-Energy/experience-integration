@@ -82,7 +82,7 @@ export function ForgingLineMap() {
         </div>
       </details>
 
-      <Section title="Utility loops (demo)" meta="Compressed air and cooling water" flush>
+      <Section title="Utility loops" meta="Compressed air and cooling water" flush>
         <div className="rows pfd-utility-rows">
           <Link className="row" href="/process/optimisation?loop=loop-util-compressed-air">
             <span><span className="row-title">Plant compressed air</span><span className="row-sub">Press line B · 18 optimisation runs on file</span></span>
@@ -95,7 +95,7 @@ export function ForgingLineMap() {
         </div>
       </Section>
 
-      <Section title="Forge line A (compact)" meta="Heater and press · demo" flush>
+      <Section title="Forge line A (compact)" meta="Heater and press" flush>
         <Link className="row" href="/process/lines/line-a">
           <span><span className="row-title">Forge line A</span><span className="row-sub">Billet exit temperature on watch</span></span>
           <Tag tone="warning">Watch</Tag>

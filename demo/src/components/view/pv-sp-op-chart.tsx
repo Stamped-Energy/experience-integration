@@ -173,7 +173,7 @@ export function PvSpOpTrendCard({
         <div className="pv-chart-titles">
           <h3>{title}</h3>
           <p>{caption}</p>
-          <span className="pv-chart-window">{windowLabel} · demonstration</span>
+          <span className="pv-chart-window">{windowLabel}</span>
         </div>
         <div className="pv-chart-actions">
           <button type="button" className="btn-ghost btn-sm" onClick={downloadCsv} aria-label="Download CSV">

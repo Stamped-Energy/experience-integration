@@ -5,12 +5,12 @@ import { Tag } from "@/components/ui/primitives";
 const TAG: Record<ActionOutcome["label"], string> = {
   Measured: "MEASURED",
   Estimated: "ESTIMATED",
-  Modelled: "MODELLED",
+  Modelled: "EXPECTED",
   Assumed: "ASSUMED",
   Unknown: "UNKNOWN",
 };
 
-/** Compact outcome for a wide action card row. Shows measured-after next to modelled when present. */
+/** Compact outcome for a wide action card row. Shows measured-after next to expected when present. */
 export function ActionOutcomeChip({ outcome }: { outcome: ActionOutcome }) {
   const { metric, now, after } = outcomePhrase(outcome);
   return (

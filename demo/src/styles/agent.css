@@ -391,3 +391,8 @@
 .calc-metric { font-weight: 600; }
 .similar-case-row { grid-template-columns: minmax(0, 1fr) auto; }
 .similar-case-title { display: block; }
+
+/* Open actions: one bordered panel, header row plus aligned link list */
+.open-actions-panel { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); overflow: hidden; }
+.open-actions-panel .open-actions-row { border: 0; border-radius: 0; border-bottom: 1px solid var(--border); }
+.open-actions-panel .open-actions-compact { margin: 0; padding: var(--space-3) var(--space-4); }

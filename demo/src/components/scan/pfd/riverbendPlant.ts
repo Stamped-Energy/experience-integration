@@ -19,7 +19,7 @@ export function plantDiagram(): DiagramDraft {
   return {
     ...d,
     name: "Demo process plant",
-    description: "Unit-by-unit process flow on one canvas · demonstration only",
+    description: "Unit-by-unit process flow on one canvas",
   };
 }
 
@@ -75,7 +75,7 @@ export function equipmentDetail(el: SymbolElement): EquipmentDetail | undefined 
     id: el.id,
     title,
     assetHref: `/plant/assets/${encodeURIComponent(el.asset_id)}`,
-    summary: "Live tags and loops · demonstration data only",
+    summary: "Live tags and loops",
     tags: [{ label: "Asset", value: el.asset_id, state: "ok" }],
   };
 }

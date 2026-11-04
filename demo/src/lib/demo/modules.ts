@@ -80,7 +80,7 @@ function outputsFor(p: Proposal): Out[] {
           objective_terms: [{ name: "Scrap rate", value: null }, { name: "Cycle time", value: null }],
           model_version: "model-b 3.1",
           evidence_ids: p.evidenceIds,
-          selection_reason: "EXAMPLE DATA: deploy gate open (fit quality, headroom, drift detected). Recommend only; nothing writes to a plant.",
+          selection_reason: "Deploy gate open (fit quality, headroom, drift detected). Recommend only; nothing writes to a plant.",
         },
       }),
       base(p, "mould-rl", {

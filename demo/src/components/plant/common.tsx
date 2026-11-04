@@ -18,7 +18,7 @@ export function PlantTabs({ active }: { active: PlantTab }) {
   ];
   return <Tabs label="Plant" items={items.map((i) => ({ ...i, active: i.key === active }))} />;
 }
-export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Demonstration plant", href: "/" }, { label: "Plant", href: "/plant" }, ...rest];
+export const crumbs = (...rest: Crumb[]): Crumb[] => [{ label: "Metal works", href: "/" }, { label: "Plant", href: "/plant" }, ...rest];
 
 export const tagsOf = (a: Asset) => D.tags.filter((t) => t.assetId === a.id);
 const runEnd = (id: string) => D.runs.find((r) => r.id === id)?.end ?? "";

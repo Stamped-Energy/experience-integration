@@ -38,7 +38,7 @@ export function generateOptimisationCampaigns(): LoopCampaign[] {
     id: `camp-p-opt-${loop.loopId}`,
     area: "process" as const,
     kind: "optimisation" as const,
-    label: `${loop.short} · regulatory sweep (demo)`,
+    label: `${loop.short} · regulatory sweep`,
     lineId: loop.lineId,
     loopId: loop.loopId,
     loopFamily: loop.family,
@@ -47,7 +47,7 @@ export function generateOptimisationCampaigns(): LoopCampaign[] {
     status: (i % 7 === 0 ? "running" : "complete") as LoopCampaign["status"],
     startedAt: iso(20 + (i % 9), 8 + (i % 10)),
     ownerInrPerMonth: loop.lineId === "line-b" ? 48000 + i * 3200 : 28000 + i * 2100,
-    ownerLabel: "Illustrative at plant prices on demonstration data",
+    ownerLabel: "At plant prices",
   })).filter((c) => c.loopId.startsWith("loop-") && (c.loopFamily.includes("Press") || c.loopFamily.includes("Heat") || c.loopFamily.includes("Forging") || c.loopFamily.includes("Machining") || c.loopFamily.includes("Utilities")));
 }
 
@@ -66,7 +66,7 @@ export function generateSimulationCampaigns(): LoopCampaign[] {
       id,
       area: "process" as const,
       kind: "simulation" as const,
-      label: `Agent search · ${meta.short} (demo)`,
+      label: `Agent search · ${meta.short}`,
       lineId: meta.lineId,
       loopId,
       loopFamily: meta.family,
@@ -77,7 +77,7 @@ export function generateSimulationCampaigns(): LoopCampaign[] {
       chosenRunId: i === 0 ? "run-camp-p-sim-1-7" : undefined,
       proposalId: i === 0 ? "prop-101" : undefined,
       ownerInrPerMonth: 52000 + i * 8000,
-      ownerLabel: "Illustrative simulation economics (demo)",
+      ownerLabel: "Simulation economics",
     };
   });
   const qualitySims: LoopCampaign[] = ["loop-qc-sample", "loop-qc-spc"].map((loopId, i) => {
@@ -86,7 +86,7 @@ export function generateSimulationCampaigns(): LoopCampaign[] {
       id: i === 0 ? "camp-q-sim-1" : "camp-q-sim-spc",
       area: "quality" as const,
       kind: "simulation" as const,
-      label: `Quality agent · ${meta.short} (demo)`,
+      label: `Quality agent · ${meta.short}`,
       lineId: meta.lineId,
       loopId,
       loopFamily: meta.family,
@@ -95,7 +95,7 @@ export function generateSimulationCampaigns(): LoopCampaign[] {
       status: "complete" as const,
       startedAt: iso(22 + i, 14),
       ownerInrPerMonth: 24000 + i * 12000,
-      ownerLabel: "Illustrative scrap avoided (demo)",
+      ownerLabel: "Scrap avoided",
     };
   });
   return [...processSims, ...qualitySims];

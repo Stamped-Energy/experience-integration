@@ -5,7 +5,7 @@ import { Tag } from "@/components/ui/primitives";
 const TAG: Record<ActionOutcome["label"], string> = {
   Measured: "MEASURED",
   Estimated: "ESTIMATED",
-  Modelled: "MODELLED",
+  Modelled: "EXPECTED",
   Assumed: "ASSUMED",
   Unknown: "UNKNOWN",
 };

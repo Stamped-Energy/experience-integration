@@ -83,7 +83,7 @@ export const GO_LIVE_ITEMS: readonly GoLiveItem[] = [
     detail:
       "People and roles for the plant are assigned in Settings by the plant owner or plant head before writes are enabled.",
     owner: "Plant owner or plant head",
-    m1e: "Demonstration plant ships with seeded roles; a real plant must assign living people. Emulator personas do not count as plant sign-off.",
+    m1e: "Seeded roles ship with the site; assign named people before go-live. Emulator personas do not count as plant sign-off.",
     decision: "D117",
     provenance: "plant",
     status: "needs-plant",

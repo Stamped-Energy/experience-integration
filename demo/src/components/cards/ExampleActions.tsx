@@ -130,7 +130,7 @@ export function ExampleActionCard({ a, role }: { a: ExampleAction; role: RoleId 
         {appliedLoop?.statusLine ? (
           <p className="ex-loop-status">
             <span className="ex-loop-status-text">{appliedLoop.statusLine}</span>
-            <Tag tone="neutral">MODELLED</Tag>
+            <Tag tone="success">MEASURED</Tag>
           </p>
         ) : null}
         <p className="ex-why-line ex-why-clamp">{a.seen}</p>

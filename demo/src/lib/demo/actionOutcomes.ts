@@ -253,7 +253,7 @@ export function calculationsForAction(a: ExampleAction): OutcomeCalculation[] {
     {
       metric: primary.metric,
       inputs: a.evidence.map((e) => e.text).slice(0, 3),
-      formula: "Demonstration plant model from listed evidence (demo)",
+      formula: "Plant model from listed evidence",
       result: `${primary.before} → ${primary.after}`,
       label: primary.label,
     },

@@ -208,7 +208,7 @@ export function SpcControlChart({
         <div className="spc-cap-strip num">
           {cp != null ? <span>Cp {cp.toFixed(2)}</span> : null}
           {cpk != null ? <span>Cpk {cpk.toFixed(2)}</span> : null}
-          <span className="muted">{chartKind === "xbar_r" ? "X̄ / R" : "I / MR"} · demo</span>
+          <span className="muted">{chartKind === "xbar_r" ? "X̄ / R" : "I / MR"}</span>
         </div>
       </div>
       <div ref={host} style={{ width: "100%", height }} role="img" aria-label={`${title} control chart`} />

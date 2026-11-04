@@ -23,7 +23,7 @@ const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono"
 const brand = Space_Grotesk({ subsets: ["latin"], weight: ["500"], variable: "--font-brand", display: "swap" });
 
 export const metadata: Metadata = {
-  title: { default: "Stamped · Demonstration plant", template: "%s · Stamped" },
+  title: { default: "Stamped · Metal works", template: "%s · Stamped" },
   description: "Stamped works inside limits set beforehand.",
 };
 export const viewport: Viewport = { themeColor: "#FAFAF9", width: "device-width", initialScale: 1 };

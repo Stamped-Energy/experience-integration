@@ -23,7 +23,7 @@ export function OptimisationClient({ rows }: { rows: LoopCampaign[] }) {
   return (
     <div className="stack">
       <KpiRow
-        label="Optimisation campaigns (demo)"
+        label="Optimisation campaigns"
         items={[
           { label: "Campaigns shown", value: String(filtered.length) },
           { label: "Running", value: String(running) },
@@ -35,12 +35,12 @@ export function OptimisationClient({ rows }: { rows: LoopCampaign[] }) {
       <RunTypeFilters value={typeFilter} onChange={setTypeFilter} />
       <div className="grid">
         <div className="span-8">
-          <Section title="Campaign history" meta="Illustrative plant economics appear only in owner-capable views" flush>
+          <Section title="Campaign history" meta="Plant economics appear in owner views" flush>
             <LoopCampaignTable rows={filtered} showOwner={showOwner} />
           </Section>
         </div>
         <div className="span-4 stack ctx">
-          <Section title="Loop families" meta="Demonstration" flush>
+          <Section title="Loop families" meta="By loop type" flush>
             <DataTable
               caption="Loop families"
               rowKey={(r) => r.loopId}

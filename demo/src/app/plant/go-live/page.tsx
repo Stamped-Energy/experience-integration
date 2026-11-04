@@ -99,7 +99,7 @@ export default function GoLivePage() {
           </Section>
         </div>
         <div className="span-4 stack">
-          <Section title="Demonstration plant" meta="Showcase site">
+          <Section title="Metal works" meta="Site">
             <div className="rows">
               <div className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
                 <span>Proven in product / M1E</span>

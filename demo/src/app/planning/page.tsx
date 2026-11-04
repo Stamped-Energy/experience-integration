@@ -3,7 +3,7 @@ import { PageHeader, Section, Tag } from "@/components/ui/primitives";
 export const metadata = { title: "Planning" };
 export default function Page() {
   return (
-    <Workspace crumbs={[{ label: "Demonstration plant", href: "/" }, { label: "Planning" }]}>
+    <Workspace crumbs={[{ label: "Metal works", href: "/" }, { label: "Planning" }]}>
       <PageHeader eyebrow="Planning" title="Planning is coming soon" actions={<Tag>Coming soon</Tag>} />
       <div className="grid">
         <div className="span-8">

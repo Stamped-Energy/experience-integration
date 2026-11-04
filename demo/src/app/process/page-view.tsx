@@ -37,9 +37,9 @@ export default function ProcessLines() {
         <div className="span-12">
           <Section title="Lines" meta="Mode, running settings against the signed band, last runs" flush>
             <DataTable caption="Lines" rowKey={(l) => l.id} rows={D.lines} rowHref={(l) => `/process/lines/${l.id}`} columns={[
-              { key: "n", label: "Line", render: (l) => <><Link className="link" href={`/process/lines/${l.id}`} style={{ fontWeight: 600 }} aria-label={`Open ${l.name}`}>{l.name}</Link><span className="cell-sub">{packOf(l).equipmentClass} · {l.product}</span></> },
+              { key: "n", label: "Line", render: (l) => <div className="line-name-cell"><Link className="link" href={`/process/lines/${l.id}`} style={{ fontWeight: 600 }} aria-label={`Open ${l.name}`}>{l.name}</Link><span className="cell-sub">{packOf(l).equipmentClass} · {l.product}</span></div> },
               { key: "m", label: "Mode", render: (l) => <LineModeTag mode={l.mode} /> },
-              { key: "o", label: `Outcome, last 20`, render: (l) => { const n = outcomeName(l); const v = runsOf(l.id).slice(-20).map((r) => outcome(r, n)!.value); return <><Sparkline values={v} width={140} height={28} label={`${n} on ${l.short}`} /><span className="cell-sub">{n} now {v[v.length - 1]} · spec {specOf(l).join(" to ")}</span></>; } },
+              { key: "o", label: `Outcome, last 20`, render: (l) => { const n = outcomeName(l); const v = runsOf(l.id).slice(-20).map((r) => outcome(r, n)!.value); return <><Sparkline values={v} width={120} height={28} label={`${n} on ${l.short}`} /><span className="cell-sub">{n} now {v[v.length - 1]} · spec {specOf(l).join(" to ")}</span></>; } },
               { key: "s", label: "Key setting vs band", render: (l) => { const rs = D.runningSettings.find((r) => r.lineId === l.id && r.mode === "Trial") ?? D.runningSettings.find((r) => r.lineId === l.id)!; const w = D.byId.window(l.id, rs.param)!; return <div className="mini-band"><LimitsBand name={rs.name} unit={rs.unit} signed={[w.low, w.high]} narrowed={w.narrowedLow !== undefined ? [w.narrowedLow, w.narrowedHigh!] : undefined} current={rs.value} signedBy={w.signedBy} signedAt={dayMonth(w.signedAt)} legend={false} /></div>; } },
               { key: "p", label: "Open", align: "right", render: (l) => open.filter((p) => p.lineId === l.id).length },
               { key: "f", label: "Model fit", render: (l) => <Tag tone={fits[l.id].state === "accepted" ? "success" : "warning"}>{fits[l.id].state === "accepted" ? "Accepted" : "Not accepted"}</Tag> },
@@ -69,17 +69,19 @@ export default function ProcessLines() {
               ]} />
             </Section>
           </div>
-          <div className="open-actions-compact" aria-label="Open actions">
-            {openActionLinks.map((a) => (
-              <Link key={a.id} href={actionHref(a)} scroll={false}>
-                {actionShortTitle(a)}
-              </Link>
-            ))}
+          <div className="open-actions-panel">
+            <Link className="open-actions-row" href="/process/actions">
+              <span>Open actions ({openActions})</span>
+              <span className="muted">Agent cards and trials on the Actions board</span>
+            </Link>
+            <div className="open-actions-compact" aria-label="Open actions">
+              {openActionLinks.map((a) => (
+                <Link key={a.id} href={actionHref(a)} scroll={false}>
+                  {actionShortTitle(a)}
+                </Link>
+              ))}
+            </div>
           </div>
-          <Link className="open-actions-row" href="/process/actions">
-            <span>Open actions ({openActions})</span>
-            <span className="muted">Agent cards and trials on the Actions board</span>
-          </Link>
         </div>
       </div>
       {sp.evidence ? <EvidenceSheet proofId={sp.evidence} closeHref="/process" /> : null}
