@@ -11,7 +11,7 @@ import {
   optionShortLabel,
   whoDecidesShort,
 } from "@/lib/demo/actions";
-import { actionIsApplied, detailFor } from "@/lib/demo/actionDetail";
+import { actionIsApplied, assuranceModeLabel, detailFor, type ActionAssurance } from "@/lib/demo/actionDetail";
 import { actionOutcomesForDisplay, calculationsForAction } from "@/lib/demo/actionOutcomes";
 import { byId, roles, runs } from "@/lib/demo/data";
 import { demoRole } from "@/lib/role";
@@ -119,6 +119,83 @@ function ClosedLoopBlock({
   );
 }
 
+function modeTone(mode: ActionAssurance["mode"]): "neutral" | "success" | "warning" {
+  if (mode === "plant-applied") return "success";
+  if (mode === "shadow") return "warning";
+  return "neutral";
+}
+
+function AssuranceBlock({ assurance }: { assurance: ActionAssurance }) {
+  return (
+    <div className="action-assurance">
+      <Section title="How this action works" meta="What changes, what does not, and how we check it">
+        <p className="detail-lede">{assurance.mechanism}</p>
+        <div className="assurance-grid">
+          <div className="assurance-panel">
+            <h3 className="assurance-heading">Will not change</h3>
+            <ul className="assurance-list">
+              {assurance.willNotChange.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="assurance-panel">
+            <h3 className="assurance-heading">Knock-on effects to watch</h3>
+            <ul className="assurance-list">
+              {assurance.knockOn.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </Section>
+      <Section title="Guardrails and ownership" meta="Recommend with hard stops; the plant keeps process and quality ownership">
+        <dl className="facts-grid assurance-facts">
+          <dt>Mode</dt>
+          <dd>
+            <Tag tone={modeTone(assurance.mode)}>{assuranceModeLabel(assurance.mode)}</Tag>
+          </dd>
+          <dt>OEM / control plan</dt>
+          <dd>{assurance.oemNote}</dd>
+          <dt>Guardrails</dt>
+          <dd>
+            <ul className="assurance-list">
+              {assurance.guardrails.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </dd>
+          <dt>Hard stops</dt>
+          <dd>
+            <ul className="assurance-list">
+              {assurance.hardStops.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </dd>
+          <dt>Rollback</dt>
+          <dd>{assurance.rollback}</dd>
+          <dt>Verification</dt>
+          <dd>
+            <ul className="assurance-list">
+              {assurance.verification.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </dd>
+          <dt>Confidence</dt>
+          <dd>
+            <span className="assurance-confidence">
+              <EvidenceTag label={assurance.confidence.label} />
+              <span className="muted">{assurance.confidence.note}</span>
+            </span>
+          </dd>
+        </dl>
+      </Section>
+    </div>
+  );
+}
+
 export function ActionDetailView({ id }: { id: string }) {
   const a = getAction(id);
   if (!a) notFound();
@@ -154,7 +231,7 @@ export function ActionDetailView({ id }: { id: string }) {
         eyebrow={eyebrow}
         title={actionShortTitle(a)}
         meta={
-          <span style={{ display: "inline-flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <span className="detail-header-tags">
             <Tag tone="neutral">{a.mechanism}</Tag>
             <span className="muted">{line.short}</span>
           </span>
@@ -202,16 +279,17 @@ export function ActionDetailView({ id }: { id: string }) {
             <p className="detail-body">{a.seen}</p>
             <p className="detail-why muted">{a.why}</p>
           </Section>
+          <AssuranceBlock assurance={detail.assurance} />
           <Section title="How we calculated this" meta="Inputs, formula and result for each outcome on this card" flush>
             <DataTable
               caption="Outcome calculations"
               rowKey={(r) => r.metric}
               rows={calcs}
               columns={[
-                { key: "m", label: "Metric", width: "16%", render: (r) => <span style={{ fontWeight: 600 }}>{r.metric}</span> },
+                { key: "m", label: "Metric", width: "16%", render: (r) => <span className="calc-metric">{r.metric}</span> },
                 { key: "i", label: "Inputs", width: "26%", render: (r) => <ul className="calc-inputs">{r.inputs.map((x) => <li key={x}>{x}</li>)}</ul> },
                 { key: "f", label: "Formula", width: "26%", render: (r) => <span className="calc-formula">{r.formula}</span> },
-                { key: "r", label: "Result", width: "22%", mono: true, render: (r) => <span className="calc-result">{r.result}</span> },
+                { key: "r", label: "Result", width: "22%", mono: true, align: "right", render: (r) => <span className="calc-result">{r.result}</span> },
                 { key: "l", label: "Basis", width: "10%", render: (r) => <EvidenceTag label={r.label} /> },
               ]}
             />
@@ -232,7 +310,7 @@ export function ActionDetailView({ id }: { id: string }) {
                 {spcChart ? <SpcControlChart {...spcChart} height={240} /> : null}
                 {trend ? (
                   <figure className="action-detail-trend">
-                    <figcaption className="muted" style={{ marginBottom: 8, fontSize: 13 }}>
+                    <figcaption className="muted action-detail-trend-cap">
                       {trend.label}
                       {trend.unit ? ` · ${trend.unit}` : ""}
                     </figcaption>
@@ -259,7 +337,7 @@ export function ActionDetailView({ id }: { id: string }) {
           </Section>
         </div>
         <div className="span-4 stack ctx">
-          <Section title="Approval" meta="Recommend only; the operator or named role approves in the plant system">
+          <Section title="Approval" meta="Named plant role accepts; Stamped does not own quality release">
             <dl className="facts-grid">
               <dt>Change</dt>
               <dd>{c ? c.changed : a.action}</dd>
@@ -278,7 +356,7 @@ export function ActionDetailView({ id }: { id: string }) {
                 </>
               ) : null}
             </dl>
-            <div className="ex-meta action-detail-assign" style={{ marginTop: 12 }}>
+            <div className="ex-meta action-detail-assign">
               {A.assigned[a.id] ? (
                 <span className="assignee" title={`Assigned by ${A.assigned[a.id]!.by}`}>
                   <span className="av">
@@ -326,9 +404,9 @@ export function ActionDetailView({ id }: { id: string }) {
             <Section title="Similar cases" flush>
               <div className="rows">
                 {detail.similarCases.map((s) => (
-                  <Link key={s.href} href={s.href} className="row" style={{ gridTemplateColumns: "minmax(0,1fr) auto" }}>
+                  <Link key={s.href} href={s.href} className="row similar-case-row">
                     <span>
-                      <span className="row-title" style={{ display: "block" }}>
+                      <span className="row-title similar-case-title">
                         {s.title}
                       </span>
                       <span className="row-sub">{s.band}</span>
@@ -340,11 +418,9 @@ export function ActionDetailView({ id }: { id: string }) {
             </Section>
           ) : null}
           <Section title="Risks">
-            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.5 }}>
+            <ul className="detail-risks">
               {detail.risks.map((r) => (
-                <li key={r} style={{ marginBottom: 6 }}>
-                  {r}
-                </li>
+                <li key={r}>{r}</li>
               ))}
             </ul>
           </Section>

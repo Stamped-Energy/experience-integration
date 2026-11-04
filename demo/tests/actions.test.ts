@@ -186,3 +186,36 @@ test("src has no deck figures and no incumbent product names", async () => {
     for (const [name, re] of banned) assert.ok(!re.test(s), `${name} in ${f}`);
   }
 });
+
+
+test("every action detail carries assurance with mode, OEM note and verification", () => {
+  for (const a of exampleActions) {
+    const d = detailFor(a);
+    assert.ok(d.assurance, a.id);
+    assert.ok(d.assurance.mechanism.length > 40, a.id);
+    assert.ok(d.assurance.willNotChange.length >= 2, a.id);
+    assert.ok(d.assurance.knockOn.length >= 1, a.id);
+    assert.ok(d.assurance.oemNote.length > 20, a.id);
+    assert.ok(d.assurance.guardrails.length >= 1, a.id);
+    assert.ok(d.assurance.hardStops.length >= 1, a.id);
+    assert.ok(d.assurance.rollback.length > 10, a.id);
+    assert.ok(d.assurance.verification.length >= 1, a.id);
+    assert.ok(d.assurance.confidence.label, a.id);
+    assert.ok(!/\bis certified\b|CQI-9 certified/i.test(d.assurance.confidence.note), a.id);
+    assert.ok(/illustrative|demonstration|not a certified/i.test(d.assurance.confidence.note), a.id);
+  }
+  assert.equal(detailFor(exampleActions.find((a) => a.id === "ex-p2")!).assurance.mode, "plant-applied");
+  assert.equal(detailFor(exampleActions.find((a) => a.id === "ex-p5")!).assurance.mode, "recommend");
+  assert.equal(detailFor(exampleActions.find((a) => a.id === "ex-q4")!).assurance.mode, "record");
+});
+
+test("detail view surfaces assurance without pitching the one-liner", async () => {
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../src/components/cards/ActionDetailView.tsx", import.meta.url), "utf8");
+  assert.ok(src.includes("How this action works"));
+  assert.ok(src.includes("Guardrails and ownership"));
+  assert.ok(src.includes("Will not change"));
+  assert.ok(src.includes("Knock-on effects to watch"));
+  assert.ok(src.includes("assuranceModeLabel"));
+  assert.ok(!/Stamped recommends and your team decides/.test(src));
+});

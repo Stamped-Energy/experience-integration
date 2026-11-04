@@ -329,3 +329,65 @@
 .action-loop-facts { margin: var(--space-3) 0 0; display: grid; gap: 8px; }
 .action-loop-facts dt { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); }
 .action-loop-facts dd { margin: 2px 0 0; font-size: 14px; line-height: 1.45; color: var(--text-primary); }
+
+
+/* Action detail assurance (VK-facing clarity without bureaucracy) */
+.action-assurance { display: flex; flex-direction: column; gap: var(--space-4); }
+.assurance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+@media (max-width: 767px) {
+  .assurance-grid { grid-template-columns: minmax(0, 1fr); }
+}
+.assurance-panel {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.assurance-heading {
+  margin: 0 0 var(--space-2);
+  font-size: var(--type-label);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.assurance-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: var(--type-small);
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+.assurance-list li { margin-bottom: 6px; }
+.assurance-list li:last-child { margin-bottom: 0; }
+.assurance-facts { margin-top: var(--space-1); }
+.assurance-facts dd .assurance-list { margin-top: 2px; }
+.assurance-confidence {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.detail-risks {
+  margin: 0;
+  padding-left: 18px;
+  font-size: var(--type-small);
+  line-height: 1.5;
+}
+.detail-risks li { margin-bottom: 6px; }
+.detail-risks li:last-child { margin-bottom: 0; }
+.action-detail-assign { margin-top: 12px; }
+.action-detail-trend figcaption { margin-bottom: 8px; font-size: 13px; }
+
+.action-detail-trend-cap { margin-bottom: 8px; font-size: 13px; }
+
+.detail-header-tags { display: inline-flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.calc-metric { font-weight: 600; }
+.similar-case-row { grid-template-columns: minmax(0, 1fr) auto; }
+.similar-case-title { display: block; }
